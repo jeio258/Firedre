@@ -6,6 +6,7 @@ import { i18n } from "@/i18n/translation";
 import { cfEnv } from "@/lib/api";
 import type { WidgetComponentConfig } from "@/types/config";
 import { getNotice } from "../../../server/notice/service";
+import type { NoticeSection } from "../../../types/notice";
 
 
 interface Props {
@@ -33,12 +34,14 @@ const fallback = {
 	...announcementConfig,
 	...(announcementS.sections ? { sections: announcementS.sections } : {}),
 	...(announcementS.title ? { title: announcementS.title } : {}),
+	...(announcementS.content ? { content: announcementS.content } : {}),
+	...(announcementS.link ? { link: announcementS.link } : {}),
 };
 const title = notice?.title || fallback.title || i18n(I18nKey.announcement);
-const sections = notice?.sections?.length
+const sections: NoticeSection[] = notice?.sections?.length
 	? notice.sections
 	: fallback.content
-		? [{ label: "", lines: [{ text: fallback.content }] }]
+		? [{ label: "", lines: [{ text: String(fallback.content) }] }]
 		: [];
 const link = fallback.link;
 const closable = fallback.closable !== false;

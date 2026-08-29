@@ -17,7 +17,31 @@ interface Props {
 }
 const { class: className, style, id } = Astro.props;
 
-const config = musicPlayerConfig;
+const musicS = ((settings as any)?.["music"] ?? {}) as Record<string, unknown>;
+// 运行时音乐配置（后台可编辑；静态 config 为兜底）
+const config = {
+	...musicPlayerConfig,
+	// 扁平后台字段映射到嵌套静态结构
+	showInNavbar: typeof musicS.showInNavbar === "boolean" ? musicS.showInNavbar : musicPlayerConfig.showInNavbar,
+	showInSidebar: typeof musicS.showInSidebar === "boolean" ? musicS.showInSidebar : musicPlayerConfig.showInSidebar,
+	showLyrics: typeof musicS.showLyrics === "boolean" ? musicS.showLyrics : musicPlayerConfig.showLyrics,
+	mode: typeof musicS.mode === "string" ? musicS.mode : musicPlayerConfig.mode,
+	volume: typeof musicS.volume === "number" ? musicS.volume : musicPlayerConfig.volume,
+	playMode: typeof musicS.playMode === "string" ? musicS.playMode : musicPlayerConfig.playMode,
+	autoplay: typeof musicS.autoplay === "boolean" ? musicS.autoplay : (musicPlayerConfig as any).autoplay ?? false,
+	meting: {
+		...(musicPlayerConfig.meting ?? {}),
+		api: typeof musicS.metingApi === "string" && musicS.metingApi ? musicS.metingApi : musicPlayerConfig.meting?.api ?? "",
+		server: typeof musicS.metingServer === "string" && musicS.metingServer ? musicS.metingServer : musicPlayerConfig.meting?.server ?? "",
+		type: typeof musicS.metingType === "string" && musicS.metingType ? musicS.metingType : musicPlayerConfig.meting?.type ?? "",
+		id: typeof musicS.metingId === "string" && musicS.metingId ? musicS.metingId : musicPlayerConfig.meting?.id ?? "",
+		auth: typeof musicS.metingAuth === "string" && musicS.metingAuth ? musicS.metingAuth : musicPlayerConfig.meting?.auth ?? "",
+		fallbackApis: Array.isArray(musicS.metingFallbackApis) ? musicS.metingFallbackApis : musicPlayerConfig.meting?.fallbackApis ?? [],
+	},
+	local: {
+		playlist: Array.isArray(musicS.localPlaylist) ? musicS.localPlaylist : musicPlayerConfig.local?.playlist ?? [],
+	},
+};
 
 const widgetId =
 	id || `music-widget-${Math.random().toString(36).substring(2, 9)}`;

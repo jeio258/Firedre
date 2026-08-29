@@ -67,12 +67,26 @@ const navbarWidthFull = ((settings as any)?.["navbar"] ?? siteConfig.navbar).wid
 const navbarMenuAlign = ((settings as any)?.["navbar"] ?? siteConfig.navbar).menuAlign ?? "center";
 const isNavbarMenuCentered = navbarMenuAlign === "center";
 
-const isDisplaySettingsEnabled = displaySettingsConfig.enable;
-const showThemeColor = displaySettingsConfig.themeColorSwitchable;
-const isWallpaperSwitchable = displaySettingsConfig.wallpaperModeSwitchable;
-const allowLayoutSwitch = displaySettingsConfig.layoutSwitchable;
+const panelSettings = (settings as any)?.["panel"] ?? {};
+const isDisplaySettingsEnabled =
+	typeof panelSettings.enable === "boolean"
+		? panelSettings.enable
+		: displaySettingsConfig.enable;
+const showThemeColor =
+	typeof panelSettings.themeColorSwitchable === "boolean"
+		? panelSettings.themeColorSwitchable
+		: displaySettingsConfig.themeColorSwitchable;
+const isWallpaperSwitchable =
+	typeof panelSettings.wallpaperModeSwitchable === "boolean"
+		? panelSettings.wallpaperModeSwitchable
+		: displaySettingsConfig.wallpaperModeSwitchable;
+const allowLayoutSwitch =
+	typeof panelSettings.layoutSwitchable === "boolean"
+		? panelSettings.layoutSwitchable
+		: displaySettingsConfig.layoutSwitchable;
 const hasDisplaySettings =
-	showThemeColor || isWallpaperSwitchable || allowLayoutSwitch;
+	isDisplaySettingsEnabled &&
+	(showThemeColor || isWallpaperSwitchable || allowLayoutSwitch);
 
 // 根据 ((settings as any)?.["pages"] ?? siteConfig.pages) 过滤导航栏链接（后台站点设置可覆盖页面开关）
 const pages = ((settings as any)?.["pages"] ?? siteConfig.pages);

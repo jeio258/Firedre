@@ -30,7 +30,10 @@ const buildTime = formatDateI18nWithTime(new Date());
 
 ////////////// Bangumi 配置 ////////////////////////
 const bangumiConfig = {
-	username: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.userId, // 在这里配置你的Bangumi用户名
+	username:
+		((settings as any)?.["bangumi"]?.username ??
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.userId) ||
+		"",
 	mode: (((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.mode || "static") as "static" | "dynamic",
 	apiUrl: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.apiUrl || "https://api.bangumi.one",
 	subjectBaseUrl:

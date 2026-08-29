@@ -19,8 +19,12 @@ if (!((settings as any)?.["pages"] ?? siteConfig.pages).gallery) {
 	return Astro.redirect("/404/");
 }
 
-const title = i18n(I18nKey.gallery);
-const description = i18n(I18nKey.galleryDescription);
+const title =
+	((settings as any)?.["gallery"]?.title as string | undefined) ||
+	i18n(I18nKey.gallery);
+const description =
+	((settings as any)?.["gallery"]?.description as string | undefined) ||
+	i18n(I18nKey.galleryDescription);
 
 // Firedre：相册来自 R2（后台可编辑）
 const hub = await getGalleryHub(cfEnv);

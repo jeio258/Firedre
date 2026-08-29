@@ -68,6 +68,19 @@ type OverlaySliderItem = {
 
 type TabKey = "appearance" | "wallpaper" | "effects";
 
+// 运行时站点设置（客户端注入；必须在其它读取前定义，避免 TDZ）
+const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
+
+// 后台可编辑的面板开关（静态 displaySettingsConfig 为兜底）
+const __panel = (() => {
+	const s = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined)?.panel ?? {};
+	return s as Record<string, unknown>;
+})();
+const panelBool = (k: string, fallback: boolean) =>
+	typeof __panel[k] === "boolean" ? (__panel[k] as boolean) : fallback;
+const panelNum = (k: string, fallback: number) =>
+	typeof __panel[k] === "number" ? (__panel[k] as number) : fallback;
+
 let hue = $state(getHue());
 const defaultHue = getDefaultHue();
 let wallpaperMode: WALLPAPER_MODE = $state(((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode));
@@ -108,25 +121,25 @@ const defaultCardBorderEnabled = getDefaultCardBorderEnabled();
 let cardFollowThemeEnabled = $state(false);
 const defaultCardFollowThemeEnabled = getDefaultCardFollowThemeEnabled();
 
-const isWallpaperSwitchable = displaySettingsConfig.wallpaperModeSwitchable;
-const allowLayoutSwitch = displaySettingsConfig.layoutSwitchable;
+const isWallpaperSwitchable = panelBool("wallpaperModeSwitchable", displaySettingsConfig.wallpaperModeSwitchable);
+const allowLayoutSwitch = panelBool("layoutSwitchable", displaySettingsConfig.layoutSwitchable);
 let effectiveDefaultLayout = $derived(
 	isMobileWidth ? mobileDefaultLayout : defaultLayout,
 );
-const showThemeColor = displaySettingsConfig.themeColorSwitchable;
-const isWavesSwitchable = displaySettingsConfig.wavesSwitchable;
-const isGradientSwitchable = displaySettingsConfig.gradientSwitchable;
+const showThemeColor = panelBool("themeColorSwitchable", displaySettingsConfig.themeColorSwitchable);
+const isWavesSwitchable = panelBool("wavesSwitchable", displaySettingsConfig.wavesSwitchable);
+const isGradientSwitchable = panelBool("gradientSwitchable", displaySettingsConfig.gradientSwitchable);
 // 检查是否启用横幅标题配置（功能开关，非用户切换开关）
 const isBannerTitleEnabled =
 	((((settings as any)?.["theme"]) as any)?.["common"] ?? backgroundWallpaper.common)?.homeText?.enable ?? false;
 const isBannerTitleSwitchable =
-	isBannerTitleEnabled && displaySettingsConfig.bannerTitleSwitchable;
+	isBannerTitleEnabled && panelBool("bannerTitleSwitchable", displaySettingsConfig.bannerTitleSwitchable);
 const isBannerCarouselSwitchable =
-	displaySettingsConfig.bannerCarouselSwitchable;
-const isSakuraSwitchable = displaySettingsConfig.sakuraSwitchable;
-const isCardBorderSwitchable = displaySettingsConfig.cardBorderSwitchable;
+	panelBool("bannerCarouselSwitchable", displaySettingsConfig.bannerCarouselSwitchable);
+const isSakuraSwitchable = panelBool("sakuraSwitchable", displaySettingsConfig.sakuraSwitchable);
+const isCardBorderSwitchable = panelBool("cardBorderSwitchable", displaySettingsConfig.cardBorderSwitchable);
 const isCardFollowThemeSwitchable =
-	displaySettingsConfig.cardFollowThemeSwitchable;
+	panelBool("cardFollowThemeSwitchable", displaySettingsConfig.cardFollowThemeSwitchable);
 // 是否有任何横幅设置可显示（后续添加新设置时在此处添加条件）
 const hasBannerSettings =
 	isWavesSwitchable ||
@@ -135,18 +148,18 @@ const hasBannerSettings =
 	isBannerCarouselSwitchable;
 const overlaySwitchableConfig = displaySettingsConfig.overlaySwitchable;
 const isOverlaySettingsSwitchable =
-	typeof overlaySwitchableConfig === "boolean" ? overlaySwitchableConfig : true;
+	typeof overlaySwitchableConfig === "boolean" ? panelBool("overlayOpacity", overlaySwitchableConfig) : panelBool("overlayOpacity", true);
 const isOverlayOpacitySwitchable =
 	typeof overlaySwitchableConfig === "boolean"
-		? overlaySwitchableConfig
+		? panelBool("overlayOpacity", overlaySwitchableConfig)
 		: (overlaySwitchableConfig.opacity ?? false);
 const isOverlayBlurSwitchable =
 	typeof overlaySwitchableConfig === "boolean"
-		? overlaySwitchableConfig
+		? panelBool("overlayBlur", overlaySwitchableConfig)
 		: (overlaySwitchableConfig.blur ?? false);
 const isOverlayCardOpacitySwitchable =
 	typeof overlaySwitchableConfig === "boolean"
-		? overlaySwitchableConfig
+		? panelBool("overlayCardOpacity", overlaySwitchableConfig)
 		: (overlaySwitchableConfig.cardOpacity ?? false);
 const hasOverlaySettings =
 	isOverlaySettingsSwitchable &&
@@ -180,13 +193,15 @@ let cardSettingsIsDefault = $derived(
 		(!isCardFollowThemeSwitchable ||
 			cardFollowThemeEnabled === defaultCardFollowThemeEnabled),
 );
+const isPanelEnabled = panelBool("enable", displaySettingsConfig.enable);
 const hasAnyContent =
-	showThemeColor ||
-	isWallpaperSwitchable ||
-	allowLayoutSwitch ||
-	hasBannerSettings ||
-	hasOverlaySettings ||
-	isSakuraSwitchable;
+	isPanelEnabled &&
+	(showThemeColor ||
+		isWallpaperSwitchable ||
+		allowLayoutSwitch ||
+		hasBannerSettings ||
+		hasOverlaySettings ||
+		isSakuraSwitchable);
 
 // --- Tab visibility ---
 const hasAppearanceTab = $derived(
@@ -631,7 +646,6 @@ $effect(() => {
 	requestAnimationFrame(refreshAllRangeProgress);
 });
 
-const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
 </script>
 
 {#if hasAnyContent}

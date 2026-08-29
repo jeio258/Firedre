@@ -90,11 +90,6 @@ export const settingsDefaults = {
 		bannerSubtitleFont: "",
 		navbarTitleFont: "",
 	},
-	expressive: {
-		theme: "one-dark-pro",
-		darkTheme: "one-dark-pro",
-		lightTheme: "one-light",
-	},
 	comment: {
 		type: "none",
 		giscusRepo: "CuteLeaf/Firefly",

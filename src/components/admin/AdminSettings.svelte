@@ -288,19 +288,6 @@ const GROUPS: Group[] = [
 			},
 		],
 	},
-	{
-		key: "widgets",
-		title: "侧边栏小组件",
-		category: "站点配置",
-		fields: [
-			{ name: "search", label: "搜索框", type: "boolean" },
-			{ name: "toc", label: "文章目录", type: "boolean" },
-			{ name: "tagCloud", label: "标签云", type: "boolean" },
-			{ name: "recentPosts", label: "最近文章", type: "boolean" },
-			{ name: "archive", label: "归档", type: "boolean" },
-		],
-	},
-
 	// ── 功能配置 ──
 	{
 		key: "font",
@@ -331,32 +318,6 @@ const GROUPS: Group[] = [
 			{ name: "bannerSubtitleFont", label: "横幅副标题字体", type: "text" },
 			{ name: "navbarTitleFont", label: "导航栏标题字体", type: "text" },
 			{ name: "codeFont", label: "代码字体", type: "text" },
-		],
-	},
-	{
-		key: "expressive",
-		title: "代码块",
-		category: "功能配置",
-		fields: [
-			{
-				name: "theme",
-				label: "代码主题",
-				type: "text",
-				placeholder: "github-dark / dracula / …",
-			},
-			{ name: "showLineNumbers", label: "显示行号", type: "boolean" },
-			{ name: "wrap", label: "自动换行", type: "boolean" },
-			{ name: "collapse", label: "可折叠", type: "boolean" },
-			{ name: "frame", label: "代码框", type: "boolean" },
-			{
-				name: "darkTheme",
-				label: "深色主题",
-				type: "text",
-				placeholder: "github-dark / dracula",
-			},
-			{ name: "lightTheme", label: "浅色主题", type: "text" },
-			{ name: "pluginCollapsible", label: "代码块可折叠", type: "boolean" },
-			{ name: "pluginLanguageBadge", label: "语言徽章", type: "boolean" },
 		],
 	},
 	{
@@ -787,6 +748,7 @@ let social: Array<{ label: string; url: string }> = [];
 let data: Record<string, Record<string, unknown>> = {};
 let loading = true;
 let saving = false;
+let dirtyWhileSaving = false;
 let message = "";
 let activeGroup = "basic";
 let activeCategory = "站点配置";
@@ -865,7 +827,13 @@ function removeSocial(i: number) {
 
 // 任何字段修改后自动保存（防抖 1.2s）——无需手动点保存
 function markDirty() {
-	if (!loaded || saving) return;
+	if (!loaded) return;
+	// 保存进行中又修改：标记待保存，当前保存完成后立即再保存一次，避免丢失
+	if (saving) {
+		dirtyWhileSaving = true;
+		message = "修改中…";
+		return;
+	}
 	message = "修改中…";
 	if (autoTimer) clearTimeout(autoTimer);
 	autoTimer = setTimeout(() => save(), 1200);
@@ -894,16 +862,22 @@ async function save() {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ groups }),
 		});
-		const res = await resp.json();
-		if (!resp.ok || !res.ok) {
-			message = `保存失败：${res.message || ""}`;
+		const res = await resp.json().catch(() => null);
+		if (!resp.ok || !res?.ok) {
+			message = `保存失败：${(res && res.message) || resp.status || ""}`;
 			return;
 		}
 		message = `已自动保存 ✓ ${new Date().toLocaleTimeString()}`;
 	} catch {
-		message = "网络错误";
+		message = "网络错误，修改尚未保存";
 	} finally {
 		saving = false;
+		// 保存期间又有修改：补一次保存，防止丢失
+		if (dirtyWhileSaving) {
+			dirtyWhileSaving = false;
+			if (autoTimer) clearTimeout(autoTimer);
+			autoTimer = setTimeout(() => save(), 400);
+		}
 	}
 }
 

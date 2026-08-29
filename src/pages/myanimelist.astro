@@ -29,14 +29,13 @@ if (!((settings as any)?.["pages"] ?? siteConfig.pages).mal) {
 const buildTime = formatDateI18nWithTime(new Date());
 
 ////////////// MyAnimeList 配置 ////////////////////////
+const malSettings = ((settings as any)?.["myanimelist"] ?? (settings as any)?.["mal"] ?? siteConfig.mal) as Record<string, unknown>;
 const malConfig = {
-	username: ((settings as any)?.["mal"] ?? siteConfig.mal)?.username || "",
-	clientId: ((settings as any)?.["mal"] ?? siteConfig.mal)?.clientId || "",
-	apiUrl: ((settings as any)?.["mal"] ?? siteConfig.mal)?.apiUrl || "https://api.myanimelist.net/v2",
-	animeBaseUrl:
-		((settings as any)?.["mal"] ?? siteConfig.mal)?.animeBaseUrl || "https://myanimelist.net/anime/",
-	mangaBaseUrl:
-		((settings as any)?.["mal"] ?? siteConfig.mal)?.mangaBaseUrl || "https://myanimelist.net/manga/",
+	username: (malSettings.username as string | undefined) || "",
+	clientId: (malSettings.clientId as string | undefined) || "",
+	apiUrl: (malSettings.apiUrl as string | undefined) || "https://api.myanimelist.net/v2",
+	animeBaseUrl: (malSettings.animeBaseUrl as string | undefined) || "https://myanimelist.net/anime/",
+	mangaBaseUrl: (malSettings.mangaBaseUrl as string | undefined) || "https://myanimelist.net/manga/",
 	// 数据获取设置
 	pagination: {
 		limit: 100, // 每页获取数量
@@ -44,7 +43,7 @@ const malConfig = {
 		maxTotal: 1000, // 最大获取总数，防止无限循环（0=无限制）
 	},
 	// NSFW 处理："off" | "blur" | "hide"
-	nsfw: ((settings as any)?.["mal"] ?? siteConfig.mal)?.nsfw ?? "off",
+	nsfw: (malSettings.nsfw ?? "off") as "off" | "blur" | "hide",
 };
 //////////////////////////////////////////////////
 

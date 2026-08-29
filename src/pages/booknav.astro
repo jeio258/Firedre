@@ -39,9 +39,14 @@ const resolvedGroups = groups.map((group) => ({
 const totalCount = resolvedGroups.reduce((sum, g) => sum + g.items.length, 0);
 
 // 页面标题和描述
-const title = booknavPageConfig.title || i18n(I18nKey.booknav);
+const title =
+	((settings as any)?.["bookmarks"]?.title as string | undefined) ||
+	booknavPageConfig.title ||
+	i18n(I18nKey.booknav);
 const description =
-	booknavPageConfig.description || i18n(I18nKey.booknavDescription);
+	((settings as any)?.["bookmarks"]?.description as string | undefined) ||
+	booknavPageConfig.description ||
+	i18n(I18nKey.booknavDescription);
 ---
 
 <MainGridLayout title={title} description={description}>

@@ -31,7 +31,10 @@ const buildTime = formatDateI18nWithTime(new Date());
 
 ////////////// VNDB 配置 ////////////////////////
 const vndbConfig = {
-	userId: ((settings as any)?.["vndb"] ?? siteConfig.vndb)?.userId || "",
+	userId:
+		((settings as any)?.["vndb"]?.username ??
+			((settings as any)?.["vndb"] ?? siteConfig.vndb)?.userId) ||
+		"",
 	mode: (((settings as any)?.["vndb"] ?? siteConfig.vndb)?.mode || "static") as "static" | "dynamic",
 	downloadCovers: ((settings as any)?.["vndb"] ?? siteConfig.vndb)?.downloadCovers ?? false,
 	apiUrl: ((settings as any)?.["vndb"] ?? siteConfig.vndb)?.apiUrl || "https://api.vndb.org/kana",

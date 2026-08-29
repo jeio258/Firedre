@@ -18,8 +18,25 @@ const effectiveName =
 	settings.author ||
 	profileConfig.name ||
 	"";
+// 个人简介（后台可配置；静态 config 为兜底）
+const effectiveBio =
+	((settings as any)?.["profile"]?.["bio"] as string | undefined) ||
+	(settings as any)?.["bio"] ||
+	profileConfig.bio ||
+	"";
+// 所在地 / 邮箱（后台可配置；静态 config 为兜底）
+const effectiveLocation =
+	((settings as any)?.["profile"]?.["location"] as string | undefined) ||
+	"";
+const effectiveEmail =
+	((settings as any)?.["profile"]?.["email"] as string | undefined) || "";
 // 社交链接（后台可配置；统一数组处理）
-const profileLinks = ((settings as any)?.["links"] ?? profileConfig.links) || [];
+const profileLinks = (
+	(((settings as any)?.["profile"]?.["links"] as unknown) ??
+	((settings as any)?.["links"] as unknown) ??
+	profileConfig.links) ||
+		[]
+) as Array<{ showName?: boolean; name?: string; url?: string; icon?: string }>;
 
 interface Props {
 	class?: string;
@@ -66,8 +83,24 @@ const className = Astro.props.class;
     >
     </div>
     <div class="text-center text-neutral-400 mb-2.5 transition">
-      {profileConfig.bio}
+      {effectiveBio}
     </div>
+    {(effectiveLocation || effectiveEmail) && (
+      <div class="text-center text-neutral-400 text-sm mb-2.5 transition flex flex-col gap-1 items-center">
+        {effectiveLocation && (
+          <div class="flex items-center gap-1.5">
+            <Icon name="material-symbols:location-on" class="text-base" aria-hidden="true" />
+            <span>{effectiveLocation}</span>
+          </div>
+        )}
+        {effectiveEmail && (
+          <div class="flex items-center gap-1.5">
+            <Icon name="fa7-solid:envelope" class="text-base" aria-hidden="true" />
+            <a rel="me" href={`mailto:${effectiveEmail}`} class="transition hover:text-(--primary)">{effectiveEmail}</a>
+          </div>
+        )}
+      </div>
+    )}
                 <div class="flex flex-wrap gap-2 justify-center mb-1">
             {profileLinks.length > 0 && profileLinks.map((item: { showName?: boolean; name?: string; url?: string; icon?: string }) => {
                 const showName = item.showName;

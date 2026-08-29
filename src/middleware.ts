@@ -82,6 +82,27 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			merged[groupKey] = { ...(merged[groupKey] as Record<string, unknown> ?? {}), ...g };
 			assignFlat(merged, g);
 		}
+		// 3. 页面开关映射：后台 basic 组的 pageXxx → 前端读取的 settings.pages.xxx
+		//    前端页面（friends/gallery/dynamic/bilibili/bangumi/vndb/mal/…）读 settings.pages.xxx 判断页面开关，
+		//    但后台保存的是 basic 组的 pageXxx 字段。这里统一映射生成 settings.pages。
+		const pageMap: Record<string, string> = {
+			pageFriends: "friends",
+			pageGuestbook: "guestbook",
+			pageDynamic: "dynamic",
+			pageGallery: "gallery",
+			pageBooknav: "booknav",
+			pageBilibili: "bilibili",
+			pageBangumi: "bangumi",
+			pageVndb: "vndb",
+			pageMal: "mal",
+			pageSponsor: "sponsor",
+		};
+		const basicGroup = (merged.basic ?? {}) as Record<string, unknown>;
+		const pagesOut: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(pageMap)) {
+			if (typeof basicGroup[k] === "boolean") pagesOut[v] = basicGroup[k];
+		}
+		merged.pages = { ...(merged.pages as Record<string, unknown> ?? {}), ...pagesOut };
 		(context.locals as unknown as SettingsLocals).settings = merged;
 	} catch {
 		(context.locals as unknown as SettingsLocals).settings = {};
@@ -105,7 +126,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				return new Response(cached, {
 					headers: {
 						"Content-Type": "text/html; charset=utf-8",
-						"Cache-Control": "public, max-age=60",
+						// max-age=0+must-revalidate：浏览器每次向服务器验证；
+						// 配置保存 → 版本号+1 → KV 缓存 key 变化 → 立即重新渲染，配置即时生效。
+						"Cache-Control": "public, max-age=0, must-revalidate",
 						"X-Firedre-Cache": "KV-HIT",
 					},
 				});
@@ -131,7 +154,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// HTML 缓存策略（配置即时生效 + 页面秒开）：
 	// 1. Worker 内 Cache API 缓存 HTML，缓存 key 包含配置版本号（KV）；
 	//    配置保存 → 版本号 +1 → 旧缓存 key 失效 → 下次请求重新渲染（配置立即生效）。
-	// 2. 响应设 max-age=60，浏览器/边缘复用缓存（60s 内重复访问零回源）。
+	// 2. 响应设 max-age=0+must-revalidate：浏览器每次回源验证；
+	//    KV 缓存（key 含配置版本号）提供服务器端加速，配置保存 → 版本+1 → 旧 key 失效 → 即时生效。
 	// 3. /admin、/api 不缓存（动态数据）。
 	const response = await next();
 	// 4. 后台页面显式 no-store：浏览器缓存旧 admin HTML 会引用已删除的 chunk（JS 失效 →
@@ -147,7 +171,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			!url.pathname.startsWith("/api");
 		// 只缓存 200 响应——错误响应(500/404)绝不入缓存，否则瞬时故障会被永久命中
 		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
-			response.headers.set("Cache-Control", "public, max-age=60");
+			response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
 			try {
 				const { cfEnv } = await import("./lib/api");
 				const html = await response.clone().text();
