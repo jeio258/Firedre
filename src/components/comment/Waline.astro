@@ -1,0 +1,42 @@
+---
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+import { commentConfig } from "@/config";
+
+// 运行时站点配置（后台可编辑；静态 config 为兜底）
+
+
+
+interface Props {
+	path: string;
+}
+
+const config = {
+	...{
+		...(commentConfig.waline ?? {}),
+		serverURL: ((((settings as any)?.["comment"]) as any)?.["walineServer"] || commentConfig.waline?.serverURL || ""),
+	},
+	el: "#waline",
+	path: Astro.props.path,
+	dark: "html.dark",
+	wordLimit: ["2", "300"],
+	...(((((settings as any)?.["comment"]) as any)?.["waline"] ?? commentConfig.waline)?.visitorCount ? { pageview: true } : {}),
+};
+---
+<!-- Waline -->
+<div class="relative w-full">
+  <div id="waline"></div>
+  <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />
+  <script type="module" is:inline define:vars={{ config }}>
+    import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+    const requestedPath = new URLSearchParams(window.location.search).get("path");
+    const effectiveConfig = requestedPath
+      ? { ...config, path: requestedPath }
+      : config;
+    try {
+      init(effectiveConfig);
+    } catch (error) {
+      console.error("[Waline] Failed to initialize:", error);
+    }
+  </script>
+</div>

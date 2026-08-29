@@ -1,0 +1,47 @@
+---
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import Markdown from "@components/common/Markdown.astro";
+import { profileConfig } from "@/config/profileConfig";
+import { siteConfig } from "@/config/siteConfig";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { getAuthorAvatarUrl } from "@/utils/schema-image";
+import { buildProfilePage } from "@/utils/schema-utils";
+
+// 运行时站点配置（后台可编辑；静态 config 为兜底）
+
+
+
+// Firedre：关于页内容来自 R2（后台可编辑）
+const { getAbout } = await import("../../server/about/service");
+const { cfEnv } = await import("../lib/api");
+const aboutDetail = await getAbout(cfEnv);
+// 数据缺失时优雅降级（首次部署/本地 dev R2 无内容），不抛 500。
+const aboutHtml = aboutDetail?.html ?? "";
+
+const avatarUrl = await getAuthorAvatarUrl();
+const jsonLd = buildProfilePage({
+	site: ((settings as any)?.["site_url"] ?? siteConfig.site_url),
+	profileConfig,
+	authorUrl: Astro.url.toString(),
+	avatarUrl,
+	description: ((settings as any)?.["bio"] ?? profileConfig.bio),
+});
+---
+<MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
+    <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
+        <div class="card-base z-10 px-9 py-6 relative w-full ">
+            {aboutHtml ? (
+                <Markdown class="mt-2">
+                    <Fragment set:html={aboutHtml} />
+                </Markdown>
+            ) : (
+                <p class="text-neutral-500 dark:text-neutral-400">暂无关于内容，请在后台填写。</p>
+            )}
+        </div>
+    </div>
+</MainGridLayout>

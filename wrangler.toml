@@ -1,0 +1,20 @@
+name = "firedre"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "firedre-blog"
+database_id = "a38bf823-90f7-4e78-ae66-4730522c332a"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "firedre-blog"
+
+[vars]
+SITE_URL = "https://firedre.pages.dev"
+
+[[kv_namespaces]]
+binding = "SESSION"
+id = "5a217ff6eba940bdb48e3029ec816523"

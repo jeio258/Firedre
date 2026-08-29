@@ -1,0 +1,61 @@
+---
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+import { commentConfig, siteConfig } from "@/config";
+
+// 运行时站点配置（后台可编辑；静态 config 为兜底）
+
+
+
+interface Props {
+	path: string;
+}
+
+const config = {
+	...(commentConfig.artalk ?? {}) as Record<string, unknown>,
+	server: ((((settings as any)?.["comment"]) as any)?.["artalkServer"] || commentConfig.artalk?.server || ""),
+	site: ((((settings as any)?.["comment"]) as any)?.["artalkSiteName"] || (commentConfig.artalk as Record<string, unknown> | undefined)?.siteName || (settings as any)?.["title"] || siteConfig.title),
+	el: "#artalk",
+	pageKey: Astro.props.path,
+	dark: "html.dark",
+	pageTitle: "",
+	...(((((settings as any)?.["comment"]) as any)?.["artalk"] ?? commentConfig.artalk)?.visitorCount ? { pageview: true } : {}),
+};
+---
+<!-- Artalk -->
+<div class="relative w-full">
+    <!-- 挂载点 -->
+    <div id="artalk" style="--at-color-main: var(--primary); --at-color-bg: var(--card-bg); --at-color-border: var(--line-divider);"></div>
+
+    <!-- 引入 Artalk 样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/artalk/dist/Artalk.css"/>
+
+    <!-- 脚本逻辑 -->
+    <script type="module" is:inline define:vars={{config}}>
+        import Artalk from 'https://unpkg.com/artalk/dist/Artalk.mjs';
+        const requestedPath = new URLSearchParams(window.location.search).get("path");
+        const effectiveConfig = requestedPath
+            ? { ...config, pageKey: requestedPath }
+            : config;
+
+        // 初始化 Artalk
+        const artalk = Artalk.init(effectiveConfig);
+
+        // 深色模式
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            artalk.setDarkMode(isDark);
+        }
+
+        updateTheme();
+
+        const observer = new MutationObserver((_mutations) => {
+            updateTheme();
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['class'],
+        });
+    </script>
+</div>

@@ -1,0 +1,22 @@
+---
+export const prerender = false;
+
+import AdminApp from "../../components/admin/AdminApp.svelte";
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>登录 - Firedre 后台</title>
+	<script is:inline>
+		// 已登录则直接进入后台
+		fetch("/api/admin/me/").then((r) => r.json()).then((d) => {
+			if (d.authenticated) window.location.href = "/admin/posts/";
+		});
+	</script>
+</head>
+<body style="margin:0;background:#f3f4f6;font-family:system-ui,sans-serif">
+	<AdminApp client:load />
+</body>
+</html>

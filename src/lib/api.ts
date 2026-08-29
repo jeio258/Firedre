@@ -1,0 +1,59 @@
+import { env } from "cloudflare:workers";
+import { UserError } from "../../server/utils/userError";
+
+/**
+ * Cloudflare 运行时绑定（D1/R2/环境变量）。
+ * 类型由 server 层（tsconfig.server.json + workers-types）校验，此处运行时透传。
+ */
+// biome-ignore lint/suspicious/noExplicitAny: 见上方注释
+export const cfEnv = env as any;
+
+export function json(
+	data: unknown,
+	status = 200,
+	cache: "list" | "default" | "private" = "default",
+) {
+	const cacheControl =
+		status !== 200
+			? "no-store"
+			: cache === "private"
+				? "private, no-store"
+				: cache === "list"
+					? "public, max-age=0, must-revalidate"
+					: "public, max-age=60, stale-while-revalidate=300";
+
+	return new Response(JSON.stringify(data), {
+		status,
+		headers: {
+			"Content-Type": "application/json; charset=utf-8",
+			"Cache-Control": cacheControl,
+		},
+	});
+}
+
+export function unauthorized() {
+	return json({ message: "未授权" }, 401);
+}
+
+export function methodNotAllowed() {
+	return json({ message: "Method not allowed" }, 405);
+}
+
+export function notFound(message = "Not found") {
+	return json({ message }, 404);
+}
+
+export function badRequest(message: string) {
+	return json({ message }, 400);
+}
+
+export { UserError };
+
+export function serverError(error: unknown) {
+	// 仅回显 UserError 的安全消息；其余错误统一回显通用消息，避免泄露内部细节。
+	const message =
+		error instanceof UserError
+			? error.message
+			: "服务器错误";
+	return json({ message }, 500);
+}

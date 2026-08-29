@@ -1,0 +1,17 @@
+---
+export const prerender = false;
+
+import AdminApp from "../../components/admin/AdminApp.svelte";
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Firedre 后台</title>
+	<style>body{margin:0;font-family:system-ui,sans-serif;background:#f3f4f6}</style>
+</head>
+<body>
+	<AdminApp client:load />
+</body>
+</html>

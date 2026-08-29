@@ -1,0 +1,10 @@
+packages:
+  - '.'
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+  '@parcel/watcher': true
+  typeit: true
+  '@biomejs/biome': true
+  unrs-resolver: true
