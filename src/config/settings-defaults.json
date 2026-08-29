@@ -112,16 +112,7 @@
 		"localPlaylist": "[{\"name\":\"使一颗心免于哀伤\",\"artist\":\"知更鸟 / HOYO-MiX / Chevy\",\"url\":\"/assets/music/使一颗心免于哀伤-哼唱.mp3\",\"cover\":\"/assets/music/cover/109951169585655912.webp\",\"lrc\":\"\"}]"
 	},
 	"mermaid": {
-		"theme": "editor-light",
-		"lightTheme": "editor-light",
-		"darkTheme": "editor-dark"
-	},
-	"plantuml": {
-		"enabled": true,
-		"server": "https://www.plantuml.com/plantuml",
-		"theme": "",
-		"lightTheme": "",
-		"darkTheme": "cyborg"
+		"enabled": true
 	},
 	"dynamic": {
 		"enabled": true,
@@ -139,7 +130,8 @@
 		"enabled": true
 	},
 	"bookmarks": {
-		"groups": ""
+		"title": "",
+		"description": ""
 	},
 	"sponsor": {
 		"title": "",
@@ -150,8 +142,7 @@
 	"effects": {
 		"sakura": false,
 		"sakuraNum": 21,
-		"limitTimes": -1,
-		"zIndex": 100
+		"limitTimes": -1
 	},
 	"announcement": {
 		"title": "",

@@ -408,36 +408,6 @@ const GROUPS: Group[] = [
 		category: "功能配置",
 		fields: [
 			{ name: "enabled", label: "启用", type: "boolean" },
-			{
-				name: "theme",
-				label: "主题",
-				type: "text",
-				placeholder: "default / dark / neutral",
-			},
-			{
-				name: "lightTheme",
-				label: "浅色主题",
-				type: "text",
-				placeholder: "default / neutral",
-			},
-			{ name: "darkTheme", label: "深色主题", type: "text" },
-		],
-	},
-	{
-		key: "plantuml",
-		title: "PlantUML 图表",
-		category: "功能配置",
-		fields: [
-			{ name: "enabled", label: "启用", type: "boolean" },
-			{
-				name: "server",
-				label: "渲染服务器",
-				type: "text",
-				placeholder: "https://www.plantuml.com/plantuml",
-			},
-			{ name: "theme", label: "主题", type: "text" },
-			{ name: "lightTheme", label: "浅色主题", type: "text" },
-			{ name: "darkTheme", label: "深色主题", type: "text" },
 		],
 	},
 
@@ -469,7 +439,6 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用友链页", type: "boolean" },
 			{ name: "title", label: "页面标题", type: "text" },
 			{ name: "description", label: "页面描述", type: "textarea" },
-			{ name: "showComment", label: "友链页评论", type: "boolean" },
 		],
 	},
 	{
@@ -499,7 +468,6 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用打赏", type: "boolean" },
 			{ name: "title", label: "打赏标题", type: "text" },
 			{ name: "description", label: "打赏描述", type: "textarea" },
-			{ name: "qrCode", label: "收款码图片 URL", type: "text" },
 			{ name: "showButtonInPost", label: "文章内打赏按钮", type: "boolean" },
 			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
 		],
@@ -536,17 +504,8 @@ const GROUPS: Group[] = [
 		title: "书签导航",
 		category: "页面配置",
 		fields: [
-			{ name: "enabled", label: "启用书签页", type: "boolean" },
 			{ name: "title", label: "页面标题", type: "text" },
 			{ name: "description", label: "页面描述", type: "textarea" },
-			{
-				name: "groups",
-				label: "书签分组（JSON 数组）",
-				type: "json",
-				placeholder:
-					'[{"title":"常用","items":[{"name":"GitHub","url":"https://github.com"}]}]',
-			},
-			{ name: "favicon", label: "书签图标", type: "text" },
 		],
 	},
 
@@ -558,7 +517,6 @@ const GROUPS: Group[] = [
 		fields: [
 			{ name: "sakura", label: "樱花飘落", type: "boolean" },
 			{ name: "sakuraNum", label: "樱花数量", type: "number", hint: "默认 21" },
-			{ name: "click", label: "点击特效", type: "boolean" },
 			{ name: "waves", label: "波浪特效", type: "boolean" },
 			{ name: "gradient", label: "渐变背景", type: "boolean" },
 			{ name: "bannerCarousel", label: "横幅轮播效果", type: "boolean" },
@@ -568,7 +526,6 @@ const GROUPS: Group[] = [
 				type: "number",
 				placeholder: "-1 无限",
 			},
-			{ name: "zIndex", label: "特效层级", type: "number" },
 		],
 	},
 	{

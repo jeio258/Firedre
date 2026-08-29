@@ -123,16 +123,7 @@ export const settingsDefaults = {
 			'[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]',
 	},
 	mermaid: {
-		theme: "editor-light",
-		lightTheme: "editor-light",
-		darkTheme: "editor-dark",
-	},
-	plantuml: {
 		enabled: true,
-		server: "https://www.plantuml.com/plantuml",
-		theme: "",
-		lightTheme: "",
-		darkTheme: "cyborg",
 	},
 	dynamic: {
 		enabled: true,
@@ -150,7 +141,8 @@ export const settingsDefaults = {
 		enabled: true,
 	},
 	bookmarks: {
-		groups: "",
+		title: "",
+		description: "",
 	},
 	sponsor: {
 		title: "",
@@ -162,7 +154,6 @@ export const settingsDefaults = {
 		sakura: false,
 		sakuraNum: 21,
 		limitTimes: -1,
-		zIndex: 100,
 		waves: true,
 		gradient: true,
 		bannerCarousel: false,
