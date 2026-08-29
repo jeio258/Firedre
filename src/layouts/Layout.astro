@@ -106,12 +106,13 @@ const effectiveDescription =
 	settings.description ??
 	siteConfig.description;
 let pageTitle: string;
+const siteSubtitle = ((settings as any)?.["subtitle"] ?? siteConfig.subtitle) || "";
+// 站点标识 = 站点名（+ 副标题，后台可配置，所有页面标签栏都体现）
+const siteIdentity = siteSubtitle ? `${effectiveTitle} - ${siteSubtitle}` : effectiveTitle;
 if (title) {
-	pageTitle = `${title} - ${effectiveTitle}`;
+	pageTitle = `${title} - ${siteIdentity}`;
 } else {
-	pageTitle = ((settings as any)?.["subtitle"] ?? siteConfig.subtitle)
-		? `${effectiveTitle} - ${((settings as any)?.["subtitle"] ?? siteConfig.subtitle)}`
-		: effectiveTitle;
+	pageTitle = siteIdentity;
 }
 
 let ogImageUrl: string | undefined;
