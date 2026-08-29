@@ -163,25 +163,62 @@ export async function getSettingsGroup(
 	}
 }
 
+/**
+ * 批量保存多组（D1 持久化 + KV 缓存同步 + 版本 bump）。
+ *
+ * 相比逐组调用 saveSettingsGroup，此处把 N 组保存聚合为：
+ *   1 次 D1 批量写入 + 1 次全量读 + 1 次 KV 写 + 1 次版本 bump ≈ 4 次 I/O，
+ * 避免 N×全量重读重写导致后台批量保存耗时随组数线性恶化（31 组≈6s）。
+ * 读路径以 D1 为准，KV 仅为镜像，最终一致可接受。
+ */
+export async function saveSettingsGroups(
+	env: CloudflareEnv,
+	groups: Record<SettingGroup, Record<string, unknown>>,
+): Promise<void> {
+	const entries = Object.entries(groups) as [SettingGroup, Record<string, unknown>][];
+	if (entries.length === 0) return;
+
+	const sql = `
+		INSERT INTO site_settings (key, value, updated_at)
+		VALUES (?, ?, datetime('now'))
+		ON CONFLICT(key) DO UPDATE SET
+			value = excluded.value,
+			updated_at = datetime('now')
+	`;
+
+	// D1 batch（生产）：1 次原子写入全部组。本地 dev 垫片无 batch() 时逐组 run()。
+	const db = env.DB as unknown as {
+		batch?: (stmts: { run(): Promise<unknown> }[]) => Promise<unknown>;
+		prepare(sql: string): {
+			bind(...args: unknown[]): { run(): Promise<unknown> };
+		};
+	};
+	if (typeof db.batch === "function") {
+		await db.batch(
+			entries.map(([group, data]) =>
+				db.prepare(sql).bind(group, JSON.stringify(data)),
+			),
+		);
+	} else {
+		// 本地 dev 垫片：无 batch()，逐组写（KV 全量同步仍只做一次）
+		for (const [group, data] of entries) {
+			await db.prepare(sql).bind(group, JSON.stringify(data)).run();
+		}
+	}
+
+	// 同步 KV 镜像 + 版本 bump（各一次，避免 N×全量重读重写）
+	const all = await readAllFromD1(env);
+	await writeKvCache(env, all);
+	await bumpSettingsVersion(env);
+}
+
 /** 保存整组（D1 持久化 + KV 缓存同步） */
 export async function saveSettingsGroup(
 	env: CloudflareEnv,
 	group: SettingGroup,
 	data: Record<string, unknown>,
 ): Promise<void> {
-	await env.DB.prepare(`
-		INSERT INTO site_settings (key, value, updated_at)
-		VALUES (?, ?, datetime('now'))
-		ON CONFLICT(key) DO UPDATE SET
-			value = excluded.value,
-			updated_at = datetime('now')
-	`)
-		.bind(group, JSON.stringify(data))
-		.run();
-	// 同步 KV 镜像（保持与 D1 一致；读路径以 D1 为准）
-	const all = await readAllFromD1(env);
-	await writeKvCache(env, all);
-	await bumpSettingsVersion(env);
+	await saveSettingsGroups(env, { [group]: data });
 }
 
 /** 兼容旧接口：读扁平 SiteSettings（basic 组） */

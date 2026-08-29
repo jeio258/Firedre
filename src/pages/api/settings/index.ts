@@ -3,8 +3,10 @@ import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
 	getAllSettings,
 	getSettingsGroup,
+	saveSettingsGroups,
 	SETTING_GROUPS,
 	saveSettingsGroup,
+	type SettingGroup,
 } from "../../../../server/settings/service";
 import {
 	badRequest,
@@ -57,12 +59,21 @@ export const PUT: APIRoute = async ({ request }) => {
 
 				// 批量格式：{ groups: Record<group, data> } 一次保存多组
 				if (body.groups && typeof body.groups === "object") {
-					const groups = body.groups as Record<string, Record<string, unknown>>;
+					const groups = body.groups as Record<
+						string,
+						Record<string, unknown>
+					>;
+					const valid: Record<string, Record<string, unknown>> = {};
 					for (const [key, data] of Object.entries(groups)) {
 						if (!(SETTING_GROUPS as readonly string[]).includes(key)) continue;
 						if (typeof data !== "object" || data === null) continue;
-						await saveSettingsGroup(cfEnv, key as never, data);
+						valid[key] = data;
 					}
+					// 聚合为单次批量写入，避免 31 组串行全量读写导致保存耗时 ~6s
+					await saveSettingsGroups(
+						cfEnv,
+						valid as Record<SettingGroup, Record<string, unknown>>,
+					);
 					return json({ ok: true });
 				}
 
