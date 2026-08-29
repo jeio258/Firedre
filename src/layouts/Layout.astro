@@ -331,7 +331,7 @@ const siteLogo = await getSiteLogo();
         defaultMode: settings.defaultMode || ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
         defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
-          displaySettingsConfig.wallpaperModeSwitchable,
+          ((settings as any)?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
         darkTheme: expressiveCodeConfig.darkTheme,
         lightTheme: expressiveCodeConfig.lightTheme,
         baseUrl: import.meta.env.BASE_URL,

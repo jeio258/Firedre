@@ -11,8 +11,9 @@ import CategoryBar from "@/components/layout/CategoryBar.astro";
 import SidebarColumn from "@/components/layout/SidebarColumn.astro";
 import WallpaperSection from "@/components/layout/WallpaperSection.astro";
 import { live2dWidgetConfig, sidebarLayoutConfig, siteConfig } from "@/config";
+import { getWallpaperConfig } from "@/config/runtime";
 import { getBannerVisibilityState } from "@/utils/banner-visibility-utils";
-import { getBackgroundImages, isHomePage } from "@/utils/layout-utils";
+import { isHomePage } from "@/utils/layout-utils";
 import { getEffectiveSidebarState } from "@/utils/sidebar-effective-utils";
 import Layout from "./Layout.astro";
 
@@ -45,23 +46,25 @@ const settings =
 			settings?: import("../../server/settings/service").SettingsShape;
 		}
 	).settings ?? {};
-const backgroundImages = getBackgroundImages();
-// bannerUrl = 桌面壁纸（逗号分隔多张），mobileImages = 移动壁纸（逗号分隔多张）
-const splitList = (v: unknown) =>
-	String(v ?? "")
-		.split(",")
-		.map((s) => s.trim())
-		.filter(Boolean);
-const desktopUrls = splitList(settings.bannerUrl);
-const mobileUrls = splitList(
-	(settings as { mobileImages?: unknown }).mobileImages,
-);
-if (desktopUrls.length && backgroundImages.desktop.length) {
-	backgroundImages.desktop = [...desktopUrls, ...backgroundImages.desktop];
-}
-if (mobileUrls.length && backgroundImages.mobile.length) {
-	backgroundImages.mobile = [...mobileUrls, ...backgroundImages.mobile];
-}
+// 背景壁纸：统一经 runtime.getWallpaperConfig 读取（后台 theme.bannerUrl/mobileImages 覆盖静态默认，替换语义）
+const wallpaperConfig = getWallpaperConfig(Astro.locals);
+const toImageArray = (v: unknown): string[] => {
+	if (Array.isArray(v)) return (v as string[]).map(String).filter(Boolean);
+	if (typeof v === "string" && v)
+		return v.split(",").map((s) => s.trim()).filter(Boolean);
+	return [];
+};
+const wallpaperSrc = (wallpaperConfig.src ?? {}) as {
+	desktop?: unknown;
+	mobile?: unknown;
+};
+const wallpaperDesktop = toImageArray(wallpaperSrc.desktop);
+const wallpaperMobile = toImageArray(wallpaperSrc.mobile);
+const backgroundImages = {
+	desktop: wallpaperDesktop.length ? wallpaperDesktop : wallpaperMobile,
+	mobile: wallpaperMobile.length ? wallpaperMobile : wallpaperDesktop,
+	isMultiple: wallpaperDesktop.length > 1 || wallpaperMobile.length > 1,
+};
 
 const {
 	title,

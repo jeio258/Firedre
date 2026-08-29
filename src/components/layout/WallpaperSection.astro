@@ -5,6 +5,7 @@ import BackgroundPlayer from "@/components/features/BackgroundPlayer.astro";
 import BannerHomeTextOverlay from "@/components/layout/BannerHomeTextOverlay.astro";
 import BannerPostMetaOverlay from "@/components/layout/BannerPostMetaOverlay.astro";
 import { backgroundWallpaper } from "@/config";
+import { getWallpaperConfig } from "@/config/runtime";
 import type {
 	BannerPostMeta,
 	BannerVisibilityState,
@@ -20,20 +21,18 @@ interface Props {
 
 const { state, backgroundImages, title, bannerPostMeta } = Astro.props;
 
-// Firedre：背景壁纸设置（后台可覆盖）——视频播放按钮/视频地址/播放模式
-const wallpaperSettings = (Astro.locals as { settings?: Record<string, unknown> }).settings?.theme as Record<string, unknown> | undefined;
-const bgPlayerEnable = wallpaperSettings?.playerEnable ?? backgroundWallpaper.playerEnable;
-const bgPlayerUrl = String(wallpaperSettings?.playerUrl || (typeof backgroundWallpaper.src === "object" && !Array.isArray(backgroundWallpaper.src) ? backgroundWallpaper.src.playerUrl || "" : ""));
-const bgPlayerMode = (wallpaperSettings?.playerMode || backgroundWallpaper.common?.playerMode || "order") as "order" | "random";
-// 遮罩不透明度/模糊：后台可覆盖（settings.theme.overlayOpacity/overlayBlur），静态配置为兜底
-const bgOverlayOpacity =
-	(typeof wallpaperSettings?.overlayOpacity === "number"
-		? wallpaperSettings.overlayOpacity
-		: backgroundWallpaper.overlay?.opacity) ?? 0.8;
-const bgOverlayBlur =
-	(typeof wallpaperSettings?.overlayBlur === "number"
-		? wallpaperSettings.overlayBlur
-		: backgroundWallpaper.overlay?.blur) ?? 0;
+// Firedre：背景壁纸设置（后台可覆盖，统一经 runtime.getWallpaperConfig）——视频播放按钮/视频地址/播放模式/遮罩
+const wallpaperConfig = getWallpaperConfig(Astro.locals);
+const bgPlayerEnable = wallpaperConfig.playerEnable;
+const bgPlayerUrl = String(
+	(typeof wallpaperConfig.src === "object" && !Array.isArray(wallpaperConfig.src)
+		? (wallpaperConfig.src as { playerUrl?: unknown }).playerUrl ?? ""
+		: ""),
+);
+const bgPlayerMode = (wallpaperConfig.common?.playerMode || "order") as "order" | "random";
+// 遮罩不透明度/模糊：后台可覆盖（theme.overlayOpacity/overlayBlur），静态配置为兜底
+const bgOverlayOpacity = wallpaperConfig.overlay?.opacity ?? 0.8;
+const bgOverlayBlur = wallpaperConfig.overlay?.blur ?? 0;
 const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? -1;---
 
 <!-- Wallpaper - 如果允许切换则始终渲染，否则只渲染当前模式 -->

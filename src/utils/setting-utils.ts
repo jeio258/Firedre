@@ -11,11 +11,16 @@ import {
 import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
 import {
 	backgroundWallpaper,
-	displaySettingsConfig,
 	expressiveCodeConfig,
 	sakuraConfig,
 	siteConfig,
 } from "../config";
+import {
+	getEffectsConfigFromWindow,
+	getPanelConfigFromWindow,
+	getSiteConfigFromWindow,
+	getWallpaperConfigFromWindow,
+} from "../config/runtime";
 import { isHomePage as checkIsHomePage } from "./layout-utils";
 
 // Declare global functions
@@ -37,9 +42,8 @@ export function getDefaultHue(): number {
 }
 
 export function getDefaultTheme(): LIGHT_DARK_MODE {
-	// 如果配置文件中设置了 defaultMode，使用配置的值
-	// 否则使用 DEFAULT_THEME（向后兼容）
-	return siteConfig.themeColor.defaultMode ?? DEFAULT_THEME;
+	// 统一从后台 settings 读取默认主题，静态 config 仅兑底
+	return (getSiteConfigFromWindow().themeColor?.defaultMode ?? siteConfig.themeColor.defaultMode ?? DEFAULT_THEME) as LIGHT_DARK_MODE;
 }
 
 // 获取系统主题
@@ -434,24 +438,23 @@ export function initWallpaperMode(): void {
 }
 
 export function getStoredWallpaperMode(): WALLPAPER_MODE {
+	// 统一从后台 settings（window.__FIREFLY_SETTINGS__）读取真实壁纸模式，静态 config 仅兜底
+	const runtimeMode = getWallpaperConfigFromWindow().mode;
 	// 检查是否在浏览器环境中
 	if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.getItem !== "function"
 	) {
-		return backgroundWallpaper.mode;
+		return runtimeMode;
 	}
 
-	const isSwitchable = displaySettingsConfig.wallpaperModeSwitchable;
+	const isSwitchable = getPanelConfigFromWindow().wallpaperModeSwitchable;
 	if (!isSwitchable) {
 		localStorage.removeItem("wallpaperMode");
-		return backgroundWallpaper.mode;
+		return runtimeMode;
 	}
 
-	return (
-		(localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) ||
-		backgroundWallpaper.mode
-	);
+	return (localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) || runtimeMode;
 }
 
 // Overlay settings functions
@@ -460,14 +463,15 @@ function clampNumber(value: number, min: number, max: number): number {
 }
 
 export function getDefaultOverlayOpacity(): number {
-	return backgroundWallpaper.overlay?.opacity ?? 0.8;
+	return getWallpaperConfigFromWindow().overlay?.opacity ?? backgroundWallpaper.overlay?.opacity ?? 0.8;
 }
 
 export function getDefaultOverlayBlur(): number {
-	return backgroundWallpaper.overlay?.blur ?? 0;
+	return getWallpaperConfigFromWindow().overlay?.blur ?? backgroundWallpaper.overlay?.blur ?? 0;
 }
 
 export function getDefaultOverlayCardOpacity(): number {
+	// 卡片透明度无后台独立字段（后端未持久化），保留静态 config 兜底
 	return backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
 }
 
@@ -602,7 +606,11 @@ export function applyStoredOverlaySettingsToDocument(): void {
 
 // Waves animation functions
 export function getDefaultWavesEnabled(): boolean {
+	const runtimeWaves = getEffectsConfigFromWindow().waves;
 	const wavesConfig = backgroundWallpaper.banner?.waves?.enable;
+	if (typeof runtimeWaves === "boolean") {
+		return runtimeWaves;
+	}
 	if (typeof wavesConfig === "object") {
 		// 如果是分设备配置，检查当前设备
 		const isMobile =
@@ -660,7 +668,11 @@ export function applyWavesEnabledToDocument(enabled: boolean): void {
 
 // Gradient transition functions
 export function getDefaultGradientEnabled(): boolean {
+	const runtimeGradient = getEffectsConfigFromWindow().gradient;
 	const gradientConfig = backgroundWallpaper.banner?.gradient?.enable;
+	if (typeof runtimeGradient === "boolean") {
+		return runtimeGradient;
+	}
 	if (typeof gradientConfig === "object") {
 		const isMobile =
 			typeof window !== "undefined" ? window.innerWidth < 768 : false;
@@ -718,7 +730,7 @@ export function applyGradientEnabledToDocument(enabled: boolean): void {
 
 // Sakura effect functions
 export function getDefaultSakuraEnabled(): boolean {
-	return sakuraConfig?.enable ?? false;
+	return getEffectsConfigFromWindow().enable ?? sakuraConfig?.enable ?? false;
 }
 
 export function getStoredSakuraEnabled(): boolean {
@@ -749,11 +761,11 @@ export function setSakuraEnabled(enabled: boolean): void {
 
 // Banner title functions
 export function getDefaultBannerTitleEnabled(): boolean {
-	return backgroundWallpaper.common?.homeText?.enable ?? true;
+	return getWallpaperConfigFromWindow().common?.homeText?.enable ?? backgroundWallpaper.common?.homeText?.enable ?? true;
 }
 
 export function getDefaultBannerCarouselEnabled(): boolean {
-	return backgroundWallpaper.common?.carousel?.enable ?? false;
+	return getEffectsConfigFromWindow().bannerCarousel ?? backgroundWallpaper.common?.carousel?.enable ?? false;
 }
 
 export function getStoredBannerTitleEnabled(): boolean {
@@ -771,7 +783,7 @@ export function getStoredBannerTitleEnabled(): boolean {
 }
 
 export function getStoredBannerCarouselEnabled(): boolean {
-	const isSwitchable = displaySettingsConfig.bannerCarouselSwitchable;
+	const isSwitchable = getPanelConfigFromWindow().bannerCarouselSwitchable;
 	if (!isSwitchable) {
 		return getDefaultBannerCarouselEnabled();
 	}
@@ -801,7 +813,7 @@ export function setBannerTitleEnabled(enabled: boolean): void {
 
 export function setBannerCarouselEnabled(enabled: boolean): void {
 	const safeEnabled = !!enabled;
-	const isSwitchable = displaySettingsConfig.bannerCarouselSwitchable;
+	const isSwitchable = getPanelConfigFromWindow().bannerCarouselSwitchable;
 	if (
 		isSwitchable &&
 		typeof localStorage !== "undefined" &&
@@ -853,7 +865,7 @@ export function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 
 // Card border functions
 export function getDefaultCardBorderEnabled(): boolean {
-	return siteConfig.card?.border ?? false;
+	return getSiteConfigFromWindow().card?.border ?? siteConfig.card?.border ?? false;
 }
 
 export function getStoredCardBorderEnabled(): boolean {
@@ -884,7 +896,7 @@ export function setCardBorderEnabled(enabled: boolean): void {
 
 // Card follow theme functions
 export function getDefaultCardFollowThemeEnabled(): boolean {
-	return siteConfig.card?.followTheme ?? false;
+	return getSiteConfigFromWindow().card?.followTheme ?? siteConfig.card?.followTheme ?? false;
 }
 
 export function getStoredCardFollowThemeEnabled(): boolean {

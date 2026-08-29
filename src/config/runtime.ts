@@ -32,6 +32,7 @@ import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
 import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
+import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
 
 /** middleware 注入的 settings 形状 */
 export type SettingsLike = Record<string, unknown>;
@@ -72,14 +73,15 @@ function arr(v: unknown, fallback: unknown[]): unknown[] {
 // ─────────────────────────────────────────────
 export function getSiteConfig(locals: unknown) {
 	const s = settingsOf(locals);
+	const basic = groupOf(s, "basic");
 	return {
 		...staticSiteConfig,
-		title: str(s.title, String((staticSiteConfig as Record<string, unknown>).title ?? "")),
-		subtitle: str(s.subtitle, String((staticSiteConfig as Record<string, unknown>).subtitle ?? "")),
-		description: str(s.description, String((staticSiteConfig as Record<string, unknown>).description ?? "")),
-		site_url: str(s.siteUrl, String((staticSiteConfig as Record<string, unknown>).site_url ?? "")),
-		siteStartDate: str(s.siteStartDate, String((staticSiteConfig as Record<string, unknown>).siteStartDate ?? "")),
-		timezone: str(s.timezone, String((staticSiteConfig as Record<string, unknown>).timezone ?? "")),
+		title: str(basic.title ?? s.title, String((staticSiteConfig as Record<string, unknown>).title ?? "")),
+		subtitle: str(basic.subtitle ?? s.subtitle, String((staticSiteConfig as Record<string, unknown>).subtitle ?? "")),
+		description: str(basic.description ?? s.description, String((staticSiteConfig as Record<string, unknown>).description ?? "")),
+		site_url: str(basic.siteUrl ?? s.siteUrl, String((staticSiteConfig as Record<string, unknown>).site_url ?? "")),
+		siteStartDate: str(basic.siteStartDate ?? s.siteStartDate, String((staticSiteConfig as Record<string, unknown>).siteStartDate ?? "")),
+		timezone: str(basic.timezone ?? s.timezone, String((staticSiteConfig as Record<string, unknown>).timezone ?? "")),
 		pageWidth: num(s.pageWidth, (staticSiteConfig as Record<string, unknown>).pageWidth as number),
 		categoryBar: bool(s.categoryBar, Boolean((staticSiteConfig as Record<string, unknown>).categoryBar)),
 		categoryStyle: str(s.categoryStyle, String((staticSiteConfig as Record<string, unknown>).categoryStyle ?? "")),
@@ -118,14 +120,15 @@ export function getSiteConfig(locals: unknown) {
 // ─────────────────────────────────────────────
 export function getProfileConfig(locals: unknown) {
 	const s = settingsOf(locals);
+	const pr = groupOf(s, "profile");
 	return {
 		...staticProfileConfig,
-		name: str(s.name, String((staticProfileConfig as Record<string, unknown>).name ?? "")),
-		avatar: str(s.avatar, String((staticProfileConfig as Record<string, unknown>).avatar ?? "")),
-		bio: str(s.bio, String((staticProfileConfig as Record<string, unknown>).bio ?? "")),
-		location: str(s.location, String((staticProfileConfig as Record<string, unknown>).location ?? "")),
-		email: str(s.email, String((staticProfileConfig as Record<string, unknown>).email ?? "")),
-		links: arr(s.links, staticProfileConfig.links),
+		name: str(pr.name ?? s.name, String((staticProfileConfig as Record<string, unknown>).name ?? "")),
+		avatar: str(pr.avatar ?? s.avatar, String((staticProfileConfig as Record<string, unknown>).avatar ?? "")),
+		bio: str(pr.bio ?? s.bio, String((staticProfileConfig as Record<string, unknown>).bio ?? "")),
+		location: str(pr.location ?? s.location, String((staticProfileConfig as Record<string, unknown>).location ?? "")),
+		email: str(pr.email ?? s.email, String((staticProfileConfig as Record<string, unknown>).email ?? "")),
+		links: arr(pr.links ?? s.links, staticProfileConfig.links),
 	};
 }
 
@@ -174,8 +177,10 @@ export function getMusicConfig(locals: unknown) {
 	const m = groupOf(s, "music");
 	return {
 		...staticMusicConfig,
+		enable: bool(m.enabled, (staticMusicConfig as unknown as Record<string, unknown>).enable !== false),
 		showInNavbar: bool(m.showInNavbar, staticMusicConfig.showInNavbar ?? true),
 		showInSidebar: bool(m.showInSidebar, staticMusicConfig.showInSidebar ?? true),
+		autoplay: bool(m.autoplay, (staticMusicConfig as Record<string, unknown>).autoplay as boolean ?? false),
 		mode: str(m.mode, (staticMusicConfig.mode ?? "local") as string) as "meting" | "local",
 		volume: num(m.volume, staticMusicConfig.volume ?? 0.7),
 		playMode: str(m.playMode, (staticMusicConfig.playMode ?? "list") as string) as "list" | "one" | "random",
@@ -284,6 +289,7 @@ export function getPioConfig(locals: unknown) {
 		...(typeof p.position === "string" && p.position ? { position: p.position } : {}),
 		...(typeof p.size === "number" ? { size: p.size } : {}),
 		...(typeof p.opacity === "number" ? { opacity: p.opacity } : {}),
+		...(typeof p.model === "string" && p.model ? { model: p.model } : {}),
 	};
 }
 
@@ -307,6 +313,8 @@ export function getSponsorConfig(locals: unknown) {
 		...staticSponsorConfig,
 		enable: bool(sp.enabled, (staticSponsorConfig as Record<string, unknown>).enable as boolean),
 		...(typeof sp.qrCode === "string" && sp.qrCode ? { qrCode: sp.qrCode } : {}),
+		showButtonInPost: bool(sp.showButtonInPost, (staticSponsorConfig as Record<string, unknown>).showButtonInPost as boolean),
+		showSponsorsList: bool(sp.showSponsorsList, (staticSponsorConfig as Record<string, unknown>).showSponsorsList as boolean),
 	};
 }
 
@@ -315,10 +323,13 @@ export function getDynamicConfig(locals: unknown) {
 	const d = groupOf(s, "dynamic");
 	return {
 		...staticDynamicConfig,
+		enable: bool(d.enabled, (staticDynamicConfig as Record<string, unknown>).enable as boolean),
 		...(typeof d.title === "string" && d.title ? { title: d.title } : {}),
 		...(typeof d.description === "string" && d.description ? { description: d.description } : {}),
 		...(typeof d.itemsPerPage === "number" ? { itemsPerPage: d.itemsPerPage } : {}),
 		...(typeof d.showComment === "boolean" ? { showComment: d.showComment } : {}),
+		...(typeof d.apiUrl === "string" && d.apiUrl ? { apiUrl: d.apiUrl } : {}),
+		...(typeof d.profileUrl === "string" && d.profileUrl ? { profileUrl: d.profileUrl } : {}),
 	};
 }
 
@@ -329,6 +340,7 @@ export function getAnnouncementConfig(locals: unknown) {
 		...staticAnnouncementConfig,
 		enable: bool(a.enabled, (staticAnnouncementConfig as Record<string, unknown>).enable as boolean),
 		...(typeof a.title === "string" && a.title ? { title: a.title } : {}),
+		...(typeof a.content === "string" && a.content ? { content: a.content } : {}),
 		...(Array.isArray(a.sections) && a.sections.length ? { sections: a.sections } : {}),
 	};
 }
@@ -339,6 +351,7 @@ export function getNavbarConfig(locals: unknown) {
 	const navItems = arr(n.navItems, staticNavConfig.links);
 	return {
 		...staticNavConfig,
+		enabled: bool(n.enabled, (staticNavConfig as unknown as Record<string, unknown>).enabled !== false),
 		links: (Array.isArray(navItems) && navItems.length
 			? (navItems as Array<Record<string, unknown>>).map((item) => ({
 					name: String(item.label ?? item.name ?? ""),
@@ -356,6 +369,16 @@ export function getSidebarConfig(locals: unknown) {
 		...staticSidebarConfig,
 		...(typeof sb.hideSidebarOnPostPage === "boolean" ? { hideSidebarOnPostPage: sb.hideSidebarOnPostPage } : {}),
 		...(typeof sb.showBothSidebarsOnPostPage === "boolean" ? { showBothSidebarsOnPostPage: sb.showBothSidebarsOnPostPage } : {}),
+		showProfile: bool(sb.showProfile, true),
+		showAnnouncement: bool(sb.showAnnouncement, true),
+		showMusic: bool(sb.showMusic, true),
+		showCategories: bool(sb.showCategories, true),
+		showTags: bool(sb.showTags, true),
+		showCalendar: bool(sb.showCalendar, true),
+		showDynamic: bool(sb.showDynamic, true),
+		showSiteInfo: bool(sb.showSiteInfo, true),
+		showStats: bool(sb.showStats, true),
+		showAdvertisement: bool(sb.showAdvertisement, true),
 	};
 }
 
@@ -367,6 +390,7 @@ export function getCoverConfig(locals: unknown) {
 		...(typeof c.enable === "boolean" ? { enable: c.enable } : {}),
 		...(typeof c.defaultImage === "string" && c.defaultImage ? { defaultImage: c.defaultImage } : {}),
 		...(typeof c.configurable === "boolean" ? { configurable: c.configurable } : {}),
+		showLoading: bool(c.showLoading, (staticCoverConfig as Record<string, unknown>).showLoading as boolean),
 	};
 }
 
@@ -424,6 +448,31 @@ export function getAnalyticsConfig(locals: unknown) {
 }
 
 // ─────────────────────────────────────────────
+// panel（首页设置面板开关）
+// ─────────────────────────────────────────────
+export function getPanelConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const pn = groupOf(s, "panel");
+	const d = staticDisplaySettingsConfig as unknown as Record<string, unknown>;
+	return {
+		enable: bool(pn.enable, d.enable as boolean),
+		themeColorSwitchable: bool(pn.themeColorSwitchable, d.themeColorSwitchable as boolean),
+		layoutSwitchable: bool(pn.layoutSwitchable, d.layoutSwitchable as boolean),
+		cardBorderSwitchable: bool(pn.cardBorderSwitchable, d.cardBorderSwitchable as boolean),
+		cardFollowThemeSwitchable: bool(pn.cardFollowThemeSwitchable, d.cardFollowThemeSwitchable as boolean),
+		wallpaperModeSwitchable: bool(pn.wallpaperModeSwitchable, d.wallpaperModeSwitchable as boolean),
+		wavesSwitchable: bool(pn.wavesSwitchable, d.wavesSwitchable as boolean),
+		gradientSwitchable: bool(pn.gradientSwitchable, d.gradientSwitchable as boolean),
+		bannerTitleSwitchable: bool(pn.bannerTitleSwitchable, d.bannerTitleSwitchable as boolean),
+		bannerCarouselSwitchable: bool(pn.bannerCarouselSwitchable, d.bannerCarouselSwitchable as boolean),
+		sakuraSwitchable: bool(pn.sakuraSwitchable, d.sakuraSwitchable as boolean),
+		overlayOpacitySwitchable: bool(pn.overlayOpacitySwitchable, d.overlayOpacitySwitchable as boolean),
+		overlayBlurSwitchable: bool(pn.overlayBlurSwitchable, d.overlayBlurSwitchable as boolean),
+		overlayCardOpacitySwitchable: bool(pn.overlayCardOpacitySwitchable, d.overlayCardOpacitySwitchable as boolean),
+	};
+}
+
+// ─────────────────────────────────────────────
 // 客户端（Svelte）读取：window.__FIREFLY_SETTINGS__（SSR 注入）
 // ─────────────────────────────────────────────
 function windowSettings(): SettingsLike {
@@ -445,4 +494,7 @@ export function getWallpaperConfigFromWindow() {
 }
 export function getCommentConfigFromWindow() {
 	return getCommentConfig({ settings: windowSettings() });
+}
+export function getPanelConfigFromWindow() {
+	return getPanelConfig({ settings: windowSettings() });
 }

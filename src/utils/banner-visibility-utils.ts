@@ -98,9 +98,13 @@ export function getBannerVisibilityState(
 	} = ctx;
 
 	// 运行时设置优先（后台可编辑），静态 config 为兜底。
-	// 读 theme 组的 mode/carousel/dimOpacity/homeText/overlay，读 effects 组的 waves/gradient。
+	// 读 theme 组的 mode/carousel/dimOpacity/homeText/overlay，读 effects 组的 waves/gradient，读 panel 组开关。
 	const themeS = (settings?.["theme"] ?? {}) as Record<string, unknown>;
 	const effectsS = (settings?.["effects"] ?? {}) as Record<string, unknown>;
+	const panelS = (settings?.["panel"] ?? {}) as Record<string, unknown>;
+
+	const boolOr = (v: unknown, fallback: boolean): boolean =>
+		typeof v === "boolean" ? v : fallback;
 
 	const wallpaperMode =
 		(typeof themeS["mode"] === "string" && (themeS["mode"] as string)) ||
@@ -108,7 +112,7 @@ export function getBannerVisibilityState(
 	const isBannerMode = wallpaperMode === "banner";
 	const isFullscreenMode = wallpaperMode === "fullscreen";
 	const isOverlayMode = wallpaperMode === "overlay";
-	const isWallpaperSwitchable = displaySettingsConfig.wallpaperModeSwitchable;
+	const isWallpaperSwitchable = boolOr(panelS["wallpaperModeSwitchable"], displaySettingsConfig.wallpaperModeSwitchable);
 	const isBackgroundEnabled =
 		wallpaperMode !== "none" || isWallpaperSwitchable;
 
@@ -118,7 +122,7 @@ export function getBannerVisibilityState(
 		typeof effectsWaves === "boolean"
 			? effectsWaves
 			: backgroundWallpaper.banner?.waves?.enable;
-	const wavesSwitchable = displaySettingsConfig.wavesSwitchable;
+	const wavesSwitchable = boolOr(panelS["wavesSwitchable"], displaySettingsConfig.wavesSwitchable);
 	const wavesEnabledOnDesktop =
 		typeof wavesConfig === "object" ? wavesConfig.desktop : wavesConfig;
 	const wavesEnabledOnMobile =
@@ -132,7 +136,7 @@ export function getBannerVisibilityState(
 		typeof effectsGradient === "boolean"
 			? effectsGradient
 			: backgroundWallpaper.banner?.gradient?.enable;
-	const gradientSwitchable = displaySettingsConfig.gradientSwitchable;
+	const gradientSwitchable = boolOr(panelS["gradientSwitchable"], displaySettingsConfig.gradientSwitchable);
 	const gradientEnabledOnDesktop =
 		typeof gradientConfig === "object"
 			? gradientConfig.desktop
@@ -192,7 +196,7 @@ export function getBannerVisibilityState(
 			? themeS["carousel"]
 			: backgroundWallpaper.common?.carousel?.enable) ?? false;
 	const bannerCarouselSwitchable =
-		displaySettingsConfig.bannerCarouselSwitchable;
+		boolOr(panelS["bannerCarouselSwitchable"], displaySettingsConfig.bannerCarouselSwitchable);
 	const bannerCarouselInterval = Math.max(
 		(typeof themeS["carouselInterval"] === "number"
 			? themeS["carouselInterval"]

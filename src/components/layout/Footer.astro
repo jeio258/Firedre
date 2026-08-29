@@ -1,12 +1,12 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import fs from "node:fs";
 import path from "node:path";
-import { footerConfig, profileConfig } from "@/config";
+import { footerConfig } from "@/config";
+import { getFooterConfig, getProfileConfig } from "@/config/runtime";
 
 import { url } from "@/utils/url-utils";
-const footerSettings = (settings.footer ?? {}) as Record<string, unknown>;
+const footerConfigRuntime = getFooterConfig(Astro.locals);
+const profileConfigRuntime = getProfileConfig(Astro.locals);
 
 
 
@@ -14,7 +14,7 @@ const currentYear = new Date().getFullYear();
 
 // 读取FooterConfig.html文件内容
 let customFooterHtml = "";
-if (((((settings as any)?.["footer"]) as any)?.["enable"] ?? footerConfig.enable)) {
+if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
 	try {
 		const footerConfigPath = path.join(
 			process.cwd(),
@@ -46,11 +46,11 @@ if (((((settings as any)?.["footer"]) as any)?.["enable"] ?? footerConfig.enable
   <div class="transition text-50 text-sm text-center wrap">
     <div class="mb-2">
       {customFooterHtml && <div set:html={customFooterHtml} />}
-      {footerSettings.customHtml && <div set:html={String(footerSettings.customHtml)} />}
+      {footerConfigRuntime.customHtml && <div set:html={String(footerConfigRuntime.customHtml)} />}
     </div>
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
-      &copy; <span id="copyright-year">{footerSettings.startYear ? `${footerSettings.startYear}-${currentYear}` : currentYear}</span>
-      {((settings as any)?.["profile"]?.["name"] as string | undefined) || settings.name || settings.author || ((settings as any)?.["name"] ?? profileConfig.name)}. All Rights Reserved.
+      &copy; <span id="copyright-year">{footerConfigRuntime.startYear ? `${footerConfigRuntime.startYear}-${currentYear}` : currentYear}</span>
+      {profileConfigRuntime.name}. All Rights Reserved.
       <span aria-hidden="true">/</span>
       <a
         class="transition link text-(--primary) font-medium"
@@ -64,12 +64,12 @@ if (((((settings as any)?.["footer"]) as any)?.["enable"] ?? footerConfig.enable
         href={url("sitemap-index.xml")}>Sitemap</a
       >
     </div>
-    {footerSettings.text && (
-      <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">{String(footerSettings.text)}</div>
+    {footerConfigRuntime.text && (
+      <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">{String(footerConfigRuntime.text)}</div>
     )}
-    {footerSettings.icp && (
+    {footerConfigRuntime.icp && (
       <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">
-        <a class="link" href="https://beian.miit.gov.cn/" target="_blank">{String(footerSettings.icp)}</a>
+        <a class="link" href="https://beian.miit.gov.cn/" target="_blank">{String(footerConfigRuntime.icp)}</a>
       </div>
     )}
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">

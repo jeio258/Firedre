@@ -1,6 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import type { MarkdownHeading } from "astro";
 import Advertisement from "@/components/widget/Advertisement.astro";
 import Announcement from "@/components/widget/Announcement.astro";
@@ -13,6 +11,7 @@ import SidebarTOC from "@/components/widget/SidebarTOC.astro";
 import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
 import Tags from "@/components/widget/Tags.astro";
+import { getMusicConfig, getSidebarConfig } from "@/config/runtime";
 import { sidebarLayoutConfig } from "@/config";
 import type {
 
@@ -169,7 +168,7 @@ const getComponentProps = (
 
 // 获取所有需要渲染的组件
 const allComponents = getComponents();
-const sidebarToggles = (settings.sidebar ?? {}) as Record<string, unknown>;
+const sidebarConfigRuntime = getSidebarConfig(Astro.locals);
 const toggleMap: Record<string, string> = {
 	profile: "showProfile",
 	announcement: "showAnnouncement",
@@ -182,26 +181,23 @@ const toggleMap: Record<string, string> = {
 	calendar: "showCalendar",
 	advertisement: "showAdvertisement",
 };
-const musicSettings = (settings.music ?? {}) as Record<string, unknown>;
+const musicConfigRuntime = getMusicConfig(Astro.locals);
 const filteredComponents = filterAndSortComponents(allComponents).filter(
 	(comp) => {
-		if (comp.type === "music" && musicSettings.enabled === false) return false;
+		if (comp.type === "music" && musicConfigRuntime.enable === false) return false;
 		// 页面配置组 enabled=false 时同步隐藏对应侧边栏 widget（动态/相册/友链等）
 		const pageGroupEnabled =
 			(comp.type as string) === "dynamic"
-				? (settings.dynamic as { enabled?: unknown } | undefined)?.enabled ===
-					false
+				? ((Astro.locals as { settings?: { dynamic?: { enabled?: unknown } } }).settings?.dynamic?.enabled === false)
 				: (comp.type as string) === "gallery"
-					? (settings.gallery as { enabled?: unknown } | undefined)?.enabled ===
-						false
+					? ((Astro.locals as { settings?: { gallery?: { enabled?: unknown } } }).settings?.gallery?.enabled === false)
 					: (comp.type as string) === "friends"
-						? (settings.friends as { enabled?: unknown } | undefined)
-								?.enabled === false
+						? ((Astro.locals as { settings?: { friends?: { enabled?: unknown } } }).settings?.friends?.enabled === false)
 						: false;
 		if (pageGroupEnabled) return false;
 		const toggleKey = toggleMap[comp.type];
 		if (!toggleKey) return true;
-		const v = sidebarToggles[toggleKey];
+		const v = (sidebarConfigRuntime as unknown as Record<string, unknown>)[toggleKey];
 		return v === undefined || v === true;
 	},
 );
