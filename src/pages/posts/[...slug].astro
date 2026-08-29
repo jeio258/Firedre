@@ -29,6 +29,7 @@ import { coverImageConfig } from "@/config/coverImageConfig";
 import { licenseConfig } from "@/config/licenseConfig";
 import { profileConfig } from "@/config/profileConfig";
 import { siteConfig } from "@/config/siteConfig";
+import { getSiteConfig } from "@/config/runtime";
 import { sponsorConfig } from "@/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
@@ -77,6 +78,8 @@ const bannerPostMeta = {
 };
 
 // 处理随机图：如果image为"api"，则从配置的API获取随机图
+// 站点绝对 URL（统一走 getSiteConfig，兼容后台 basic.siteUrl 驼峰键）
+const siteUrl = getSiteConfig(Astro.locals).site_url;
 const processedImage = processCoverImageSync(entry.data.image, entry.id);
 const apiUrls = getApiUrlList(entry.data.image, entry.id);
 const showPostCover = Boolean(processedImage && ((((settings as any)?.["cover"]) as any)?.["enableInPost"] ?? coverImageConfig.enableInPost));
@@ -111,17 +114,17 @@ const coverImage =
 	(await toAbsoluteImageInfo(
 		processedImage,
 		coverBasePath,
-		((settings as any)?.["site_url"] ?? siteConfig.site_url),
+		siteUrl,
 	)) ?? undefined;
 
 // 作者个人页（/about/）绝对 URL，用于 author.url 指向唯一标识作者的页面
 const aboutUrl =
-	toAbsoluteUrl("/about/", ((settings as any)?.["site_url"] ?? siteConfig.site_url)) ?? ((settings as any)?.["site_url"] ?? siteConfig.site_url);
+	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
 // 作者实体：与首页/about 的 Person 共用同一 @id（#person），author 用 @id 关联
 const authorAvatarUrl = await getAuthorAvatarUrl();
 const authorPerson = buildPersonEntity({
-	site: ((settings as any)?.["site_url"] ?? siteConfig.site_url),
+	site: siteUrl,
 	profileConfig,
 	authorUrl: aboutUrl,
 	avatarUrl: authorAvatarUrl,
@@ -130,7 +133,7 @@ const authorPerson = buildPersonEntity({
 
 // publisher 实体（Organization，含真实 logo），article 的 publisher 用其 @id 关联
 const publisher = buildPublisherEntity({
-	site: ((settings as any)?.["site_url"] ?? siteConfig.site_url),
+	site: siteUrl,
 	siteConfig,
 	logo: await getSiteLogo(),
 });
@@ -138,15 +141,15 @@ const publisher = buildPublisherEntity({
 const breadcrumbItems = [
 	{
 		name: i18n(I18nKey.home),
-		url: toAbsoluteUrl("/", ((settings as any)?.["site_url"] ?? siteConfig.site_url)) ?? ((settings as any)?.["site_url"] ?? siteConfig.site_url),
+		url: toAbsoluteUrl("/", siteUrl) ?? siteUrl,
 	},
 ];
 if (entry.data.category) {
 	breadcrumbItems.push({
 		name: entry.data.category,
 		url:
-			toAbsoluteUrl(getCategoryUrl(entry.data.category), ((settings as any)?.["site_url"] ?? siteConfig.site_url)) ??
-			((settings as any)?.["site_url"] ?? siteConfig.site_url),
+			toAbsoluteUrl(getCategoryUrl(entry.data.category), siteUrl) ??
+			siteUrl,
 	});
 }
 breadcrumbItems.push({ name: entry.data.title, url: Astro.url.toString() });

@@ -3,7 +3,8 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
-import { licenseConfig, siteConfig } from "@/config";
+import { licenseConfig } from "@/config";
+import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { WidgetComponentConfig } from "@/types/config";
@@ -60,9 +61,10 @@ const osName = platformMap[process.platform] || process.platform;
 const archName = archMap[process.arch] || process.arch;
 const systemInfo = `${osName} / ${archName}`;
 
-// 站点域名（去掉协议前缀）
-const siteDomain = ((settings as any)?.["site_url"] ?? siteConfig.site_url)
-	? ((settings as any)?.["site_url"] ?? siteConfig.site_url).replace(/^https?:\/\//, "").replace(/\/$/, "")
+// 站点域名（去掉协议前缀）——统一走 getSiteConfig（兼容 basic.siteUrl 驼峰键）
+const siteUrl = getSiteConfig(Astro.locals).site_url;
+const siteDomain = siteUrl
+	? siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
 	: "unknown";
 
 // 文章许可
