@@ -1,9 +1,8 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-import { commentConfig } from "@/config";
+import { getCommentConfig } from "@/config/runtime";
 
-// 运行时站点配置（后台可编辑；静态 config 为兜底）
+// 运行时评论配置（后台可编辑；静态 config 为兜底）
+const comment = getCommentConfig(Astro.locals);
 
 
 
@@ -13,14 +12,14 @@ interface Props {
 
 const config = {
 	...{
-		...(commentConfig.waline ?? {}),
-		serverURL: ((((settings as any)?.["comment"]) as any)?.["walineServer"] || commentConfig.waline?.serverURL || ""),
+		...(comment.waline ?? {}),
+		serverURL: comment.waline?.serverURL || "",
 	},
 	el: "#waline",
 	path: Astro.props.path,
 	dark: "html.dark",
 	wordLimit: ["2", "300"],
-	...(((((settings as any)?.["comment"]) as any)?.["waline"] ?? commentConfig.waline)?.visitorCount ? { pageview: true } : {}),
+	...(comment.waline?.visitorCount ? { pageview: true } : {}),
 };
 ---
 <!-- Waline -->

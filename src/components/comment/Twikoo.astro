@@ -1,10 +1,9 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-import { commentConfig } from "@/config/commentConfig";
+import { getCommentConfig } from "@/config/runtime";
 import { url } from "@/utils/url-utils";
 
-// 运行时站点配置（后台可编辑；静态 config 为兜底）
+// 运行时评论配置（后台可编辑；静态 config 为兜底）
+const comment = getCommentConfig(Astro.locals);
 
 
 
@@ -12,11 +11,10 @@ interface Props {
 	path: string;
 }
 
-const commentS = ((settings as any)?.["comment"]) ?? {};
 const twikooConfig = {
-	...(commentConfig.twikoo ?? {}),
-	envId: String(commentS.twikooEnvId || commentConfig.twikoo?.envId || ""),
-	jsUrl: String(commentS.twikooJsUrl || commentConfig.twikoo?.jsUrl || ""),
+	...(comment.twikoo ?? {}),
+	envId: String(comment.twikoo?.envId || ""),
+	jsUrl: String(comment.twikoo?.jsUrl || ""),
 };
 const jsUrl =
 	twikooConfig.jsUrl ||

@@ -1,9 +1,9 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-import { commentConfig, siteConfig } from "@/config";
+import { getCommentConfig, getSiteConfig } from "@/config/runtime";
 
-// 运行时站点配置（后台可编辑；静态 config 为兜底）
+// 运行时评论配置（后台可编辑；静态 config 为兜底）
+const comment = getCommentConfig(Astro.locals);
+const siteTitle = getSiteConfig(Astro.locals).title;
 
 
 
@@ -12,14 +12,14 @@ interface Props {
 }
 
 const config = {
-	...(commentConfig.artalk ?? {}) as Record<string, unknown>,
-	server: ((((settings as any)?.["comment"]) as any)?.["artalkServer"] || commentConfig.artalk?.server || ""),
-	site: ((((settings as any)?.["comment"]) as any)?.["artalkSiteName"] || (commentConfig.artalk as Record<string, unknown> | undefined)?.siteName || (settings as any)?.["title"] || siteConfig.title),
+	...(comment.artalk ?? {}) as Record<string, unknown>,
+	server: comment.artalk?.server || "",
+	site: comment.artalk?.siteName || siteTitle,
 	el: "#artalk",
 	pageKey: Astro.props.path,
 	dark: "html.dark",
 	pageTitle: "",
-	...(((((settings as any)?.["comment"]) as any)?.["artalk"] ?? commentConfig.artalk)?.visitorCount ? { pageview: true } : {}),
+	...(comment.artalk?.visitorCount ? { pageview: true } : {}),
 };
 ---
 <!-- Artalk -->

@@ -152,10 +152,12 @@ export function getCommentConfig(locals: unknown) {
 			...(staticCommentConfig.twikoo ?? {}),
 			envId: str(c.twikooEnvId, staticCommentConfig.twikoo?.envId ?? ""),
 			jsUrl: str(c.twikooJsUrl, staticCommentConfig.twikoo?.jsUrl ?? ""),
+			visitorCount: bool(c.twikooVisitorCount, Boolean((staticCommentConfig.twikoo as Record<string, unknown> | undefined)?.visitorCount)),
 		},
 		waline: {
 			...(staticCommentConfig.waline ?? {}),
 			serverURL: str(c.walineServer, staticCommentConfig.waline?.serverURL ?? ""),
+			visitorCount: bool(c.walineVisitorCount, Boolean((staticCommentConfig.waline as Record<string, unknown> | undefined)?.visitorCount)),
 		},
 		disqus: {
 			...(staticCommentConfig.disqus ?? {}),
@@ -165,6 +167,7 @@ export function getCommentConfig(locals: unknown) {
 			...(staticCommentConfig.artalk ?? {}),
 			server: str(c.artalkServer, staticCommentConfig.artalk?.server ?? ""),
 			siteName: str(c.artalkSiteName, String((staticCommentConfig.artalk as Record<string, unknown> | undefined)?.siteName ?? "")),
+			visitorCount: bool(c.artalkVisitorCount, Boolean((staticCommentConfig.artalk as Record<string, unknown> | undefined)?.visitorCount)),
 		},
 	};
 }
