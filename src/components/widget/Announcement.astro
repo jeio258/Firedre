@@ -5,6 +5,7 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { cfEnv } from "@/lib/api";
 import type { WidgetComponentConfig } from "@/types/config";
+import { getAnnouncementConfig } from "@/config/runtime";
 import { getNotice } from "../../../server/notice/service";
 import type { NoticeSection } from "../../../types/notice";
 
@@ -18,25 +19,15 @@ const { class: className, style, widgetConfig } = Astro.props;
 
 const showTitle = widgetConfig?.showTitle !== false;
 
-// Firedre：站点设置里可关闭公告
-const settings =
-	(Astro.locals as { settings?: { announcement?: { enabled?: boolean } } })
-		.settings ?? {};
-if (settings.announcement?.enabled === false) {
+// Firedre：站点设置里可关闭公告（统一走 runtime getter）
+const announcement = getAnnouncementConfig(Astro.locals);
+if (announcement.enable === false) {
 	return null;
 }
 
-// Firedre：公告来自 D1（后台可编辑），fallback 到静态配置
+// Firedre：公告来自 D1（后台可编辑），fallback 到运行时配置
 const notice = await getNotice(cfEnv);
-const { announcementConfig } = await import("@/config/announcementConfig");
-const announcementS = ((settings as any)?.["announcement"]) ?? {};
-const fallback = {
-	...announcementConfig,
-	...(announcementS.sections ? { sections: announcementS.sections } : {}),
-	...(announcementS.title ? { title: announcementS.title } : {}),
-	...(announcementS.content ? { content: announcementS.content } : {}),
-	...(announcementS.link ? { link: announcementS.link } : {}),
-};
+const fallback = announcement;
 const title = notice?.title || fallback.title || i18n(I18nKey.announcement);
 const sections: NoticeSection[] = notice?.sections?.length
 	? notice.sections

@@ -363,9 +363,13 @@ export function getAnnouncementConfig(locals: unknown) {
 	return {
 		...staticAnnouncementConfig,
 		enable: bool(a.enabled, (staticAnnouncementConfig as Record<string, unknown>).enable as boolean),
+		closable: bool(a.closable, staticAnnouncementConfig.closable ?? true),
 		...(typeof a.title === "string" && a.title ? { title: a.title } : {}),
 		...(typeof a.content === "string" && a.content ? { content: a.content } : {}),
 		...(Array.isArray(a.sections) && a.sections.length ? { sections: a.sections } : {}),
+		...(a.link && typeof a.link === "object"
+			? { link: a.link as { enable?: boolean; text?: string; url?: string; external?: boolean } }
+			: {}),
 	};
 }
 
