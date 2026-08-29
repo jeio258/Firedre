@@ -83,8 +83,6 @@ export const settingsDefaults = {
 	},
 	font: {
 		enable: true,
-		bodyFont: "",
-		headingFont: "",
 		codeFont: "",
 		bannerTitleFont: "",
 		bannerSubtitleFont: "",
@@ -105,18 +103,6 @@ export const settingsDefaults = {
 	},
 	cover: {
 		showLoading: false,
-		randomCoverImage: {
-			enable: false,
-			apis: [
-				"https://t.alcy.cc/pc",
-				"https://www.dmoe.cc/random.php",
-				"https://uapis.cn/api/v1/random/image?category=acg&type=pc",
-			],
-		},
-	},
-	encrypt: {
-		enable: true,
-		defaultHint: "请输入密码以阅读本文",
 	},
 	music: {
 		showInNavbar: true,
@@ -156,15 +142,12 @@ export const settingsDefaults = {
 		showComment: true,
 		itemsPerPage: 20,
 		apiUrl: "/api/dynamic.json",
-		memosEnable: false,
-		memosApiUrl: "https://memos.example.com",
 	},
 	friends: {
 		enabled: true,
 	},
 	gallery: {
 		enabled: true,
-		columnWidth: 240,
 	},
 	bookmarks: {
 		groups: "",
@@ -179,8 +162,6 @@ export const settingsDefaults = {
 		sakura: false,
 		sakuraNum: 21,
 		limitTimes: -1,
-		opacityMin: 0.3,
-		opacityMax: 0.9,
 		zIndex: 100,
 		waves: true,
 		gradient: true,

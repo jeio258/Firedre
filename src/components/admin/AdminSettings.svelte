@@ -272,9 +272,6 @@ const GROUPS: Group[] = [
 			{ name: "showMusic", label: "音乐播放器卡片", type: "boolean" },
 			{ name: "showCategories", label: "分类卡片", type: "boolean" },
 			{ name: "showTags", label: "标签卡片", type: "boolean" },
-			{ name: "showRecentPosts", label: "最近文章卡片", type: "boolean" },
-			{ name: "showSeries", label: "系列卡片", type: "boolean" },
-			{ name: "showArchive", label: "归档卡片", type: "boolean" },
 			{ name: "showCalendar", label: "日历卡片", type: "boolean" },
 			{
 				name: "hideSidebarOnPostPage",
@@ -294,19 +291,6 @@ const GROUPS: Group[] = [
 		title: "字体",
 		category: "功能配置",
 		fields: [
-			{
-				name: "bodyFont",
-				label: "正文字体",
-				type: "text",
-				placeholder: "Inter / 自定义",
-			},
-			{ name: "headingFont", label: "标题字体", type: "text" },
-			{
-				name: "monoFont",
-				label: "等宽字体",
-				type: "text",
-				placeholder: "JetBrains Mono",
-			},
 			{
 				name: "scale",
 				label: "字体缩放 (%)",
@@ -357,22 +341,7 @@ const GROUPS: Group[] = [
 			{ name: "enable", label: "启用封面", type: "boolean" },
 			{ name: "defaultImage", label: "默认封面 URL", type: "text" },
 			{ name: "configurable", label: "文章可自定义封面", type: "boolean" },
-			{
-				name: "fallbackToFirstImage",
-				label: "无封面时用首图",
-				type: "boolean",
-			},
 			{ name: "showLoading", label: "加载动画", type: "boolean" },
-			{ name: "randomCoverImage", label: "随机封面图", type: "boolean" },
-		],
-	},
-	{
-		key: "encrypt",
-		title: "文章加密",
-		category: "功能配置",
-		fields: [
-			{ name: "enable", label: "支持加密文章", type: "boolean" },
-			{ name: "defaultHint", label: "默认密码提示语", type: "text" },
 		],
 	},
 	{
@@ -490,8 +459,6 @@ const GROUPS: Group[] = [
 				type: "text",
 				placeholder: "/api/dynamic.json",
 			},
-			{ name: "memosEnable", label: "启用 Memos 数据源", type: "boolean" },
-			{ name: "memosApiUrl", label: "Memos API 地址", type: "text" },
 		],
 	},
 	{
@@ -502,10 +469,7 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用友链页", type: "boolean" },
 			{ name: "title", label: "页面标题", type: "text" },
 			{ name: "description", label: "页面描述", type: "textarea" },
-			{ name: "randomOrder", label: "随机排序", type: "boolean" },
-			{ name: "showCustomContent", label: "自定义内容区", type: "boolean" },
 			{ name: "showComment", label: "友链页评论", type: "boolean" },
-			{ name: "randomizeSort", label: "随机排序", type: "boolean" },
 		],
 	},
 	{
@@ -515,14 +479,6 @@ const GROUPS: Group[] = [
 		fields: [
 			{ name: "enabled", label: "启用相册页", type: "boolean" },
 			{ name: "title", label: "页面标题", type: "text" },
-			{
-				name: "coverStyle",
-				label: "封面样式",
-				type: "text",
-				placeholder: "masonry / grid",
-			},
-			{ name: "masonry", label: "瀑布流布局", type: "boolean" },
-			{ name: "columnWidth", label: "列宽 (px)", type: "number" },
 		],
 	},
 	{
@@ -602,7 +558,6 @@ const GROUPS: Group[] = [
 		fields: [
 			{ name: "sakura", label: "樱花飘落", type: "boolean" },
 			{ name: "sakuraNum", label: "樱花数量", type: "number", hint: "默认 21" },
-			{ name: "sparkle", label: "星光闪烁", type: "boolean" },
 			{ name: "click", label: "点击特效", type: "boolean" },
 			{ name: "waves", label: "波浪特效", type: "boolean" },
 			{ name: "gradient", label: "渐变背景", type: "boolean" },
@@ -612,18 +567,6 @@ const GROUPS: Group[] = [
 				label: "樱花越界限制次数",
 				type: "number",
 				placeholder: "-1 无限",
-			},
-			{
-				name: "opacityMin",
-				label: "樱花最小不透明度",
-				type: "number",
-				placeholder: "0-1",
-			},
-			{
-				name: "opacityMax",
-				label: "樱花最大不透明度",
-				type: "number",
-				placeholder: "0-1",
 			},
 			{ name: "zIndex", label: "特效层级", type: "number" },
 		],
@@ -708,7 +651,6 @@ const GROUPS: Group[] = [
 			},
 			{ name: "umamiUrl", label: "Umami 地址", type: "text" },
 			{ name: "umamiId", label: "Umami 站点 ID", type: "text" },
-			{ name: "baiduId", label: "百度统计 ID", type: "text" },
 		],
 	},
 	{
