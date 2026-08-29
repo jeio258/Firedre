@@ -3,7 +3,7 @@
 > 审查对象：`/home/lyxy/pi/Firedre`（Astro + Svelte + Cloudflare Pages 博客）
 > 审查日期：2026-09
 > 审查方式：静态代码分析 + 单元测试基准（74 通过）+ Playwright 前台行为验证
-> 状态：**仅审查与报告，未推送，未改动任何业务代码**（除 4 处已在未提交区的工作区改动外，见 §6）
+> 状态：**审查完成；优化已按优先级执行（Bug 修复 + 组件迁移 + 死文件清理），经前端 UI 测试验证**。未推送。
 
 ---
 
@@ -159,6 +159,34 @@ applyXxxToDocument(v)    → 更新 document/元素
 - **存在可观的重复代码**：`setting-utils.ts` 的四函数模式可工厂化消重。
 
 **建议执行顺序**：先提交/处理遗留工作区改动 → 修 Bug 1 → 补齐 getter 字段并迁移剩余组件 → setting-utils 工厂化。
+
+---
+
+## 9. 优化执行结果（本轮已完成）
+
+### ✅ 已修复 / 已完成
+
+| 项 | 处理 | 验证 |
+|---|---|---|
+| **Bug 1**（site_url 键名不一致） | `SiteInfo.astro` + `posts/[slug].astro` 改走 `getSiteConfig().site_url`，后台改 siteUrl 前台生效 | Playwright + typecheck 0 error |
+| **死文件**（widget/SpineModel、admin/AdminShell） | 确认无引用后删除 | 297 文件，0 error |
+| **遗留未提交改动** | 保留合理部分（overlay*Switchable 字段名对齐、SettingsShape 死字段、effects 组），回退有回归风险的（font/license/analytics/mermaid 表单组删除——前台在用） | 26 组完整恢复 |
+| **Music 组件迁移** | 改走 `getMusicConfig()` | Playwright 正常渲染 |
+| **Announcement 组件迁移** | 改走 `getAnnouncementConfig()`（runtime 补 link/closable） | Playwright 正常渲染 |
+| **4 个评论组件迁移**（Waline/Disqus/Twikoo/Artalk） | 改走 `getCommentConfig()`（runtime 补 visitorCount） | typecheck 0 error |
+| **单元测试** | 74/74 通过 | vitest |
+| **前端 UI 真实测试** | 8 页面 200 + 首页公告/音乐/导航栏正常 + 无 JS 错误 | Playwright |
+| **ui-review 全站回归** | 79/81（2 个既有失败：404、/dynamic/ 504） | Playwright |
+
+### ⏸️ 暂缓（风险收益比不佳，建议独立评估）
+
+| 项 | 原因 |
+|---|---|
+| **Layout.astro 迁移** | 核心布局、读取已正确生效、需新增 getPostConfig/imageOptimization 等 getter，改错破坏所有页面，风险高 |
+| **setting-utils 工厂化** | 涉及 14 个被广泛调用的前端交互导出函数 + 需提取 3 个 apply，无法用单元测试充分验证，回归风险 > 整洁收益 |
+| **runtime.ts 样板抽取** | 纯可读性优化，改动面广（26 getter），收益有限 |
+
+> 注：暂缓项均不涉及 bug，均为纯代码整洁优化，可在独立任务中评估。
 
 ---
 
