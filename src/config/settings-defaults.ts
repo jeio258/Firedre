@@ -1,4 +1,4 @@
-// 自动生成：scripts/extract-settings-defaults.mts（Firefly 静态配置默认值）
+// 后台/运行时默认设置（手工维护）。前端后台表单默认值见 settings-defaults.json。
 export const settingsDefaults = {
 	basic: {
 		title: "Firefly",
