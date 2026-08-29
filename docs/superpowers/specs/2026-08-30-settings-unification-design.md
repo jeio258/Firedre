@@ -48,6 +48,10 @@
 
 ## 2. 目标架构
 
+**范围基准**：以官方文档 `https://docs-firefly.cuteleaf.cn/zh/guide/getting-started.html`「配置文件概览」列出的 22 个配置模块为准：`siteConfig` `dynamicConfig` `navBarConfig` `sidebarConfig` `profileConfig` `backgroundWallpaper` `commentConfig` `musicConfig` `fontConfig` `coverImageConfig` `expressiveCodeConfig` `effectsConfig` `announcementConfig` `footerConfig` `licenseConfig` `friendsConfig` `sponsorConfig` `analyticsConfig` `galleryConfig` `mermaidConfig` `plantumlConfig` `pioConfig`。
+
+**已核实**：runtime.ts 对这 22 个模块**全部有对应 getter**。本重构目标是把这些 getter 用起来、补全缺口字段、让前台统一生效。
+
 ```
 后台 /admin → PUT /api/settings/ → D1 → 版本号+1
       ↓
@@ -65,21 +69,47 @@ getSiteConfig(locals) / getWallpaperConfig(locals) / getPostConfig(locals) / ...
   - **已手动设置**：用 localStorage 值（保留个人偏好）
   - 该约定统一在 `setting-utils` 的 `getStoredWallpaperMode` 等函数实现，所有组件复用，不各自实现。
 
-## 3. runtime.ts 扩展
+## 3. 现状核对与 runtime.ts 缺口
 
-新增/补齐以下 getter（均沿用 `settingsOf`/`groupOf`/`str`/`num`/`bool`/`arr` 辅助函数，模式与现有一致）：
+**已确认**：runtime.ts 已有 20 个 getter，覆盖大多数 config 模块（site/profile/comment/music/wallpaper/footer/effects/pio/license/sponsor/dynamic/announcement/navbar/sidebar/cover/font/expressive/mermaid/plantuml/analytics）。
 
-| Getter | 需补齐字段（静态兜底源） |
+**核心问题（已实证）**：① 仅 `setting-utils.ts` 用了 runtime，其余 8 个组件手写读取；② runtime.ts 存在**后台可改但 getter 读不到**的字段缺口（后台改了 → 前端不生效）：
+
+| 后台组 | 缺口字段 |
 |---|---|
-| `getNavbarConfig` | 统一两套来源：`settings.navbar`（兜底 `siteConfig.navbar`，含 title/widthFull/menuAlign/logo/followTheme）+ `settings.nav.navItems`（生成 links，兜底 `navBarConfig.links`），消除 Navbar.astro 当前混用 |
-| `getWallpaperConfig` | 补 `banner`、`fullscreen` 子对象（静态 `backgroundWallpaper.banner/fullscreen`），及 `theme.playerEnable/playerUrl/playerMode/dimOpacity` 已有 |
-| `getCoverConfig` | 补 `enableInPost`, `enableInPostOverlay`（静态 `coverImageConfig`） |
-| `getSponsorConfig` | 补 `showButtonInPost`（静态 `sponsorConfig`） |
-| `getPostConfig`（**新增**） | `sharePoster`, `showLastModified`, `outdatedThreshold`, `generateOgImages` 等（静态 `siteConfig.post`） |
-| `getPanelConfig`（**新增**） | Navbar 的 `panel` 组（兜底 `displaySettingsConfig`：enable/themeColorSwitchable/wallpaperModeSwitchable/layoutSwitchable 等开关） |
-| `getPageToggles` | pages 组开关 `friends/guestbook/dynamic/gallery/sponsor/...`（已有散落在 getSiteConfig，改为独立或复用） |
+| `panel` | 13 个开关（wallpaperModeSwitchable/bannerCarouselSwitchable/…） |
+| `sidebar` | showProfile/showTags/showCategories/showCalendar/showMusic/showAnnouncement |
+| `theme` | homeSubtitles |
+| `cover` | showLoading |
+| `music` | autoplay |
+| `dynamic` | apiUrl, profileUrl |
+| `bilibili` | uid |
+| `vndb` / `myanimelist` / `bangumi` | username |
+| `sponsor` | showButtonInPost, showSponsorsList |
+| `announcement` | closable, content |
+| `ads` | adSenseId, customCode |
+| `pio` | model |
 
-**原则**：`getXxxConfig` 返回完整静态默认 + D1 覆盖；缺失字段保持静态默认；空字符串/undefined 一律回退静态默认。每个 getter 均有对应 `getXxxConfigFromWindow()`。
+**原则**：runtime getter 需读全对应后台组的字段（`settingsOf`/`groupOf`/`str`/`num`/`bool`/`arr`），静态 config 仅兜底；后台可改 → 前端必生效。
+
+## 3b. 新增/补齐 getter
+
+| Getter | 补齐内容 |
+|---|---|
+| `getPanelConfig`（新增） | panel 组 13 开关，兜底 `displaySettingsConfig` |
+| `getSidebarConfig` | 补 showProfile/showTags/… 开关 |
+| `getWallpaperConfig` | 补 `theme.homeSubtitles`，及 `theme.banner`/`theme.fullscreen` 子对象 |
+| `getCoverConfig` | 补 `showLoading` |
+| `getMusicConfig` | 补 `autoplay` |
+| `getDynamicConfig` | 补 `apiUrl`, `profileUrl` |
+| `getPioConfig` | 补 `model` |
+| `getSponsorConfig` | 补 `showButtonInPost`, `showSponsorsList` |
+| `getAnnouncementConfig` | 补 `closable`, `content` |
+| `getAdsConfig`（新增） | ads 组 adSenseId/customCode，兜底 `adsConfig` |
+| `getNavbarConfig` | 统一 `settings.navbar`（兜底 `siteConfig.navbar`）+ `settings.nav.navItems`（兜底 `navBarConfig.links`） |
+| 页面类组 | bilibili/vndb/myanimelist/bangumi 的 uid/username 由各自页面组件统一经 runtime 读取 |
+
+**原则**：`getXxxConfig` 返回完整静态默认 + D1 覆盖；缺失字段保持静态默认；空串/undefined 回退静态默认。每个 getter 有对应 `getXxxConfigFromWindow()`。
 
 ## 4. 组件迁移清单
 
