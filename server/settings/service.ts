@@ -275,16 +275,12 @@ export interface SettingsShape {
 	avatar?: string;
 	hue?: number;
 	bannerUrl?: string;
-	footerText?: string;
 	icp?: string;
-	commentEnabled?: boolean;
 	navItems?: Array<{ label: string; url: string }>;
 	social?: Array<{ label: string; url: string }>;
 	music?: { enabled?: boolean; url?: string; name?: string };
 	effects?: {
 		sakura?: boolean;
-		sparkle?: boolean;
-		click?: boolean;
 		waves?: boolean;
 		gradient?: boolean;
 	};
@@ -292,7 +288,7 @@ export interface SettingsShape {
 	comment?: { enabled?: boolean; type?: string };
 	license?: { enabled?: boolean; type?: string; url?: string };
 	announcement?: { enabled?: boolean; content?: string };
-	analytics?: { googleAnalyticsId?: string; microsoftClarityId?: string; umamiId?: string; umamiUrl?: string; baiduId?: string };
+	analytics?: { googleAnalyticsId?: string; microsoftClarityId?: string; umamiId?: string; umamiUrl?: string };
 	ads?: { enabled?: boolean; adSenseId?: string; customCode?: string };
 	keywords?: string;
 	defaultMode?: string;

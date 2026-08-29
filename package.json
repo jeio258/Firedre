@@ -27,7 +27,8 @@
     "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
     "deploy": "wrangler pages deploy dist --project-name firedre --commit-dirty=true",
     "deploy:dry": "wrangler pages deploy dist --project-name firedre --dry-run",
-    "postbuild": "node scripts/copy-vditor.mjs"
+    "postbuild": "node scripts/copy-vditor.mjs",
+    "test:audit": "node scripts/audit-browser.cjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

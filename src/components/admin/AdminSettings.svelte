@@ -123,12 +123,30 @@ const GROUPS: Group[] = [
 				type: "boolean",
 			},
 			{ name: "sakuraSwitchable", label: "樱花可调", type: "boolean" },
-			{ name: "overlayOpacity", label: "遮罩不透明度可调", type: "boolean" },
-			{ name: "overlayBlur", label: "遮罩模糊可调", type: "boolean" },
+			{ name: "overlayOpacitySwitchable", label: "遮罩不透明度可调", type: "boolean" },
+			{ name: "overlayBlurSwitchable", label: "遮罩模糊可调", type: "boolean" },
 			{
-				name: "overlayCardOpacity",
+				name: "overlayCardOpacitySwitchable",
 				label: "卡片不透明度可调",
 				type: "boolean",
+			},
+		],
+	},
+	{
+		key: "effects",
+		title: "特效设置",
+		category: "站点配置",
+		fields: [
+			{ name: "sakura", label: "樱花飘落", type: "boolean" },
+			{ name: "sakuraNum", label: "樱花数量", type: "number", hint: "默认 21" },
+			{ name: "waves", label: "波浪特效", type: "boolean" },
+			{ name: "gradient", label: "渐变背景", type: "boolean" },
+			{ name: "bannerCarousel", label: "横幅轮播效果", type: "boolean" },
+			{
+				name: "limitTimes",
+				label: "樱花越界限制次数",
+				type: "number",
+				placeholder: "-1 无限",
 			},
 		],
 	},
@@ -404,8 +422,6 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用", type: "boolean" },
 		],
 	},
-
-	// ── 页面配置 ──
 	{
 		key: "dynamic",
 		title: "动态",
@@ -504,24 +520,6 @@ const GROUPS: Group[] = [
 	},
 
 	// ── 扩展功能 ──
-	{
-		key: "effects",
-		title: "特效设置",
-		category: "扩展功能",
-		fields: [
-			{ name: "sakura", label: "樱花飘落", type: "boolean" },
-			{ name: "sakuraNum", label: "樱花数量", type: "number", hint: "默认 21" },
-			{ name: "waves", label: "波浪特效", type: "boolean" },
-			{ name: "gradient", label: "渐变背景", type: "boolean" },
-			{ name: "bannerCarousel", label: "横幅轮播效果", type: "boolean" },
-			{
-				name: "limitTimes",
-				label: "樱花越界限制次数",
-				type: "number",
-				placeholder: "-1 无限",
-			},
-		],
-	},
 	{
 		key: "announcement",
 		title: "公告",

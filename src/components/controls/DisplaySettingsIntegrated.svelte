@@ -147,20 +147,19 @@ const hasBannerSettings =
 	isBannerTitleSwitchable ||
 	isBannerCarouselSwitchable;
 const overlaySwitchableConfig = displaySettingsConfig.overlaySwitchable;
+const overlaySwitchableObj =
+	typeof overlaySwitchableConfig === "object" && overlaySwitchableConfig !== null
+		? overlaySwitchableConfig
+		: {};
+// 遮罩滑块可调开关：优先读后台 panel 组（xxxSwitchable），静态 config 兑底
 const isOverlaySettingsSwitchable =
-	typeof overlaySwitchableConfig === "boolean" ? panelBool("overlayOpacity", overlaySwitchableConfig) : panelBool("overlayOpacity", true);
+	panelBool("overlayOpacitySwitchable", overlaySwitchableObj.opacity ?? overlaySwitchableConfig === true);
 const isOverlayOpacitySwitchable =
-	typeof overlaySwitchableConfig === "boolean"
-		? panelBool("overlayOpacity", overlaySwitchableConfig)
-		: (overlaySwitchableConfig.opacity ?? false);
+	panelBool("overlayOpacitySwitchable", overlaySwitchableObj.opacity ?? false);
 const isOverlayBlurSwitchable =
-	typeof overlaySwitchableConfig === "boolean"
-		? panelBool("overlayBlur", overlaySwitchableConfig)
-		: (overlaySwitchableConfig.blur ?? false);
+	panelBool("overlayBlurSwitchable", overlaySwitchableObj.blur ?? false);
 const isOverlayCardOpacitySwitchable =
-	typeof overlaySwitchableConfig === "boolean"
-		? panelBool("overlayCardOpacity", overlaySwitchableConfig)
-		: (overlaySwitchableConfig.cardOpacity ?? false);
+	panelBool("overlayCardOpacitySwitchable", overlaySwitchableObj.cardOpacity ?? false);
 const hasOverlaySettings =
 	isOverlaySettingsSwitchable &&
 	(isOverlayOpacitySwitchable ||
