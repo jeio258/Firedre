@@ -247,6 +247,30 @@ export function getWallpaperConfig(locals: unknown) {
 			opacity: num(t.overlayOpacity, staticWallpaper.overlay?.opacity ?? 0.8),
 			blur: num(t.overlayBlur, staticWallpaper.overlay?.blur ?? 0),
 		},
+		banner: {
+			...(staticWallpaper.banner ?? {}),
+			navbar: {
+				...(staticWallpaper.banner?.navbar ?? {}),
+				transparentMode: str(
+					(t.banner as { navbar?: { transparentMode?: unknown; blur?: unknown } } | undefined)?.navbar?.transparentMode,
+					((staticWallpaper.banner as unknown as Record<string, unknown>)?.navbar as Record<string, unknown> | undefined)?.transparentMode as string ?? "semi",
+				),
+				blur: num(
+					(t.banner as { navbar?: { transparentMode?: unknown; blur?: unknown } } | undefined)?.navbar?.blur,
+					((staticWallpaper.banner as unknown as Record<string, unknown>)?.navbar as Record<string, unknown> | undefined)?.blur as number ?? 20,
+				),
+			},
+		},
+		fullscreen: {
+			...(staticWallpaper.fullscreen ?? {}),
+			navbar: {
+				...(staticWallpaper.fullscreen?.navbar ?? {}),
+				dynamicTransparent: bool(
+					(t.fullscreen as { navbar?: { dynamicTransparent?: unknown } } | undefined)?.navbar?.dynamicTransparent,
+					((staticWallpaper.fullscreen as unknown as Record<string, unknown>)?.navbar as Record<string, unknown> | undefined)?.dynamicTransparent as boolean ?? true,
+				),
+			},
+		},
 	};
 }
 
@@ -349,9 +373,17 @@ export function getNavbarConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const n = groupOf(s, "nav");
 	const navItems = arr(n.navItems, staticNavConfig.links);
+	const nb = groupOf(s, "navbar");
+	const siteNavbar = (staticSiteConfig as unknown as Record<string, unknown>).navbar as Record<string, unknown> | undefined;
 	return {
 		...staticNavConfig,
 		enabled: bool(n.enabled, (staticNavConfig as unknown as Record<string, unknown>).enabled !== false),
+		title: str(nb.title, String((siteNavbar?.title as string) ?? ((staticNavConfig as unknown as Record<string, unknown>).title as string) ?? "")),
+		widthFull: bool(nb.widthFull, Boolean(siteNavbar?.widthFull)),
+		menuAlign: str(nb.menuAlign, String((siteNavbar?.menuAlign as string) ?? "center")),
+		followTheme: bool(nb.followTheme, Boolean(siteNavbar?.followTheme)),
+		stickyNavbar: bool(nb.stickyNavbar, Boolean((siteNavbar?.stickyNavbar as boolean) ?? true)),
+		logo: (nb.logo && typeof nb.logo === "object" ? nb.logo : siteNavbar?.logo) as unknown,
 		links: (Array.isArray(navItems) && navItems.length
 			? (navItems as Array<Record<string, unknown>>).map((item) => ({
 					name: String(item.label ?? item.name ?? ""),

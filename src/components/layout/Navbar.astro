@@ -8,12 +8,9 @@ import LightDarkSwitch from "@/components/controls/LightDarkSwitch.svelte";
 import Search from "@/components/controls/Search.svelte";
 import MusicPlayer from "@/components/features/MusicPlayer.astro";
 import {
-	backgroundWallpaper,
-	displaySettingsConfig,
 	navBarConfig,
-	siteConfig,
 } from "@/config";
-import { musicPlayerConfig } from "@/config/musicConfig";
+import { getMusicConfig, getNavbarConfig, getPanelConfig, getSiteConfig, getWallpaperConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { NavBarLink } from "@/types/config";
@@ -24,15 +21,12 @@ import { url } from "@/utils/url-utils";
 import DropdownMenu from "./DropdownMenu.astro";
 import NavMenuPanel from "./NavMenuPanel.astro";
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
-const settings =
-	(
-		Astro.locals as {
-			settings?: Record<string, unknown> & {
-				music?: { enabled?: boolean };
-				nav?: { enabled?: boolean };
-			};
-		}
-	).settings ?? {};
+// 运行时站点配置（后台可编辑；静态 config 为兜底），统一经 runtime getter 读取
+const wallpaperConfig = getWallpaperConfig(Astro.locals);
+const navbarConfig = getNavbarConfig(Astro.locals);
+const siteConfigRuntime = getSiteConfig(Astro.locals);
+const panelConfig = getPanelConfig(Astro.locals);
+const musicConfigRuntime = getMusicConfig(Astro.locals);
 
 
 const className = Astro.props.class;
@@ -43,54 +37,41 @@ const isHomePageCheck = isHomePage(Astro.url.pathname);
 // 获取导航栏透明模式配置：
 // banner 模式用 banner.navbar 配置；fullscreen 模式用 fullscreen.navbar，
 // 首页开启动态透明时用 semifull（顶部透明、下滑不透明），否则完全透明
+const wallpaperMode = wallpaperConfig.mode;
 const navbarTransparentMode =
-	((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode) === "banner"
-		? ((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi"
-		: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode) === "fullscreen"
-			? isHomePageCheck &&
-				(((((settings as any)?.["theme"]) as any)?.["fullscreen"] ?? backgroundWallpaper.fullscreen)?.navbar?.dynamicTransparent ?? false)
+	wallpaperMode === "banner"
+		? wallpaperConfig.banner?.navbar?.transparentMode || "semi"
+		: wallpaperMode === "fullscreen"
+			? isHomePageCheck && (wallpaperConfig.fullscreen?.navbar?.dynamicTransparent ?? false)
 				? "semifull"
 				: "none"
 			: "semi";
 
 // 获取导航栏模糊度（0 即关闭导航栏毛玻璃）
 const navbarBlur =
-	((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode) === "banner"
-		? (((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20)
+	wallpaperMode === "banner"
+		? wallpaperConfig.banner?.navbar?.blur ?? 20
 		: 0;
 
-// 获取导航栏标题，如果没有设置则使用 ((settings as any)?.["title"] ?? siteConfig.title)
-const navbarTitle = ((settings as any)?.["navbar"] ?? siteConfig.navbar).title || ((settings as any)?.["title"] ?? siteConfig.title);
+// 获取导航栏标题，如果没有设置则使用站点标题
+const navbarTitle = navbarConfig.title || siteConfigRuntime.title;
 
 // 获取导航栏宽度配置
-const navbarWidthFull = ((settings as any)?.["navbar"] ?? siteConfig.navbar).widthFull ?? false;
-const navbarMenuAlign = ((settings as any)?.["navbar"] ?? siteConfig.navbar).menuAlign ?? "center";
+const navbarWidthFull = navbarConfig.widthFull ?? false;
+const navbarMenuAlign = navbarConfig.menuAlign ?? "center";
 const isNavbarMenuCentered = navbarMenuAlign === "center";
 
-const panelSettings = (settings as any)?.["panel"] ?? {};
-const isDisplaySettingsEnabled =
-	typeof panelSettings.enable === "boolean"
-		? panelSettings.enable
-		: displaySettingsConfig.enable;
-const showThemeColor =
-	typeof panelSettings.themeColorSwitchable === "boolean"
-		? panelSettings.themeColorSwitchable
-		: displaySettingsConfig.themeColorSwitchable;
-const isWallpaperSwitchable =
-	typeof panelSettings.wallpaperModeSwitchable === "boolean"
-		? panelSettings.wallpaperModeSwitchable
-		: displaySettingsConfig.wallpaperModeSwitchable;
-const allowLayoutSwitch =
-	typeof panelSettings.layoutSwitchable === "boolean"
-		? panelSettings.layoutSwitchable
-		: displaySettingsConfig.layoutSwitchable;
+const isDisplaySettingsEnabled = panelConfig.enable;
+const showThemeColor = panelConfig.themeColorSwitchable;
+const isWallpaperSwitchable = panelConfig.wallpaperModeSwitchable;
+const allowLayoutSwitch = panelConfig.layoutSwitchable;
 const hasDisplaySettings =
 	isDisplaySettingsEnabled &&
 	(showThemeColor || isWallpaperSwitchable || allowLayoutSwitch);
 
-// 根据 ((settings as any)?.["pages"] ?? siteConfig.pages) 过滤导航栏链接（后台站点设置可覆盖页面开关）
-const pages = ((settings as any)?.["pages"] ?? siteConfig.pages);
-const pageSettings = (settings as unknown as Record<string, unknown>) ?? {};
+// 根据页面开关过滤导航栏链接（后台站点设置可覆盖页面开关）
+const pages = siteConfigRuntime.pages;
+const pageSettings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 const pageKeyMap: Record<string, string> = {
 	friends: "pageFriends",
 	guestbook: "pageGuestbook",
@@ -130,28 +111,24 @@ function filterLinks(link: NavBarLink): NavBarLink | null {
 	return { ...link, children: filteredChildren };
 }
 
-const customNav = Array.isArray(settings.navItems)
-	? (settings.navItems as Array<{
-			label?: string;
-			url?: string;
-			icon?: string;
-		}>)
+const customNav = Array.isArray((navbarConfig as unknown as { links?: unknown }).links)
+	? ((navbarConfig as unknown as { links?: Array<{ label?: string; url?: string; icon?: string; name?: string }> }).links ?? [])
 	: [];
 let links: NavBarLink[] = customNav.length
 	? customNav.map((n) => ({
-			name: n.label || "",
+			name: n.label || n.name || "",
 			url: n.url || "#",
 			icon: n.icon,
 		}))
 	: resolveNavbarLinks(
-			((((settings as any)?.["nav"]) as any)?.["links"] ?? navBarConfig.links)
+			((navbarConfig as unknown as { links?: unknown }).links as NavBarLink[] ?? navBarConfig.links)
 				.map(filterLinks)
 				.filter((link: NavBarLink | null): link is NavBarLink => link !== null),
 		);
 
 // 处理导航栏 Logo 图片，image / url 类型支持亮暗色分别设置
-const logoConfig = ((settings as any)?.["navbar"] ?? siteConfig.navbar).logo;
-const logoAlt = logoConfig?.alt || ((settings as any)?.["title"] ?? siteConfig.title);
+const logoConfig = navbarConfig.logo as { alt?: string; type?: string; value?: string; valueDark?: string } | undefined;
+const logoAlt = logoConfig?.alt || siteConfigRuntime.title;
 const logoIsImage = logoConfig?.type === "image" || logoConfig?.type === "url";
 const logoBaseClass = "navbar-logo h-7 w-7 mb-1 mr-2 object-contain";
 
@@ -206,9 +183,9 @@ const logoVariants = await Promise.all(
 ---
 <div id="navbar" class="z-50" style={`--navbar-glass-blur: ${navbarBlur}px;`} data-transparent-mode={navbarTransparentMode} data-is-home={isHomePageCheck} data-full-width={navbarWidthFull}>
     <script is:inline define:vars={{
-      bannerTMode: ((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi",
-      bannerBlur: ((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
-      fsDynamic: ((((settings as any)?.["theme"]) as any)?.["fullscreen"] ?? backgroundWallpaper.fullscreen)?.navbar?.dynamicTransparent ?? false,
+      bannerTMode: wallpaperConfig.banner?.navbar?.transparentMode || "semi",
+      bannerBlur: wallpaperConfig.banner?.navbar?.blur ?? 20,
+      fsDynamic: wallpaperConfig.fullscreen?.navbar?.dynamicTransparent ?? false,
     }}>
       // 首帧前按运行时壁纸模式修正导航栏透明模式：SSR 的 data-transparent-mode 按 config 设置，
       // 与运行时模式不一致时（如 config fullscreen + 存储 banner）会先按错误模式渲染闪烁，
@@ -243,7 +220,7 @@ const logoVariants = await Promise.all(
             <a href={url('/')} class="btn-plain scale-animation rounded-lg h-13 px-3 md:px-5 font-bold active:scale-95">
                 <div class:list={[
                     "flex flex-row items-center text-md",
-                    ((settings as any)?.["navbar"] ?? siteConfig.navbar).followTheme ? "text-(--primary)" : "dark:text-white text-black"
+                    navbarConfig.followTheme ? "text-(--primary)" : "dark:text-white text-black"
                 ]} style="font-family: var(--font-navbar-title, inherit)">
                                     {logoConfig?.type === "icon" ? (
                                         <Icon name={logoConfig.value || "material-symbols:home-pin-outline"} class="navbar-logo text-[1.75rem] mb-1 mr-2" />
@@ -284,12 +261,12 @@ const logoVariants = await Promise.all(
                 <Search
                     client:load
                 />
-                {((settings as any)?.music?.showInNavbar ?? musicPlayerConfig.showInNavbar) && settings.music?.enabled !== false && (
+                {(musicConfigRuntime.showInNavbar && musicConfigRuntime.enable !== false) && (
                     <button aria-label={i18n(I18nKey.music)} aria-controls="music-nav-panel" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90" id="music-player-switch">
                         <Icon name="material-symbols:music-note-rounded" class="text-[1.25rem]"></Icon>
                     </button>
                 )}
-                {((((settings as any)?.["theme"]) as any)?.["playerEnable"] ?? backgroundWallpaper.playerEnable) && ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode) !== "none" && (
+                {wallpaperConfig.playerEnable && wallpaperConfig.mode !== "none" && (
                     <button
                         aria-label={i18n(I18nKey.videoPlay)}
 						class="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90"
@@ -321,7 +298,7 @@ const logoVariants = await Promise.all(
                 </button>
             </div>
         </div>
-        {((settings as any)?.music?.showInNavbar ?? musicPlayerConfig.showInNavbar) && settings.music?.enabled !== false && (
+        {(musicConfigRuntime.showInNavbar && musicConfigRuntime.enable !== false) && (
             <div id="music-nav-panel" class="float-panel float-panel-closed absolute transition-all right-16 p-2 pt-4.5 w-80 z-50" data-floating-panel data-floating-panel-trigger="music-player-switch" inert aria-hidden="true">
                 <MusicPlayer />
             </div>
