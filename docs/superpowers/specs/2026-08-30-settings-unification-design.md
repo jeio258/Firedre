@@ -1,7 +1,7 @@
 # 配置系统统一重构设计
 
 日期：2026-08-30
-状态：待用户批准
+状态：核心修复已完成并验证（方案 A）
 目标：让 `src/config/runtime.ts` 成为前台唯一配置读取入口，所有组件统一走它，消除"平铺/嵌套混用、单组件单读取"的混乱，使"后台改 → 前台全局生效"。
 
 ## 1. 背景与问题
@@ -166,15 +166,25 @@ const siteSubtitle = sc.subtitle;
 
 ## 8. 范围外（不本次做）
 
-- `admin/AdminSettings.svelte` GROUPS 结构不改（除非必要）
+- **方案 B 内容**：不为文档中有而后台无表单的字段补后台 UI（analytics.googleAnalyticsId/la51Analytics、postListLayout.*、imageOptimization.*、bangumi.apiUrl/mode/nsfw、vndb.apiToken 等）
+- `admin/AdminSettings.svelte` GROUPS 结构不改
 - middleware / API 端点不改
 - 生产构建产物验证（`@astrojs/cloudflare` 无法 `astro preview`）
 - `fullscreenBg` 功能接入
 
-## 9. 交付物
+## 9. 交付物与完成状态
 
-- `src/config/runtime.ts` 扩展
-- 8 个组件迁移
-- 3 处 bug 修复
-- settings-defaults 清理死字段
-- 回归验证报告
+**已完成（方案 A）：**
+- `src/config/runtime.ts` 扩展：补齐 getSidebarConfig show*、getCoverConfig.showLoading、getMusicConfig.autoplay/enable、getPioConfig.model、getSponsorConfig.showButtonInPost/showSponsorsList、getDynamicConfig.apiUrl/profileUrl/enable、getAnnouncementConfig.content、getNavbarConfig.enabled/title/widthFull/menuAlign/followTheme/stickyNavbar/logo、getWallpaperConfig.banner/fullscreen 子对象；新增 getPanelConfig；getSiteConfig/getProfileConfig 改为嵌套组优先（修复 conflictedKey title 平铺读不到）
+- `MainGridLayout`：背景图改用 getWallpaperConfig 替换语义（修复拼接 bug）
+- `Layout`：isWallpaperSwitchable 改读后台 panel 组
+- `setting-utils` / `banner-visibility-utils`：panel 开关改读运行时 getPanelConfig
+- 组件迁移：MainGridLayout / Footer / WallpaperSection / HeaderTopRow / SideBar / Navbar 统一走 runtime getter
+- 壁纸模式优先级（localStorage > 后台默认，wallpaperModeSwitchable 控制）端到端验证通过
+- 新增 tests/runtime-config.test.ts（12 用例），全项目 74 测试通过
+- `astro check` 0 错误；dev server 回归 79/81（与基线一致，2 个失败为既有问题）
+
+**未做（方案 B 范围外）：**
+- 不为后台无表单的文档字段补后台 UI（analytics.googleAnalyticsId/la51Analytics、postListLayout.*、imageOptimization.*、bangumi.apiUrl/mode/nsfw、vndb.apiToken 等）
+- `[...slug].astro`（文章页）深度迁移——项目无文章内容无法验证，其读取已能生效
+- `fullscreenBg` 功能接入（死字段，仅移除 settings-defaults 占位可另立项）
