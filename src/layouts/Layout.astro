@@ -512,7 +512,7 @@ const siteLogo = await getSiteLogo();
 
     <!-- 播放器视图脚本：必须在 <slot /> 之后（解析到它时所有 widget 的 DOM 要已存在），
          且在 MusicManager 之后（swup 重跑按文档顺序，window.__fireflyMusic 得先就位） -->
-    {(musicPlayerConfig.showInNavbar || musicPlayerConfig.showInSidebar !== false) && settings.music?.enabled !== false && (
+    {((((settings as any)?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || (((settings as any)?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (
       <MusicPlayerView />
     )}
 

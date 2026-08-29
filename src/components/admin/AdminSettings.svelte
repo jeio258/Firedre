@@ -254,12 +254,6 @@ const GROUPS: Group[] = [
 				hint: "0-1",
 			},
 			{ name: "overlayBlur", label: "遮罩模糊 (px)", type: "number" },
-			{
-				name: "hue",
-				label: "主题色相 (0-360)",
-				type: "number",
-				hint: "改变全局主题色",
-			},
 		],
 	},
 	{

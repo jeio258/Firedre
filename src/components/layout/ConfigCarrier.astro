@@ -11,7 +11,7 @@ import { backgroundWallpaper, siteConfig } from "@/config";
 <!-- 全局配置载体 -->
 <div
   id="config-carrier"
-  data-hue={((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue}
+  data-hue={((settings as any)?.["hue"] ?? (((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue))}
   data-wallpaper-mode={((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode)}
 >
 </div>
