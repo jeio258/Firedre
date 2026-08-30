@@ -148,6 +148,28 @@ export const settingsDefaults = {
 		title: "",
 		description: "",
 	},
+	bilibili: {
+		enabled: true,
+		uid: "38932988",
+		title: "哔哩哔哩",
+	},
+	vndb: {
+		enabled: false,
+		username: "u358128",
+	},
+	myanimelist: {
+		enabled: false,
+		username: "",
+	},
+	bangumi: {
+		enabled: false,
+		username: "1143164",
+	},
+	ads: {
+		enabled: false,
+		adSenseId: "",
+		customCode: "",
+	},
 	sponsor: {
 		title: "",
 		description: "",

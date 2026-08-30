@@ -16,10 +16,6 @@ import { getAdminEnvFromProcess, loadAdminEnv } from "./loadAdminEnv";
 export const ADMIN_SESSION_COOKIE = "admin_session";
 /** 单次管理会话有效时长（离开 /admin 后会清除 Cookie） */
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 4; // 4 hours
-/** 登录失败锁定时间 */
-export const LOGIN_LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
-/** 最大尝试次数 */
-export const LOGIN_MAX_ATTEMPTS = 5;
 /** bcrypt 工作因子 */
 export const BCRYPT_ROUNDS = 10;
 

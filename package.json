@@ -52,7 +52,6 @@
     "bcryptjs": "^3.0.3",
     "dayjs": "^1.11.23",
     "github-slugger": "^2.0.0",
-    "glob": "^13.0.6",
     "gray-matter": "^4.0.3",
     "hastscript": "^9.0.1",
     "katex": "^0.18.3",

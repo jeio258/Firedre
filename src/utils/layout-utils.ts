@@ -45,27 +45,6 @@ export const getBackgroundImages = (): BackgroundImages => {
 	};
 };
 
-// 类型守卫函数
-export const isBannerSrcObject = (
-	src:
-		| string
-		| string[]
-		| { desktop?: string | string[]; mobile?: string | string[] },
-): src is { desktop?: string | string[]; mobile?: string | string[] } => {
-	return (
-		typeof src === "object" &&
-		src !== null &&
-		!Array.isArray(src) &&
-		("desktop" in src || "mobile" in src)
-	);
-};
-
-// 获取默认背景图片（返回第一张，用于 SEO 等场景）
-export const getDefaultBackground = (): string => {
-	const images = getBackgroundImages();
-	return images.desktop[0] || images.mobile[0] || "";
-};
-
 // 检查是否为首页
 export const isHomePage = (pathname: string): boolean => {
 	// 获取 base URL
@@ -77,17 +56,4 @@ export const isHomePage = (pathname: string): boolean => {
 	if (pathname === "/") return true;
 
 	return false;
-};
-
-// 获取横幅偏移量
-export const getBannerOffset = (position = "center"): string => {
-	const bannerOffsetByPosition = {
-		top: "100vh",
-		center: "50vh",
-		bottom: "0",
-	};
-	return (
-		bannerOffsetByPosition[position as keyof typeof bannerOffsetByPosition] ||
-		"50vh"
-	);
 };
