@@ -12,7 +12,6 @@ const {
 	verifySessionToken,
 	getSessionUser,
 	buildSessionCookie,
-	validateAdminCredentials,
 } = authExports;
 
 describe("isBcryptHash", () => {
@@ -42,10 +41,7 @@ describe("isBcryptHash", () => {
 });
 
 describe("getSecret", () => {
-	const testEnv = {
-		ADMIN_USERNAME: "admin",
-		ADMIN_PASSWORD: "$2b$10$abcdefghijklmnopqrstuvABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdef",
-	};
+	const testEnv: AdminAuthEnv = {};
 
 	it("should return SESSION_SECRET when configured", () => {
 		const env: AdminAuthEnv = { ...testEnv, SESSION_SECRET: "my-secret" };
@@ -68,15 +64,6 @@ describe("getSecret", () => {
 		const env: AdminAuthEnv = { ...testEnv, SESSION_SECRET: "   " };
 		expect(() => getSecret(env)).toThrow("SESSION_SECRET 未配置");
 	});
-
-	it("should NOT fall back to ADMIN_API_TOKEN or ADMIN_PASSWORD", () => {
-		// Old behavior allowed fallback - new behavior requires explicit SESSION_SECRET
-		const env: AdminAuthEnv = {
-			...testEnv,
-			ADMIN_API_TOKEN: "some-token",
-		};
-		expect(() => getSecret(env)).toThrow("SESSION_SECRET 未配置");
-	});
 });
 
 describe("createSessionToken & verifySessionToken", () => {
@@ -84,7 +71,6 @@ describe("createSessionToken & verifySessionToken", () => {
 
 	beforeEach(() => {
 		mockEnv = {
-			ADMIN_USERNAME: "admin",
 			SESSION_SECRET: "test-secret-key-for-hmac",
 		};
 	});
@@ -141,95 +127,5 @@ describe("buildSessionCookie", () => {
 	it("should include Secure flag when secure=true", () => {
 		const cookie = buildSessionCookie("test-token", true);
 		expect(cookie).toContain("Secure");
-	});
-});
-
-describe("validateAdminCredentials", () => {
-	let bcryptHash: string;
-
-	beforeEach(async () => {
-		bcryptHash = await bcrypt.hash("correct-password", 10);
-	});
-
-	it("should accept correct bcrypt password", async () => {
-		const env: AdminAuthEnv = {
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: bcryptHash,
-		};
-		expect(
-			await validateAdminCredentials("admin", "correct-password", env),
-		).toBe(true);
-	});
-
-	it("should reject wrong password", async () => {
-		const env: AdminAuthEnv = {
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: bcryptHash,
-		};
-		expect(
-			await validateAdminCredentials("admin", "wrong-password", env),
-		).toBe(false);
-	});
-
-	it("should reject wrong username", async () => {
-		const env: AdminAuthEnv = {
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: bcryptHash,
-		};
-		expect(
-			await validateAdminCredentials("other", "correct-password", env),
-		).toBe(false);
-	});
-
-	it("should return false when login not configured", async () => {
-		const env: AdminAuthEnv = {};
-		expect(
-			await validateAdminCredentials("admin", "password", env),
-		).toBe(false);
-	});
-
-	describe("plaintext legacy password auto-upgrade", () => {
-		it("accepts matching plaintext and upgrades to bcrypt (memory)", async () => {
-			const env: AdminAuthEnv = {
-				ADMIN_USERNAME: "admin",
-				ADMIN_PASSWORD: "legacy-plain-123",
-			};
-			const ok = await validateAdminCredentials(
-				"admin",
-				"legacy-plain-123",
-				env,
-			);
-			expect(ok).toBe(true);
-			// 升级后 env 中应立即为 bcrypt 哈希
-			expect(isBcryptHash(String(env.ADMIN_PASSWORD))).toBe(true);
-		});
-
-		it("rejects wrong plaintext (uses constant-time compare, no upgrade)", async () => {
-			const env: AdminAuthEnv = {
-				ADMIN_USERNAME: "admin",
-				ADMIN_PASSWORD: "legacy-plain-123",
-			};
-			const ok = await validateAdminCredentials(
-				"admin",
-				"wrong-plaintext",
-				env,
-			);
-			expect(ok).toBe(false);
-			// 未匹配时不应改写为哈希
-			expect(env.ADMIN_PASSWORD).toBe("legacy-plain-123");
-		});
-
-		it("accepts plaintext password of equal length only (constant-time path)", async () => {
-			const env: AdminAuthEnv = {
-				ADMIN_USERNAME: "admin",
-				ADMIN_PASSWORD: "abcdef",
-			};
-			expect(
-				await validateAdminCredentials("admin", "abcdef", env),
-			).toBe(true);
-			expect(
-				await validateAdminCredentials("admin", "abcxyz", env),
-			).toBe(false);
-		});
 	});
 });

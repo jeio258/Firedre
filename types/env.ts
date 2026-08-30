@@ -2,9 +2,6 @@ export interface CloudflareEnv {
 	DB: D1Database;
 	BUCKET: R2Bucket;
 	WEBDAV_PASSWORD?: string;
-	ADMIN_USERNAME?: string;
-	ADMIN_PASSWORD?: string;
-	ADMIN_API_TOKEN?: string;
-	/** 会话签名独立密钥（推荐配置，避免直接用 ADMIN_PASSWORD 签名） */
+	/** 会话签名独立密钥（必须配置，否则后台无法登录） */
 	SESSION_SECRET?: string;
 }

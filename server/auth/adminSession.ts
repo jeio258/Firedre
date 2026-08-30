@@ -3,9 +3,8 @@
  *
  * 功能：
  * - Session Cookie 管理（HttpOnly + SameSite=Lax）
- * - Bearer Token 认证
- * - 密码哈希验证（使用 bcrypt）
  * - HMAC 会话令牌签名
+ * - 密码哈希验证（bcrypt，唯一管理员存 D1）
  */
 
 import bcrypt from "bcryptjs";
@@ -20,11 +19,7 @@ export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 4; // 4 hours
 export const BCRYPT_ROUNDS = 10;
 
 export interface AdminAuthEnv {
-	ADMIN_USERNAME?: string;
-	/** 密码哈希（bcrypt）。明文密码已废弃，首次登录时自动升级。 */
-	ADMIN_PASSWORD?: string;
-	ADMIN_API_TOKEN?: string;
-	/** 会话签名独立密钥（必须配置）。不允许使用弱凭据作为签名密钥。 */
+	/** 会话签名独立密钥（必须配置，不允许降级使用弱凭据） */
 	SESSION_SECRET?: string;
 }
 
@@ -37,7 +32,7 @@ function getSecret(env: AdminAuthEnv): string {
 	const secret = env.SESSION_SECRET?.trim();
 	if (!secret) {
 		throw new Error(
-			"SESSION_SECRET 未配置。出于安全考虑，不允许使用 ADMIN_PASSWORD 或 ADMIN_API_TOKEN 作为会话签名密钥。请在 Cloudflare Secrets 中设置 SESSION_SECRET。",
+			"SESSION_SECRET 未配置。该密钥是会话签名密钥，后台无法登录。请在 Cloudflare Secrets 中设置 SESSION_SECRET。",
 		);
 	}
 	return secret;
@@ -164,57 +159,15 @@ export function buildClearSessionCookie(secure: boolean) {
 }
 
 export function resolveAdminEnv(env?: CloudflareEnv): AdminAuthEnv {
-	if (env?.ADMIN_USERNAME || env?.ADMIN_PASSWORD || env?.ADMIN_API_TOKEN)
-		return env;
+	if (env?.SESSION_SECRET) return env;
 
 	loadAdminEnv();
 	return getAdminEnvFromProcess();
 }
 
 /**
- * 验证管理员凭据（仅支持 bcrypt 哈希）
- * 若检测到明文密码，自动升级为 bcrypt 哈希（首次登录时触发）
- */
-export async function validateAdminCredentials(
-	username: string,
-	password: string,
-	env: AdminAuthEnv,
-): Promise<boolean> {
-	if (!isAdminLoginConfigured(env)) return false;
-
-	const expectedUser = env.ADMIN_USERNAME?.trim();
-	const storedPassword = env.ADMIN_PASSWORD;
-	if (!expectedUser || !storedPassword) return false;
-
-	if (username !== expectedUser) return false;
-
-	// 检查是否为明文密码（已废弃，自动升级）
-	if (!isBcryptHash(storedPassword)) {
-		// 明文密码：验证后自动升级为 bcrypt 哈希
-		// 恒定时间比较（长度恒定规避大部分时序侧信道）；明文仅存在于旧配置升级路径。
-		const isMatch = constantTimeEqual(password, storedPassword);
-		if (isMatch) {
-			try {
-				const newHash = await hashPassword(password);
-				env.ADMIN_PASSWORD = newHash; // 仅内存升级，持久化由调用方处理
-				// 注意：实际持久化需要在调用方（如 API 路由）中通过 DB 更新
-			} catch {
-				// 升级失败不影响登录，但应在日志中记录
-			}
-		}
-		return isMatch;
-	}
-
-	// bcrypt 哈希验证
-	return bcrypt.compare(password, storedPassword);
-}
-
-/**
  * 判断密码是否为 bcrypt 哈希。
  * bcrypt 哈希以 $2$、$2a$、$2b$ 或 $2y$ 开头，长度固定为 60 字符。
- *
- * 注意：该判定与 bcrypt 实现强耦合 —— 若未来改用 bcrypt-sha256 / argon2 / scrypt
- * 等变体，前缀或长度校验会误判为明文（进入自动升级路径）。升级算法时需同步更新此函数。
  */
 export function isBcryptHash(password: string): boolean {
 	return (
@@ -233,36 +186,21 @@ export async function hashPassword(password: string): Promise<string> {
 	return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
-/**
- * 检查是否已配置管理员登录
- */
-export function isAdminLoginConfigured(env: AdminAuthEnv) {
-	return Boolean(env.ADMIN_USERNAME?.trim() && env.ADMIN_PASSWORD);
-}
-
 export async function verifyAdminRequest(
 	request: Request,
 	env?: CloudflareEnv,
 ) {
-	const adminEnv = resolveAdminEnv(env);
-	const configuredToken = adminEnv.ADMIN_API_TOKEN?.trim();
-	const bearer = request.headers.get("Authorization") || "";
-	const bearerToken = bearer.startsWith("Bearer ")
-		? bearer.slice(7).trim()
-		: "";
-	if (configuredToken && constantTimeEqual(bearerToken, configuredToken)) return true;
-
 	const token = getCookieValue(
 		request.headers.get("Cookie"),
 		ADMIN_SESSION_COOKIE,
 	);
 	if (!token) return false;
 
+	const adminEnv = resolveAdminEnv(env);
 	const username = await getSessionUser(token, adminEnv);
 	if (!username) return false;
 
 	// D1 凭据权威：若该用户在 D1 中存在但已被禁用 → 会话立即失效（禁用即时生效）。
-	// 不在 D1 的用户（Secrets 兜底会话）不拦截。
 	if (env?.DB) {
 		try {
 			const row = await env.DB.prepare(
@@ -272,29 +210,11 @@ export async function verifyAdminRequest(
 				.first<{ enabled: number }>();
 			if (row && row.enabled !== 1) return false;
 		} catch {
-			// DB 查询失败不阻断（保持现状）
+			// DB 查询失败不阻断
 		}
 	}
 
 	return true;
-}
-
-export async function verifyAdminHeaders(
-	headers: { authorization?: string | null; cookie?: string | null },
-	env?: CloudflareEnv,
-) {
-	const adminEnv = resolveAdminEnv(env);
-	const configuredToken = adminEnv.ADMIN_API_TOKEN?.trim();
-	const bearer = headers.authorization || "";
-	const bearerToken = bearer.startsWith("Bearer ")
-		? bearer.slice(7).trim()
-		: "";
-	if (configuredToken && constantTimeEqual(bearerToken, configuredToken)) return true;
-
-	const token = getCookieValue(headers.cookie || null, ADMIN_SESSION_COOKIE);
-	if (!token) return false;
-
-	return verifySessionToken(token, adminEnv);
 }
 
 /**
@@ -308,5 +228,4 @@ export const authExports = {
 	getSessionUser,
 	buildSessionCookie,
 	buildClearSessionCookie,
-	validateAdminCredentials,
 };

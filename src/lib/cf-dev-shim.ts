@@ -27,16 +27,12 @@ try {
 	const devVarsPath = join(root, ".dev.vars");
 	if (!existsSync(devVarsPath)) {
 		const defaults = [
-			"ADMIN_USERNAME=admin",
-			// 本地开发默认密码（明文，仅本地）；生产部署请用 pnpm migrate-password 生成 bcrypt 哈希
-			"ADMIN_PASSWORD=firedre-admin-8888",
-			"ADMIN_API_TOKEN=dev-token-firedre-abc123xyz",
-			// 会话签名密钥（必须 >= 32 字符，否则本地登录会失败）
+			// 会话签名密钥（必须配置，否则后台无法登录）
 			"SESSION_SECRET=dev-session-secret-firedre-local-00000000",
 			"",
 		].join("\n");
 		writeFileSync(devVarsPath, defaults);
-		console.log("[cf-dev-shim] 已生成 .dev.vars（本地后台凭据默认与生产一致）");
+		console.log("[cf-dev-shim] 已生成 .dev.vars（会话签名密钥）");
 	}
 } catch {
 	// 生成失败不阻塞

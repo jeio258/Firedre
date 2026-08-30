@@ -1,24 +1,23 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import bcrypt from "bcryptjs";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import {
 	authenticateAdmin,
 	createAdminUser,
-	deleteAdminUser,
+	hasAdminUser,
 	getAdminUserByUsername,
 	listAdminUsers,
-	setAdminUserEnabled,
 	updateAdminUserPassword,
 	verifyAdminUserCredentials,
 } from "../server/auth/adminUser";
-import { hashPassword } from "../server/auth/adminSession";
 
 /**
- * 后台用户管理（D1 存储）测试：
- * 应用 migrations/*.sql 到内存 SQLite，验证 admin_users 表的创建/校验/改密/启禁用/删除，
- * 以及登录鉴权编排（D1 优先 + Secrets 兜底 + 平滑迁移）。
+ * 后台管理员用户（D1 存储，单用户模型）测试：
+ * - 首次创建唯一管理员（初始化）
+ * - 已有管理员后禁止重复创建
+ * - 改密
+ * - 登录鉴权（D1 唯一管理员 bcrypt + enabled）
  */
 
 interface D1Like {
@@ -78,7 +77,7 @@ beforeAll(() => {
 
 const env = () => ({ DB: makeD1(db) });
 
-describe("admin_users 表：创建与校验", () => {
+describe("admin_users 表：首次创建唯一管理员", () => {
 	beforeEach(() => {
 		db.exec("DELETE FROM admin_users");
 	});
@@ -92,22 +91,33 @@ describe("admin_users 表：创建与校验", () => {
 		expect(row?.name).toBe("admin_users");
 	});
 
-	it("createAdminUser 创建用户，密码存 bcrypt 哈希", async () => {
+	it("hasAdminUser 空表返回 false，创建后返回 true", async () => {
+		expect(await hasAdminUser(makeD1(db) as never)).toBe(false);
+		await createAdminUser(makeD1(db) as never, "admin", "secret-123");
+		expect(await hasAdminUser(makeD1(db) as never)).toBe(true);
+	});
+
+	it("首个用户创建成功，密码存 bcrypt 哈希", async () => {
 		const result = await createAdminUser(makeD1(db) as never, "admin", "secret-123");
 		expect(result).toEqual({ ok: true });
 
 		const row = await getAdminUserByUsername(makeD1(db) as never, "admin");
 		expect(row?.username).toBe("admin");
 		expect(row?.enabled).toBe(1);
-		// 密码应存为 bcrypt 哈希，非明文
 		expect(row?.password_hash).not.toBe("secret-123");
 		expect(row?.password_hash).toMatch(/^\$2[aby]\$/);
 	});
 
-	it("createAdminUser 拒绝重复用户名", async () => {
+	it("已有管理员后禁止再创建第二个用户（单用户模型）", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "pass-1");
-		const result = await createAdminUser(makeD1(db) as never, "admin", "pass-2");
+		const result = await createAdminUser(makeD1(db) as never, "editor", "pass-2");
 		expect(result).toEqual({ ok: false, conflict: true });
+		// 且不能创建同名用户
+		const dup = await createAdminUser(makeD1(db) as never, "admin", "pass-3");
+		expect(dup).toEqual({ ok: false, conflict: true });
+		// 确认仅一个用户
+		const users = await listAdminUsers(makeD1(db) as never);
+		expect(users.length).toBe(1);
 	});
 
 	it("verifyAdminUserCredentials 正确/错误密码校验", async () => {
@@ -122,22 +132,9 @@ describe("admin_users 表：创建与校验", () => {
 			await verifyAdminUserCredentials(makeD1(db) as never, "ghost", "x"),
 		).toBe(false);
 	});
-
-	it("禁用用户无法通过校验", async () => {
-		await createAdminUser(makeD1(db) as never, "admin", "pass");
-		await setAdminUserEnabled(makeD1(db) as never, "admin", false);
-		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "pass"),
-		).toBe(false);
-		// 启用后可登录
-		await setAdminUserEnabled(makeD1(db) as never, "admin", true);
-		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "pass"),
-		).toBe(true);
-	});
 });
 
-describe("admin_users 表：改密 / 启禁用 / 删除 / 列表", () => {
+describe("admin_users 表：改密 / 列表", () => {
 	beforeEach(() => {
 		db.exec("DELETE FROM admin_users");
 	});
@@ -153,78 +150,41 @@ describe("admin_users 表：改密 / 启禁用 / 删除 / 列表", () => {
 		).toBe(true);
 	});
 
-	it("setAdminUserEnabled 切换 enabled", async () => {
-		await createAdminUser(makeD1(db) as never, "a", "p");
-		await setAdminUserEnabled(makeD1(db) as never, "a", false);
-		const row = await getAdminUserByUsername(makeD1(db) as never, "a");
-		expect(row?.enabled).toBe(0);
-	});
-
-	it("deleteAdminUser 删除后不可校验", async () => {
-		await createAdminUser(makeD1(db) as never, "temp", "p");
-		expect(await deleteAdminUser(makeD1(db) as never, "temp")).toBe(true);
-		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "temp", "p"),
-		).toBe(false);
-	});
-
-	it("listAdminUsers 返回公开结构（不含哈希）", async () => {
+	it("listAdminUsers 返回公开结构（不含哈希），且恒为单用户", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "p1");
-		await createAdminUser(makeD1(db) as never, "editor", "p2");
 		const users = await listAdminUsers(makeD1(db) as never);
-		expect(users.map((u) => u.username).sort()).toEqual(["admin", "editor"]);
+		expect(users.length).toBe(1);
+		expect(users[0].username).toBe("admin");
 		expect(users[0]).not.toHaveProperty("password_hash");
 	});
 });
 
-describe("authenticateAdmin：D1 优先 + Secrets 兜底 + 平滑迁移", () => {
+describe("authenticateAdmin：D1 唯一管理员", () => {
 	beforeEach(() => {
 		db.exec("DELETE FROM admin_users");
 	});
 
-	it("D1 有用户时用 D1 校验（忽略 Secrets）", async () => {
-		const dbHash = await hashPassword("db-pass");
-		await createAdminUser(makeD1(db) as never, "admin", "db-pass");
-		const envObj = {
-			DB: makeD1(db),
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: await hashPassword("secret-pass"),
-		};
-		// D1 密码正确 → 通过（即使 Secrets 密码不同）
-		expect(await authenticateAdmin(envObj as never, makeD1(db), "admin", "db-pass")).toBe(true);
-		// D1 密码错误 → 拒绝
-		expect(await authenticateAdmin(envObj as never, makeD1(db), "admin", "secret-pass")).toBe(false);
-		expect(dbHash).toBeTruthy();
-	});
-
-	it("D1 无用户时回落 Secrets 校验，并在成功后落库迁移", async () => {
-		const secretHash = await hashPassword("secret-pass");
-		const envObj = {
-			DB: makeD1(db),
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: secretHash,
-		};
-		// Secrets 密码正确 → 通过并落库
+	it("D1 无用户 → 登录失败（引导初始化）", async () => {
 		expect(
-			await authenticateAdmin(envObj as never, makeD1(db), "admin", "secret-pass"),
-		).toBe(true);
-		const seeded = await getAdminUserByUsername(makeD1(db), "admin");
-		expect(seeded?.username).toBe("admin");
-		// 落库后 D1 成为权威：Secrets 密码修改也不影响
-		expect(
-			await verifyAdminUserCredentials(makeD1(db), "admin", "secret-pass"),
-		).toBe(true);
-	});
-
-	it("D1 无用户且 Secrets 校验失败 → 拒绝且不落库", async () => {
-		const envObj = {
-			DB: makeD1(db),
-			ADMIN_USERNAME: "admin",
-			ADMIN_PASSWORD: await hashPassword("real-pass"),
-		};
-		expect(
-			await authenticateAdmin(envObj as never, makeD1(db), "admin", "wrong"),
+			await authenticateAdmin(env() as never, makeD1(db), "admin", "x"),
 		).toBe(false);
-		expect(await getAdminUserByUsername(makeD1(db), "admin")).toBeNull();
+	});
+
+	it("D1 有用户 → 密码正确通过、错误拒绝", async () => {
+		await createAdminUser(makeD1(db) as never, "admin", "db-pass");
+		expect(
+			await authenticateAdmin(env() as never, makeD1(db), "admin", "db-pass"),
+		).toBe(true);
+		expect(
+			await authenticateAdmin(env() as never, makeD1(db), "admin", "wrong"),
+		).toBe(false);
+	});
+
+	it("禁用用户无法登录（enabled 检查）", async () => {
+		await createAdminUser(makeD1(db) as never, "admin", "pass");
+		db.prepare("UPDATE admin_users SET enabled = 0 WHERE username = 'admin'").run();
+		expect(
+			await authenticateAdmin(env() as never, makeD1(db), "admin", "pass"),
+		).toBe(false);
 	});
 });

@@ -68,9 +68,6 @@ export function loadAdminEnv(root = process.cwd()) {
 export function getAdminEnvFromProcess() {
 	loadAdminEnv();
 	return {
-		ADMIN_USERNAME: process.env.ADMIN_USERNAME,
-		ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
-		ADMIN_API_TOKEN: process.env.ADMIN_API_TOKEN,
 		SESSION_SECRET: process.env.SESSION_SECRET,
 	};
 }

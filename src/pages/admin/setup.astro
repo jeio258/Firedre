@@ -1,0 +1,28 @@
+---
+export const prerender = false;
+
+import AdminSetup from "../../components/admin/AdminSetup.svelte";
+import "@/styles/variables.styl";
+
+const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
+	?.settings ?? {};
+const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>创建管理员 - Firedre 后台</title>
+	<link rel="icon" href="/favicon/favicon.ico" />
+	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
+	<style define:vars={{ configHue }}>
+		html{--hue:var(--configHue)}
+		html,body{margin:0;padding:0;background:var(--page-bg,#f6f7fb);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text,#1f2937);-webkit-text-size-adjust:100%}
+		*{box-sizing:border-box}
+	</style>
+</head>
+<body style="margin:0;background:var(--page-bg,#f3f4f6);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+	<AdminSetup client:load />
+</body>
+</html>

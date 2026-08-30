@@ -8,6 +8,20 @@ export let onSuccess: (() => void) | null = null;
 
 let user = "";
 let pass = "";
+let needsSetup = false;
+
+onMount(async () => {
+	const input = document.querySelector<HTMLInputElement>("#admin-username");
+	input?.focus();
+	// 若系统尚无管理员，提示进入初始化（创建唯一管理员）
+	try {
+		const resp = await fetch("/api/admin/setup-status/");
+		const data = await resp.json();
+		needsSetup = data.setup === true;
+	} catch {
+		needsSetup = false;
+	}
+});
 
 async function submit(event: SubmitEvent) {
 	event.preventDefault();
@@ -48,11 +62,6 @@ async function submit(event: SubmitEvent) {
 		loading = false;
 	}
 }
-
-onMount(() => {
-	const input = document.querySelector<HTMLInputElement>("#admin-username");
-	input?.focus();
-});
 </script>
 
 <div class="admin-login">
@@ -73,6 +82,12 @@ onMount(() => {
 			<button type="submit" disabled={loading}>
 				{loading ? "登录中…" : "登 录"}
 			</button>
+			{#if needsSetup}
+				<p class="setup-tip">
+					尚未创建管理员，请
+					<a href="/admin/setup/">前往初始化</a>
+				</p>
+			{/if}
 		</form>
 	</div>
 </div>
@@ -138,5 +153,15 @@ onMount(() => {
 		padding: 0.6rem;
 		font-size: 0.85rem;
 		margin-bottom: 1rem;
+	}
+	.setup-tip {
+		text-align: center;
+		font-size: 0.85rem;
+		color: var(--muted-text, #666);
+		margin: 0;
+	}
+	.setup-tip a {
+		color: var(--primary, #5b8cff);
+		text-decoration: none;
 	}
 </style>
