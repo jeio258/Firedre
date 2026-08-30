@@ -7,9 +7,6 @@ import DisplaySettings from "@/components/controls/DisplaySettingsIntegrated.sve
 import LightDarkSwitch from "@/components/controls/LightDarkSwitch.svelte";
 import Search from "@/components/controls/Search.svelte";
 import MusicPlayer from "@/components/features/MusicPlayer.astro";
-import {
-	navBarConfig,
-} from "@/config";
 import { getMusicConfig, getNavbarConfig, getPanelConfig, getSiteConfig, getWallpaperConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -111,20 +108,14 @@ function filterLinks(link: NavBarLink): NavBarLink | null {
 	return { ...link, children: filteredChildren };
 }
 
-const customNav = Array.isArray((navbarConfig as unknown as { links?: unknown }).links)
-	? ((navbarConfig as unknown as { links?: Array<{ label?: string; url?: string; icon?: string; name?: string }> }).links ?? [])
+// 导航链接统一取自 getNavbarConfig（已合并后台 navItems 或静态默认配置，含子菜单 children）。
+// 仅对禁用的子页做过滤、并对文案做 i18n 处理；不再平铺丢弃 children。
+const sourceLinks = Array.isArray((navbarConfig as unknown as { links?: unknown }).links)
+	? ((navbarConfig as unknown as { links?: Array<{ label?: string; url?: string; icon?: string; name?: string }> }).links as NavBarLink[])
 	: [];
-let links: NavBarLink[] = customNav.length
-	? customNav.map((n) => ({
-			name: n.label || n.name || "",
-			url: n.url || "#",
-			icon: n.icon,
-		}))
-	: resolveNavbarLinks(
-			((navbarConfig as unknown as { links?: unknown }).links as NavBarLink[] ?? navBarConfig.links)
-				.map(filterLinks)
-				.filter((link: NavBarLink | null): link is NavBarLink => link !== null),
-		);
+let links: NavBarLink[] = resolveNavbarLinks(
+	sourceLinks.map(filterLinks).filter((link: NavBarLink | null): link is NavBarLink => link !== null),
+);
 
 // 处理导航栏 Logo 图片，image / url 类型支持亮暗色分别设置
 const logoConfig = navbarConfig.logo as { alt?: string; type?: string; value?: string; valueDark?: string } | undefined;

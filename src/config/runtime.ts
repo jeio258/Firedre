@@ -411,6 +411,11 @@ export function getNavbarConfig(locals: unknown) {
 					name: String(item.label ?? item.name ?? ""),
 					url: String(item.url ?? "#"),
 					...(item.icon ? { icon: String(item.icon) } : {}),
+					...(Array.isArray(item.children) && (item.children as unknown[]).length
+						? { children: item.children as typeof staticNavConfig.links[number][] }
+						: {}),
+					...(item.pageKey ? { pageKey: String(item.pageKey) } : {}),
+					...(item.external ? { external: Boolean(item.external) } : {}),
 				}))
 			: staticNavConfig.links) as typeof staticNavConfig.links,
 	};
