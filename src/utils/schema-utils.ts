@@ -2,6 +2,18 @@ import type { ProfileConfig, SiteConfig } from "@/types/config";
 import { getSearchUrl, url } from "./url-utils";
 
 /**
+ * 站点 origin 归一化：后台 siteUrl 可能填裸域名（www.example.com，无协议），
+ * 直接交给 new URL() 会抛 Invalid URL 导致 SSR 渲染崩溃返回空页（生产白屏）。
+ * 这里为无协议字符串补全 https://，保证返回合法 origin；已是 http(s) 的保持不变。
+ */
+function normalizeSiteUrl(raw: string): string {
+	if (!raw) return raw;
+	if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)) return raw; // 已有协议
+	if (raw.startsWith("//")) return `https:${raw}`;
+	return `https://${raw}`;
+}
+
+/**
  * 把 src 解析成绝对 URL 字符串。
  * - http/https、协议相对（//）、data: 原样返回；
  * - 以 `/` 开头的 public 路径先经 url()（BASE_URL 感知）得到相对源路径，再对 base 求绝对；
@@ -30,7 +42,7 @@ export function toAbsoluteUrl(
 		);
 		return null;
 	}
-	const baseUrl = base instanceof URL ? base : new URL(base);
+	const baseUrl = base instanceof URL ? base : new URL(normalizeSiteUrl(base));
 	return new URL(url(src), baseUrl).toString();
 }
 
@@ -81,7 +93,10 @@ export interface PersonEntityOpts {
 // 使 WebSite/Person 的 @id、url 在子路径部署（base 非空）时也正确。
 // 注意：siteConfig.site_url 应填站点 origin（根，不含子路径 base），子路径由 BASE_URL 处理。
 function resolveSiteRoot(site: URL | string): string {
-	const baseUrl = site instanceof URL ? site : new URL(site);
+	// 后台 siteUrl 可能填裸域名（www.example.com，无协议），new URL() 会抛 Invalid URL
+	// 导致 SSR 渲染崩溃返回空页（生产白屏）。这里统一补全协议，保证安全。
+	const raw = site instanceof URL ? site.href : normalizeSiteUrl(site);
+	const baseUrl = new URL(raw);
 	return new URL(url("/"), baseUrl).toString();
 }
 

@@ -51,6 +51,18 @@ function groupOf(s: SettingsLike, key: string): SettingsLike {
 function str(v: unknown, fallback: string): string {
 	return typeof v === "string" && v !== "" ? v : fallback;
 }
+
+/**
+ * 站点 origin 归一化：后台 site_url 可能填裸域名（www.example.com，无协议），
+ * 直接交给 new URL() 会抛 Invalid URL 导致 SSR 渲染崩溃（生产白屏）。
+ * 这里为无协议的字符串补全 https://，保证返回合法 origin；已是 http(s) 的保持不变。
+ */
+function normalizeSiteUrl(raw: string): string {
+	if (!raw) return raw;
+	if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)) return raw; // 已有协议
+	if (raw.startsWith("//")) return `https:${raw}`;
+	return `https://${raw}`;
+}
 function num(v: unknown, fallback: number): number {
 	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
 }
@@ -79,7 +91,9 @@ export function getSiteConfig(locals: unknown) {
 		title: str(basic.title ?? s.title, String((staticSiteConfig as Record<string, unknown>).title ?? "")),
 		subtitle: str(basic.subtitle ?? s.subtitle, String((staticSiteConfig as Record<string, unknown>).subtitle ?? "")),
 		description: str(basic.description ?? s.description, String((staticSiteConfig as Record<string, unknown>).description ?? "")),
-		site_url: str(basic.siteUrl ?? s.siteUrl, String((staticSiteConfig as Record<string, unknown>).site_url ?? "")),
+		site_url: normalizeSiteUrl(
+			str(basic.siteUrl ?? s.siteUrl, String((staticSiteConfig as Record<string, unknown>).site_url ?? "")),
+		),
 		siteStartDate: str(basic.siteStartDate ?? s.siteStartDate, String((staticSiteConfig as Record<string, unknown>).siteStartDate ?? "")),
 		timezone: str(basic.timezone ?? s.timezone, String((staticSiteConfig as Record<string, unknown>).timezone ?? "")),
 		pageWidth: num(s.pageWidth, (staticSiteConfig as Record<string, unknown>).pageWidth as number),

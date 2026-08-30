@@ -59,6 +59,16 @@ describe("runtime.getSiteConfig", () => {
 		const config = getSiteConfig({ settings: { basic: { title: "嵌套标题" } } });
 		expect(config.title).toBe("嵌套标题");
 	});
+
+	it("裸域名 siteUrl 自动补全 https:// 协议（防止 new URL 崩溃导致白屏）", () => {
+		const config = getSiteConfig({ settings: { basic: { siteUrl: "www.994613.xyz" } } });
+		expect(config.site_url).toBe("https://www.994613.xyz");
+	});
+
+	it("已带协议的 siteUrl 保持不变", () => {
+		const config = getSiteConfig({ settings: { basic: { siteUrl: "https://example.com" } } });
+		expect(config.site_url).toBe("https://example.com");
+	});
 });
 
 describe("runtime.getSidebarConfig", () => {
