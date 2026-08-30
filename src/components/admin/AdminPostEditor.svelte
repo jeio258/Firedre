@@ -73,9 +73,9 @@ function initEditor() {
 		height: 480,
 		mode: "ir",
 		value: rawContent,
-		// cdn 指向在线 CDN（jsdelivr，国内有镜像，稳定快速），dev 与生产均可直接使用、无需本地资源。
-		// 如需完全离线，可改为本地 /vditor（需 scripts/copy-vditor.mjs 提供完整资源并重启 dev）。
-		cdn: "https://cdn.jsdelivr.net/npm/vditor@3.11.3",
+		// cdn 指向本地 /vditor（资源由 scripts/copy-vditor.mjs 复制到 public/vditor），
+		// 避免在线 CDN 网络延迟导致的编辑器加载慢；dev 与生产均可直接使用。
+		cdn: "/vditor",
 		cache: { enable: false },
 		upload: {
 			url: "/api/admin/upload-image/",

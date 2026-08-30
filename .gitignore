@@ -1,5 +1,5 @@
 # build output
-dist/
+/dist/
 
 # generated vndb covers
 public/vndb-covers/
@@ -47,7 +47,9 @@ package/
 .codex*
 .claude
 .mimocode
-dist/
+/dist/
+# 本地化 vditor 编辑器资源需纳入版本控制（dev/生产共用，避免在线 CDN 加载慢）
+!public/vditor/
 dev-log.txt
 tail.log
 *.log

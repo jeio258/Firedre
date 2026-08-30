@@ -15,6 +15,7 @@ const IGNORE_DIRS = [
 	"public/assets/images/effects/**",
 	"public/assets/music/**",
 	"public/vndb-covers/**",
+	"public/vditor/**",
 ];
 
 interface RgbColor {
