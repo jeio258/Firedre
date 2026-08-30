@@ -33,7 +33,7 @@ import { defaultFavicons } from "@/constants/icon";
 import type { Favicon } from "@/types/config";
 import { isHomePage } from "@/utils/layout-utils";
 import { getAuthorAvatarUrl, getSiteLogo } from "@/utils/schema-image";
-import { buildSiteGraph, toAbsoluteUrl } from "@/utils/schema-utils";
+import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
 import { url } from "@/utils/url-utils";
 
 import "@/styles/main.css";
@@ -228,7 +228,7 @@ const siteLogo = await getSiteLogo();
         <script
           is:inline
           type="application/ld+json"
-          set:html={JSON.stringify(
+          set:html={safeJsonLd(
             buildSiteGraph({
               site: effectiveSiteUrl,
               siteConfig,

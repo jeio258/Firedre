@@ -2,17 +2,15 @@ import type { FriendInput, FriendRecord } from "../../types/friends";
 import type { CloudflareEnv } from "../../types/env";
 import { UserError } from "../utils/userError";
 
-function recordToItem(row: FriendRecord) {
-	return {
-		id: row.id,
-		title: row.title,
-		imgurl: row.imgurl,
-		desc: row.desc || "",
-		siteurl: row.siteurl,
-		tags: (row.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
-		weight: Number(row.weight),
-		enabled: row.enabled === 1,
-	};
+/** 仅允许 http/https 或相对路径，拦截 javascript:/data:/vbscript: 等危险 scheme */
+export function isSafeHttpUrl(raw: string): boolean {
+	const value = String(raw || "").trim();
+	if (!value) return false;
+	// 相对地址（/ ./ ../ #）允许
+	if (/^(\/|#)/.test(value)) return true;
+	// 无 scheme 视为相对路径（如 www.example.com），允许
+	if (!/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
+	return /^https?:/i.test(value);
 }
 
 function normalizeInput(raw: FriendInput) {
@@ -23,6 +21,10 @@ function normalizeInput(raw: FriendInput) {
 	if (!title) throw new UserError("友链名称不能为空");
 	if (!imgurl) throw new UserError("友链头像不能为空");
 	if (!siteurl) throw new UserError("友链地址不能为空");
+
+	// 仅允许安全 URL scheme，拦截 javascript:/data:/vbscript: 等存储型 XSS
+	if (!isSafeHttpUrl(siteurl)) throw new UserError("友链地址仅支持 http/https 或相对路径");
+	if (!isSafeHttpUrl(imgurl)) throw new UserError("友链头像仅支持 http/https 或相对路径");
 
 	const tags = Array.isArray(raw.tags)
 		? raw.tags.map((t) => String(t).trim()).filter(Boolean)

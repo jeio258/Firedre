@@ -10,6 +10,7 @@ import { formatDynamicDate } from "@/utils/date-utils";
 import { fetchWithDedup } from "@/utils/fetch-dedup";
 import { fetchMemos } from "@/utils/memos-adapter";
 import { url } from "@/utils/url-utils";
+import { dynamicHtmlToText } from "@/utils/sanitize-html";
 
 interface DynamicEntry {
 	id: string;
@@ -65,11 +66,9 @@ function updateCountBadge() {
 	}
 }
 
-// 从 HTML 中提取纯文本摘要
+// 从 HTML 中提取纯文本摘要（先消毒，避免解析时触发事件处理器）
 function getPlainText(html: string): string {
-	const div = document.createElement("div");
-	div.innerHTML = html;
-	return div.textContent?.trim() || "";
+	return dynamicHtmlToText(html);
 }
 
 // 格式化日期

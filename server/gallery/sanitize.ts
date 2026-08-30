@@ -13,7 +13,7 @@ export function sanitizeGalleryAlbumForPublic(
 	hasPassword: boolean,
 ): GalleryAlbumDetail {
 	if (!hasPassword) {
-		// 未上锁相册保留照片，但防御性地清除密码字段
+		// 未上锁相册保留照片；防御性清除可能残留的 frontmatter password 字段
 		return {
 			...detail,
 			frontmatter: {
@@ -31,6 +31,8 @@ export function sanitizeGalleryAlbumForPublic(
 			password: undefined,
 			encrypted: true,
 			photos: [],
+			// 加密相册对外最小暴露：不返回 WebDAV 服务器地址/账号，避免便于定向攻击
+			webdav: undefined,
 		},
 		source: undefined,
 	};

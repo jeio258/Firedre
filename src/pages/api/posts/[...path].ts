@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
-import { isValidPostSlug } from "../../../../server/posts/frontmatter";
+import { decodePostSlug, isValidPostSlug } from "../../../../server/posts/frontmatter";
 import {
 	deletePost,
 	getPostBySlug,
@@ -28,9 +28,15 @@ export const prerender = false;
 /**
  * 移除公开响应中的敏感字段（加密文章明文密码/密码提示）。
  * 密码仅在服务端用于 AES 加密内容，绝不下发给未认证访问者。
+ *
+ * 对加密文章（password 非空）额外剔除渲染后的明文正文（html/headings）
+ * 与源码（source/markdown），避免未认证调用者绕过密码保护直接读取明文。
  */
 function redactPostSecrets<T>(post: T): T {
 	const copy = { ...(post as Record<string, unknown>) };
+	const isEncrypted = Boolean(
+		copy.password ?? (copy as { frontmatter?: { password?: unknown } }).frontmatter?.password,
+	);
 	delete copy.password;
 	delete copy.passwordHint;
 	if (copy.frontmatter && typeof copy.frontmatter === "object") {
@@ -38,6 +44,14 @@ function redactPostSecrets<T>(post: T): T {
 		delete fm.password;
 		delete fm.passwordHint;
 		copy.frontmatter = fm;
+	}
+	if (isEncrypted) {
+		// 加密文章正文必须以密文形式下发（由 EncryptedContent 在 SSR 时加密），
+		// API 不返回明文 html/headings/source/markdown。
+		delete copy.html;
+		delete copy.headings;
+		delete copy.source;
+		delete copy.markdown;
 	}
 	return copy as T;
 }
@@ -82,7 +96,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 
 		if (segments[0] === "neighbors" && segments[1]) {
-			if (!isValidPostSlug(decodeURIComponent(segments[1])))
+			if (!isValidPostSlug(decodePostSlug(segments[1])))
 				return badRequest("文章 slug 格式无效");
 			const neighbors = await getPostNeighbors(cfEnv, segments[1]);
 			if (!isAdmin) {
@@ -95,7 +109,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		const slug = segments[0];
 		if (!slug) return notFound();
 
-		if (!isValidPostSlug(decodeURIComponent(slug)))
+		if (!isValidPostSlug(decodePostSlug(slug)))
 			return badRequest("文章 slug 格式无效");
 
 		const post = await getPostBySlug(cfEnv, slug, {
@@ -116,7 +130,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 export const PUT: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const slug = segments[0];
-	if (!slug || !isValidPostSlug(decodeURIComponent(slug)))
+	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
@@ -143,7 +157,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 export const DELETE: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const slug = segments[0];
-	if (!slug || !isValidPostSlug(decodeURIComponent(slug)))
+	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
 	const isAdmin = await verifyAdminRequest(request, cfEnv);

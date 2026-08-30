@@ -22,7 +22,7 @@ export function formatLoginRateLimitMessage(retryAfterSec: number) {
 export function getRequestClientIp(request: Request) {
 	return (
 		request.headers.get("CF-Connecting-IP") ||
-		request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() ||
+		// 仅信任 Cloudflare 设置的连接 IP；不信任可被客户端伪造的 X-Forwarded-For
 		"unknown"
 	);
 }

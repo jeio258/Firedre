@@ -42,6 +42,7 @@ import {
 	buildBreadcrumbList,
 	buildPersonEntity,
 	buildPublisherEntity,
+	safeJsonLd,
 	toAbsoluteUrl,
 } from "@/utils/schema-utils";
 import { url } from "@/utils/url-utils";
@@ -220,7 +221,7 @@ const seriesData = await getSeriesPosts(entry);
     is:inline
     slot="head"
     type="application/ld+json"
-    set:html={JSON.stringify(jsonLd)}
+    set:html={safeJsonLd(jsonLd)}
   />
   <div
     class="flex w-full rounded-(--radius-large) overflow-hidden relative mb-4"

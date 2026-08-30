@@ -186,17 +186,6 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
                         </div>
                     </div>
                 {/if}
-
-                {#if item.content && item.content.includes('<mark>')}
-                    <div class="transition text-sm text-30" style="display: flex; align-items: flex-start; margin-top: 0.1rem">
-                        <span style="display: inline-block; background-color: var(--btn-plain-bg-active); color: var(--primary); padding: 0.1em 0.4em; border-radius: 5px; font-size: 0.75em; font-weight: 600; margin-right: 0.5em; shrink: 0;">
-                            {i18n(I18nKey.searchContent)}
-                        </span>
-                        <div>
-                            {@html item.content}
-                        </div>
-                    </div>
-                {/if}
             </a>
         {/each}
         {#if result.length > 5}

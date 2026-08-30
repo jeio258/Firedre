@@ -544,9 +544,6 @@ export function getMusicConfigFromWindow() {
 export function getWallpaperConfigFromWindow() {
 	return getWallpaperConfig({ settings: windowSettings() });
 }
-export function getCommentConfigFromWindow() {
-	return getCommentConfig({ settings: windowSettings() });
-}
 export function getPanelConfigFromWindow() {
 	return getPanelConfig({ settings: windowSettings() });
 }

@@ -23,7 +23,9 @@ if (!shortname) {
 <div id="disqus_thread"></div>
 
 <script is:inline define:vars={{ shortname, identifier, url, title }}>
-  const requestedPath = new URLSearchParams(window.location.search).get("path")
+  const rawPath = new URLSearchParams(window.location.search).get("path")
+  // 仅接受站内相对路径作为评论线程标识，拒绝外部 scheme/控制字符注入
+  const requestedPath = rawPath && /^\/[^\s"'<>]*$/.test(rawPath) ? rawPath : null
   let effectiveIdentifier = identifier
   let effectiveUrl = url
   if (requestedPath) {

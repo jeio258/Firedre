@@ -194,11 +194,7 @@ export function mapFrontmatterToRecord(frontmatter: PostFrontmatter) {
 	const date = String(frontmatter.published || frontmatter.date || "");
 	const cover = frontmatter.image || frontmatter.cover || "";
 	const description = frontmatter.description || frontmatter.excerpt || "";
-	const excerpt =
-		frontmatter.excerpt ||
-		frontmatter.description ||
-		firstTextLine(frontmatter) ||
-		"";
+	const excerpt = frontmatter.excerpt || frontmatter.description || "";
 	const password = String(frontmatter.password || "");
 	const pinOrder = normalizePinOrderValue(
 		frontmatter.pin_order ?? (frontmatter.pinned ? 1 : frontmatter.top),
@@ -218,10 +214,6 @@ export function mapFrontmatterToRecord(frontmatter: PostFrontmatter) {
 		pinOrder,
 		published,
 	};
-}
-
-function firstTextLine(frontmatter: PostFrontmatter) {
-	return "";
 }
 
 function normalizePinOrderValue(value: unknown): number {

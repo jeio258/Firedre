@@ -57,12 +57,29 @@ export interface DynamicEntry {
  * 图片由 extractImages 单独提取并追加到内容后，故此处直接渲染为空
  */
 const memosMarked = new Marked({ gfm: true, breaks: true });
+
+/** 只允许安全 URL scheme，拦截 javascript:/data:/vbscript: 等危险链接 */
+function isSafeLinkHref(href: unknown): boolean {
+	const value = String(href ?? "").trim();
+	if (!value) return false;
+	// 相对地址 / 锚点安全
+	if (/^(\/|#)/.test(value)) return true;
+	if (!/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
+	return /^(https?|mailto|tel):/i.test(value);
+}
+
 memosMarked.use({
 	renderer: {
 		link({ href, title, tokens }) {
 			const text = this.parser.parseInline(tokens);
-			const titleAttr = title ? ` title="${title}"` : "";
-			return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+			const titleAttr = title ? ` title="${String(title).replace(/"/g, "&quot;")}"` : "";
+			// 只允许安全 scheme，拦截 javascript:/data:/vbscript: 及属性注入
+			const safeHref = isSafeLinkHref(href);
+			if (!safeHref) {
+				return `<span>${text}</span>`;
+			}
+			const escapedHref = String(href).replace(/"/g, "&quot;");
+			return `<a href="${escapedHref}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
 		},
 		image() {
 			return "";

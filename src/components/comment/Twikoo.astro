@@ -33,7 +33,9 @@ const config = {
 <script is:inline define:vars={{ config }}>
   // 获取当前页面路径
   function getCurrentPath() {
-    const requestedPath = new URLSearchParams(window.location.search).get("path");
+    // 仅接受站内相对路径作为评论线程标识，拒绝外部 scheme/控制字符注入
+    const rawPath = new URLSearchParams(window.location.search).get("path");
+    const requestedPath = rawPath && /^\/[^\s"'<>]*$/.test(rawPath) ? rawPath : null;
     if (requestedPath) return requestedPath;
     const pathname = window.location.pathname;
     return pathname.endsWith("/") && pathname.length > 1

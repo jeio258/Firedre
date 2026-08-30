@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { toAbsoluteUrl } from "../src/utils/schema-utils";
+import { safeJsonLd, toAbsoluteUrl } from "../src/utils/schema-utils";
 
 describe("schema-utils.toAbsoluteUrl 对裸域名 base 的防御", () => {
 	it("base 为裸域名（无协议）时不抛 Invalid URL，并补全 https://", () => {
@@ -20,5 +20,24 @@ describe("schema-utils.toAbsoluteUrl 对裸域名 base 的防御", () => {
 
 	it("src 为空时返回 null", () => {
 		expect(toAbsoluteUrl(null, "https://example.com")).toBeNull();
+	});
+});
+
+describe("schema-utils.safeJsonLd 防止 </script> 逃逸", () => {
+	it("转义 < 为 \\u003c，阻止标题闭合 script 标签", () => {
+		const json = safeJsonLd({ title: "</script><script>alert(1)</script>" });
+		expect(json).not.toContain("</script>");
+		expect(json).toContain("\\u003c/script\\u003e");
+	});
+
+	it("转义 > 与 &", () => {
+		const json = safeJsonLd({ name: "a > b & c" });
+		expect(json).toContain("\\u003e");
+		expect(json).toContain("\\u0026");
+	});
+
+	it("正常数据序列化保持不变（除安全转义）", () => {
+		const json = safeJsonLd({ slug: "guide/hello", ok: true });
+		expect(JSON.parse(json)).toEqual({ slug: "guide/hello", ok: true });
 	});
 });

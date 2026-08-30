@@ -209,9 +209,10 @@ export async function handleAlbumWebDavList(
 	options?: AlbumWebDavRuntimeOptions,
 ) {
 	const config = await resolveWebDavConfig(body.slug, options);
-	// 以服务端相册 frontmatter 的 encrypted 状态为准，绝不信任客户端声明
+	// 锁门依据 = D1 相册密码存在性（与 gallery-files/unlock 链路一致），
+	// 而非 frontmatter.encrypted：避免 frontmatter 与 D1 脱同步时看似加密实则公开。
 	assertAlbumAccess({
-		encrypted: config.encrypted,
+		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,
 		accessPassword: body.accessPassword,
 	});
@@ -233,9 +234,10 @@ export async function handleAlbumWebDavFile(
 	if (!targetUrl) throw new UserError("缺少媒体地址");
 
 	const config = await resolveWebDavConfig(slug, options);
-	// 以服务端相册 frontmatter 的 encrypted 状态为准，绝不信任客户端声明
+	// 锁门依据 = D1 相册密码存在性（与 gallery-files/unlock 链路一致），
+	// 而非 frontmatter.encrypted：避免 frontmatter 与 D1 脱同步时看似加密实则公开。
 	assertAlbumAccess({
-		encrypted: config.encrypted,
+		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,
 		accessPassword: accessQuery.accessPassword,
 	});

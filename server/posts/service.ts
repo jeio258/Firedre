@@ -20,7 +20,6 @@ import {
 	normalizeTags,
 	postR2Key,
 	resolveCategories,
-	serializeFrontmatter,
 	splitMarkdown,
 } from "./frontmatter";
 import { renderMarkdown, stripMarkdown } from "./render";
@@ -488,16 +487,4 @@ export async function deletePost(env: CloudflareEnv, slug: string) {
 	clearWikiLinkCache();
 
 	return true;
-}
-
-export function buildPostSource(frontmatter: PostFrontmatter, content: string) {
-	return serializeFrontmatter(frontmatter, content);
-}
-
-export async function importPostFromFile(
-	env: CloudflareEnv,
-	slug: string,
-	source: string,
-) {
-	return upsertPost(env, slug, source);
 }

@@ -3,7 +3,6 @@ import type {
 	ArchiveMonthItem,
 	CategoryTreeNode,
 	PostFrontmatter,
-	PostListItem,
 	TagCountItem,
 } from "../../types/posts";
 import { categoryPathFromFrontmatter, normalizeTags, resolveCategories } from "./frontmatter";
@@ -43,15 +42,6 @@ export function buildCategoryTreeFromPaths(paths: string[]) {
 	return root;
 }
 
-export function buildCategoryTreeFromPosts(posts: PostListItem[]) {
-	const paths = posts.map((post) => {
-		if (!post.categories) return "Uncategorized";
-		if (typeof post.categories === "string") return post.categories;
-		return post.categories.join("/");
-	});
-	return buildCategoryTreeFromPaths(paths);
-}
-
 function nodeToTree(
 	map: Map<string, CategoryNodeInternal>,
 ): CategoryTreeNode[] {
@@ -68,33 +58,6 @@ export function serializeCategoryTree(
 	map: Map<string, CategoryNodeInternal>,
 ): CategoryTreeNode[] {
 	return nodeToTree(map);
-}
-
-export function buildTagCountsFromPosts(posts: PostListItem[]): TagCountItem[] {
-	const tags = new Map<string, number>();
-	for (const post of posts) {
-		for (const tag of post.tags || []) {
-			tags.set(tag, (tags.get(tag) || 0) + 1);
-		}
-	}
-	return [...tags.entries()]
-		.sort(([a], [b]) => a.localeCompare(b, "zh-CN"))
-		.map(([name, count]) => ({ name, count }));
-}
-
-export function buildArchiveMonthsFromPosts(
-	posts: PostListItem[],
-): ArchiveMonthItem[] {
-	const months = new Map<string, number>();
-	for (const post of posts) {
-		if (!post.date) continue;
-		const month = post.date.slice(0, 7);
-		if (!/^\d{4}-\d{2}$/.test(month)) continue;
-		months.set(month, (months.get(month) || 0) + 1);
-	}
-	return [...months.entries()]
-		.sort(([a], [b]) => b.localeCompare(a))
-		.map(([month, count]) => ({ month, count }));
 }
 
 export async function syncPostTaxonomy(

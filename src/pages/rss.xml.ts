@@ -30,43 +30,48 @@ export async function GET(context: APIContext): Promise<Response> {
 		const detail = await getPostBySlug(cfEnv, post.slug, {});
 		if (!detail) continue;
 
-		const description = sanitizeHtml(detail.html || "", {
-			allowedTags: [
-				"a",
-				"p",
-				"br",
-				"b",
-				"strong",
-				"i",
-				"em",
-				"u",
-				"code",
-				"pre",
-				"ul",
-				"ol",
-				"li",
-				"blockquote",
-				"h1",
-				"h2",
-				"h3",
-				"h4",
-				"h5",
-				"h6",
-				"img",
-				"table",
-				"thead",
-				"tbody",
-				"tr",
-				"th",
-				"td",
-				"span",
-				"div",
-			],
-			allowedAttributes: {
-				a: ["href", "title"],
-				img: ["src", "alt", "title"],
-			},
-		});
+		// 加密文章不在 RSS 中下发明文正文，仅输出标题与摘要，避免泄露正文全文
+		const isEncrypted = Boolean(detail.password);
+		const summary = detail.description || detail.excerpt || detail.title || "";
+		const description = isEncrypted
+			? stripInvalidXmlChars(summary)
+			: sanitizeHtml(detail.html || "", {
+					allowedTags: [
+						"a",
+						"p",
+						"br",
+						"b",
+						"strong",
+						"i",
+						"em",
+						"u",
+						"code",
+						"pre",
+						"ul",
+						"ol",
+						"li",
+						"blockquote",
+						"h1",
+						"h2",
+						"h3",
+						"h4",
+						"h5",
+						"h6",
+						"img",
+						"table",
+						"thead",
+						"tbody",
+						"tr",
+						"th",
+						"td",
+						"span",
+						"div",
+					],
+					allowedAttributes: {
+						a: ["href", "title"],
+						img: ["src", "alt", "title"],
+					},
+				});
 
 		items.push({
 			title: detail.title,

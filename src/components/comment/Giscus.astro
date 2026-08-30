@@ -51,7 +51,10 @@ const darkTheme = "dark";
 />
 
 <script is:inline define:vars={{ lightTheme, darkTheme }}>
-  const requestedPath = new URLSearchParams(window.location.search).get("path");
+  // 仅接受站内相对路径作为评论线程标识，拒绝外部 scheme/控制字符注入
+  const rawPath = new URLSearchParams(window.location.search).get("path");
+  const requestedPath =
+    rawPath && /^\/[^\s"'<>]*$/.test(rawPath) ? rawPath : null;
   const widget = document.querySelector("giscus-widget");
   if (requestedPath && widget) {
     widget.setAttribute("mapping", "specific");

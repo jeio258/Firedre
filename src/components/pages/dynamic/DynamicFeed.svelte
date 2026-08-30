@@ -5,6 +5,7 @@ import { formatTimezoneOffset } from "@/utils/date-utils";
 import { fetchMemos } from "@/utils/memos-adapter";
 import { registerDynamicGallery } from "./dynamic-gallery";
 import { registerDynamicInlineComments } from "./dynamic-inline-comments";
+import { sanitizeDynamicHtml } from "@/utils/sanitize-html";
 
 type DynamicImage = {
 	alt: string;
@@ -201,7 +202,8 @@ function createItem(entry: DynamicData) {
 	const content = root.querySelector<HTMLElement>("[data-dynamic-content]");
 	if (content) {
 		content.id = `${anchorId}-content`;
-		content.innerHTML = entry.html;
+		// 动态/Memos/第三方 API 的 HTML 未经过服务端消毒，注入前做前端消毒
+		content.innerHTML = sanitizeDynamicHtml(entry.html);
 		for (const image of entry.images) {
 			const element = document.createElement("img");
 			element.src = image.src;

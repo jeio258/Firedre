@@ -185,15 +185,11 @@ const musicConfigRuntime = getMusicConfig(Astro.locals);
 const filteredComponents = filterAndSortComponents(allComponents).filter(
 	(comp) => {
 		if (comp.type === "music" && musicConfigRuntime.enable === false) return false;
-		// 页面配置组 enabled=false 时同步隐藏对应侧边栏 widget（动态/相册/友链等）
+		// 页面配置组 enabled=false 时同步隐藏对应侧边栏 widget（动态等）
 		const pageGroupEnabled =
 			(comp.type as string) === "dynamic"
 				? ((Astro.locals as { settings?: { dynamic?: { enabled?: unknown } } }).settings?.dynamic?.enabled === false)
-				: (comp.type as string) === "gallery"
-					? ((Astro.locals as { settings?: { gallery?: { enabled?: unknown } } }).settings?.gallery?.enabled === false)
-					: (comp.type as string) === "friends"
-						? ((Astro.locals as { settings?: { friends?: { enabled?: unknown } } }).settings?.friends?.enabled === false)
-						: false;
+				: false;
 		if (pageGroupEnabled) return false;
 		const toggleKey = toggleMap[comp.type];
 		if (!toggleKey) return true;

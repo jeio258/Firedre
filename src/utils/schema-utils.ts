@@ -214,3 +214,13 @@ export function buildSiteGraph(opts: {
 		],
 	};
 }
+
+/**
+ * 安全地序列化 JSON-LD：转义 < > &，防止标题等用户可控内容以 </script>
+ * 逃逸出 <script type="application/ld+json"> 上下文造成 XSS/解析破坏。
+ */
+export function safeJsonLd(data: unknown): string {
+	return JSON.stringify(data).replace(/[<>&]/g, (c) =>
+		c === "<" ? "\\u003c" : c === ">" ? "\\u003e" : "\\u0026",
+	);
+}

@@ -105,25 +105,30 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	if (action !== "me") return json({ message: "Not found" }, 404);
 
-	const adminEnv = resolveAdminEnv(cfEnv);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (isAdmin) {
-		const bearer = request.headers.get("Authorization") || "";
-		if (bearer.startsWith("Bearer "))
-			return json({ authenticated: true, username: "token" }, 200, "private");
+	try {
+		const adminEnv = resolveAdminEnv(cfEnv);
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (isAdmin) {
+			const bearer = request.headers.get("Authorization") || "";
+			if (bearer.startsWith("Bearer "))
+				return json({ authenticated: true, username: "token" }, 200, "private");
+		}
+
+		const token = getCookieValue(
+			request.headers.get("Cookie"),
+			ADMIN_SESSION_COOKIE,
+		);
+		const username = token ? await getSessionUser(token, adminEnv) : null;
+		// 会话状态响应必须 no-store（"private" 模式）：登录前的 authenticated:false
+		// 若被浏览器缓存（默认模式 public, max-age=60），登录后 60s 内 me/ 全部命中
+		// 陈旧 false → 表现为"登录失效/切换菜单自动登出"。
+		if (!username) return json({ authenticated: false }, 200, "private");
+
+		return json({ authenticated: true, username }, 200, "private");
+	} catch (error) {
+		// 配置缺失（如 SESSION_SECRET 未设）时校验会抛异常；统一降级为未认证，避免裸 500
+		return json({ authenticated: false }, 200, "private");
 	}
-
-	const token = getCookieValue(
-		request.headers.get("Cookie"),
-		ADMIN_SESSION_COOKIE,
-	);
-	const username = token ? await getSessionUser(token, adminEnv) : null;
-	// 会话状态响应必须 no-store（"private" 模式）：登录前的 authenticated:false
-	// 若被浏览器缓存（默认模式 public, max-age=60），登录后 60s 内 me/ 全部命中
-	// 陈旧 false → 表现为"登录失效/切换菜单自动登出"。
-	if (!username) return json({ authenticated: false }, 200, "private");
-
-	return json({ authenticated: true, username }, 200, "private");
 };
 
 export const ALL: APIRoute = async () => methodNotAllowed();

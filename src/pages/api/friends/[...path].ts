@@ -44,7 +44,9 @@ export const GET: APIRoute = async ({ params, request }) => {
 			const id = Number(segments[0]);
 			if (!Number.isInteger(id) || id <= 0) return badRequest("无效的友链ID");
 			const friend = await getFriend(cfEnv, id);
-			if (!friend) return notFound("友链不存在");
+			// 未认证访客不可读取停用（enabled=0）友链：与列表接口/前台展示过滤逻辑保持一致
+			if (!friend || (!isAdmin && friend.enabled !== 1))
+				return notFound("友链不存在");
 			return json(toView(friend), 200, isAdmin ? "private" : "default");
 		}
 
