@@ -13,6 +13,8 @@ let section: Section = "dashboard";
 let View: unknown = null;
 let viewProps: Record<string, unknown> = {};
 let viewError = "";
+// 仅在组件就绪后更新，使 {#key} 在加载期间保持旧视图（消除切换闪屏）
+let viewKey: string = "dashboard";
 
 const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	dashboard: () => import("./AdminDashboard.svelte"),
@@ -69,10 +71,6 @@ function parsePath(pathname: string): {
 async function render(s: Section, slug?: string) {
 	section = s;
 	viewError = "";
-	viewProps = { ...(VIEW_PROPS[s] ?? {}) };
-	if ((s === "posts-edit" || s === "album-edit") && slug) {
-		viewProps = { slug, ...viewProps };
-	}
 	const loader = VIEWS[s];
 	if (!loader) {
 		viewError = "未知页面";
@@ -80,8 +78,15 @@ async function render(s: Section, slug?: string) {
 	}
 	try {
 		const mod = await loader();
-		// 切换时保留旧视图直到新组件就绪，避免"加载中"闪烁
+		// 仅在新组件就绪后才更新 props/View/key：加载期间旧视图保持可见，
+		// 避免"切换菜单→白屏/重渲闪烁"（{#key} 旧写法在 section 变化时立即重挂，
+		// 新组件异步 load() 未完成前会闪空内容）。
+		viewProps = { ...(VIEW_PROPS[s] ?? {}) };
+		if ((s === "posts-edit" || s === "album-edit") && slug) {
+			viewProps = { slug, ...viewProps };
+		}
 		View = mod.default;
+		viewKey = slug ?? s;
 	} catch (e) {
 		viewError = e instanceof Error ? e.message : "加载失败";
 	}
@@ -220,7 +225,7 @@ onMount(() => {
 			{#if viewError}
 				<div class="admin-error">{viewError}</div>
 			{:else if View}
-				{#key viewProps.slug ?? section}
+				{#key viewKey}
 					<svelte:component this={View} {...viewProps} />
 				{/key}
 			{:else}
