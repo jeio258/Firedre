@@ -106,8 +106,47 @@ export const GET: APIRoute = async ({ params, request }) => {
 export const POST: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const slug = segments[0];
-	if (!slug || segments[1] !== "unlock" || !isValidGallerySlug(slug))
-		return notFound();
+	if (!slug || !isValidGallerySlug(slug)) return notFound();
+
+	// 图床拉图：POST /api/gallery/{slug}/imgbed/photos/
+	// 服务端用全局图床配置（端点+密钥）调图床 API 列目录（dir=slug）→ 拼公开直链 → 写入 frontmatter.photos
+	if (segments[1] === "imgbed" && segments[2] === "photos") {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
+		return withRateLimit(
+			cfEnv,
+			request,
+			{
+				windowMs: 60_000,
+				maxRequests: 10,
+				failOpen: false,
+				scope: "imgbed-fetch",
+			},
+			async () => {
+				try {
+					const { getImgbedConfig } = await import(
+						"../../../../server/gallery/imgbedConfig"
+					);
+					const { fetchImgbedPhotos } = await import(
+						"../../../../server/gallery/imgbed"
+					);
+					const { setAlbumPhotos } = await import(
+						"../../../../server/gallery/service"
+					);
+					const cfg = await getImgbedConfig(cfEnv);
+					if (!cfg)
+						return badRequest(
+							"未配置图床 API（请先在站点设置 → 相册 配置端点与密钥）",
+						);
+					const photos = await fetchImgbedPhotos(cfg.endpoint, cfg.token, slug);
+					await setAlbumPhotos(cfEnv, slug, photos);
+					return json({ ok: true, count: photos.length, photos });
+				} catch (error) {
+					return fromServiceError(error);
+				}
+			},
+		);
+	}
 
 	// 解锁限流：防暴力破解相册密码（D1 持久化）；failOpen=false 避免 D1 故障时防护失效
 	return withRateLimit(

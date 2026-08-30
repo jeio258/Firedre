@@ -1,6 +1,6 @@
 <script lang="ts">
-import { apiJson } from "@/lib/adminApi";
 import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
 // Firefly 静态配置的默认值（后台开关初始显示真实当前状态）
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
@@ -130,8 +130,16 @@ const GROUPS: Group[] = [
 				type: "boolean",
 			},
 			{ name: "sakuraSwitchable", label: "樱花可调", type: "boolean" },
-			{ name: "overlayOpacitySwitchable", label: "壁纸透明度可调", type: "boolean" },
-			{ name: "overlayBlurSwitchable", label: "背景模糊度可调", type: "boolean" },
+			{
+				name: "overlayOpacitySwitchable",
+				label: "壁纸透明度可调",
+				type: "boolean",
+			},
+			{
+				name: "overlayBlurSwitchable",
+				label: "背景模糊度可调",
+				type: "boolean",
+			},
 			{
 				name: "overlayCardOpacitySwitchable",
 				label: "卡片透明度可调",
@@ -431,9 +439,7 @@ const GROUPS: Group[] = [
 		key: "mermaid",
 		title: "Mermaid 图表",
 		category: "功能配置",
-		fields: [
-			{ name: "enabled", label: "启用", type: "boolean" },
-		],
+		fields: [{ name: "enabled", label: "启用", type: "boolean" }],
 	},
 	{
 		key: "dynamic",
@@ -471,6 +477,23 @@ const GROUPS: Group[] = [
 		fields: [
 			{ name: "enabled", label: "启用相册页", type: "boolean" },
 			{ name: "title", label: "页面标题", type: "text" },
+			{
+				name: "imgbedEnabled",
+				label: "启用图床 API（图传方式获取图片）",
+				type: "boolean",
+			},
+			{
+				name: "imgbedEndpoint",
+				label: "图床 API 端点",
+				placeholder: "如 https://cfbed.sanyue.de（可切换任意兼容图床）",
+				type: "text",
+			},
+			{
+				name: "imgbedToken",
+				label: "图床 API 密钥 (Token)",
+				placeholder: "仅服务端使用，不会下发到公开页面",
+				type: "password",
+			},
 		],
 	},
 	{
@@ -692,30 +715,30 @@ async function load() {
 			string,
 			Record<string, unknown>
 		>;
-			const defaults = defaultsJson as unknown as Record<
-				string,
-				Record<string, unknown>
-			>;
-			for (const g of GROUPS) {
-				const saved = all[g.key] ?? {};
-				const def = defaults[g.key] ?? {};
-				const merged: Record<string, unknown> = {};
-				for (const f of g.fields) {
-					const v = saved[f.name];
-					merged[f.name] = v !== undefined ? v : def[f.name];
-				}
-				data[g.key] = merged;
+		const defaults = defaultsJson as unknown as Record<
+			string,
+			Record<string, unknown>
+		>;
+		for (const g of GROUPS) {
+			const saved = all[g.key] ?? {};
+			const def = defaults[g.key] ?? {};
+			const merged: Record<string, unknown> = {};
+			for (const f of g.fields) {
+				const v = saved[f.name];
+				merged[f.name] = v !== undefined ? v : def[f.name];
 			}
-			data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
-			const nav = data["nav"] as {
-				navItems?: Array<{ label: string; url: string }>;
-				social?: Array<{ label: string; url: string }>;
-			};
-			// nav.navItems/social 首次加载可能为 JSON 字符串（flatten 产出），需解析回填
-			// 成数组再 map——既避免对字符串 .map 抛错（“not a function”），也避免回退成
-			// 空数组导致“保存全部”把默认导航清空。
-			navItems = parseNavArray(nav.navItems);
-			social = parseNavArray(nav.social);
+			data[g.key] = merged;
+		}
+		data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
+		const nav = data["nav"] as {
+			navItems?: Array<{ label: string; url: string }>;
+			social?: Array<{ label: string; url: string }>;
+		};
+		// nav.navItems/social 首次加载可能为 JSON 字符串（flatten 产出），需解析回填
+		// 成数组再 map——既避免对字符串 .map 抛错（“not a function”），也避免回退成
+		// 空数组导致“保存全部”把默认导航清空。
+		navItems = parseNavArray(nav.navItems);
+		social = parseNavArray(nav.social);
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}
@@ -766,11 +789,22 @@ async function save() {
 			"localPlaylist",
 			"sections",
 		]);
+		// 密码/密钥字段（type === "password"）：留空 = 保留已存值，不提交覆盖；
+		// 避免每次保存站点设置时用空串把已配置的密钥（如图床 Token）清掉。
+		const passwordFields = new Set(
+			GROUPS.flatMap((g) =>
+				(g.fields ?? [])
+					.filter((f: { type?: string }) => f.type === "password")
+					.map((f: { name: string }) => f.name),
+			),
+		);
 		for (const g of GROUPS) {
 			const payload = { ...(data[g.key] ?? {}) };
 			for (const k of Object.keys(payload)) {
 				const v = payload[k];
-				if (jsonFields.has(k)) {
+				if (passwordFields.has(k)) {
+					if (!v) delete payload[k]; // 留空不覆盖，仅保留已存值
+				} else if (jsonFields.has(k)) {
 					if (v === "" || v == null) delete payload[k];
 				} else if (v == null) {
 					delete payload[k];
@@ -930,6 +964,8 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 								{#if field.type === "json"}
 									<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
 								{/if}
+							{:else if field.type === "password"}
+								<input type="password" value={data[currentGroup().key][field.name] as string ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.value; markDirty(); }} />
 							{:else if field.type === "number"}
 								<input type="number" value={data[currentGroup().key][field.name] as number} on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
 							{:else}

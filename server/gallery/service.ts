@@ -1,3 +1,4 @@
+import YAML from "yaml";
 import type {
 	AlbumDetailFrontmatter,
 	AlbumPhoto,
@@ -5,11 +6,8 @@ import type {
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
 import type { GalleryAlbumDetail, GalleryHubDetail } from "../../types/gallery";
-import YAML from "yaml";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
-import { deleteAlbumPassword, getAlbumPassword, setAlbumPassword } from "./password";
-import { getAlbumWebDavConfig } from "./webdavConfig";
 import {
 	GALLERY_HUB_R2_KEY,
 	galleryAlbumR2Key,
@@ -24,6 +22,12 @@ import {
 	splitGalleryMarkdown,
 	toAlbumSummary,
 } from "./frontmatter";
+import {
+	deleteAlbumPassword,
+	getAlbumPassword,
+	setAlbumPassword,
+} from "./password";
+import { getAlbumWebDavConfig } from "./webdavConfig";
 
 async function loadAlbumSummary(
 	env: CloudflareEnv,
@@ -181,10 +185,7 @@ export async function setAlbumSourceFlag(
 	});
 }
 
-export async function upsertGalleryHub(
-	env: CloudflareEnv,
-	source: string,
-) {
+export async function upsertGalleryHub(env: CloudflareEnv, source: string) {
 	const parsed = parseHubSource(source);
 	const normalized = serializeHubMarkdown(parsed.frontmatter, parsed.content);
 
@@ -221,7 +222,10 @@ export async function upsertGalleryAlbum(
 	// 会把 D1 密码一并 DELETE，导致管理员用密码框设的密码被一次普通编辑清除。
 	// 仅当 frontmatter 显式含非空 password 时（旧手写 password 相册的向后兼容），
 	// 才同步到 D1 并强制带锁标记；否则保持 D1 现状不动。
-	const rawFm = splitGalleryMarkdown(source).frontmatter as Record<string, unknown>;
+	const rawFm = splitGalleryMarkdown(source).frontmatter as Record<
+		string,
+		unknown
+	>;
 	const rawPassword =
 		typeof rawFm.password === "string" && rawFm.password.trim()
 			? rawFm.password.trim()
@@ -263,6 +267,36 @@ export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 	);
 
 	return { slug, removedFromHub: true };
+}
+
+/**
+ * 用图床拉取的直链列表覆盖相册 frontmatter.photos（方案①）。
+ * 相册 source 保持 local（公开直链本质相同），仅替换 photos 字段，不触碰其他字段。
+ */
+export async function setAlbumPhotos(
+	env: CloudflareEnv,
+	slug: string,
+	photos: AlbumPhoto[],
+): Promise<void> {
+	if (!isValidGallerySlug(slug)) throw new UserError("相册 slug 格式无效");
+	const detail = await getGalleryAlbum(env, slug, { includeSource: true });
+	if (!detail?.source) throw new UserError("相册不存在");
+
+	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
+	frontmatter.photos = photos.map((p) => ({
+		url: p.url,
+		...(p.type ? { type: p.type } : {}),
+		...(p.poster ? { poster: p.poster } : {}),
+		...(p.date ? { date: p.date } : {}),
+	}));
+
+	const normalized = serializeAlbumMarkdown(
+		frontmatter as AlbumDetailFrontmatter & { layout?: string },
+		content,
+	);
+	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
+		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
+	});
 }
 
 export async function getAlbumWebDavConfigFromR2(

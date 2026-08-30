@@ -17,11 +17,45 @@ let passwordInput = "";
 let passwordMsg = "";
 let passwordSaving = false;
 
-// WebDAV 源配置（url/username 存 D1，密码走环境变量 WEBDAV_PASSWORD）
-let webdavUrl = "";
-let webdavUsername = "";
-let webdavMsg = "";
-let webdavSaving = false;
+// 图床 API 源（方案①）：全局配置端点+密钥（站点设置 → 相册），相册页用 slug 作为图床目录拉图
+let imgbedEndpoint = "";
+let imgbedEnabled = false;
+let imgbedMsg = "";
+let imgbedFetching = false;
+
+async function loadImgbedStatus() {
+	try {
+		const resp = await fetch("/api/settings/?group=gallery");
+		if (resp.ok) {
+			const data = await resp.json();
+			imgbedEnabled = data.imgbedEnabled === true;
+			imgbedEndpoint = data.imgbedEndpoint ?? "";
+		}
+	} catch {
+		// 忽略：读取失败不影响正文编辑
+	}
+}
+
+async function fetchFromImgbed() {
+	imgbedFetching = true;
+	imgbedMsg = "";
+	try {
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/imgbed/photos/`,
+			{ method: "POST" },
+		);
+		const data = await resp.json();
+		if (!resp.ok || !data.ok) {
+			imgbedMsg = data.message || "图床拉取失败";
+			return;
+		}
+		imgbedMsg = `已从图床获取 ${data.count} 张图片 ✓（已写入 photos，请点保存以持久化）`;
+	} catch {
+		imgbedMsg = "网络错误";
+	} finally {
+		imgbedFetching = false;
+	}
+}
 
 async function loadPasswordState() {
 	try {
@@ -89,78 +123,6 @@ async function clearPassword() {
 	}
 }
 
-async function loadWebDavConfig() {
-	try {
-		const resp = await fetch(
-			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
-		);
-		if (resp.ok) {
-			const data = await resp.json();
-			webdavUrl = data.config?.url ?? "";
-			webdavUsername = data.config?.username ?? "";
-		}
-	} catch {
-		// 忽略：读取失败不影响正文编辑
-	}
-}
-
-async function saveWebDavConfig() {
-	webdavSaving = true;
-	webdavMsg = "";
-	const url = webdavUrl.trim();
-	if (!url) {
-		webdavMsg = "WebDAV 地址不能为空";
-		webdavSaving = false;
-		return;
-	}
-	try {
-		const resp = await fetch(
-			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
-			{
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ url, username: webdavUsername.trim() }),
-			},
-		);
-		const data = await resp.json();
-		if (!resp.ok || !data.ok) {
-			webdavMsg = data.message || "WebDAV 配置保存失败";
-			return;
-		}
-		webdavMsg = "WebDAV 源已启用 ✓";
-	} catch {
-		webdavMsg = "网络错误";
-	} finally {
-		webdavSaving = false;
-	}
-}
-
-async function clearWebDavConfig() {
-	if (!window.confirm("清除 WebDAV 配置并切回本地源？")) return;
-	webdavSaving = true;
-	webdavMsg = "";
-	try {
-		const resp = await fetch(
-			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
-			{
-				method: "DELETE",
-			},
-		);
-		const data = await resp.json();
-		if (!resp.ok || !data.ok) {
-			webdavMsg = data.message || "清除失败";
-			return;
-		}
-		webdavUrl = "";
-		webdavUsername = "";
-		webdavMsg = "已切换为本地源 ✓";
-	} catch {
-		webdavMsg = "网络错误";
-	} finally {
-		webdavSaving = false;
-	}
-}
-
 async function load() {
 	try {
 		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`);
@@ -176,7 +138,7 @@ async function load() {
 		loaded = true;
 	}
 	loadPasswordState();
-	loadWebDavConfig();
+	loadImgbedStatus();
 }
 
 function initEditor() {
@@ -241,8 +203,8 @@ onMount(load);
 		</div>
 	</div>
 	<p class="hint">
-		编辑 gallery/{slug}/index.md。frontmatter 支持 title/desc/date/location/tags/encrypted/photos（URL 列表）/source
-		（webdav 时需配置 webdav.url 与 username）。
+		编辑 gallery/{slug}/index.md。frontmatter 支持 title/desc/date/location/tags/encrypted/photos（URL 列表）。
+		图片可用下方「图床 API」从图床拉取公开直链后写入 photos。
 	</p>
 
 	<div class="password-box">
@@ -268,31 +230,21 @@ onMount(load);
 	</div>
 
 	<div class="password-box">
-		<span class="password-label">WebDAV 源（url/username 存 D1；登录密码走环境变量 WEBDAV_PASSWORD）</span>
+		<span class="password-label">图床 API（方案①：全局配置端点+密钥，本相册用 slug「{slug}」作为图床目录拉图）</span>
 		<div class="password-row">
-			<input
-				class="password-input"
-				type="text"
-				placeholder="https://dav.example.com/remote.php/dav/files/user/album"
-				bind:value={webdavUrl}
-				autocomplete="off"
-			/>
-			<input
-				class="password-input webdav-user"
-				type="text"
-				placeholder="WebDAV 用户名"
-				bind:value={webdavUsername}
-				autocomplete="off"
-			/>
-			<button class="btn-primary" on:click={saveWebDavConfig} disabled={webdavSaving}>
-				{webdavSaving ? "保存中…" : "启用 WebDAV"}
-			</button>
-			{#if webdavUrl}
-				<button class="btn-danger" on:click={clearWebDavConfig} disabled={webdavSaving}>清除并切回本地</button>
+			{#if imgbedEnabled}
+				<span class="imgbed-info">
+					图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{slug}
+				</span>
+				<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
+					{imgbedFetching ? "拉取中…" : "从图床获取图片"}
+				</button>
+			{:else}
+				<span class="imgbed-info">图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。</span>
 			{/if}
 		</div>
-		{#if webdavMsg}
-			<span class="password-msg">{webdavMsg}</span>
+		{#if imgbedMsg}
+			<span class="password-msg">{imgbedMsg}</span>
 		{/if}
 	</div>
 
@@ -382,8 +334,13 @@ onMount(load);
 		background: var(--card-bg, #fff);
 		color: var(--deep-text, #374151);
 	}
-	.webdav-user {
-		flex: 0 0 160px;
+	.imgbed-info {
+		color: var(--muted, #6b7280);
+		font-size: 0.85rem;
+	}
+	.link {
+		color: var(--primary, #5b8cff);
+		text-decoration: underline;
 	}
 	.password-msg {
 		display: block;
