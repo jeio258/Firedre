@@ -141,7 +141,7 @@ export async function getSettingsGroup(
  */
 export async function saveSettingsGroups(
 	env: CloudflareEnv,
-	groups: Record<SettingGroup, Record<string, unknown>>,
+	groups: Partial<Record<SettingGroup, Record<string, unknown>>>,
 ): Promise<void> {
 	const entries = Object.entries(groups) as [SettingGroup, Record<string, unknown>][];
 	if (entries.length === 0) return;
