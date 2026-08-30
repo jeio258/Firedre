@@ -92,6 +92,12 @@ const GROUPS: Group[] = [
 			{ name: "pageSponsor", label: "页面开关：打赏", type: "boolean" },
 			{ name: "cardBorder", label: "卡片边框", type: "boolean" },
 			{ name: "cardFollowTheme", label: "卡片跟随主题", type: "boolean" },
+			{
+				name: "cardRadius",
+				label: "卡片圆角 (rem)",
+				type: "number",
+				hint: "前台所有卡片的圆角半径，默认 1（如 0 为直角、2 为更大圆角）",
+			},
 			{ name: "faviconUrl", label: "网站图标 URL", type: "text" },
 		],
 	},

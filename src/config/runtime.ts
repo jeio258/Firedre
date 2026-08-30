@@ -122,6 +122,7 @@ export function getSiteConfig(locals: unknown) {
 			...staticSiteConfig.card,
 			border: bool(s.cardBorder, Boolean((staticSiteConfig.card as Record<string, unknown>).border)),
 			followTheme: bool(s.cardFollowTheme, Boolean((staticSiteConfig.card as Record<string, unknown>).followTheme)),
+			radius: num(s.cardRadius, Number((staticSiteConfig.card as Record<string, unknown>).radius ?? 1)),
 		},
 		favicon: typeof s.faviconUrl === "string" && s.faviconUrl
 			? [{ src: s.faviconUrl }]

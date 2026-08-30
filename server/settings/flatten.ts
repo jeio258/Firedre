@@ -41,7 +41,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		siteUrl: sc.site_url, siteStartDate: sc.siteStartDate, timezone: sc.timezone,
 		pageWidth: sc.pageWidth, categoryBar: sc.categoryBar, categoryStyle: sc.categoryStyle, tagStyle: sc.tagStyle,
 		hue: scAny.themeColor?.hue, defaultMode: scAny.themeColor?.defaultMode,
-		cardBorder: scAny.card?.border, cardFollowTheme: scAny.card?.followTheme,
+		cardBorder: scAny.card?.border, cardFollowTheme: scAny.card?.followTheme, cardRadius: scAny.card?.radius,
 		keywords: Array.isArray(scAny.keywords) ? scAny.keywords.join(",") : "",
 		pageFriends: scAny.pages?.friends, pageGuestbook: scAny.pages?.guestbook,
 		pageDynamic: scAny.pages?.dynamic, pageGallery: scAny.pages?.gallery,

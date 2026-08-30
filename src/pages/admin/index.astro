@@ -15,8 +15,39 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 			if (d.authenticated) window.location.href = "/admin/posts/";
 		});
 	</script>
+	<script is:inline>
+		// 对齐项目主题：从站点设置读取主题色相，注入 --hue / --primary / 页面背景，
+		// 使后台管理界面与前台使用同一套主题色。
+		(function () {
+			try {
+				fetch("/api/settings/")
+					.then((r) => (r.ok ? r.json() : null))
+					.then((data) => {
+						let hue;
+						if (data && typeof data === "object") {
+							hue =
+								data.hue ??
+								data.themeColor?.hue ??
+								data.basic?.hue ??
+								(Number.isFinite(data.settings?.hue)
+									? data.settings.hue
+									: undefined);
+						}
+						const h = Number.isFinite(Number(hue)) ? Number(hue) : 165;
+						const root = document.documentElement;
+						root.style.setProperty("--hue", String(h));
+						root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
+						root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
+						root.style.setProperty("--card-bg", "white");
+						root.style.setProperty("--text-1", "oklch(0.25 0.02 " + h + ")");
+						document.body.style.background = `oklch(0.95 0.01 ${h})`;
+					})
+					.catch(() => {});
+			} catch {}
+		})();
+	</script>
 </head>
-<body style="margin:0;background:#f3f4f6;font-family:system-ui,sans-serif">
+<body style="margin:0;background:#f3f4f6;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
 	<AdminApp client:load />
 </body>
 </html>

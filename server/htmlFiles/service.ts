@@ -158,6 +158,16 @@ export async function deleteHtmlFile(
 	return true;
 }
 
+export async function clearHtmlFiles(env: CloudflareEnv): Promise<number> {
+	const { results } = await env.DB.prepare("SELECT r2_key FROM html_files").all<{ r2_key: string }>();
+	const keys = (results || []).map((r) => r.r2_key).filter(Boolean);
+	if (keys.length) {
+		await env.BUCKET.delete(keys);
+		await env.DB.prepare("DELETE FROM html_files").run();
+	}
+	return keys.length;
+}
+
 export async function serveHtmlFileByPath(
 	env: CloudflareEnv,
 	pathname: string,

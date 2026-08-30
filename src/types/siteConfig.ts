@@ -49,6 +49,8 @@ export type SiteConfig = {
 		border: boolean;
 		// 是否让卡片风格跟随主题色相
 		followTheme?: boolean;
+		// 卡片圆角大小 (rem)
+		radius?: number;
 	};
 
 	// 站点开始日期，用于计算运行天数

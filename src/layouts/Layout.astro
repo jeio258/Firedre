@@ -336,6 +336,7 @@ const siteLogo = await getSiteLogo();
         lightTheme: expressiveCodeConfig.lightTheme,
         baseUrl: import.meta.env.BASE_URL,
         cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlayCardOpacity"] ?? ((((settings as any)?.["theme"]) as any)?.["overlay"] as any)?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
+        cardRadius: ((settings as any)?.["cardRadius"] ?? (siteConfig as any).card?.radius) ?? 1,
       }}
     >
       // 主题初始化 - 与setting-utils.ts保持一致
@@ -388,6 +389,14 @@ const siteLogo = await getSiteLogo();
         ? Math.min(1, Math.max(0, parsedCardOpacity))
         : cardTransparentOpacity;
       document.documentElement.style.setProperty("--card-transparent-opacity", String(resolvedCardOpacity));
+
+      // 卡片圆角（rem），优先使用用户自定义值，否则用后台全局配置
+      const storedRadius = localStorage.getItem("cardRadius");
+      const parsedRadius = storedRadius === null ? NaN : Number.parseFloat(storedRadius);
+      const resolvedRadius = Number.isFinite(parsedRadius) && parsedRadius >= 0
+        ? Math.min(4, parsedRadius)
+        : Number(cardRadius);
+      document.documentElement.style.setProperty("--radius-large", resolvedRadius + "rem");
 
       // 内容定位已由 --content-top 纯 CSS 决定（layout-base.css），无需 --banner-height-extend 变量/计算
 

@@ -82,6 +82,8 @@ export const siteConfig: SiteConfig = {
 		border: false,
 		// 是否让卡片风格跟随主题色相
 		followTheme: false,
+		// 卡片圆角大小 (rem)，前台所有卡片的圆角半径
+		radius: 1,
 	},
 
 	// Favicon 配置
