@@ -4,11 +4,18 @@ import {
 	setWavesEnabled,
 	getStoredGradientEnabled,
 	getStoredCardBorderEnabled,
+	setCardBorderEnabled,
 	getStoredCardFollowThemeEnabled,
+	setCardFollowThemeEnabled,
 	getStoredBannerTitleEnabled,
 	getStoredOverlayOpacity,
 	setOverlayOpacity,
 	getStoredOverlayBlur,
+	setOverlayBlur,
+	getStoredOverlayCardOpacity,
+	setOverlayCardOpacity,
+	getStoredSakuraEnabled,
+	setSakuraEnabled,
 } from "../src/utils/setting-utils";
 
 function fakeStorage() {
@@ -57,6 +64,52 @@ describe("boolean settings localStorage contract", () => {
 		// 默认 node 环境无 localStorage
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 	});
+
+	it("returns default when localStorage exists but getItem is missing", () => {
+		// 防御契约：getItem 非函数时不应抛错，应回退默认值
+		vi.stubGlobal("localStorage", { setItem: () => {} });
+		expect(typeof getStoredWavesEnabled()).toBe("boolean");
+		expect(typeof getStoredOverlayOpacity()).toBe("number");
+	});
+
+	it("cardBorder/cardFollowTheme/sakura read stored value as boolean", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("cardBorderEnabled", "true");
+		expect(getStoredCardBorderEnabled()).toBe(true);
+		(globalThis as any).localStorage.setItem("cardFollowThemeEnabled", "false");
+		expect(getStoredCardFollowThemeEnabled()).toBe(false);
+	});
+
+	it("sakura getStored* parses stored value", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("sakuraEnabled", "true");
+		expect(getStoredSakuraEnabled()).toBe(true);
+	});
+
+	it("set* triggers DOM side effects (data attributes / classList)", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		const el = {
+			classList: { add: vi.fn(), remove: vi.fn(), contains: vi.fn(() => false), toggle: vi.fn() },
+			setAttribute: vi.fn(),
+			removeAttribute: vi.fn(),
+			style: { setProperty: vi.fn() },
+		};
+		vi.stubGlobal("document", {
+			documentElement: el,
+			body: el,
+			querySelector: () => el,
+			getElementById: () => el,
+		});
+		vi.stubGlobal("window", { dispatchEvent: vi.fn() });
+		setWavesEnabled(true);
+		expect(el.setAttribute).toHaveBeenCalledWith("data-waves-enabled", "true");
+		setSakuraEnabled(true);
+		expect(el.setAttribute).toHaveBeenCalledWith("data-sakura-enabled", "true");
+		setCardBorderEnabled(true);
+		expect(el.classList.add).toHaveBeenCalledWith("enable-card-border");
+		setCardFollowThemeEnabled(true);
+		expect(el.classList.add).toHaveBeenCalledWith("card-follow-theme-hue");
+	});
 });
 
 describe("number settings (overlay) localStorage contract", () => {
@@ -87,5 +140,27 @@ describe("number settings (overlay) localStorage contract", () => {
 		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
 		setOverlayOpacity(2);
 		expect((globalThis as any).localStorage.getItem("overlayOpacity")).toBe("1");
+	});
+
+	it("overlayCardOpacity parses and clamps to [0,1]", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("overlayCardOpacity", "0.5");
+		expect(getStoredOverlayCardOpacity()).toBe(0.5);
+		(globalThis as any).localStorage.setItem("overlayCardOpacity", "3");
+		expect(getStoredOverlayCardOpacity()).toBe(1);
+	});
+
+	it("setOverlayBlur clamps to [0,20] then writes", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		setOverlayBlur(50);
+		expect((globalThis as any).localStorage.getItem("overlayBlur")).toBe("20");
+	});
+
+	it("setOverlayCardOpacity clamps to [0,1] then writes", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		setOverlayCardOpacity(2);
+		expect((globalThis as any).localStorage.getItem("overlayCardOpacity")).toBe("1");
 	});
 });

@@ -47,7 +47,12 @@ interface BooleanSettingOpts {
 function createStoredBoolean({ key, getDefault, shouldStore, afterStore }: BooleanSettingOpts) {
 	return {
 		getStored(): boolean {
-			if (typeof localStorage === "undefined") return getDefault();
+			if (
+				typeof localStorage === "undefined" ||
+				typeof localStorage.getItem !== "function"
+			) {
+				return getDefault();
+			}
 			const stored = localStorage.getItem(key);
 			return stored === null ? getDefault() : stored === "true";
 		},
@@ -76,7 +81,12 @@ function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSet
 	const clamp = (value: number) => Math.min(max, Math.max(min, value));
 	return {
 		getStored(): number {
-			if (typeof localStorage === "undefined") return getDefault();
+			if (
+				typeof localStorage === "undefined" ||
+				typeof localStorage.getItem !== "function"
+			) {
+				return getDefault();
+			}
 			const stored = localStorage.getItem(key);
 			if (stored === null) return getDefault();
 			const parsed = Number.parseFloat(stored);
