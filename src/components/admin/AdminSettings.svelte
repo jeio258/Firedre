@@ -1130,7 +1130,10 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		font-weight: 400;
 		font-size: 0.75rem;
 	}
-	input[type="text"], input[type="number"], textarea {
+	input[type="text"],
+	input[type="password"],
+	input[type="number"],
+	textarea {
 		width: 100%;
 		box-sizing: border-box;
 		padding: 0.55rem 0.8rem;
