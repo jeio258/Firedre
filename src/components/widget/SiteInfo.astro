@@ -32,8 +32,10 @@ const FIREFLY_VERSION = "6.16.5";
 const ASTRO_VERSION = "7.2.3";
 const PNPM_VERSION = "11.22.0";
 
-// Node 版本
-const nodeVersion = process.version;
+// Node 版本：Cloudflare Worker（workerd + nodejs_compat）运行时 process.version 为空，
+// 导致部署后 Node 版本不显示。用构建时确定的常量兜底（与下方 FIREFLY/ASTRO/PNPM 版本一致）。
+const NODE_VERSION = "v22.23.2";
+const nodeVersion = process.version || NODE_VERSION;
 
 // pnpm 版本（常量）
 const pnpmVersion = `v${PNPM_VERSION}`;
