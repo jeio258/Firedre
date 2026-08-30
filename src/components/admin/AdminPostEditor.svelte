@@ -2,6 +2,27 @@
 import { onMount, tick } from "svelte";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
+import { pinyin } from "pinyin-pro";
+
+/** 根据标题生成拼音 slug（中文转拼音，英文/数字保留，其余清洗为连字符） */
+function slugifyTitle(title: string): string {
+	if (!title) return "";
+	const segments = title.split(/([\u4e00-\u9fa5]+)/).filter(Boolean);
+	const parts: string[] = [];
+	for (const seg of segments) {
+		if (/^[\u4e00-\u9fa5]+$/.test(seg)) {
+			const py = pinyin(seg, { toneType: "none", type: "array" });
+			parts.push(py.join("-"));
+		} else {
+			const cleaned = seg
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/^-+|-+$/g, "");
+			if (cleaned) parts.push(cleaned);
+		}
+	}
+	return parts.filter(Boolean).join("-").replace(/-{2,}/g, "-");
+}
 
 export let slug = "";
 export let isNew = false;
@@ -26,6 +47,7 @@ let editor: Vditor | null = null;
 let saving = false;
 let message = "";
 let loaded = false;
+let slugManuallyEdited = false;
 
 async function load() {
 	if (isNew) {
@@ -175,11 +197,26 @@ onMount(load);
 		<div class="form-grid">
 			<label>
 				<span>标题 *</span>
-				<input type="text" bind:value={title} />
+				<input
+					type="text"
+					bind:value={title}
+					on:input={() => {
+						// 新文章且用户未手动改过 slug 时，自动根据标题拼音填充
+						if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
+					}}
+				/>
 			</label>
 			<label>
 				<span>Slug（URL 标识）</span>
-				<input type="text" bind:value={slug} disabled={!isNew} placeholder="english-slug" />
+				<input
+					type="text"
+					bind:value={slug}
+					disabled={!isNew}
+					placeholder="english-slug"
+					on:input={() => {
+						slugManuallyEdited = true;
+					}}
+				/>
 			</label>
 			<label>
 				<span>发布日期 *</span>

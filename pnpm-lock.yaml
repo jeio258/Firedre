@@ -137,6 +137,9 @@ importers:
       pako:
         specifier: ^3.0.1
         version: 3.0.1
+      pinyin-pro:
+        specifier: ^3.29.3
+        version: 3.29.3
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -270,9 +273,6 @@ importers:
       miniflare:
         specifier: 5.20260825.0-alpha
         version: 5.20260825.0-alpha
-      pinyin-pro:
-        specifier: ^3.29.3
-        version: 3.29.3
       playwright:
         specifier: ^1.62.1
         version: 1.62.1
