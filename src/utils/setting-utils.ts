@@ -31,6 +31,38 @@ declare global {
 	}
 }
 
+interface BooleanSettingOpts {
+	key: string;
+	getDefault: () => boolean;
+	/** set 时：若提供且返回 false，则跳过 localStorage 写入（apply 仍执行）。 */
+	shouldStore?: () => boolean;
+	/** set 时：写入 localStorage 后执行（通常是 apply 逻辑）。 */
+	afterStore?: (value: boolean) => void;
+}
+
+/**
+ * 生成 boolean 设置的 getStored/set 样板（localStorage 环境检查 + 空值回退）。
+ * 各设置的默认值来源 getDefault 与写入后副作用 afterStore 由调用方显式提供。
+ */
+function createStoredBoolean({ key, getDefault, shouldStore, afterStore }: BooleanSettingOpts) {
+	return {
+		getStored(): boolean {
+			if (typeof localStorage === "undefined") return getDefault();
+			const stored = localStorage.getItem(key);
+			return stored === null ? getDefault() : stored === "true";
+		},
+		set(value: boolean): void {
+			const canStore =
+				typeof localStorage !== "undefined" &&
+				typeof localStorage.setItem === "function";
+			if (canStore && (!shouldStore || shouldStore())) {
+				localStorage.setItem(key, String(value));
+			}
+			afterStore?.(value);
+		},
+	};
+}
+
 export function getDefaultHue(): number {
 	const fallback = "250";
 	// 检查是否在浏览器环境中
@@ -622,29 +654,17 @@ export function getDefaultWavesEnabled(): boolean {
 	return wavesConfig ?? false;
 }
 
-export function getStoredWavesEnabled(): boolean {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultWavesEnabled();
-	}
-	const stored = localStorage.getItem("wavesEnabled");
-	if (stored === null) {
-		return getDefaultWavesEnabled();
-	}
-	return stored === "true";
-}
+const wavesSetting = createStoredBoolean({
+	key: "wavesEnabled",
+	getDefault: getDefaultWavesEnabled,
+	afterStore: applyWavesEnabledToDocument,
+});
 
+export function getStoredWavesEnabled(): boolean {
+	return wavesSetting.getStored();
+}
 export function setWavesEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("wavesEnabled", String(enabled));
-	applyWavesEnabledToDocument(enabled);
+	wavesSetting.set(enabled);
 }
 
 export function applyWavesEnabledToDocument(enabled: boolean): void {
@@ -683,29 +703,16 @@ export function getDefaultGradientEnabled(): boolean {
 	return gradientConfig ?? true;
 }
 
+const gradientSetting = createStoredBoolean({
+	key: "gradientEnabled",
+	getDefault: getDefaultGradientEnabled,
+	afterStore: applyGradientEnabledToDocument,
+});
 export function getStoredGradientEnabled(): boolean {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultGradientEnabled();
-	}
-	const stored = localStorage.getItem("gradientEnabled");
-	if (stored === null) {
-		return getDefaultGradientEnabled();
-	}
-	return stored === "true";
+	return gradientSetting.getStored();
 }
-
 export function setGradientEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("gradientEnabled", String(enabled));
-	applyGradientEnabledToDocument(enabled);
+	gradientSetting.set(enabled);
 }
 
 export function applyGradientEnabledToDocument(enabled: boolean): void {
@@ -733,30 +740,22 @@ export function getDefaultSakuraEnabled(): boolean {
 	return getEffectsConfigFromWindow().enable ?? sakuraConfig?.enable ?? false;
 }
 
+const sakuraSetting = createStoredBoolean({
+	key: "sakuraEnabled",
+	getDefault: getDefaultSakuraEnabled,
+	afterStore(enabled: boolean): void {
+		if (typeof document === "undefined") return;
+		document.documentElement.setAttribute("data-sakura-enabled", String(enabled));
+		if (typeof window !== "undefined") {
+			window.dispatchEvent(new CustomEvent("sakuraToggle", { detail: { enabled } }));
+		}
+	},
+});
 export function getStoredSakuraEnabled(): boolean {
-	if (typeof localStorage === "undefined") {
-		return getDefaultSakuraEnabled();
-	}
-	const stored = localStorage.getItem("sakuraEnabled");
-	if (stored === null) {
-		return getDefaultSakuraEnabled();
-	}
-	return stored === "true";
+	return sakuraSetting.getStored();
 }
-
 export function setSakuraEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("sakuraEnabled", String(enabled));
-	document.documentElement.setAttribute("data-sakura-enabled", String(enabled));
-	// 实时切换樱花特效
-	window.dispatchEvent(
-		new CustomEvent("sakuraToggle", { detail: { enabled } }),
-	);
+	sakuraSetting.set(enabled);
 }
 
 // Banner title functions
@@ -768,18 +767,14 @@ export function getDefaultBannerCarouselEnabled(): boolean {
 	return getEffectsConfigFromWindow().bannerCarousel ?? backgroundWallpaper.common?.carousel?.enable ?? false;
 }
 
+const bannerTitleSetting = createStoredBoolean({
+	key: "bannerTitleEnabled",
+	getDefault: getDefaultBannerTitleEnabled,
+	afterStore: applyBannerTitleEnabledToDocument,
+});
+
 export function getStoredBannerTitleEnabled(): boolean {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultBannerTitleEnabled();
-	}
-	const stored = localStorage.getItem("bannerTitleEnabled");
-	if (stored === null) {
-		return getDefaultBannerTitleEnabled();
-	}
-	return stored === "true";
+	return bannerTitleSetting.getStored();
 }
 
 export function getStoredBannerCarouselEnabled(): boolean {
@@ -801,16 +796,8 @@ export function getStoredBannerCarouselEnabled(): boolean {
 }
 
 export function setBannerTitleEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("bannerTitleEnabled", String(enabled));
-	applyBannerTitleEnabledToDocument(enabled);
+	bannerTitleSetting.set(enabled);
 }
-
 export function setBannerCarouselEnabled(enabled: boolean): void {
 	const safeEnabled = !!enabled;
 	const isSwitchable = getPanelConfigFromWindow().bannerCarouselSwitchable;
@@ -868,30 +855,20 @@ export function getDefaultCardBorderEnabled(): boolean {
 	return getSiteConfigFromWindow().card?.border ?? siteConfig.card?.border ?? false;
 }
 
+const cardBorderSetting = createStoredBoolean({
+	key: "cardBorderEnabled",
+	getDefault: getDefaultCardBorderEnabled,
+	afterStore(enabled: boolean): void {
+		if (typeof document === "undefined") return;
+		if (enabled) document.documentElement.classList.add("enable-card-border");
+		else document.documentElement.classList.remove("enable-card-border");
+	},
+});
 export function getStoredCardBorderEnabled(): boolean {
-	if (typeof localStorage === "undefined") {
-		return getDefaultCardBorderEnabled();
-	}
-	const stored = localStorage.getItem("cardBorderEnabled");
-	if (stored === null) {
-		return getDefaultCardBorderEnabled();
-	}
-	return stored === "true";
+	return cardBorderSetting.getStored();
 }
-
 export function setCardBorderEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("cardBorderEnabled", String(enabled));
-	if (enabled) {
-		document.documentElement.classList.add("enable-card-border");
-	} else {
-		document.documentElement.classList.remove("enable-card-border");
-	}
+	cardBorderSetting.set(enabled);
 }
 
 // Card follow theme functions
@@ -899,28 +876,18 @@ export function getDefaultCardFollowThemeEnabled(): boolean {
 	return getSiteConfigFromWindow().card?.followTheme ?? siteConfig.card?.followTheme ?? false;
 }
 
+const cardFollowThemeSetting = createStoredBoolean({
+	key: "cardFollowThemeEnabled",
+	getDefault: getDefaultCardFollowThemeEnabled,
+	afterStore(enabled: boolean): void {
+		if (typeof document === "undefined") return;
+		if (enabled) document.body.classList.add("card-follow-theme-hue");
+		else document.body.classList.remove("card-follow-theme-hue");
+	},
+});
 export function getStoredCardFollowThemeEnabled(): boolean {
-	if (typeof localStorage === "undefined") {
-		return getDefaultCardFollowThemeEnabled();
-	}
-	const stored = localStorage.getItem("cardFollowThemeEnabled");
-	if (stored === null) {
-		return getDefaultCardFollowThemeEnabled();
-	}
-	return stored === "true";
+	return cardFollowThemeSetting.getStored();
 }
-
 export function setCardFollowThemeEnabled(enabled: boolean): void {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.setItem !== "function"
-	) {
-		return;
-	}
-	localStorage.setItem("cardFollowThemeEnabled", String(enabled));
-	if (enabled) {
-		document.body.classList.add("card-follow-theme-hue");
-	} else {
-		document.body.classList.remove("card-follow-theme-hue");
-	}
+	cardFollowThemeSetting.set(enabled);
 }
