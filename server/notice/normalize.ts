@@ -5,6 +5,12 @@ import type {
 	NoticeSection,
 } from "../../types/notice";
 import { UserError } from "../utils/userError";
+import { safeUrlScheme } from "../utils/safeUrl";
+
+/** 仅允许 http/https/mailto/tel 或相对路径，拦截 javascript:/data: 等危险 scheme */
+export function isSafeNoticeUrl(raw: unknown): boolean {
+	return safeUrlScheme(raw) !== null;
+}
 
 function normalizeLine(line: NoticeLineInput): NoticeLine | null {
 	if (typeof line === "string") {
@@ -18,15 +24,6 @@ function normalizeLine(line: NoticeLineInput): NoticeLine | null {
 	const rawUrl = line.url ? String(line.url).trim() : undefined;
 	if (rawUrl && !isSafeNoticeUrl(rawUrl)) return null;
 	return rawUrl ? { text, url: rawUrl } : { text };
-}
-
-/** 仅允许 http/https/mailto 或相对路径，拦截 javascript:/data: 等危险 scheme */
-export function isSafeNoticeUrl(raw: string): boolean {
-	const value = String(raw || "").trim();
-	if (!value) return false;
-	if (/^(\/|#)/.test(value)) return true;
-	if (!/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
-	return /^(https?|mailto|tel):/i.test(value);
 }
 
 export function normalizeSections(

@@ -1,17 +1,9 @@
 import type { FriendInput, FriendRecord } from "../../types/friends";
 import type { CloudflareEnv } from "../../types/env";
 import { UserError } from "../utils/userError";
-
-/** 仅允许 http/https 或相对路径，拦截 javascript:/data:/vbscript: 等危险 scheme */
-export function isSafeHttpUrl(raw: string): boolean {
-	const value = String(raw || "").trim();
-	if (!value) return false;
-	// 相对地址（/ ./ ../ #）允许
-	if (/^(\/|#)/.test(value)) return true;
-	// 无 scheme 视为相对路径（如 www.example.com），允许
-	if (!/^[a-z][a-z0-9+.-]*:/i.test(value)) return true;
-	return /^https?:/i.test(value);
-}
+import { isSafeHttpUrl } from "../utils/safeUrl";
+// 统一 URL scheme 校验（白名单 http/https + 相对路径，拦截 javascript: 等存储型 XSS）
+export { isSafeHttpUrl };
 
 function normalizeInput(raw: FriendInput) {
 	const title = String(raw.title || "").trim();

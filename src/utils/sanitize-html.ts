@@ -85,17 +85,12 @@ const ALLOWED_TAGS = new Set([
 	"source",
 	"track",
 ]);
-
-/** 允许的 URL scheme（其它一律视为危险） */
-const SAFE_SCHEME = /^(https?|mailto|tel|ftp):/i;
+import { safeUrlScheme } from "../../server/utils/safeUrl";
 
 function isSafeUrl(raw: string | null | undefined): boolean {
 	if (!raw) return true;
-	const value = String(raw).trim();
-	// 相对地址与协议相对地址安全；拦截明确/经过空白混淆的 javascript: 等
-	if (/^(\/|\.\/|\.\.\/|#)/.test(value)) return true;
-	if (/^[a-z][a-z0-9+.-]*:/i.test(value)) return SAFE_SCHEME.test(value);
-	return true;
+	// 相对地址与协议相对地址安全；拦截明确/经过空白混淆的 javascript: 等（含 ftp）
+	return safeUrlScheme(raw, { schemes: ["http", "https", "mailto", "tel", "ftp"] }) !== null;
 }
 
 /**
