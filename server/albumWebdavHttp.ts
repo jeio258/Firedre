@@ -1,7 +1,6 @@
 import type { CloudflareEnv } from "../types/env";
 import { handleAlbumWebDavFile, handleAlbumWebDavList } from "./albumWebdav";
 import { withRateLimit } from "./utils/rateLimiter";
-import { WEBDAV_PASSWORD_ENV } from "./albumWebdavEnv";
 
 export type AlbumWebdavRuntimeEnv = Record<string, string | undefined>;
 
@@ -81,39 +80,6 @@ export async function handleAlbumWebdavHttp(
 	}
 }
 
-export function buildAlbumWebdavRequestUrl(input: {
-	host: string;
-	path: string;
-	rawUrl?: string;
-}) {
-	if (input.rawUrl) return input.rawUrl;
-
-	const path = input.path.startsWith("/") ? input.path : `/${input.path}`;
-	return `https://${input.host}${path}`;
-}
-
-export async function albumWebdavHttpToNetlifyResult(response: Response) {
-	const contentType = response.headers.get("content-type") || "";
-	const isJson = contentType.includes("application/json");
-	const headers = Object.fromEntries(response.headers.entries());
-
-	if (isJson) {
-		return {
-			statusCode: response.status,
-			headers,
-			body: await response.text(),
-		};
-	}
-
-	const buffer = Buffer.from(await response.arrayBuffer());
-	return {
-		statusCode: response.status,
-		headers,
-		body: buffer.toString("base64"),
-		isBase64Encoded: true,
-	};
-}
-
 async function handleWebDavFile(
 	request: Request,
 	url: URL,
@@ -185,5 +151,3 @@ interface AlbumWebdavRuntimeOptions {
 	env?: CloudflareEnv;
 	runtimeEnv?: Record<string, string | undefined>;
 }
-
-export { WEBDAV_PASSWORD_ENV };

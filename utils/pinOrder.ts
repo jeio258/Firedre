@@ -22,17 +22,3 @@ export function sortPostsByPinOrder(posts: PostListItem[]): PostListItem[] {
     return (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0)
   })
 }
-
-export function comparePostsByPinAndDate(
-  a: PostListItem,
-  b: PostListItem,
-  dateDesc = true,
-): number {
-  const pinA = normalizePinOrder(a.pin_order ?? a.top)
-  const pinB = normalizePinOrder(b.pin_order ?? b.top)
-  if (pinA !== pinB)
-    return pinB - pinA
-  const da = Date.parse(a.date) || 0
-  const db = Date.parse(b.date) || 0
-  return dateDesc ? db - da : da - db
-}

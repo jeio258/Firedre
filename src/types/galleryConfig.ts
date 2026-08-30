@@ -10,9 +10,3 @@ export type GalleryAlbum = {
 	password?: string; // 加密密码（非空时启用加密）
 	passwordHint?: string; // 密码提示
 };
-
-// 相册配置
-export type GalleryConfig = {
-	albums: GalleryAlbum[];
-	columnWidth?: number; // 瀑布流最小列宽(px)，默认 240，浏览器根据容器宽度自动计算列数
-};

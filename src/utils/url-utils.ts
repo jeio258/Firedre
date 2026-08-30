@@ -54,20 +54,6 @@ export function getCategoryUrl(category: string | null): string {
 	return url(`/archive/?category=${encodeURIComponent(category.trim())}`);
 }
 
-export function getDir(path: string): string {
-	// 移除文件扩展名
-	const pathWithoutExt = removeFileExtension(path);
-	const lastSlashIndex = pathWithoutExt.lastIndexOf("/");
-	if (lastSlashIndex < 0) {
-		return "/";
-	}
-	return pathWithoutExt.substring(0, lastSlashIndex + 1);
-}
-
-export function getFileDirFromPath(filePath: string): string {
-	return filePath.replace(/^src\//, "").replace(/\/[^/]+$/, "");
-}
-
 export function getSearchUrl(query: string): string {
 	return url(`/search/?q=${encodeURIComponent(query.trim())}`);
 }

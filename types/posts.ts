@@ -99,11 +99,6 @@ export interface PostsListResponse {
 	pageSize: number;
 }
 
-export interface PostNeighborsResponse {
-	prev: PostListItem | null;
-	next: PostListItem | null;
-}
-
 export interface CategoryTreeNode {
 	name: string;
 	total: number;

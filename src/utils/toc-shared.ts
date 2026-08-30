@@ -90,7 +90,8 @@ export function computeTocItems(
 /**
  * 转义 HTML 属性值，避免标题中的引号破坏属性
  */
-export function escapeHtmlAttr(value: string): string {
+
+function escapeHtmlAttr(value: string): string {
 	return value
 		.replace(/&/g, "&amp;")
 		.replace(/"/g, "&quot;")
@@ -102,7 +103,8 @@ export function escapeHtmlAttr(value: string): string {
 /**
  * 徽章内部 HTML（客户端字符串拼接用）
  */
-export function renderBadgeInnerHTML(item: TocItem): string {
+
+function renderBadgeInnerHTML(item: TocItem): string {
 	if (item.badgeKind === "index") return String(item.badgeIndex ?? "");
 	if (item.badgeKind === "dot") return '<span class="toc-badge-dot"></span>';
 	return '<span class="toc-badge-dot toc-badge-dot-sm"></span>';

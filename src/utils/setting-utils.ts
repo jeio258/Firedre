@@ -115,7 +115,8 @@ export function getDefaultHue(): number {
 	return Number.parseInt(configCarrier?.dataset.hue || fallback, 10);
 }
 
-export function getDefaultTheme(): LIGHT_DARK_MODE {
+
+function getDefaultTheme(): LIGHT_DARK_MODE {
 	// 统一从后台 settings 读取默认主题，静态 config 仅兑底
 	return (getSiteConfigFromWindow().themeColor?.defaultMode ?? siteConfig.themeColor.defaultMode ?? DEFAULT_THEME) as LIGHT_DARK_MODE;
 }
@@ -255,7 +256,8 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 }
 
 // 设置系统主题监听器
-export function setupSystemThemeListener(): void {
+
+function setupSystemThemeListener(): void {
 	// 先清理之前的监听器
 	cleanupSystemThemeListener();
 
@@ -374,7 +376,8 @@ export function syncBannerHomeTextVisibility(): void {
 	overlay.classList.toggle("hidden", !show);
 }
 
-export function applyWallpaperModeToDocument(
+
+function applyWallpaperModeToDocument(
 	mode: WALLPAPER_MODE,
 	animate = true,
 ): void {
@@ -585,7 +588,8 @@ export function getStoredOverlayCardOpacity(): number {
 	return overlayCardOpacitySetting.getStored();
 }
 
-export function applyOverlayOpacityToDocument(opacity: number): void {
+
+function applyOverlayOpacityToDocument(opacity: number): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -599,7 +603,8 @@ export function applyOverlayOpacityToDocument(opacity: number): void {
 	}
 }
 
-export function applyOverlayBlurToDocument(blur: number): void {
+
+function applyOverlayBlurToDocument(blur: number): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -610,7 +615,8 @@ export function applyOverlayBlurToDocument(blur: number): void {
 	}
 }
 
-export function applyOverlayCardOpacityToDocument(cardOpacity: number): void {
+
+function applyOverlayCardOpacityToDocument(cardOpacity: number): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -633,7 +639,8 @@ export function setOverlayCardOpacity(cardOpacity: number): void {
 	overlayCardOpacitySetting.set(cardOpacity);
 }
 
-export function applyStoredOverlaySettingsToDocument(): void {
+
+function applyStoredOverlaySettingsToDocument(): void {
 	applyOverlayOpacityToDocument(getStoredOverlayOpacity());
 	applyOverlayBlurToDocument(getStoredOverlayBlur());
 	applyOverlayCardOpacityToDocument(getStoredOverlayCardOpacity());
@@ -670,7 +677,8 @@ export function setWavesEnabled(enabled: boolean): void {
 	wavesSetting.set(enabled);
 }
 
-export function applyWavesEnabledToDocument(enabled: boolean): void {
+
+function applyWavesEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -718,7 +726,8 @@ export function setGradientEnabled(enabled: boolean): void {
 	gradientSetting.set(enabled);
 }
 
-export function applyGradientEnabledToDocument(enabled: boolean): void {
+
+function applyGradientEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -821,7 +830,8 @@ export function setBannerCarouselEnabled(enabled: boolean): void {
 	}
 }
 
-export function applyBannerTitleEnabledToDocument(enabled: boolean): void {
+
+function applyBannerTitleEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {
 		return;
 	}
@@ -843,7 +853,8 @@ export function applyBannerTitleEnabledToDocument(enabled: boolean): void {
 	}
 }
 
-export function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
+
+function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {
 		return;
 	}

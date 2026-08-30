@@ -22,27 +22,3 @@ export function verifyAlbumPassword(input: string, configured?: string) {
     return false
   return constantTimeEqual(input, configured)
 }
-
-export function parseAlbumAccessQuery(input: {
-  encrypted?: boolean | string
-  albumPassword?: string
-  accessPassword?: string
-}): AlbumAccessParams {
-  const encrypted = input.encrypted === true || input.encrypted === 'true'
-  return {
-    encrypted,
-    password: input.albumPassword,
-    accessPassword: input.accessPassword,
-  }
-}
-
-export function toAlbumAccessParams(
-  album?: { encrypted?: boolean, password?: string },
-  accessPassword?: string,
-): AlbumAccessParams {
-  return {
-    encrypted: !!album?.encrypted,
-    password: album?.password,
-    accessPassword,
-  }
-}

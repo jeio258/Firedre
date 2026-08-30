@@ -37,32 +37,3 @@ export function collectUsedFontCssVars(
 
 	return used;
 }
-
-/**
- * 将本地字体的 src 路径转换为 public 目录下的访问路径。
- *
- * 支持的输入格式：
- * - "./public/..."  → "/..."（public/ 前缀的相对路径）
- * - "public/..."    → "/..."
- * - "/public/..."   → "/..."
- * - "/..."          → "/..."（已是绝对路径，直接返回）
- * - 其他相对路径    → 返回 null（无法安全转换）
- *
- * @returns 转换后的访问路径，或 null 表示无法转换
- */
-export function toPublicPath(rawSrc: string): string | null {
-	// 已是绝对路径（包括 /public/ 前缀的路径，去掉 /public 前缀）
-	if (rawSrc.startsWith("/")) {
-		const match = rawSrc.match(/^\/public\/(.+)$/);
-		return match ? `/${match[1]}` : rawSrc;
-	}
-
-	// 匹配 public/ 前缀的各种写法
-	const match = rawSrc.match(/^\.?\/?public\/(.+)$/);
-	if (match) {
-		return `/${match[1]}`;
-	}
-
-	// 相对路径且不含 public/ 前缀，无法安全转换
-	return null;
-}

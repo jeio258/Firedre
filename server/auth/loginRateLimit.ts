@@ -1,5 +1,3 @@
-import type { IncomingMessage } from "node:http";
-
 export const LOGIN_MAX_ATTEMPTS = 5;
 export const LOGIN_LOCKOUT_MS = 15 * 60 * 1000;
 
@@ -25,13 +23,6 @@ export function getRequestClientIp(request: Request) {
 		// 仅信任 Cloudflare 设置的连接 IP；不信任可被客户端伪造的 X-Forwarded-For
 		"unknown"
 	);
-}
-
-export function getHttpClientIp(req: IncomingMessage) {
-	const forwarded = req.headers["x-forwarded-for"];
-	if (typeof forwarded === "string" && forwarded.trim())
-		return forwarded.split(",")[0].trim();
-	return req.socket.remoteAddress || "unknown";
 }
 
 function retryAfterSec(lockedUntil: string) {
@@ -98,49 +89,4 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 				.run();
 		},
 	};
-}
-
-type MemoryRow = { failCount: number; lockedUntil: number | null };
-
-export function createMemoryLoginRateLimit(): LoginRateLimitStore {
-	const rows = new Map<string, MemoryRow>();
-
-	return {
-		async check(ip) {
-			const row = rows.get(ip);
-			if (!row?.lockedUntil) return { allowed: true };
-
-			if (row.lockedUntil > Date.now()) {
-				return {
-					allowed: false,
-					retryAfterSec: Math.max(
-						1,
-						Math.ceil((row.lockedUntil - Date.now()) / 1000),
-					),
-				};
-			}
-
-			rows.delete(ip);
-			return { allowed: true };
-		},
-
-		async recordFailure(ip) {
-			const row = rows.get(ip) || { failCount: 0, lockedUntil: null };
-			row.failCount += 1;
-			if (row.failCount >= LOGIN_MAX_ATTEMPTS)
-				row.lockedUntil = Date.now() + LOGIN_LOCKOUT_MS;
-			rows.set(ip, row);
-		},
-
-		async clear(ip) {
-			rows.delete(ip);
-		},
-	};
-}
-
-let localMemoryStore: LoginRateLimitStore | null = null;
-
-export function getLocalLoginRateLimitStore() {
-	if (!localMemoryStore) localMemoryStore = createMemoryLoginRateLimit();
-	return localMemoryStore;
 }

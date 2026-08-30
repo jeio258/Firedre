@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 // Firefly 静态配置的默认值（后台开关初始显示真实当前状态）
-import defaultsJson from "../../config/settings-defaults.json";
+import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
 type FieldType = "text" | "number" | "boolean" | "textarea" | "json";
 interface Field {

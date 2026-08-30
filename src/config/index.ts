@@ -18,7 +18,6 @@ export type {
 	ExpressiveCodeConfig,
 	FooterConfig,
 	GalleryAlbum,
-	GalleryConfig,
 	LicenseConfig,
 	MermaidConfig,
 	MusicPlayerConfig,

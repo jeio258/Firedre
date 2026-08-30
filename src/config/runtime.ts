@@ -538,9 +538,6 @@ export function getSiteConfigFromWindow() {
 export function getEffectsConfigFromWindow() {
 	return getEffectsConfig({ settings: windowSettings() });
 }
-export function getMusicConfigFromWindow() {
-	return getMusicConfig({ settings: windowSettings() });
-}
 export function getWallpaperConfigFromWindow() {
 	return getWallpaperConfig({ settings: windowSettings() });
 }

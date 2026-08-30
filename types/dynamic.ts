@@ -9,13 +9,6 @@ export interface DynamicItem {
 	searchText?: string;
 }
 
-export interface DynamicListResponse {
-	items: DynamicItem[];
-	total: number;
-	page: number;
-	pageSize: number;
-}
-
 export interface DynamicRecord {
 	id: string;
 	content: string;

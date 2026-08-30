@@ -1,4 +1,5 @@
-// 后台/运行时默认设置（手工维护）。前端后台表单默认值见 settings-defaults.json。
+// 站点默认值的唯一数据源（后台表单 + middleware SSR 合并共用）。
+// 后台与运行时读取同一份 settingsDefaults，避免多份副本发散。
 export const settingsDefaults = {
 	basic: {
 		title: "Firefly",
@@ -38,6 +39,9 @@ export const settingsDefaults = {
 		bannerTitleSwitchable: false,
 		bannerCarouselSwitchable: false,
 		sakuraSwitchable: false,
+		overlayOpacitySwitchable: false,
+		overlayBlurSwitchable: false,
+		overlayCardOpacitySwitchable: false,
 	},
 	profile: {
 		name: "Firefly",
