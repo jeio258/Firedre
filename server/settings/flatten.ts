@@ -87,6 +87,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		carousel: wc.common?.carousel?.enable, carouselInterval: wc.common?.carousel?.interval,
 		carouselTransition: wc.common?.carousel?.transitionEffect,
 		overlayOpacity: wc.overlay?.opacity, overlayBlur: wc.overlay?.blur,
+		overlayCardOpacity: wc.overlay?.cardOpacity,
 	};
 	const effects: L = { sakura: ec.enable, sakuraNum: ec.sakuraNum, limitTimes: ec.limitTimes, waves: ec.waves, gradient: ec.gradient, bannerCarousel: ec.bannerCarousel };
 	const footerL: L = { enable: footer.enable, text: footer.text, icp: footer.icp, startYear: footer.startYear, customHtml: footer.customHtml };

@@ -263,6 +263,7 @@ export function getWallpaperConfig(locals: unknown) {
 			...(staticWallpaper.overlay ?? {}),
 			opacity: num(t.overlayOpacity, staticWallpaper.overlay?.opacity ?? 0.8),
 			blur: num(t.overlayBlur, staticWallpaper.overlay?.blur ?? 0),
+			cardOpacity: num(t.overlayCardOpacity, staticWallpaper.overlay?.cardOpacity ?? 0.6),
 		},
 		banner: {
 			...(staticWallpaper.banner ?? {}),

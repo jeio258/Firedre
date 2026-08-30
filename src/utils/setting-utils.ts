@@ -471,8 +471,8 @@ export function getDefaultOverlayBlur(): number {
 }
 
 export function getDefaultOverlayCardOpacity(): number {
-	// 卡片透明度无后台独立字段（后端未持久化），保留静态 config 兜底
-	return backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
+	// 优先读后台配置（runtime 已归一化 theme.overlayCardOpacity → overlay.cardOpacity），静态 config 兑底
+	return getWallpaperConfigFromWindow().overlay?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
 }
 
 export function getStoredOverlayOpacity(): number {

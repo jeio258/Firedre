@@ -335,7 +335,7 @@ const siteLogo = await getSiteLogo();
         darkTheme: expressiveCodeConfig.darkTheme,
         lightTheme: expressiveCodeConfig.lightTheme,
         baseUrl: import.meta.env.BASE_URL,
-        cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlay"] ?? backgroundWallpaper.overlay)?.cardOpacity ?? 0.6,
+        cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlayCardOpacity"] ?? ((((settings as any)?.["theme"]) as any)?.["overlay"] as any)?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
       }}
     >
       // 主题初始化 - 与setting-utils.ts保持一致

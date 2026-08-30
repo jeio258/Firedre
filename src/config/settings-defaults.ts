@@ -71,6 +71,7 @@ export const settingsDefaults = {
 		carouselTransition: "zoom",
 		overlayOpacity: 0.8,
 		overlayBlur: 10,
+		overlayCardOpacity: 0.6,
 	},
 	nav: {
 		navItems:

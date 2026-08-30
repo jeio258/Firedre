@@ -38,6 +38,18 @@ describe("runtime.getWallpaperConfig", () => {
 		const src = config.src as { desktop?: string[] };
 		expect(src.desktop?.length ?? 0).toBeGreaterThan(0);
 	});
+
+	it("后台 overlayCardOpacity 覆盖静态默认（卡片透明度可后台修改）", () => {
+		const config = getWallpaperConfig({
+			settings: { theme: { overlayCardOpacity: 0.3 } },
+		});
+		expect(config.overlay?.cardOpacity).toBe(0.3);
+	});
+
+	it("overlay 未设置 cardOpacity 时回退静态默认 0.6", () => {
+		const config = getWallpaperConfig({ settings: {} });
+		expect(config.overlay?.cardOpacity).toBe(0.6);
+	});
 });
 
 describe("runtime.getSiteConfig", () => {
