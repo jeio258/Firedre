@@ -12,6 +12,7 @@ import { cfEnv } from "@/lib/api";
 import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
 import { getGalleryAlbum } from "../../../server/gallery/service";
+import { getAlbumPassword } from "../../../server/gallery/password";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
@@ -34,6 +35,9 @@ if (!albumDetail) {
 	return Astro.redirect("/404/");
 }
 
+// 相册访问密码存 D1（动态博客方式），frontmatter 只保留 encrypted 标记
+const albumPassword = await getAlbumPassword(cfEnv, albumId);
+
 // Firedre：相册来自 R2（后台可编辑），frontmatter 驱动
 const fm = albumDetail.frontmatter as Record<string, unknown>;
 const albumMeta = {
@@ -44,8 +48,8 @@ const albumMeta = {
 	location: fm.location ? String(fm.location) : undefined,
 	tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
 	cover: fm.cover ? String(fm.cover) : undefined,
-	encrypted: fm.encrypted === true,
-	password: fm.password ? String(fm.password) : "",
+	encrypted: fm.encrypted === true && !!albumPassword,
+	password: albumPassword,
 	passwordHint: fm.passwordHint ? String(fm.passwordHint) : "",
 };
 

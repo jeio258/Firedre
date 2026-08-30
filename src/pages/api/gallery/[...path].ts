@@ -12,6 +12,11 @@ import {
 	upsertGalleryAlbum,
 	upsertGalleryHub,
 } from "../../../../server/gallery/service";
+import {
+	deleteAlbumPassword,
+	getAlbumPassword,
+	setAlbumPassword,
+} from "../../../../server/gallery/password";
 import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import {
 	badRequest,
@@ -38,6 +43,13 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 		const slug = segments[0];
 		if (!isValidGallerySlug(slug)) return badRequest("相册 slug 格式无效");
+
+		if (segments[1] === "password") {
+			// 查询相册是否已设密码（不返回密码本身，仅布尔）——仅管理员
+			if (!isAdmin) return unauthorized();
+			const existing = await getAlbumPassword(cfEnv, slug);
+			return json({ hasPassword: !!existing }, 200, "private");
+		}
 
 		if (segments[1] === "unlock" && request.method === "GET") {
 			// 解锁限流：防暴力破解相册密码（D1 持久化，跨边缘节点一致）；
@@ -101,16 +113,29 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	if (!isAdmin) return unauthorized();
 
 	try {
-		const body = await request.text();
-		if (!body.trim()) return badRequest("内容不能为空");
+		const slug = segments[0];
+
+		// 相册密码管理（动态博客方式，存 D1）：PUT /api/gallery/{slug}/password/
+		if (segments[1] === "password") {
+			if (!slug || !isValidGallerySlug(slug))
+				return badRequest("相册 slug 格式无效");
+			const body = (await request.json().catch(() => ({}))) as {
+				password?: string;
+			};
+			await setAlbumPassword(cfEnv, slug, String(body.password || ""));
+			return json({ ok: true, hasPassword: !!String(body.password || "").trim() });
+		}
 
 		if (segments.length === 0) {
+			const body = await request.text();
+			if (!body.trim()) return badRequest("内容不能为空");
 			const result = await upsertGalleryHub(cfEnv, body);
 			return json({ ok: true, ...result });
 		}
 
-		const slug = segments[0];
-		if (!isValidGallerySlug(slug)) return badRequest("相册 slug 格式无效");
+		if (!slug || !isValidGallerySlug(slug)) return badRequest("相册 slug 格式无效");
+		const body = await request.text();
+		if (!body.trim()) return badRequest("内容不能为空");
 		const result = await upsertGalleryAlbum(cfEnv, slug, body);
 		return json({ ok: true, ...result });
 	} catch (error) {
@@ -128,6 +153,12 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	if (!isAdmin) return unauthorized();
 
 	try {
+		// 仅清除相册密码（不删除相册）：DELETE /api/gallery/{slug}/password/
+		if (segments[1] === "password") {
+			await deleteAlbumPassword(cfEnv, slug);
+			return json({ ok: true, hasPassword: false });
+		}
+
 		const result = await deleteGalleryAlbum(cfEnv, slug);
 		return json({ ok: true, ...result });
 	} catch (error) {

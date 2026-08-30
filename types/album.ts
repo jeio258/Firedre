@@ -55,8 +55,7 @@ export interface AlbumDetailFrontmatter {
 	comment?: boolean;
 	/** 是否带锁相册，在 index.md 中配置 encrypted: true/false */
 	encrypted?: boolean;
-	/** 相册访问密码，与 encrypted 配合使用 */
-	password?: string;
+	/** 相册访问密码不再写在 frontmatter；密码存 D1 表 album_passwords（动态博客方式） */
 	source?: AlbumSource;
 	/** WebDAV 地址与账号（写在 index.md）；WebDAV 登录密码仅使用服务端环境变量 WEBDAV_PASSWORD */
 	webdav?: AlbumWebDavFrontmatterConfig;

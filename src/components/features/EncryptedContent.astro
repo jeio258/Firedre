@@ -92,7 +92,18 @@ const labels = {
   var contentEl = document.getElementById('decrypted-content');
 
   function showContent(html) {
+    // 加密相册解锁后，本地图片文件（/api/gallery-files/...）需带 accessPassword 才能加载
     contentEl.innerHTML = html;
+    var pwd = sessionStorage.getItem(cacheKey) || '';
+    if (pwd) {
+      var imgs = contentEl.querySelectorAll('img[src*="/api/gallery-files/"]');
+      for (var i = 0; i < imgs.length; i++) {
+        var img = imgs[i];
+        var src = img.getAttribute('src') || '';
+        var sep = src.indexOf('?') >= 0 ? '&' : '?';
+        img.setAttribute('src', src + sep + 'accessPassword=' + encodeURIComponent(pwd));
+      }
+    }
     contentEl.classList.remove('hidden');
     ui.classList.add('hidden');
     // Scripts injected via innerHTML are inert — re-create them so they execute

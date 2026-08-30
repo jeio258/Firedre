@@ -9,6 +9,14 @@ describe("sanitizeUrl", () => {
 		expect(sanitizeUrl("file:///etc/passwd")).toBeUndefined();
 	});
 
+	it("blocks scheme bypass via embedded ASCII tab/CR/LF (WHATWG strips them)", () => {
+		expect(sanitizeUrl("java\tscript:alert(1)")).toBeUndefined();
+		expect(sanitizeUrl("java\nscript:alert(1)")).toBeUndefined();
+		expect(sanitizeUrl("java\rscript:alert(1)")).toBeUndefined();
+		expect(sanitizeUrl("  java\tscript:alert(1)  ")).toBeUndefined();
+		expect(sanitizeUrl("\tjava\tscript:alert(1)\t")).toBeUndefined();
+	});
+
 	it("removes non-image data: URLs", () => {
 		expect(sanitizeUrl("data:text/html,<script>alert(1)</script>")).toBeUndefined();
 		expect(sanitizeUrl("data:image/svg+xml,<svg onload=alert(1)>")).toBeUndefined();

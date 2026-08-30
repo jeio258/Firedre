@@ -88,7 +88,6 @@ export function normalizeAlbumFrontmatter(
 		tags: Array.isArray(raw.tags) ? raw.tags.map(String) : undefined,
 		comment: raw.comment === true ? true : undefined,
 		encrypted: raw.encrypted === true,
-		password: raw.password ? String(raw.password) : undefined,
 		source,
 		webdav,
 		photos,
@@ -151,13 +150,8 @@ function buildAlbumPayload(
 	if (Array.isArray(frontmatter.tags) && frontmatter.tags.length)
 		payload.tags = frontmatter.tags.map(String);
 	if (frontmatter.comment === true) payload.comment = true;
-	if (frontmatter.encrypted === true) {
-		payload.encrypted = true;
-		if (frontmatter.password?.trim())
-			payload.password = frontmatter.password.trim();
-	} else {
-		payload.encrypted = false;
-	}
+	// 密码不再写入 frontmatter（存 D1 表 album_passwords），仅保留带锁标记
+	payload.encrypted = frontmatter.encrypted === true;
 
 	if (frontmatter.source === "webdav" && frontmatter.webdav?.url) {
 		payload.webdav = {

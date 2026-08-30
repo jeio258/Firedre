@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { cfEnv } from "../../../lib/api";
 import { getGalleryAlbum } from "../../../../server/gallery/service";
+import { getAlbumPassword } from "../../../../server/gallery/password";
 import { constantTimeEqual } from "../../../../server/utils/timingSafe";
 
 export const prerender = false;
@@ -24,10 +25,11 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	// 相册专属文件（非 _uploads 全局上传目录）需校验相册加密口令：
 	// 否则加密相册的图片文件可凭已知/猜测的路径直接下载，口令仅保护 URL 列表。
+	// 口令存 D1（album_passwords），不写进 R2 frontmatter。
 	if (album !== "_uploads") {
 		const detail = await getGalleryAlbum(cfEnv, album);
 		if (detail?.frontmatter.encrypted) {
-			const expected = String(detail.frontmatter.password || "").trim();
+			const expected = await getAlbumPassword(cfEnv, album);
 			const supplied = new URL(request.url).searchParams.get("accessPassword") || "";
 			if (!expected || !constantTimeEqual(supplied, expected))
 				return new Response("Unauthorized", { status: 401 });

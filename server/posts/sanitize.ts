@@ -37,7 +37,10 @@ const STRIP_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
 
 export function sanitizeUrl(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
-	const v = value.trim();
+	// WHATWG URL 解析会把 scheme 内的 ASCII tab/CR/LF 剥离，因此
+	// `java\tscript:`、`java\nscript:` 等会被浏览器当作 javascript: 执行。
+	// 必须先移除这些控制字符再做 scheme 白名单检查，否则可绕过本校验。
+	const v = value.replace(/[\t\r\n]/g, "").trim();
 	const lower = v.toLowerCase();
 	if (
 		lower.startsWith("javascript:") ||

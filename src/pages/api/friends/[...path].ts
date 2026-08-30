@@ -4,6 +4,7 @@ import {
 	createFriend,
 	deleteFriend,
 	getFriend,
+	listEnabledFriends,
 	listFriends,
 	updateFriend,
 } from "../../../../server/friends/service";
@@ -27,7 +28,10 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	try {
 		if (segments.length === 0) {
-			const items = await listFriends(cfEnv);
+			// 公开只显示启用的友链；管理员可见全部（含停用）
+			const items = isAdmin
+				? await listFriends(cfEnv)
+				: await listEnabledFriends(cfEnv);
 			return json(
 				{ items: items.map(toView) },
 				200,

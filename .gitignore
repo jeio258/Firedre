@@ -36,6 +36,10 @@ yarn.lock
 # docs
 Firefly-docs/
 
+# 开发工作树与本地计划（不提交远程）
+.worktrees/
+docs/superpowers/
+
 # lite 版本
 Firefly-Lite/
 
