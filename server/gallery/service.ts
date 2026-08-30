@@ -33,7 +33,21 @@ async function loadAlbumSummary(
 
 	const source = await object.text();
 	const parsed = parseAlbumSource(source);
-	return toAlbumSummary(slug, parsed.frontmatter);
+	const summary = toAlbumSummary(slug, parsed.frontmatter);
+
+	// 加密判定以 D1 密码为准（与详情页 [album].astro / gallery-files / unlockGalleryAlbum
+	// 完全一致），不能信任 R2 frontmatter.encrypted：密码写 D1、encrypted 标记写 R2，二者
+	// 可能不同步（firefly-2026 就出现 R2=false 但 D1 有密码），旧逻辑→列表按 R2 未加密
+	// 显示封面→封面文件被 gallery-files 上锁 401→破图。
+	// 一旦 D1 有密码即视为加密：隐藏封面与数量（封面同样被上锁，公开渲染只会破图），
+	// 卡片自动回退到占位图；数量不对外泄露（与 toAlbumSummary 对加密的处理一致）。
+	const hasPassword = (await getAlbumPassword(env, slug)) !== "";
+	if (hasPassword) {
+		summary.encrypted = true;
+		summary.cover = undefined;
+		summary.count = undefined;
+	}
+	return summary;
 }
 
 export async function getGalleryHub(
