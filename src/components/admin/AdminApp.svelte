@@ -186,7 +186,10 @@ onMount(() => {
 });
 </script>
 
-{#if !authed && !checking}
+{#if checking}
+	<!-- 会话检查中：只显示居中轻量 loading，不渲染后台框架，避免未登录时闪现后台页面 -->
+	<div class="admin-checking">正在加载…</div>
+{:else if !authed}
 	<div class="admin-login-wrap">
 		{#if checkFailed}
 			<p class="login-hint">会话检查失败，请重试登录</p>
@@ -213,11 +216,7 @@ onMount(() => {
 			</div>
 		</aside>
 		<main class="admin-main">
-			{#if checking}
-				<div class="admin-loading">会话检查中…</div>
-			{:else if !authed}
-				<div class="admin-loading">未登录，请前往登录页</div>
-			{:else if viewError}
+			{#if viewError}
 				<div class="admin-error">{viewError}</div>
 			{:else if View}
 				{#key viewProps.slug ?? section}
@@ -320,10 +319,17 @@ onMount(() => {
 		padding: 1.75rem 2rem;
 		min-width: 0;
 	}
-	.admin-loading,
-	.admin-unauth {
+	.admin-loading {
 		text-align: center;
 		padding: 4rem;
+		color: var(--muted-text, #666);
+	}
+	/* 会话检查中的独立居中 loading（不渲染后台框架） */
+	.admin-checking {
+		min-height: 90vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		color: var(--muted-text, #666);
 	}
 	.admin-login-wrap {

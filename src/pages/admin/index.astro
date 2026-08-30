@@ -6,6 +6,12 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 // --card-bg/--deep-text/--line-divider/--codeblock-bg/--radius-large 等），全部由 --hue
 // 经 oklch() 派生。导入后只要设好 --hue，后台即与前台共用同一套主题色。
 import "@/styles/variables.styl";
+
+// 后台站点主题色相（middleware 已把合并后的设置注入 Astro.locals.settings，SSR 同步可用）。
+// 这里直接内联到 <html> 上，无需客户端再 fetch /api/settings，避免“默认色→主题色”跳变闪烁。
+const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
+	?.settings ?? {};
+const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -17,8 +23,8 @@ import "@/styles/variables.styl";
 	<link rel="icon" href="/favicon/favicon.ico" />
 	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
 	<style is:inline>
-		/* 首屏骨架：消除 CSS 加载前文字无排版（FOUC）。完整样式加载后由 <link> 覆盖。
-		   骨架色也映射到主题变量（带 hex 兜底），与前台主题保持一致并跟随 hue。 */
+		/* SSR 已内联主题色相：首屏即主题色，消除 CSS 加载前文字无排版（FOUC）与默认色闪烁。 */
+		html{--hue:{configHue}}
 		html,body{margin:0;padding:0;background:var(--page-bg,#f6f7fb);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text,#1f2937);-webkit-text-size-adjust:100%}
 		*{box-sizing:border-box}
 		.admin-shell{display:flex;min-height:100vh;background:var(--page-bg,#f6f7fb)}
@@ -29,43 +35,6 @@ import "@/styles/variables.styl";
 		.admin-card{background:var(--card-bg,#fff);border:1px solid var(--line-divider,#e5e7eb);border-radius:var(--radius-large,0.75rem);padding:1.25rem}
 		.admin-loading,.admin-error{padding:2rem;text-align:center;color:#6b7280}
 	</style>
-
-	<script is:inline>
-		// 对齐项目主题：从站点设置读取主题色相并注入 --hue。variables.styl 已把全部主题
-		// 变量定义为 oklch(… var(--hue))，因此设好 --hue 后 --primary/--page-bg/--card-bg/
-		// --deep-text/--line-divider/--codeblock-bg 等自动生效，后台与前台共用一套主题色。
-		// 另注入 --primary 等 5 个常用变量作为兜底，避免 variables.styl 未及时应用时闪错色。
-		(function () {
-			try {
-				fetch("/api/settings/")
-					.then((r) => (r.ok ? r.json() : null))
-					.then((data) => {
-						let hue;
-						if (data && typeof data === "object") {
-							hue =
-								data.hue ??
-								data.themeColor?.hue ??
-								data.basic?.hue ??
-								(Number.isFinite(data.settings?.hue)
-									? data.settings.hue
-									: undefined);
-						}
-						const h = Number.isFinite(Number(hue)) ? Number(hue) : 165;
-						const root = document.documentElement;
-						root.style.setProperty("--hue", String(h));
-						// 兜底：与 variables.styl 的 :root 定义一致（内联样式优先级更高，值相同）
-						root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
-						root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
-						root.style.setProperty("--card-bg", "white");
-						root.style.setProperty("--deep-text", `oklch(0.25 0.02 ${h})`);
-						root.style.setProperty("--text-1", "oklch(0.25 0.02 " + h + ")");
-						document.body.style.background = `oklch(0.95 0.01 ${h})`;
-					})
-					.catch(() => {});
-			} catch {}
-		})();
-	</script>
-
 </head>
 <body style="margin:0;background:var(--page-bg,#f3f4f6);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
 	<AdminApp client:load />
