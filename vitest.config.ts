@@ -6,6 +6,7 @@ export default defineConfig({
 		alias: {
 			"@i18n": fileURLToPath(new URL("./src/i18n", import.meta.url)),
 			"@": fileURLToPath(new URL("./src", import.meta.url)),
+			"@constants": fileURLToPath(new URL("./src/constants", import.meta.url)),
 		},
 	},
 	test: {
