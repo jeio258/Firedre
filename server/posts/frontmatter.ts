@@ -135,7 +135,7 @@ export function normalizeCategories(categories: PostFrontmatter["categories"]) {
 
 /**
  * 统一的分类解析：优先复数 categories（含空数组），否则回退单数 category。
- * upsertPost 写 categories 列与 syncPostTaxonomy 写 post_categories 都必须走这里，
+ * upsertPost 写 categories 列与 syncPostTaxonomy 写 post_taxonomy(type='category') 都必须走这里，
  * 保证两套存储永远一致（避免分类漂移）。
  */
 export function resolveCategories(

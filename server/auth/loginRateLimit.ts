@@ -35,13 +35,15 @@ function futureLockIso() {
 }
 
 export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
+	const key = (ip: string) => `login:${ip}`;
+
 	return {
 		async check(ip) {
 			const row = await db
 				.prepare(
-					"SELECT fail_count, locked_until FROM admin_login_attempts WHERE ip = ?",
+					"SELECT count AS fail_count, locked_until FROM rate_limits WHERE key = ? AND kind = 'login'",
 				)
-				.bind(ip)
+				.bind(key(ip))
 				.first<{ fail_count: number; locked_until: string | null }>();
 
 			if (!row?.locked_until) return { allowed: true };
@@ -53,17 +55,14 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 				};
 			}
 
-			await db
-				.prepare("DELETE FROM admin_login_attempts WHERE ip = ?")
-				.bind(ip)
-				.run();
+			await db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(key(ip)).run();
 			return { allowed: true };
 		},
 
 		async recordFailure(ip) {
 			const row = await db
-				.prepare("SELECT fail_count FROM admin_login_attempts WHERE ip = ?")
-				.bind(ip)
+				.prepare("SELECT count AS fail_count FROM rate_limits WHERE key = ? AND kind = 'login'")
+				.bind(key(ip))
 				.first<{ fail_count: number }>();
 
 			const failCount = (row?.fail_count || 0) + 1;
@@ -72,21 +71,19 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 
 			await db
 				.prepare(`
-        INSERT INTO admin_login_attempts (ip, fail_count, locked_until)
-        VALUES (?, ?, ?)
-        ON CONFLICT(ip) DO UPDATE SET
-          fail_count = excluded.fail_count,
-          locked_until = excluded.locked_until
+        INSERT INTO rate_limits (key, kind, count, locked_until, updated_at)
+        VALUES (?, 'login', ?, ?, datetime('now'))
+        ON CONFLICT(key) DO UPDATE SET
+          count = excluded.count,
+          locked_until = excluded.locked_until,
+          updated_at = datetime('now')
       `)
-				.bind(ip, failCount, lockedUntil)
+				.bind(key(ip), failCount, lockedUntil)
 				.run();
 		},
 
 		async clear(ip) {
-			await db
-				.prepare("DELETE FROM admin_login_attempts WHERE ip = ?")
-				.bind(ip)
-				.run();
+			await db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(key(ip)).run();
 		},
 	};
 }

@@ -70,21 +70,20 @@ export async function syncPostTaxonomy(
 	const categoryPath = categoryPathFromFrontmatter(resolvedCategories);
 	const tags = normalizeTags(frontmatter.tags) || [];
 
-	await env.DB.prepare("DELETE FROM post_categories WHERE post_slug = ?")
-		.bind(slug)
-		.run();
-	await env.DB.prepare("DELETE FROM post_tags WHERE post_slug = ?")
+	await env.DB.prepare("DELETE FROM post_taxonomy WHERE post_slug = ?")
 		.bind(slug)
 		.run();
 
 	await env.DB.prepare(
-		"INSERT INTO post_categories (post_slug, category_path) VALUES (?, ?)",
+		"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'category', ?)",
 	)
 		.bind(slug, categoryPath)
 		.run();
 
 	for (const tag of tags) {
-		await env.DB.prepare("INSERT INTO post_tags (post_slug, tag) VALUES (?, ?)")
+		await env.DB.prepare(
+			"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'tag', ?)",
+		)
 			.bind(slug, tag)
 			.run();
 	}
@@ -94,10 +93,10 @@ export async function listCategoryTree(
 	env: CloudflareEnv,
 ): Promise<CategoryTreeNode[]> {
 	const { results } = await env.DB.prepare(`
-    SELECT pc.category_path
-    FROM post_categories pc
-    INNER JOIN posts p ON p.slug = pc.post_slug
-    WHERE p.published = 1
+    SELECT pt.value AS category_path
+    FROM post_taxonomy pt
+    INNER JOIN posts p ON p.slug = pt.post_slug
+    WHERE pt.type = 'category' AND p.published = 1
   `).all<{ category_path: string }>();
 
 	const paths = (results || []).map((row) => row.category_path);
@@ -108,11 +107,11 @@ export async function listTagCounts(
 	env: CloudflareEnv,
 ): Promise<TagCountItem[]> {
 	const { results } = await env.DB.prepare(`
-    SELECT pt.tag AS name, COUNT(*) AS count
-    FROM post_tags pt
+    SELECT pt.value AS name, COUNT(*) AS count
+    FROM post_taxonomy pt
     INNER JOIN posts p ON p.slug = pt.post_slug
-    WHERE p.published = 1
-    GROUP BY pt.tag
+    WHERE pt.type = 'tag' AND p.published = 1
+    GROUP BY pt.value
     ORDER BY count DESC, name ASC
   `).all<TagCountItem>();
 
@@ -135,11 +134,11 @@ export async function listArchiveMonths(
 
 export function categoryFilterSql(category: string) {
 	return {
-		join: "INNER JOIN post_categories pc ON pc.post_slug = p.slug",
+		join: "INNER JOIN post_taxonomy pt_c ON pt_c.post_slug = p.slug AND pt_c.type = 'category'",
 		where:
 			category === "Uncategorized"
-				? "pc.category_path = ?"
-				: "(pc.category_path = ? OR pc.category_path LIKE ?)",
+				? "pt_c.value = ?"
+				: "(pt_c.value = ? OR pt_c.value LIKE ?)",
 		binds:
 			category === "Uncategorized"
 				? (["Uncategorized"] as unknown[])
@@ -149,8 +148,8 @@ export function categoryFilterSql(category: string) {
 
 export function tagFilterSql(tag: string) {
 	return {
-		join: "INNER JOIN post_tags pt ON pt.post_slug = p.slug",
-		where: "pt.tag = ?",
+		join: "INNER JOIN post_taxonomy pt_t ON pt_t.post_slug = p.slug AND pt_t.type = 'tag'",
+		where: "pt_t.value = ?",
 		binds: [tag] as unknown[],
 	};
 }

@@ -80,7 +80,7 @@ export async function checkD1RateLimit(
 	try {
 		const row = await db
 			.prepare(
-				"SELECT window_started_at, count FROM api_rate_limits WHERE key = ? AND window_started_at = ?",
+				"SELECT window_started_at, count FROM rate_limits WHERE key = ? AND window_started_at = ?",
 			)
 			.bind(key, windowStart)
 			.first<{ window_started_at: number; count: number }>();
@@ -99,12 +99,12 @@ export async function checkD1RateLimit(
 		// 同窗口则 count+1；若 key 相同但窗口已切换，则重置为当前窗口并 count=1。
 		await db
 			.prepare(`
-        INSERT INTO api_rate_limits (key, window_started_at, count, updated_at)
-        VALUES (?, ?, ?, datetime('now'))
+        INSERT INTO rate_limits (key, kind, window_started_at, count, updated_at)
+        VALUES (?, 'window', ?, ?, datetime('now'))
         ON CONFLICT(key) DO UPDATE SET
           window_started_at = excluded.window_started_at,
           count = CASE
-            WHEN api_rate_limits.window_started_at = excluded.window_started_at THEN api_rate_limits.count + 1
+            WHEN rate_limits.window_started_at = excluded.window_started_at THEN rate_limits.count + 1
             ELSE 1
           END,
           updated_at = datetime('now')
@@ -140,7 +140,7 @@ async function pruneExpiredWindows(
 	windowMs: number,
 ) {
 	await db
-		.prepare("DELETE FROM api_rate_limits WHERE window_started_at < ?")
+		.prepare("DELETE FROM rate_limits WHERE kind = 'window' AND window_started_at < ?")
 		.bind(now - windowMs)
 		.run();
 }
