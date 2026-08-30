@@ -8,15 +8,28 @@ import {
 	getSessionUser,
 	isAdminLoginConfigured,
 	resolveAdminEnv,
-	validateAdminCredentials,
 	verifyAdminRequest,
 } from "../../../../server/auth/adminSession";
+import {
+	authenticateAdmin,
+	createAdminUser,
+	deleteAdminUser,
+	listAdminUsers,
+	setAdminUserEnabled,
+	updateAdminUserPassword,
+} from "../../../../server/auth/adminUser";
 import {
 	createD1LoginRateLimit,
 	formatLoginRateLimitMessage,
 	getRequestClientIp,
 } from "../../../../server/auth/loginRateLimit";
-import { cfEnv, json, methodNotAllowed, serverError } from "../../../lib/api";
+import {
+	cfEnv,
+	json,
+	methodNotAllowed,
+	serverError,
+	unauthorized,
+} from "../../../lib/api";
 
 export const prerender = false;
 
@@ -52,14 +65,18 @@ export const POST: APIRoute = async ({ params, request }) => {
 			const clientIp = getRequestClientIp(request);
 			const rateLimit = createD1LoginRateLimit(cfEnv.DB);
 
-			if (!isAdminLoginConfigured(adminEnv))
-				return json(
-					{
-						message:
-							"管理员登录未配置，请在环境变量中设置 ADMIN_USERNAME 与 ADMIN_PASSWORD",
-					},
-					503,
-				);
+			if (!isAdminLoginConfigured(adminEnv)) {
+				// 凭据权威已迁移到 D1：即使 Secrets 未配置，只要 D1 有用户即可登录。
+				const d1Users = await listAdminUsers(cfEnv.DB);
+				if (d1Users.length === 0)
+					return json(
+						{
+							message:
+								"管理员登录未配置，请在环境变量中设置 ADMIN_USERNAME 与 ADMIN_PASSWORD，或在后台创建首个用户",
+						},
+						503,
+					);
+			}
 
 			const limit = await rateLimit.check(clientIp);
 			if (!limit.allowed) {
@@ -69,11 +86,12 @@ export const POST: APIRoute = async ({ params, request }) => {
 				);
 			}
 
-			// 使用异步密码验证（支持 bcrypt）
-			const isValid = await validateAdminCredentials(
+			// 使用异步密码验证（D1 优先 + Secrets 兜底 + 平滑迁移）
+			const isValid = await authenticateAdmin(
+				cfEnv,
+				cfEnv.DB,
 				username,
 				password,
-				adminEnv,
 			);
 			if (!isValid) {
 				await rateLimit.recordFailure(clientIp);
@@ -91,6 +109,65 @@ export const POST: APIRoute = async ({ params, request }) => {
 			return jsonWithHeaders({ ok: true }, 200, {
 				"Set-Cookie": buildClearSessionCookie(secure),
 			});
+		}
+
+		// 后台用户管理（仅已登录管理员）：POST /api/admin/users/list|create|password|enabled|delete
+		if (action === "users") {
+			const isAdmin = await verifyAdminRequest(request, cfEnv);
+			if (!isAdmin) return unauthorized();
+
+			const sub = segments[1] || "";
+			const body = (await request.json().catch(() => ({}))) as {
+				username?: string;
+				password?: string;
+				enabled?: boolean;
+			};
+			const target = String(body.username || "").trim();
+
+			switch (sub) {
+				case "list": {
+					const users = await listAdminUsers(cfEnv.DB);
+					return jsonWithHeaders({ ok: true, users });
+				}
+				case "create": {
+					if (!target || !body.password)
+						return json({ message: "用户名与密码不能为空" }, 400);
+					const result = await createAdminUser(cfEnv.DB, target, body.password);
+					if (!result.ok && result.conflict)
+						return json({ message: "用户名已存在" }, 409);
+					if (!result.ok) return json({ message: "创建失败" }, 400);
+					return jsonWithHeaders({ ok: true });
+				}
+				case "password": {
+					if (!target || !body.password)
+						return json({ message: "用户名与密码不能为空" }, 400);
+					const ok = await updateAdminUserPassword(
+						cfEnv.DB,
+						target,
+						body.password,
+					);
+					if (!ok) return json({ message: "用户不存在" }, 404);
+					return jsonWithHeaders({ ok: true });
+				}
+				case "enabled": {
+					if (!target) return json({ message: "用户名不能为空" }, 400);
+					const ok = await setAdminUserEnabled(
+						cfEnv.DB,
+						target,
+						body.enabled !== false,
+					);
+					if (!ok) return json({ message: "用户不存在" }, 404);
+					return jsonWithHeaders({ ok: true });
+				}
+				case "delete": {
+					if (!target) return json({ message: "用户名不能为空" }, 400);
+					const ok = await deleteAdminUser(cfEnv.DB, target);
+					if (!ok) return json({ message: "用户不存在" }, 404);
+					return jsonWithHeaders({ ok: true });
+				}
+				default:
+					return json({ message: "未知操作" }, 400);
+			}
 		}
 
 		return json({ message: "Not found" }, 404);

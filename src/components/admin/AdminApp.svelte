@@ -14,7 +14,7 @@ let View: unknown = null;
 let viewProps: Record<string, unknown> = {};
 let viewError = "";
 // 仅在组件就绪后更新，使 {#key} 在加载期间保持旧视图（消除切换闪屏）
-let viewKey: string = "dashboard";
+let viewKey = "dashboard";
 
 const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	dashboard: () => import("./AdminDashboard.svelte"),
@@ -27,6 +27,7 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	about: () => import("./AdminContentEditor.svelte"),
 	gallery: () => import("./AdminGalleryHub.svelte"),
 	"album-edit": () => import("./AdminGalleryAlbum.svelte"),
+	users: () => import("./AdminUsers.svelte"),
 	settings: () => import("./AdminSettings.svelte"),
 };
 
@@ -59,9 +60,15 @@ function parsePath(pathname: string): {
 		return { section: "gallery" };
 	}
 	if (
-		["dashboard", "links", "dynamics", "notice", "about", "settings"].includes(
-			first,
-		)
+		[
+			"dashboard",
+			"links",
+			"dynamics",
+			"notice",
+			"about",
+			"settings",
+			"users",
+		].includes(first)
 	) {
 		return { section: first };
 	}
@@ -219,6 +226,7 @@ onMount(() => {
 				<a href="/admin/dynamics/" class:active={section === "dynamics"}>动态管理</a>
 				<a href="/admin/about/" class:active={section === "about"}>关于页</a>
 				<a href="/admin/gallery/" class:active={section === "gallery" || section === "album-edit"}>相册管理</a>
+				<a href="/admin/users/" class:active={section === "users"}>用户管理</a>
 				<a href="/admin/settings/" class:active={section === "settings"}>站点设置</a>
 			</nav>
 			<div class="admin-user">

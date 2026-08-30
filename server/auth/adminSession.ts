@@ -258,7 +258,25 @@ export async function verifyAdminRequest(
 	);
 	if (!token) return false;
 
-	return verifySessionToken(token, adminEnv);
+	const username = await getSessionUser(token, adminEnv);
+	if (!username) return false;
+
+	// D1 凭据权威：若该用户在 D1 中存在但已被禁用 → 会话立即失效（禁用即时生效）。
+	// 不在 D1 的用户（Secrets 兜底会话）不拦截。
+	if (env?.DB) {
+		try {
+			const row = await env.DB.prepare(
+				"SELECT enabled FROM admin_users WHERE username = ?",
+			)
+				.bind(username)
+				.first<{ enabled: number }>();
+			if (row && row.enabled !== 1) return false;
+		} catch {
+			// DB 查询失败不阻断（保持现状）
+		}
+	}
+
+	return true;
 }
 
 export async function verifyAdminHeaders(
