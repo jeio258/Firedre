@@ -9,12 +9,18 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
-	<script is:inline>
-		// 已登录则直接进入后台
-		fetch("/api/admin/me/").then((r) => r.json()).then((d) => {
-			if (d.authenticated) window.location.href = "/admin/posts/";
-		});
-	</script>
+	<style is:inline>
+		/* 首屏骨架：消除 CSS 加载前文字无排版（FOUC）。完整样式加载后由 <link> 覆盖。 */
+		html,body{margin:0;padding:0;background:#f6f7fb;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#1f2937;-webkit-text-size-adjust:100%}
+		*{box-sizing:border-box}
+		.admin-shell{display:flex;min-height:100vh;background:#f6f7fb}
+		.admin-sidebar{width:220px;flex-shrink:0;background:#1e2233;color:#e5e7eb;padding:1.25rem 0.75rem}
+		.admin-brand{font-weight:700;padding:0 0.75rem 1rem}
+		.admin-sidebar nav a{display:block;color:#cbd5e1;text-decoration:none;padding:0.5rem 0.75rem;border-radius:0.375rem}
+		.admin-main{flex:1;padding:1.5rem;min-width:0}
+		.admin-card{background:#fff;border:1px solid #e5e7eb;border-radius:0.75rem;padding:1.25rem}
+		.admin-loading,.admin-error{padding:2rem;text-align:center;color:#6b7280}
+	</style>
 	<script is:inline>
 		// 对齐项目主题：从站点设置读取主题色相，注入 --hue / --primary / 页面背景，
 		// 使后台管理界面与前台使用同一套主题色。
