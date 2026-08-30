@@ -9,10 +9,10 @@ import {
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
 	notFound,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		if (!file) return notFound("文件不存在");
 		return json(file, 200, isAdmin ? "private" : "default");
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -58,7 +58,7 @@ export const PUT: APIRoute = async ({ params: _params, request }) => {
 		const file = await upsertHtmlFile(cfEnv, payload);
 		return json({ ok: true, file });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -75,7 +75,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 		if (!ok) return notFound("文件不存在");
 		return json({ ok: true });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 

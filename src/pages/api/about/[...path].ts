@@ -4,9 +4,9 @@ import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
 		if (!about) return json({ message: "关于页数据不存在" }, 404);
 		return json(about);
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -32,7 +32,7 @@ export const PUT: APIRoute = async ({ request }) => {
 		const result = await upsertAbout(cfEnv, body);
 		return json({ ok: true, ...result });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 

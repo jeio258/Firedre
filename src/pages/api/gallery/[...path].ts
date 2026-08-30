@@ -13,10 +13,10 @@ import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
 	notFound,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -59,7 +59,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		if (!album) return notFound("相册不存在");
 		return json(album, 200, isAdmin ? "private" : "default");
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -108,7 +108,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 		const result = await upsertGalleryAlbum(cfEnv, slug, body);
 		return json({ ok: true, ...result });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -125,7 +125,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 		const result = await deleteGalleryAlbum(cfEnv, slug);
 		return json({ ok: true, ...result });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 

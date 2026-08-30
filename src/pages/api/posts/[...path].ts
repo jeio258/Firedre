@@ -16,10 +16,10 @@ import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
 	notFound,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -109,7 +109,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 			isAdmin ? "private" : "default",
 		);
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -134,7 +134,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 				const result = await upsertPost(cfEnv, slug, body);
 				return json({ ok: true, ...result });
 			} catch (error) {
-				return serverError(error);
+				return fromServiceError(error);
 			}
 		},
 	);
@@ -160,7 +160,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 				if (!ok) return notFound("文章不存在");
 				return json({ ok: true });
 			} catch (error) {
-				return serverError(error);
+				return fromServiceError(error);
 			}
 		},
 	);

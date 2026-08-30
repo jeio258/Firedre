@@ -4,6 +4,7 @@ import type {
 	NoticeLineInput,
 	NoticeSection,
 } from "../../types/notice";
+import { UserError } from "../utils/userError";
 
 function normalizeLine(line: NoticeLineInput): NoticeLine | null {
 	if (typeof line === "string") {
@@ -50,6 +51,14 @@ export function normalizeNoticeBoard(
 }
 
 export function parseNoticePayload(raw: string): NoticeBoard {
-	const parsed = JSON.parse(raw) as Partial<NoticeBoard>;
-	return normalizeNoticeBoard(parsed);
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		// 输入不是合法 JSON：这是客户端请求错误（400），而非服务器内部错误（500）。
+		throw new UserError("公告内容格式无效，需为 JSON 格式 { title, sections }");
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))
+		throw new UserError("公告内容格式无效，需为 JSON 对象 { title, sections }");
+	return normalizeNoticeBoard(parsed as Partial<NoticeBoard>);
 }

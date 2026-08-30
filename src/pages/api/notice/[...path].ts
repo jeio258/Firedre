@@ -4,9 +4,9 @@ import { getNotice, upsertNotice } from "../../../../server/notice/service";
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
 		if (!notice) return json({ message: "公告不存在" }, 404);
 		return json(notice);
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -32,7 +32,7 @@ export const PUT: APIRoute = async ({ request }) => {
 		const result = await upsertNotice(cfEnv, raw);
 		return json({ ok: true, ...result });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 

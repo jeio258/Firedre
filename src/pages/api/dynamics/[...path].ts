@@ -8,9 +8,9 @@ import {
 import {
 	badRequest,
 	cfEnv,
+	fromServiceError,
 	json,
 	methodNotAllowed,
-	serverError,
 	unauthorized,
 } from "../../../lib/api";
 
@@ -29,7 +29,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 		return json({ message: "Not found" }, 404);
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -57,7 +57,7 @@ export const POST: APIRoute = async ({ request }) => {
 		});
 		return json({ ok: true, ...result });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 
@@ -74,7 +74,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 		if (!ok) return json({ message: "动态不存在" }, 404);
 		return json({ ok: true });
 	} catch (error) {
-		return serverError(error);
+		return fromServiceError(error);
 	}
 };
 

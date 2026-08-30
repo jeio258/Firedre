@@ -57,3 +57,16 @@ export function serverError(error: unknown) {
 			: "服务器错误";
 	return json({ message }, 500);
 }
+
+/**
+ * 统一的 service 错误处理：
+ * - UserError（可预期的校验/业务失败）→ 400 并回显安全消息（客户端请求错误）
+ * - 其余异常 → 500 通用消息（服务器内部错误，隐藏细节）
+ *
+ * service 层用 UserError 表达“输入/校验/业务不合法”（如 JSON 解析失败、slug 格式错误、
+ * frontmatter 缺字段），API 层用本函数映射为 4xx，而非 500，符合 REST 错误语义。
+ */
+export function fromServiceError(error: unknown) {
+	if (error instanceof UserError) return badRequest(error.message);
+	return serverError(error);
+}
