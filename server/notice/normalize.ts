@@ -41,7 +41,7 @@ export function normalizeSections(
 			if (!label && !lines.length) return null;
 
 			return {
-				label: label || "分组",
+				label,
 				lines,
 			};
 		})
