@@ -16,7 +16,6 @@
     "type-check": "astro check",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "node scripts/e2e-smoke.cjs",
     "type-check:server": "tsc --noEmit -p tsconfig.server.json",
     "format": "biome format --write ./src ./scripts ./server ./types",
     "lint": "biome check --write ./src ./scripts ./server ./types",
@@ -27,8 +26,7 @@
     "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
     "deploy": "wrangler pages deploy dist --project-name firedre --commit-dirty=true",
     "deploy:dry": "wrangler pages deploy dist --project-name firedre --dry-run",
-    "postbuild": "node scripts/copy-vditor.mjs",
-    "test:audit": "node scripts/audit-browser.cjs"
+    "postbuild": "node scripts/copy-vditor.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
