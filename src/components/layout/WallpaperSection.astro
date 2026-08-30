@@ -33,7 +33,7 @@ const bgPlayerMode = (wallpaperConfig.common?.playerMode || "order") as "order" 
 // 遮罩不透明度/模糊：后台可覆盖（theme.overlayOpacity/overlayBlur），静态配置为兜底
 const bgOverlayOpacity = wallpaperConfig.overlay?.opacity ?? 0.8;
 const bgOverlayBlur = wallpaperConfig.overlay?.blur ?? 0;
-const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? -1;---
+const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
 
 <!-- Wallpaper - 如果允许切换则始终渲染，否则只渲染当前模式 -->
 {(state.isWallpaperSwitchable || state.isBannerMode || state.isFullscreenMode || state.isOverlayMode) && (

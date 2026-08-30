@@ -558,7 +558,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     width: 100% !important;
     height: 100vh !important;
     height: 100lvh !important;
-    z-index: var(--overlay-z-index, -1) !important;
+    z-index: var(--overlay-z-index, 0) !important;
     opacity: var(--overlay-opacity, 0.8) !important;
     pointer-events: none !important;
     overflow: hidden !important;
@@ -577,7 +577,7 @@ html[data-wallpaper-mode="overlay"] #wallpaper-wrapper {
     width: 100% !important;
     height: 100vh !important;
     height: 100lvh !important;
-    z-index: var(--overlay-z-index, -1) !important;
+    z-index: var(--overlay-z-index, 0) !important;
     opacity: var(--overlay-opacity, 0.8) !important;
     pointer-events: none !important;
     overflow: hidden !important;
@@ -675,7 +675,7 @@ html[data-wallpaper-mode="overlay"] .absolute.w-full.z-30.pointer-events-none {
     width: 100% !important;
     height: 100vh !important;
     height: 100lvh !important;
-    z-index: var(--overlay-z-index, -1) !important;
+    z-index: var(--overlay-z-index, 0) !important;
     /* 全屏壁纸不透明（不需要背景透明度），壁纸本身全不透明显示 */
     opacity: 1 !important;
     pointer-events: none !important;
@@ -695,7 +695,7 @@ html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper {
     width: 100% !important;
     height: 100vh !important;
     height: 100lvh !important;
-    z-index: var(--overlay-z-index, -1) !important;
+    z-index: var(--overlay-z-index, 0) !important;
     opacity: 1 !important;
     pointer-events: none !important;
     overflow: hidden !important;

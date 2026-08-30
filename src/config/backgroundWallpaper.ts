@@ -178,8 +178,8 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	},
 	// 覆盖透明覆盖模式特有配置
 	overlay: {
-		// 层级，确保壁纸在背景层
-		zIndex: -1,
+		// 层级：需 >= 0，否则被根元素 html 的背景色盖住（负 z-index 元素渲染在根背景之下）
+		zIndex: 0,
 		// 壁纸透明度
 		opacity: 0.8,
 		// 背景模糊度
