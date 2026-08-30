@@ -203,14 +203,15 @@ onMount(() => {
 		<AdminLogin onSuccess={handleLoginSuccess} />
 	</div>
 {:else}
-	<div class="admin-shell">
+	<!-- data-no-swup（置于后台根：涵盖侧栏 + 各 section 内容里的所有 /admin/ 链接，如
+	仪表盘快捷、编辑器“返回列表”、列表“编辑/新建”等）：后台是自洽 SPA，内部导航统一由
+	handleNav 的 preventDefault+pushState 接管。若不标记，全局 Swup 会拦截这些链接做整页过渡，
+	而后台没有 #swup-container 等容器→报 Container mismatch→回退为硬整页刷新→切菜单闪屏。
+	（Swup 的 ignoreVisit 对 el.closest('[data-no-swup]') 生效，故单点标记可覆盖整棵后台 DOM。）-->
+	<div class="admin-shell" data-no-swup>
 		<aside class="admin-sidebar">
 			<div class="admin-brand">Firedre 后台</div>
-			<!-- data-no-swup：后台是自洽的 SPA，内部导航由 handleNav 处理。若不加此标记，
-			全局 Swup 会拦截 /admin/ 链接做整页过渡——后台没有 #swup-container 等容器，
-			Swup 报 Container mismatch 后回退为硬整页刷新 → 切菜单闪屏。标记后 Swup
-			完全忽略后台链接，由 handleNav 的 preventDefault+SPA 接管，消除闪烁。 -->
-			<nav data-no-swup>
+			<nav>
 				<a href="/admin/dashboard/" class:active={section === "dashboard"}>仪表盘</a>
 				<a href="/admin/posts/" class:active={section === "posts" || section === "posts-edit" || section === "new"}>文章管理</a>
 				<a href="/admin/links/" class:active={section === "links"}>友链管理</a>
