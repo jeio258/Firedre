@@ -19,6 +19,7 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	"posts-edit": () => import("./AdminPostEditor.svelte"),
 	new: () => import("./AdminPostEditor.svelte"),
 	links: () => import("./AdminContentEditor.svelte"),
+	dynamics: () => import("./AdminDynamic.svelte"),
 	notice: () => import("./AdminNoticeEditor.svelte"),
 	about: () => import("./AdminContentEditor.svelte"),
 	gallery: () => import("./AdminGalleryHub.svelte"),
@@ -56,7 +57,7 @@ function parsePath(pathname: string): {
 		return { section: "gallery" };
 	}
 	if (
-		["dashboard", "links", "notice", "about", "settings"].includes(
+		["dashboard", "links", "dynamics", "notice", "about", "settings"].includes(
 			first,
 		)
 	) {
@@ -202,6 +203,7 @@ onMount(() => {
 				<a href="/admin/posts/" on:click={handleNav} class:active={section === "posts" || section === "posts-edit" || section === "new"}>文章管理</a>
 				<a href="/admin/links/" on:click={handleNav} class:active={section === "links"}>友链管理</a>
 				<a href="/admin/notice/" on:click={handleNav} class:active={section === "notice"}>公告管理</a>
+				<a href="/admin/dynamics/" on:click={handleNav} class:active={section === "dynamics"}>动态管理</a>
 				<a href="/admin/about/" on:click={handleNav} class:active={section === "about"}>关于页</a>
 				<a href="/admin/gallery/" on:click={handleNav} class:active={section === "gallery" || section === "album-edit"}>相册管理</a>
 				<a href="/admin/settings/" on:click={handleNav} class:active={section === "settings"}>站点设置</a>
