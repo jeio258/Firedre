@@ -254,7 +254,7 @@ export async function verifyAdminRequest(
 	const bearerToken = bearer.startsWith("Bearer ")
 		? bearer.slice(7).trim()
 		: "";
-	if (configuredToken && bearerToken === configuredToken) return true;
+	if (configuredToken && constantTimeEqual(bearerToken, configuredToken)) return true;
 
 	const token = getCookieValue(
 		request.headers.get("Cookie"),
@@ -275,7 +275,7 @@ export async function verifyAdminHeaders(
 	const bearerToken = bearer.startsWith("Bearer ")
 		? bearer.slice(7).trim()
 		: "";
-	if (configuredToken && bearerToken === configuredToken) return true;
+	if (configuredToken && constantTimeEqual(bearerToken, configuredToken)) return true;
 
 	const token = getCookieValue(headers.cookie || null, ADMIN_SESSION_COOKIE);
 	if (!token) return false;
