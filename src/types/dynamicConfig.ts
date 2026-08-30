@@ -11,10 +11,10 @@ export type DynamicConfig = {
 	// 当 memos.enable 为 true 时，此配置会被忽略
 	apiUrl?: string;
 	// Memos 配置
-	memos?: DynamicMemocsConfig;
+	memos?: DynamicMemosConfig;
 };
 
-export type DynamicMemocsConfig = {
+export type DynamicMemosConfig = {
 	/** 是否启用 Memos 数据源 */
 	enable: boolean;
 	/** Memos 实例地址，如 "https://memos.example.com" */

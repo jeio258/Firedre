@@ -59,7 +59,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		giscusCategory: cc.giscus?.category, giscusCategoryId: cc.giscus?.categoryId,
 		twikooEnvId: cc.twikoo?.envId, twikooJsUrl: cc.twikoo?.jsUrl,
 		walineServer: cc.waline?.serverURL, disqusShortname: cc.disqus?.shortname,
-		artalkServer: cc.artalk?.server, artalkSiteName: cc.artalk?.siteName,
+		artalkServer: cc.artalk?.server, artalkSiteName: "",
 	};
 	const music: L = {
 		showInNavbar: mc.showInNavbar, showInSidebar: mc.showInSidebar,

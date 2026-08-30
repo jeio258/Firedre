@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
 
 let title = "公告栏";
 let content = "";
@@ -9,17 +10,14 @@ let message = "";
 
 async function load() {
 	try {
-		const resp = await fetch("/api/notice/");
-		if (resp.ok) {
-			const data = await resp.json();
-			title = data.title || "公告栏";
-			// 公告内容：取第一个非空区块的第一行文本（兼容多区块旧数据，仅展示首个）
-			if (Array.isArray(data.sections)) {
-				for (const section of data.sections) {
-					if (section?.lines?.length) {
-						content = section.lines[0]?.text ?? "";
-						break;
-					}
+		const data = await apiJson("/api/notice/");
+		title = data.title || "公告栏";
+		// 公告内容：取第一个非空区块的第一行文本（兼容多区块旧数据，仅展示首个）
+		if (Array.isArray(data.sections)) {
+			for (const section of data.sections) {
+				if (section?.lines?.length) {
+					content = section.lines[0]?.text ?? "";
+					break;
 				}
 			}
 		}
@@ -85,12 +83,6 @@ onMount(load);
 </div>
 
 <style>
-	.admin-card {
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: var(--radius-large, 0.75rem);
-		padding: 1.25rem;
-	}
 	.toolbar {
 		display: flex;
 		align-items: center;

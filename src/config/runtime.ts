@@ -31,6 +31,7 @@ import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
+import { normalizeSiteUrl } from "@/utils/url-utils";
 
 /** middleware 注入的 settings 形状 */
 export type SettingsLike = Record<string, unknown>;
@@ -55,12 +56,7 @@ function str(v: unknown, fallback: string): string {
  * 直接交给 new URL() 会抛 Invalid URL 导致 SSR 渲染崩溃（生产白屏）。
  * 这里为无协议的字符串补全 https://，保证返回合法 origin；已是 http(s) 的保持不变。
  */
-function normalizeSiteUrl(raw: string): string {
-	if (!raw) return raw;
-	if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw)) return raw; // 已有协议
-	if (raw.startsWith("//")) return `https:${raw}`;
-	return `https://${raw}`;
-}
+
 function num(v: unknown, fallback: number): number {
 	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
 }

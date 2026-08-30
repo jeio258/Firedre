@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
 
 type DynamicItem = {
 	id: string;
@@ -28,13 +29,8 @@ async function load() {
 	loading = true;
 	error = "";
 	try {
-		const resp = await fetch("/api/dynamics/");
-		if (resp.ok) {
-			const data = await resp.json();
-			items = Array.isArray(data.items) ? data.items : [];
-		} else {
-			error = "加载失败";
-		}
+		const data = await apiJson<{ items?: unknown[] }>("/api/dynamics/");
+		items = Array.isArray(data.items) ? (data.items as DynamicItem[]) : [];
 	} catch {
 		error = "网络错误";
 	}
@@ -217,12 +213,6 @@ onMount(load);
 </div>
 
 <style>
-	.admin-card {
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: var(--radius-large, 0.75rem);
-		padding: 1.25rem;
-	}
 	.toolbar {
 		display: flex;
 		align-items: center;

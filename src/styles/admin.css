@@ -1,0 +1,9 @@
+/* 后台共享样式：抽自各 Admin 组件重复定义的 .admin-card（其余类如 .toolbar/.btn-primary
+ * 在各组件存在 padding/gap/composes 差异，暂保留组件内定义，避免统一时改变后台布局外观）。
+ * 由 AdminApp 壳一次性引入，组件内对应的 .admin-card 块已删除。 */
+.admin-card {
+	background: var(--card-bg, #fff);
+	border: 1px solid var(--line-divider, #e5e7eb);
+	border-radius: var(--radius-large, 0.75rem);
+	padding: 1.25rem;
+}

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { apiJson } from "@/lib/adminApi";
 import { onMount } from "svelte";
 // Firefly 静态配置的默认值（后台开关初始显示真实当前状态）
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
@@ -687,12 +688,10 @@ function selectGroup(key: string) {
 
 async function load() {
 	try {
-		const resp = await fetch("/api/settings/", { credentials: "include" });
-		if (resp.ok) {
-			const all = (await resp.json()) as Record<
-				string,
-				Record<string, unknown>
-			>;
+		const all = (await apiJson("/api/settings/")) as Record<
+			string,
+			Record<string, unknown>
+		>;
 			const defaults = defaultsJson as unknown as Record<
 				string,
 				Record<string, unknown>
@@ -717,7 +716,6 @@ async function load() {
 			// 空数组导致“保存全部”把默认导航清空。
 			navItems = parseNavArray(nav.navItems);
 			social = parseNavArray(nav.social);
-		}
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}

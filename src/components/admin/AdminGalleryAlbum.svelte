@@ -188,12 +188,6 @@ onMount(load);
 </div>
 
 <style>
-	.admin-card {
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: var(--radius-large, 0.75rem);
-		padding: 1.25rem;
-	}
 	.toolbar {
 		display: flex;
 		align-items: center;

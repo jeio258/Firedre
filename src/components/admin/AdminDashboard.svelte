@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
 
 let stats = {
 	posts: "-",
@@ -13,11 +14,11 @@ let loading = true;
 onMount(async () => {
 	try {
 		const [posts, dynamics, friends, tags, categories] = await Promise.all([
-			fetch("/api/posts/?pageSize=1").then((r) => r.json()),
-			fetch("/api/dynamics/").then((r) => r.json()),
-			fetch("/api/friends/").then((r) => r.json()),
-			fetch("/api/posts/taxonomy/tags/").then((r) => r.json()),
-			fetch("/api/posts/taxonomy/categories/").then((r) => r.json()),
+			await apiJson("/api/posts/?pageSize=1"),
+			await apiJson("/api/dynamics/"),
+			await apiJson("/api/friends/"),
+			await apiJson("/api/posts/taxonomy/tags/"),
+			await apiJson("/api/posts/taxonomy/categories/"),
 		]);
 		stats = {
 			posts: String(posts.total ?? 0),

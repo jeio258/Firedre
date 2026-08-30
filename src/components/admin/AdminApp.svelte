@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import "@/styles/admin.css";
 import AdminLogin from "./AdminLogin.svelte";
 
 type Section = string;

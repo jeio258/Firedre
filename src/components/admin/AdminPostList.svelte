@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
 
 type PostItem = {
 	slug: string;
@@ -21,10 +22,7 @@ async function load() {
 	loading = true;
 	error = "";
 	try {
-		const resp = await fetch("/api/posts/?pageSize=200", {
-			headers: { Accept: "application/json" },
-		});
-		const data = await resp.json();
+		const data = await apiJson<{ posts?: PostItem[] }>("/api/posts/?pageSize=200");
 		posts = data.posts || [];
 	} catch {
 		error = "加载失败";
@@ -112,12 +110,6 @@ $: filtered = posts.filter(
 </div>
 
 <style>
-	.admin-card {
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: var(--radius-large, 0.75rem);
-		padding: 1.25rem;
-	}
 	.toolbar {
 		display: flex;
 		align-items: center;
