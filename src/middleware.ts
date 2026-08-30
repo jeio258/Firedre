@@ -1,5 +1,4 @@
 import { defineMiddleware } from "astro:middleware";
-import { caches } from "cloudflare:workers";
 
 export interface SettingsLocals {
 	settings: import("../server/settings/service").SiteSettings;
