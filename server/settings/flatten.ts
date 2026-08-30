@@ -7,7 +7,7 @@ import {
 	getWallpaperConfig, getFooterConfig, getEffectsConfig, getPioConfig,
 	getLicenseConfig, getSponsorConfig, getDynamicConfig, getAnnouncementConfig,
 	getNavbarConfig, getSidebarConfig, getCoverConfig, getFontConfig,
-	getExpressiveConfig, getMermaidConfig, getPlantumlConfig, getAnalyticsConfig,
+	getMermaidConfig, getAnalyticsConfig,
 } from "../../src/config/runtime";
 
 type L = Record<string, unknown>;
@@ -31,9 +31,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	const sb = getSidebarConfig(empty) as L;
 	const cov = getCoverConfig(empty) as L;
 	const font = getFontConfig(empty) as L;
-	const exp = getExpressiveConfig(empty) as L;
 	const mer = getMermaidConfig(empty) as L;
-	const plu = getPlantumlConfig(empty) as L;
 	const ana = getAnalyticsConfig(empty) as unknown as Record<string, any>;
 
 	const basic: L = {
@@ -107,9 +105,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	const sidebar: L = { hideSidebarOnPostPage: sb.hideSidebarOnPostPage, showBothSidebarsOnPostPage: sb.showBothSidebarsOnPostPage };
 	const cover: L = { enable: cov.enable, defaultImage: cov.defaultImage, configurable: cov.configurable };
 	const fontL: L = { scale: font.fontScale };
-	const expressive: L = { darkTheme: exp.darkTheme, lightTheme: exp.lightTheme };
 	const mermaid: L = { lightTheme: mer.lightTheme, darkTheme: mer.darkTheme };
-	const plantuml: L = { server: plu.server };
 	const analytics: L = {
 		googleAnalyticsId: ana.googleAnalyticsId, microsoftClarityId: ana.microsoftClarityId,
 		umamiId: ana.umamiAnalytics?.websiteId, umamiUrl: ana.umamiAnalytics?.scriptUrl,
@@ -118,6 +114,6 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	return {
 		basic, profile, comment, music, theme, effects, footer: footerL, pio: pioL,
 		license, sponsor, dynamic, announcement, nav: navL, sidebar, cover,
-		font: fontL, expressive, mermaid, plantuml, analytics,
+		font: fontL, mermaid, analytics,
 	};
 }

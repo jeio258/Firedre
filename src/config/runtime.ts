@@ -27,9 +27,7 @@ import { navBarConfig as staticNavConfig } from "./navBarConfig";
 import { sidebarLayoutConfig as staticSidebarConfig } from "./sidebarConfig";
 import { coverImageConfig as staticCoverConfig } from "./coverImageConfig";
 import { fontConfig as staticFontConfig } from "./fontConfig";
-import { expressiveCodeConfig as staticExpressiveConfig } from "./expressiveCodeConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
-import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
@@ -476,16 +474,6 @@ export function getFontConfig(locals: unknown) {
 	};
 }
 
-export function getExpressiveConfig(locals: unknown) {
-	const s = settingsOf(locals);
-	const e = groupOf(s, "expressive");
-	return {
-		...staticExpressiveConfig,
-		darkTheme: str(e.darkTheme, staticExpressiveConfig.darkTheme),
-		lightTheme: str(e.lightTheme, staticExpressiveConfig.lightTheme),
-	};
-}
-
 export function getMermaidConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const m = groupOf(s, "mermaid");
@@ -493,15 +481,6 @@ export function getMermaidConfig(locals: unknown) {
 		...staticMermaidConfig,
 		lightTheme: str(m.lightTheme, staticMermaidConfig.lightTheme),
 		darkTheme: str(m.darkTheme, staticMermaidConfig.darkTheme),
-	};
-}
-
-export function getPlantumlConfig(locals: unknown) {
-	const s = settingsOf(locals);
-	const p = groupOf(s, "plantuml");
-	return {
-		...staticPlantumlConfig,
-		...(typeof p.server === "string" && p.server ? { server: p.server } : {}),
 	};
 }
 
