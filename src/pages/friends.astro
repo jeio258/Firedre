@@ -36,8 +36,40 @@ const isCommentEnabled =
 	((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none" &&
 	friendsPageConfig.showComment !== false;
 
-// 使用配置文件中的友链数据，按权重排序
-const items = getEnabledFriends();
+// 统一展示字段：{ title, imgurl, siteurl, desc, tags? }
+// R2 来源（后台可编辑）字段与静态 FriendLink 不同，映射成同一套展示字段。
+type FriendsCardItem = {
+	title: string;
+	imgurl: string;
+	siteurl: string;
+	desc?: string;
+	tags?: string[];
+};
+
+// 将 R2 linkGroups 展平并映射为展示字段；无数据时返回空数组。
+const dynamicItems: FriendsCardItem[] = (linksDetail?.linkGroups ?? [])
+	.flatMap((group) => group.links ?? [])
+	.map((link) => ({
+		title: link.name ?? "",
+		imgurl: link.avatar ?? "",
+		siteurl: link.url ?? "",
+		desc: link.desc ?? link.descr ?? "",
+		tags: undefined,
+		// R2 无 tags 字段，缺省时省略（搜索仅匹配 name/desc）。
+	}))
+	.filter((item) => item.siteurl);
+
+// 优先使用 R2 动态数据；R2 无内容（首次部署/本地 dev）时优雅降级到静态配置兜底。
+const items: FriendsCardItem[] =
+	dynamicItems.length > 0
+		? dynamicItems
+		: getEnabledFriends().map((friend) => ({
+				title: friend.title,
+				imgurl: friend.imgurl,
+				siteurl: friend.siteurl,
+				desc: friend.desc ?? "",
+				tags: friend.tags,
+			}));
 const allTags = [...new Set(items.flatMap((item) => item.tags || []))].sort();
 
 // 页面标题和描述
