@@ -639,12 +639,10 @@ let social: Array<{ label: string; url: string }> = [];
 let data: Record<string, Record<string, unknown>> = {};
 let loading = true;
 let saving = false;
-let dirtyWhileSaving = false;
 let message = "";
 let activeGroup = "basic";
 let activeCategory = "站点配置";
 let loaded = false;
-let autoTimer: ReturnType<typeof setTimeout> | null = null;
 
 function currentGroup() {
 	return GROUPS.find((g) => g.key === activeGroup) ?? GROUPS[0];
@@ -716,18 +714,10 @@ function removeSocial(i: number) {
 	markDirty();
 }
 
-// 任何字段修改后自动保存（防抖 1.2s）——无需手动点保存
+// 手动保存模式：字段修改仅标记为「未保存」，点击「保存全部」才提交（不再自动保存）
 function markDirty() {
 	if (!loaded) return;
-	// 保存进行中又修改：标记待保存，当前保存完成后立即再保存一次，避免丢失
-	if (saving) {
-		dirtyWhileSaving = true;
-		message = "修改中…";
-		return;
-	}
-	message = "修改中…";
-	if (autoTimer) clearTimeout(autoTimer);
-	autoTimer = setTimeout(() => save(), 1200);
+	message = "有未保存的修改，请点击「保存全部」";
 }
 
 async function save() {
@@ -758,17 +748,11 @@ async function save() {
 			message = `保存失败：${(res && res.message) || resp.status || ""}`;
 			return;
 		}
-		message = `已自动保存 ✓ ${new Date().toLocaleTimeString()}`;
+		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 	} catch {
 		message = "网络错误，修改尚未保存";
 	} finally {
 		saving = false;
-		// 保存期间又有修改：补一次保存，防止丢失
-		if (dirtyWhileSaving) {
-			dirtyWhileSaving = false;
-			if (autoTimer) clearTimeout(autoTimer);
-			autoTimer = setTimeout(() => save(), 400);
-		}
 	}
 }
 

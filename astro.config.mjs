@@ -315,6 +315,9 @@ export default defineConfig({
 				"astro/assets/services/noop",
 				"astro:actions",
 			],
+			// 后台文章编辑器动态加载 Vditor（AdminPostEditor 按需 import）。
+			// 显式预优化，避免 dev 下首次访问出现 Outdated Optimize Dep (504) 导致编辑器加载失败。
+			include: ["vditor"],
 		},
 		build: {
 			minify: "esbuild",

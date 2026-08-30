@@ -201,7 +201,6 @@ onMount(() => {
 			<nav>
 				<a href="/admin/dashboard/" on:click={handleNav} class:active={section === "dashboard"}>仪表盘</a>
 				<a href="/admin/posts/" on:click={handleNav} class:active={section === "posts" || section === "posts-edit" || section === "new"}>文章管理</a>
-				<a href="/admin/posts/new/" on:click={handleNav} class:active={section === "new"}>新建文章</a>
 				<a href="/admin/links/" on:click={handleNav} class:active={section === "links"}>友链管理</a>
 				<a href="/admin/notice/" on:click={handleNav} class:active={section === "notice"}>公告管理</a>
 				<a href="/admin/about/" on:click={handleNav} class:active={section === "about"}>关于页</a>

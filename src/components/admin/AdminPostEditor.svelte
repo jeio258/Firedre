@@ -31,6 +31,9 @@ async function load() {
 	if (isNew) {
 		published = new Date().toISOString().slice(0, 10);
 		loaded = true;
+		// 新建文章也必须初始化正文编辑器，否则 #vditor-editor 为空、无正文编辑框
+		await tick();
+		initEditor();
 		return;
 	}
 	try {
@@ -70,7 +73,9 @@ function initEditor() {
 		height: 480,
 		mode: "ir",
 		value: rawContent,
-		cdn: "/vditor",
+		// cdn 指向在线 CDN（jsdelivr，国内有镜像，稳定快速），dev 与生产均可直接使用、无需本地资源。
+		// 如需完全离线，可改为本地 /vditor（需 scripts/copy-vditor.mjs 提供完整资源并重启 dev）。
+		cdn: "https://cdn.jsdelivr.net/npm/vditor@3.11.3",
 		cache: { enable: false },
 		upload: {
 			url: "/api/admin/upload-image/",
