@@ -761,11 +761,28 @@ async function save() {
 			return;
 		}
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
+		// 保存后立即把主题色相应用到当前后台页面，避免切换/重载时闪回旧主题。
+		// variables.styl 的全部主题变量由 --hue 派生，设好 --hue 后台即跟随项目主题。
+		applyHueToAdmin(groups["basic"]?.hue);
 	} catch {
 		message = "网络错误，修改尚未保存";
 	} finally {
 		saving = false;
 	}
+}
+
+/** 把 hue 应用到后台 documentElement（--hue 及兜底主题变量）。 */
+function applyHueToAdmin(hue: unknown) {
+	if (typeof document === "undefined") return;
+	const h = Number.isFinite(Number(hue)) ? Number(hue) : undefined;
+	if (h == null) return;
+	const root = document.documentElement;
+	root.style.setProperty("--hue", String(h));
+	root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
+	root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
+	root.style.setProperty("--deep-text", `oklch(0.25 0.02 ${h})`);
+	root.style.setProperty("--text-1", `oklch(0.25 0.02 ${h})`);
+	document.body.style.background = `oklch(0.95 0.01 ${h})`;
 }
 
 onMount(load);

@@ -18,7 +18,7 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	posts: () => import("./AdminPostList.svelte"),
 	"posts-edit": () => import("./AdminPostEditor.svelte"),
 	new: () => import("./AdminPostEditor.svelte"),
-	links: () => import("./AdminContentEditor.svelte"),
+	links: () => import("./AdminLinksEditor.svelte"),
 	dynamics: () => import("./AdminDynamic.svelte"),
 	notice: () => import("./AdminNoticeEditor.svelte"),
 	about: () => import("./AdminContentEditor.svelte"),
@@ -29,7 +29,7 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 
 const VIEW_PROPS: Record<string, Record<string, unknown>> = {
 	new: { isNew: true, slug: "" },
-	links: { section: "links", apiPath: "/api/links/" },
+	links: { section: "links" },
 	about: { section: "about", apiPath: "/api/about/" },
 };
 
