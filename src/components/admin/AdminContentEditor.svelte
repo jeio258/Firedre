@@ -3,8 +3,8 @@ import { onMount, tick } from "svelte";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
 
-export let section = "links";
-export let apiPath = "/api/links/";
+export let section = "about";
+export let apiPath = "/api/about/";
 
 let editor: Vditor | null = null;
 let rawContent = "";
@@ -13,7 +13,6 @@ let message = "";
 let loaded = false;
 
 const titles: Record<string, string> = {
-	links: "友链管理",
 	about: "关于页",
 };
 
@@ -93,11 +92,7 @@ onMount(load);
 			</button>
 		</div>
 	</div>
-	<p class="hint">
-		{section === "links"
-			? "编辑 links/index.md（frontmatter 中的 linkGroups 决定友链展示；下方正文为页面自定义内容）"
-			: "编辑 about/index.md（frontmatter 中的 title/cover 等 + Markdown 正文）"}
-	</p>
+	<p class="hint">编辑 about/index.md（frontmatter 中的 title/cover 等 + Markdown 正文）</p>
 	{#if loaded}
 		<div id="vditor-editor"></div>
 	{:else}

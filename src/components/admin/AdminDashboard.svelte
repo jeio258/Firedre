@@ -12,22 +12,17 @@ let loading = true;
 
 onMount(async () => {
 	try {
-		const [posts, dynamics, links, tags, categories] = await Promise.all([
+		const [posts, dynamics, friends, tags, categories] = await Promise.all([
 			fetch("/api/posts/?pageSize=1").then((r) => r.json()),
 			fetch("/api/dynamics/").then((r) => r.json()),
-			fetch("/api/links/").then((r) => r.json()),
+			fetch("/api/friends/").then((r) => r.json()),
 			fetch("/api/posts/taxonomy/tags/").then((r) => r.json()),
 			fetch("/api/posts/taxonomy/categories/").then((r) => r.json()),
 		]);
 		stats = {
 			posts: String(posts.total ?? 0),
 			dynamics: String(dynamics.total ?? 0),
-			links: String(
-				(links.linkGroups || []).reduce(
-					(n: number, g: { links?: unknown[] }) => n + (g.links?.length || 0),
-					0,
-				),
-			),
+			links: String((friends.items || []).length),
 			tags: String((tags.tags || []).length),
 			categories: String((categories.categories || []).length),
 		};

@@ -2,12 +2,10 @@
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import Comment from "@components/comment/index.astro";
-import Markdown from "@components/common/Markdown.astro";
 import { Icon } from "astro-icon/components";
 import {
 	commentConfig,
 	friendsPageConfig,
-	getEnabledFriends,
 	siteConfig,
 } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
@@ -23,12 +21,10 @@ if (!((settings as any)?.["pages"] ?? siteConfig.pages).friends) {
 	return Astro.redirect("/404/");
 }
 
-// Firedre：友链数据来自 R2（后台可编辑）
-const { getLinks } = await import("../../server/links/service");
+// Firedre：友链数据来自 D1（后台可编辑）
+const { listEnabledFriends } = await import("../../server/friends/service");
 const { cfEnv } = await import("../lib/api");
-const linksDetail = await getLinks(cfEnv);
-// 数据缺失时优雅降级（首次部署/本地 dev R2 无内容），不抛 500。
-const friendsHtml = linksDetail?.html || "";
+const friendRows = await listEnabledFriends(cfEnv);
 
 // 检查评论系统是否启用
 const isCommentEnabled =
@@ -37,7 +33,6 @@ const isCommentEnabled =
 	friendsPageConfig.showComment !== false;
 
 // 统一展示字段：{ title, imgurl, siteurl, desc, tags? }
-// R2 来源（后台可编辑）字段与静态 FriendLink 不同，映射成同一套展示字段。
 type FriendsCardItem = {
 	title: string;
 	imgurl: string;
@@ -46,30 +41,14 @@ type FriendsCardItem = {
 	tags?: string[];
 };
 
-// 将 R2 linkGroups 展平并映射为展示字段；无数据时返回空数组。
-const dynamicItems: FriendsCardItem[] = (linksDetail?.linkGroups ?? [])
-	.flatMap((group) => group.links ?? [])
-	.map((link) => ({
-		title: link.name ?? "",
-		imgurl: link.avatar ?? "",
-		siteurl: link.url ?? "",
-		desc: link.desc ?? link.descr ?? "",
-		tags: undefined,
-		// R2 无 tags 字段，缺省时省略（搜索仅匹配 name/desc）。
-	}))
-	.filter((item) => item.siteurl);
-
-// 优先使用 R2 动态数据；R2 无内容（首次部署/本地 dev）时优雅降级到静态配置兜底。
-const items: FriendsCardItem[] =
-	dynamicItems.length > 0
-		? dynamicItems
-		: getEnabledFriends().map((friend) => ({
-				title: friend.title,
-				imgurl: friend.imgurl,
-				siteurl: friend.siteurl,
-				desc: friend.desc ?? "",
-				tags: friend.tags,
-			}));
+// D1 friends 表（后台可编辑）字段与静态 FriendLink 一致，直接映射展示字段。
+const items: FriendsCardItem[] = friendRows.map((friend) => ({
+	title: friend.title,
+	imgurl: friend.imgurl,
+	siteurl: friend.siteurl,
+	desc: friend.desc ?? "",
+	tags: (friend.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
+}));
 const allTags = [...new Set(items.flatMap((item) => item.tags || []))].sort();
 
 // 页面标题和描述
@@ -223,13 +202,9 @@ const description =
 
   {friendsPageConfig.showCustomContent !== false && (
     <div class="mt-4 card-base z-10 px-9 py-6 relative w-full">
-      {friendsHtml ? (
-        <Markdown class="">
-          <Fragment set:html={friendsHtml} />
-        </Markdown>
-      ) : (
-        <p class="text-neutral-500 dark:text-neutral-400">暂无友链内容，请在后台填写。</p>
-      )}
+      <p class="text-neutral-500 dark:text-neutral-400">
+        暂无友链内容，请在后台填写。
+      </p>
     </div>
   )}
 
