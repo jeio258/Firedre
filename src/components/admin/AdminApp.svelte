@@ -206,15 +206,19 @@ onMount(() => {
 	<div class="admin-shell">
 		<aside class="admin-sidebar">
 			<div class="admin-brand">Firedre 后台</div>
-			<nav>
-				<a href="/admin/dashboard/" on:click={handleNav} class:active={section === "dashboard"}>仪表盘</a>
-				<a href="/admin/posts/" on:click={handleNav} class:active={section === "posts" || section === "posts-edit" || section === "new"}>文章管理</a>
-				<a href="/admin/links/" on:click={handleNav} class:active={section === "links"}>友链管理</a>
-				<a href="/admin/notice/" on:click={handleNav} class:active={section === "notice"}>公告管理</a>
-				<a href="/admin/dynamics/" on:click={handleNav} class:active={section === "dynamics"}>动态管理</a>
-				<a href="/admin/about/" on:click={handleNav} class:active={section === "about"}>关于页</a>
-				<a href="/admin/gallery/" on:click={handleNav} class:active={section === "gallery" || section === "album-edit"}>相册管理</a>
-				<a href="/admin/settings/" on:click={handleNav} class:active={section === "settings"}>站点设置</a>
+			<!-- data-no-swup：后台是自洽的 SPA，内部导航由 handleNav 处理。若不加此标记，
+			全局 Swup 会拦截 /admin/ 链接做整页过渡——后台没有 #swup-container 等容器，
+			Swup 报 Container mismatch 后回退为硬整页刷新 → 切菜单闪屏。标记后 Swup
+			完全忽略后台链接，由 handleNav 的 preventDefault+SPA 接管，消除闪烁。 -->
+			<nav data-no-swup>
+				<a href="/admin/dashboard/" class:active={section === "dashboard"}>仪表盘</a>
+				<a href="/admin/posts/" class:active={section === "posts" || section === "posts-edit" || section === "new"}>文章管理</a>
+				<a href="/admin/links/" class:active={section === "links"}>友链管理</a>
+				<a href="/admin/notice/" class:active={section === "notice"}>公告管理</a>
+				<a href="/admin/dynamics/" class:active={section === "dynamics"}>动态管理</a>
+				<a href="/admin/about/" class:active={section === "about"}>关于页</a>
+				<a href="/admin/gallery/" class:active={section === "gallery" || section === "album-edit"}>相册管理</a>
+				<a href="/admin/settings/" class:active={section === "settings"}>站点设置</a>
 			</nav>
 			<div class="admin-user">
 				<span>{authed ? username : "…"}</span>
