@@ -14,7 +14,10 @@ export const prerender = false;
 
 export const GET: APIRoute = async () => {
 	try {
-		const about = await getAbout(cfEnv);
+		// includeSource:true → 返回 R2 原始 markdown（source 字段），后台编辑器
+		// AdminContentEditor 读 data.source 展示/保存正文；否则 source 为 undefined
+		// 导致“前台有内容、后台编辑器为空”。
+		const about = await getAbout(cfEnv, { includeSource: true });
 		if (!about) return json({ message: "关于页数据不存在" }, 404);
 		return json(about);
 	} catch (error) {
