@@ -121,9 +121,8 @@ const labels = {
   }
 
   function showContent(html) {
-    // 加密相册解锁后，本地媒体文件（/api/gallery-files/...）需带 accessPassword 才能加载：
-    // 1) <img src>/<video>/<source>/<iframe src> 2) Fancybox 灯箱 data-src（点开大图）
-    // 3) <img srcset>（响应式图片候选）
+    // 加密相册解锁后，本地媒体(/api/gallery-files/)需带 accessPassword 才能加载：
+    //   <img/video/source/iframe src>、Fancybox 灯箱 data-src、<img srcset>
     contentEl.innerHTML = html;
     var pwd = sessionStorage.getItem(cacheKey) || '';
     if (pwd) {
@@ -136,7 +135,7 @@ const labels = {
     }
     contentEl.classList.remove('hidden');
     ui.classList.add('hidden');
-    // Scripts injected via innerHTML are inert — re-create them so they execute
+    // innerHTML 注入的 script 是惰性的，需重建才会执行
     var scripts = contentEl.querySelectorAll('script');
     for (var i = 0; i < scripts.length; i++) {
       var old = scripts[i];

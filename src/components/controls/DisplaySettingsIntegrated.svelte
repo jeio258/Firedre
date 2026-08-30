@@ -253,7 +253,7 @@ $effect(() => {
 	}
 });
 
-// Auto-switch to wallpaper tab when entering overlay/fullscreen mode
+// 进入 overlay/fullscreen 模式时自动切到壁纸页
 $effect(() => {
 	if (
 		(wallpaperMode === WALLPAPER_OVERLAY ||

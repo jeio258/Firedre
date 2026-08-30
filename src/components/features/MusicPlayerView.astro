@@ -717,7 +717,7 @@ const viewConfigStr = JSON.stringify({
                 var removed = mutations[i].removedNodes;
                 for (var j = 0; j < removed.length; j++) {
                     if (removed[j] === widget || (removed[j].contains && removed[j].contains(widget))) {
-                        // Widget removed from DOM – clean up event listeners
+                        // Widget 已移出 DOM，清理事件监听
                         Object.keys(handlers).forEach(function (name) {
                             window.removeEventListener(name, handlers[name]);
                         });

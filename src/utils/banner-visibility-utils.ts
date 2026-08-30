@@ -98,7 +98,7 @@ export function getBannerVisibilityState(
 	} = ctx;
 
 	// 运行时设置优先（后台可编辑），静态 config 为兜底。
-	// 读 theme 组的 mode/carousel/dimOpacity/homeText/overlay，读 effects 组的 waves/gradient，读 panel 组开关。
+	// 读 theme 组 mode/carousel/dimOpacity/homeText/overlay、effects 组 waves/gradient、panel 组开关
 	const themeS = (settings?.["theme"] ?? {}) as Record<string, unknown>;
 	const effectsS = (settings?.["effects"] ?? {}) as Record<string, unknown>;
 	const panelS = (settings?.["panel"] ?? {}) as Record<string, unknown>;

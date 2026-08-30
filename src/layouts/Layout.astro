@@ -61,9 +61,7 @@ let {
 	hasWallpaper = false,
 } = Astro.props;
 
-// apply a class to the body element to decide the height of the banner, only used for initial page load
-// Swup can update the body for each page visit, but it's after the page transition, causing a delay for banner height change
-// so use Swup hooks instead to change the height immediately when a link is clicked
+// 为 body 加类决定 banner 高度（仅首屏）。Swup 切页在转场后才改，故用 hook 在点击时立即改
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）
@@ -75,7 +73,7 @@ const settings =
 	).settings ?? {};
 
 // defines global css variables
-// why doing this in Layout instead of GlobalStyles: https://github.com/withastro/astro/issues/6728#issuecomment-1502203757
+// 为何在 Layout 而非 GlobalStyles：github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = settings.hue ?? ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue;
 
 // 获取导航栏透明模式配置（banner 模式专属）

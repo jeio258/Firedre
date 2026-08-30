@@ -178,8 +178,7 @@
 
     await preprocessSvgImages();
 
-    // Dynamic galleries expose their images through the toolbar button. Remove
-    // previous bindings before re-binding after client-rendered content appears.
+    // 动态相册经工具栏按钮暴露图片：客户端内容出现后再绑定时，先解绑旧绑定
     Fancybox.unbind(IMG_SELECTOR);
     Fancybox.unbind(LINK_SELECTOR);
 

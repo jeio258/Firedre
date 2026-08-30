@@ -21,7 +21,7 @@ interface Props {
 
 const { state, backgroundImages, title, bannerPostMeta } = Astro.props;
 
-// Firedre：背景壁纸设置（后台可覆盖，统一经 runtime.getWallpaperConfig）——视频播放按钮/视频地址/播放模式/遮罩
+// 背景壁纸设置（后台可覆盖，统一经 runtime.getWallpaperConfig）：播放按钮/地址/模式/遮罩
 const wallpaperConfig = getWallpaperConfig(Astro.locals);
 const bgPlayerEnable = wallpaperConfig.playerEnable;
 const bgPlayerUrl = String(
@@ -555,7 +555,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         <div class="banner-page-title-overlay absolute inset-0 z-20 hidden lg:flex items-center justify-center pointer-events-none">
             <div class="w-4/5 lg:w-3/4 text-center mb-0">
                 <div class="banner-page-title font-bold text-white leading-tight inline-flex items-center justify-center gap-3">
-                    {/* <Icon name="material-symbols:bookmark-rounded" class="banner-page-title-icon" /> */}
                     <span class="banner-page-title-text">{title}</span>
                 </div>
             </div>

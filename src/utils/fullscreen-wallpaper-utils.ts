@@ -67,7 +67,7 @@ export function syncFullscreenOverlays(): void {
 }
 
 // 全屏壁纸模糊：首页从 0 随滚动连续渐变到配置的最大值，非首页固定为最大值（与 overlay 一致）
-// 通过 --fullscreen-blur 变量驱动（复用 overlay 的 blur 配置），图片 CSS 恒为 blur(var(--fullscreen-blur))
+// 通过 --fullscreen-blur 驱动（复用 overlay 的 blur 配置），图片 CSS 恒为 blur(var(--fullscreen-blur))
 // 性能：maxBlur 缓存（避免每帧 getComputedStyle）+ 2px 量化（值未变跳过写入），避免全屏 blur 逐帧重栅格化
 export function syncFullscreenBlur(): void {
 	const html = document.documentElement;
@@ -94,7 +94,7 @@ export function syncFullscreenBlur(): void {
 	setBlurIfChanged(wrapper, `${quantizeBlur(ratio * safeMax)}px`);
 }
 
-// 全屏壁纸模式的模糊渐变是否启用：按当前视口设备读取 fullscreen.blurRamp 配置（支持布尔或 { desktop, mobile }，未配置默认开启）
+// 全屏壁纸模糊渐变是否启用：按视口设备读 fullscreen.blurRamp（布尔或 {desktop,mobile}，缺省开启）
 function isBlurRampEnabled(): boolean {
 	const enable = backgroundWallpaper.fullscreen?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;

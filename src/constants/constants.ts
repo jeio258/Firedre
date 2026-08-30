@@ -17,7 +17,7 @@ export const BANNER_HEIGHT_HOME: number = BANNER_HEIGHT + BANNER_HEIGHT_EXTEND;
 // The height the main panel overlaps the banner, unit: rem
 
 // Non-home banner height (unit: vh) — banner mode, desktop only.
-// = BANNER_HEIGHT_HOME(65) - 15vh lift = 50. Set to 45 for a 20vh lift, or 35 to reproduce the original fuwari 30vh lift.
+// 非首页 banner 高度（vh，仅 banner 模式/桌面）：= 65 - 15vh 上移 = 50。改 45 则上移 20vh，35 则回到原始 fuwari 30vh
 export const BANNER_HEIGHT_NON_HOME = 50;
 
 // Page width: rem

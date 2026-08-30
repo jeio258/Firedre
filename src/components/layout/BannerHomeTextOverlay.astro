@@ -108,10 +108,9 @@ const homeTextLinksEnable = homeText?.linksEnable !== false;
 
         try {
             const subtitles = JSON.parse(subtitlesData);
-            // Only randomize if it's an array and typewriter is NOT enabled (check for typewriter class)
+            // 仅当 subtitles 为数组且未开打字机时才随机
             if (Array.isArray(subtitles) && subtitles.length > 0 && !subtitleElement.querySelector('.typewriter')) {
-                // Use a global variable to persist the subtitle across Swup navigations
-                // This variable will be reset on full page reload (F5), meeting the requirement
+                // 用全局变量跨 Swup 导航保留副标题，整页刷新(F5)时重置
                 if (!window.fireflyCachedSubtitle) {
                     const randomIndex = Math.floor(Math.random() * subtitles.length);
                     window.fireflyCachedSubtitle = subtitles[randomIndex];

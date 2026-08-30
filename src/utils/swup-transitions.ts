@@ -221,7 +221,7 @@ function registerSwupHooks(): void {
 			}
 		}
 
-		// increase the page height during page transition to prevent the scrolling animation from jumping
+		// 转场时临时增高页面，避免滚动动画跳变
 		const heightExtend = document.getElementById("page-height-extend");
 		if (heightExtend) {
 			heightExtend.classList.remove("hidden");

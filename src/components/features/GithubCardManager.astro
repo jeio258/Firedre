@@ -4,7 +4,7 @@
 // 构建期只在 github-card-data.json 里缓存「静态兜底信息」（description / language /
 // avatarUrl / license），forks / stars 由浏览器运行时向 api.github.com 请求一次，
 // 写入 localStorage 缓存（24h 过期后重新请求）；请求失败则回退到构建期的静态信息。
-// 复用 markdown-extend.styl 里已存在的 .fetch-waiting / .fetch-error / pulsate 状态样式。
+// 复用 markdown-extend.styl 的 .fetch-waiting/.fetch-error/pulsate 状态样式
 ---
 <script>
   import { formatCount } from "@/utils/github-card-utils";
