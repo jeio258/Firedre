@@ -6,6 +6,9 @@ import {
 	getStoredCardBorderEnabled,
 	getStoredCardFollowThemeEnabled,
 	getStoredBannerTitleEnabled,
+	getStoredOverlayOpacity,
+	setOverlayOpacity,
+	getStoredOverlayBlur,
 } from "../src/utils/setting-utils";
 
 function fakeStorage() {
@@ -53,5 +56,36 @@ describe("boolean settings localStorage contract", () => {
 	it("returns default when localStorage is undefined (node)", () => {
 		// 默认 node 环境无 localStorage
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
+	});
+});
+
+describe("number settings (overlay) localStorage contract", () => {
+	it("parses stored float and clamps to [0,1]", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("overlayOpacity", "0.5");
+		expect(getStoredOverlayOpacity()).toBe(0.5);
+		(globalThis as any).localStorage.setItem("overlayOpacity", "2");
+		expect(getStoredOverlayOpacity()).toBe(1);
+		(globalThis as any).localStorage.setItem("overlayOpacity", "-1");
+		expect(getStoredOverlayOpacity()).toBe(0);
+	});
+
+	it("falls back to default on NaN", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("overlayOpacity", "abc");
+		expect(Number.isNaN(getStoredOverlayOpacity())).toBe(false);
+	});
+
+	it("overlayBlur clamps to [0,20]", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		(globalThis as any).localStorage.setItem("overlayBlur", "50");
+		expect(getStoredOverlayBlur()).toBe(20);
+	});
+
+	it("set* clamps then writes", () => {
+		vi.stubGlobal("localStorage", fakeStorage());
+		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		setOverlayOpacity(2);
+		expect((globalThis as any).localStorage.getItem("overlayOpacity")).toBe("1");
 	});
 });
