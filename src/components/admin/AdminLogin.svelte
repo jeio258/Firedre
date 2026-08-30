@@ -121,7 +121,7 @@ onMount(() => {
 	button {
 		padding: 0.7rem;
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;

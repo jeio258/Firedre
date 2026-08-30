@@ -2,6 +2,8 @@
 export const prerender = false;
 
 import AdminApp from "../../components/admin/AdminApp.svelte";
+// 复用前端主题系统：与 index.astro 一致，使深链接/直链后台页也加载主题变量并跟随 hue。
+import "@/styles/variables.styl";
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -9,7 +11,39 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Firedre 后台</title>
-	<style>body{margin:0;font-family:system-ui,sans-serif;background:#f3f4f6}</style>
+	<style>
+		body{margin:0;font-family:system-ui,sans-serif;background:var(--page-bg,#f3f4f6)}
+	</style>
+	<script is:inline>
+		// 对齐项目主题：从站点设置读取主题色相并注入 --hue，使 variables.styl 派生的主题变量生效。
+		(function () {
+			try {
+				fetch("/api/settings/")
+					.then((r) => (r.ok ? r.json() : null))
+					.then((data) => {
+						let hue;
+						if (data && typeof data === "object") {
+							hue =
+								data.hue ??
+								data.themeColor?.hue ??
+								data.basic?.hue ??
+								(Number.isFinite(data.settings?.hue)
+									? data.settings.hue
+									: undefined);
+						}
+						const h = Number.isFinite(Number(hue)) ? Number(hue) : 165;
+						const root = document.documentElement;
+						root.style.setProperty("--hue", String(h));
+						root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
+						root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
+						root.style.setProperty("--card-bg", "white");
+						root.style.setProperty("--deep-text", `oklch(0.25 0.02 ${h})`);
+						document.body.style.background = `oklch(0.95 0.01 ${h})`;
+					})
+					.catch(() => {});
+			} catch {}
+		})();
+	</script>
 </head>
 <body>
 	<AdminApp client:load />

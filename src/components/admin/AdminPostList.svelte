@@ -151,7 +151,7 @@ $: filtered = posts.filter(
 	}
 	.btn-primary {
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 	}
 	table {
 		width: 100%;

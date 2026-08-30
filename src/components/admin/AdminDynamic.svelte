@@ -21,6 +21,7 @@ let editingId = "";
 let formContent = "";
 let formPinned = false;
 let formLocation = "";
+let formPublished = 0;
 let showForm = false;
 
 async function load() {
@@ -61,6 +62,7 @@ function openCreate() {
 	formContent = "";
 	formPinned = false;
 	formLocation = "";
+	formPublished = 0;
 	showForm = true;
 	message = "";
 }
@@ -70,6 +72,7 @@ function openEdit(item: DynamicItem) {
 	formContent = item.content;
 	formPinned = item.pinned;
 	formLocation = item.location || "";
+	formPublished = item.published;
 	showForm = true;
 	message = "";
 }
@@ -77,6 +80,7 @@ function openEdit(item: DynamicItem) {
 function cancelForm() {
 	showForm = false;
 	editingId = "";
+	formPublished = 0;
 	message = "";
 }
 
@@ -94,6 +98,8 @@ async function submit() {
 			body: JSON.stringify({
 				id: editingId || undefined,
 				content: formContent,
+				// 编辑时保留原发布时间，避免“编辑即置顶”；新增时省略（后端用当前时间）
+				published: formPublished || undefined,
 				pinned: formPinned,
 				location: formLocation || undefined,
 			}),
@@ -244,7 +250,7 @@ onMount(load);
 	.btn-primary {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;

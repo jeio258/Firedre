@@ -138,7 +138,7 @@ onMount(load);
 	.btn-primary {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;

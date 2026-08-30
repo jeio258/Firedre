@@ -348,7 +348,7 @@ onMount(() => {
 		display: inline-block;
 		padding: 0.5rem 1rem;
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 		border-radius: 0.5rem;
 		text-decoration: none;
 	}

@@ -930,7 +930,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	}
 	.nav-item.active {
 		background: var(--primary, #5b8cff);
-		color: var(--btn-content, #fff);
+		color: #fff;
 		font-weight: 600;
 	}
 	.settings-main {
@@ -972,7 +972,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.btn-save {
 		padding: 0.55rem 1.1rem;
 		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
-		color: var(--btn-content, #fff);
+		color: #fff;
 		border: none;
 		border-radius: 0.55rem;
 		font-size: 0.9rem;
