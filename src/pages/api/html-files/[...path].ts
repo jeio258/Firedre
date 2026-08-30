@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
-	clearHtmlFiles,
 	deleteHtmlFile,
 	getHtmlFile,
 	listHtmlFiles,
@@ -65,20 +64,13 @@ export const PUT: APIRoute = async ({ params: _params, request }) => {
 
 export const DELETE: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
+	const slug = segments[0];
+	if (!slug) return badRequest("缺少文件名");
 
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 
 	try {
-		// 无文件名 => 清空全部 HTML 文件
-		if (segments.length === 0) {
-			const cleared = await clearHtmlFiles(cfEnv);
-			return json({ ok: true, cleared });
-		}
-
-		const slug = segments[0];
-		if (!slug) return badRequest("缺少文件名");
-
 		const ok = await deleteHtmlFile(cfEnv, decodeURIComponent(slug));
 		if (!ok) return notFound("文件不存在");
 		return json({ ok: true });

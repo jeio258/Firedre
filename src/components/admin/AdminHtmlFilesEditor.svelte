@@ -110,36 +110,14 @@ async function remove(slug: string) {
 	}
 }
 
-async function clearAll() {
-	if (files.length === 0) return;
-	if (!confirm(`确定清空全部 ${files.length} 个 HTML 文件？此操作不可撤销。`)) return;
-	try {
-		const resp = await fetch(`/api/html-files/`, { method: "DELETE" });
-		const data = await resp.json();
-		if (resp.ok && data.ok) {
-			files = [];
-			alert(`已清空 ${data.cleared ?? 0} 个文件 ✓`);
-		} else {
-			alert(data.message || "清空失败");
-		}
-	} catch {
-		alert("网络错误");
-	}
-}
-
-onMount(load);
+	onMount(load);
 </script>
 
 <div class="admin-card">
 	<div class="toolbar">
 		<h2>HTML 文件管理</h2>
 		{#if !editing}
-			<div class="toolbar-actions">
-				{#if files.length > 0}
-					<button class="btn-danger" on:click={clearAll}>清空全部</button>
-				{/if}
-				<button class="btn-primary" on:click={() => openEdit()}>+ 新建文件</button>
-			</div>
+			<button class="btn-primary" on:click={() => openEdit()}>+ 新建文件</button>
 		{/if}
 	</div>
 
@@ -232,18 +210,6 @@ onMount(load);
 		border-radius: 0.4rem;
 		background: #fff;
 		cursor: pointer;
-	}
-	.btn-danger {
-		padding: 0.5rem 0.9rem;
-		border: 1px solid #fca5a5;
-		border-radius: 0.4rem;
-		background: #fef2f2;
-		color: #dc2626;
-		cursor: pointer;
-	}
-	.toolbar-actions {
-		display: flex;
-		gap: 0.6rem;
 	}
 	.editor {
 		display: flex;

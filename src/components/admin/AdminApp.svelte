@@ -23,7 +23,6 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	about: () => import("./AdminContentEditor.svelte"),
 	gallery: () => import("./AdminGalleryHub.svelte"),
 	"album-edit": () => import("./AdminGalleryAlbum.svelte"),
-	files: () => import("./AdminHtmlFilesEditor.svelte"),
 	settings: () => import("./AdminSettings.svelte"),
 };
 
@@ -57,7 +56,7 @@ function parsePath(pathname: string): {
 		return { section: "gallery" };
 	}
 	if (
-		["dashboard", "links", "notice", "about", "files", "settings"].includes(
+		["dashboard", "links", "notice", "about", "settings"].includes(
 			first,
 		)
 	) {
@@ -205,7 +204,6 @@ onMount(() => {
 				<a href="/admin/notice/" on:click={handleNav} class:active={section === "notice"}>公告管理</a>
 				<a href="/admin/about/" on:click={handleNav} class:active={section === "about"}>关于页</a>
 				<a href="/admin/gallery/" on:click={handleNav} class:active={section === "gallery" || section === "album-edit"}>相册管理</a>
-				<a href="/admin/files/" on:click={handleNav} class:active={section === "files"}>HTML 文件</a>
 				<a href="/admin/settings/" on:click={handleNav} class:active={section === "settings"}>站点设置</a>
 			</nav>
 			<div class="admin-user">
