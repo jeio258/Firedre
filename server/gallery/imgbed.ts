@@ -4,6 +4,7 @@
  * 通用模式（cfbed / 兰空 LskyPro 等主流开源图床一致）：
  * - 鉴权：Authorization: Bearer <token>
  * - 获取文件列表：GET {endpoint}/api/manage/list?dir={dir}&count=-1
+ *   （dir 为空则不带 dir 参数，从根目录拉取）
  *   → 响应 { files: [{ name, metadata: { File-Mime } }] }
  * - 图片公开读取：GET {endpoint}/file/{name}（无需鉴权，浏览器直接 <img>）
  *
@@ -30,10 +31,10 @@ const IMAGE_EXT =
 	/\.(jpe?g|png|gif|webp|avif|bmp|heic|heif|ico|mp4|webm|mov|mkv|avi|m4v|ogv|wmv)$/i;
 
 /**
- * 从图床拉取指定目录的文件列表，拼成公开直链 AlbumPhoto[]。
+ * 从图床拉取文件列表，拼成公开直链 AlbumPhoto[]。
  * @param endpoint 图床 API 端点（不含尾部斜杠），如 https://cfbed.sanyue.de
  * @param token    API 密钥（Bearer）
- * @param dir      图片所在目录（相册 slug）
+ * @param dir      图床目录（可选；留空 = 根目录，不携带 dir 参数）
  */
 export async function fetchImgbedPhotos(
 	endpoint: string,
@@ -45,11 +46,12 @@ export async function fetchImgbedPhotos(
 		throw new UserError("图床 API 端点需以 http(s):// 开头");
 
 	const dirName = dir.trim().replace(/^\/+|\/+$/g, "");
-	if (!dirName) throw new UserError("缺少图片目录");
-
-	const listUrl = `${endpoint}/api/manage/list?dir=${encodeURIComponent(
-		dirName,
-	)}&count=-1`;
+	// 目录留空 = 根目录，不携带 dir 参数；非空则追加 ?dir={dir}
+	const listUrl = dirName
+		? `${endpoint}/api/manage/list?dir=${encodeURIComponent(
+				dirName,
+			)}&count=-1`
+		: `${endpoint}/api/manage/list?count=-1`;
 
 	const response = await fetch(listUrl, {
 		headers: { Authorization: `Bearer ${token}` },

@@ -109,7 +109,8 @@ export const POST: APIRoute = async ({ params, request }) => {
 	if (!slug || !isValidGallerySlug(slug)) return notFound();
 
 	// 图床拉图：POST /api/gallery/{slug}/imgbed/photos/
-	// 服务端用全局图床配置（端点+密钥）调图床 API 列目录（dir=slug）→ 拼公开直链 → 写入 frontmatter.photos
+	// 服务端用全局图床配置（端点+密钥+图床目录）调图床 API 列目录（dir=图床目录）→ 拼公开直链 → 写入 frontmatter.photos
+	// 相册 slug 优先级最高，不被图床目录覆盖；图床目录留空 = 根目录。
 	if (segments[1] === "imgbed" && segments[2] === "photos") {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (!isAdmin) return unauthorized();
@@ -138,7 +139,11 @@ export const POST: APIRoute = async ({ params, request }) => {
 						return badRequest(
 							"未配置图床 API（请先在站点设置 → 相册 配置端点与密钥）",
 						);
-					const photos = await fetchImgbedPhotos(cfg.endpoint, cfg.token, slug);
+					const photos = await fetchImgbedPhotos(
+						cfg.endpoint,
+						cfg.token,
+						cfg.dir,
+					);
 					await setAlbumPhotos(cfEnv, slug, photos);
 					return json({ ok: true, count: photos.length, photos });
 				} catch (error) {

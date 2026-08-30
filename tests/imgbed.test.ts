@@ -79,6 +79,29 @@ describe("fetchImgbedPhotos", () => {
 		).rejects.toThrow(/未找到文件/);
 	});
 
+	it("目录留空不携带 dir 参数（根目录）", async () => {
+		const fetchMock = vi.fn().mockResolvedValue(
+			jsonResponse({ files: [{ name: "a.jpg" }] }),
+		);
+		vi.stubGlobal("fetch", fetchMock);
+
+		const photos = await fetchImgbedPhotos(
+			"https://cfbed.sanyue.de",
+			"test-token",
+			"",
+		);
+
+		expect(fetchMock).toHaveBeenCalledWith(
+			"https://cfbed.sanyue.de/api/manage/list?count=-1",
+			expect.objectContaining({
+				headers: { Authorization: "Bearer test-token" },
+			}),
+		);
+		expect(photos).toEqual([
+			{ url: "https://cfbed.sanyue.de/file/a.jpg" },
+		]);
+	});
+
 	it("端点为非法协议抛 UserError", async () => {
 		await expect(fetchImgbedPhotos("ftp://bad", "t", "x")).rejects.toThrow(
 			/http\(s\)/,

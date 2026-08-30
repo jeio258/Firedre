@@ -17,9 +17,12 @@ let passwordInput = "";
 let passwordMsg = "";
 let passwordSaving = false;
 
-// 图床 API 源（方案①）：全局配置端点+密钥（站点设置 → 相册），相册页用 slug 作为图床目录拉图
+// 图床 API 源（方案①）：全局配置端点+密钥（站点设置 → 相册），图床目录（?dir=）由用户填写存全局，留空=根目录
 let imgbedEndpoint = "";
 let imgbedEnabled = false;
+let imgbedDir = "";
+let imgbedDirSaving = false;
+let imgbedDirMsg = "";
 let imgbedMsg = "";
 let imgbedFetching = false;
 
@@ -30,9 +33,35 @@ async function loadImgbedStatus() {
 			const data = await resp.json();
 			imgbedEnabled = data.imgbedEnabled === true;
 			imgbedEndpoint = data.imgbedEndpoint ?? "";
+			imgbedDir = data.imgbedDir ?? "";
 		}
 	} catch {
 		// 忽略：读取失败不影响正文编辑
+	}
+}
+
+async function saveImgbedDir() {
+	imgbedDirSaving = true;
+	imgbedDirMsg = "";
+	try {
+		const resp = await fetch("/api/settings/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				group: "gallery",
+				data: { imgbedDir: imgbedDir.trim() },
+			}),
+		});
+		const data = await resp.json().catch(() => null);
+		if (resp.ok && data?.ok) {
+			imgbedDirMsg = "已保存图床目录 ✓（留空 = 根目录）";
+		} else {
+			imgbedDirMsg = data?.message || "保存失败";
+		}
+	} catch {
+		imgbedDirMsg = "网络错误";
+	} finally {
+		imgbedDirSaving = false;
 	}
 }
 
@@ -223,18 +252,33 @@ onMount(load);
 			{#if hasPassword}
 				<button class="btn-danger" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
 			{/if}
+			<span class="dir-divider"></span>
+			<input
+				class="dir-input"
+				type="text"
+				bind:value={imgbedDir}
+				placeholder="图床目录 ?dir=（留空=根目录）"
+				autocomplete="off"
+				title="图床目录（?dir=），存全局配置；留空 = 从根目录拉取"
+			/>
+			<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
+				{imgbedDirSaving ? "保存中…" : "保存目录"}
+			</button>
 		</div>
 		{#if passwordMsg}
 			<span class="password-msg">{passwordMsg}</span>
 		{/if}
+		{#if imgbedDirMsg}
+			<span class="password-msg">{imgbedDirMsg}</span>
+		{/if}
 	</div>
 
 	<div class="password-box">
-		<span class="password-label">图床 API（方案①：全局配置端点+密钥，本相册用 slug「{slug}」作为图床目录拉图）</span>
+		<span class="password-label">图床 API（方案①：全局配置端点+密钥，目录用上方 ?dir=）</span>
 		<div class="password-row">
 			{#if imgbedEnabled}
 				<span class="imgbed-info">
-					图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{slug}
+					图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
 				</span>
 				<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
 					{imgbedFetching ? "拉取中…" : "从图床获取图片"}
@@ -325,14 +369,30 @@ onMount(load);
 		flex-wrap: wrap;
 	}
 	.password-input {
-		flex: 1;
-		min-width: 200px;
+		flex: 0 0 auto;
+		width: 220px;
 		padding: 0.5rem 0.7rem;
 		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
 		background: var(--card-bg, #fff);
 		color: var(--deep-text, #374151);
+	}
+	.dir-input {
+		flex: 0 0 auto;
+		width: 220px;
+		padding: 0.5rem 0.7rem;
+		border: 1px solid var(--line-color, #d1d5db);
+		border-radius: 0.4rem;
+		font-size: 0.9rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, #374151);
+	}
+	.dir-divider {
+		width: 1px;
+		height: 1.4rem;
+		background: var(--line-divider, #e5e7eb);
+		margin: 0 0.2rem;
 	}
 	.imgbed-info {
 		color: var(--muted, #6b7280);
