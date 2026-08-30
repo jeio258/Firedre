@@ -33,7 +33,6 @@ try {
 			"ADMIN_API_TOKEN=dev-token-firedre-abc123xyz",
 			// 会话签名密钥（必须 >= 32 字符，否则本地登录会失败）
 			"SESSION_SECRET=dev-session-secret-firedre-local-00000000",
-			"SITE_URL=http://localhost:4321",
 			"",
 		].join("\n");
 		writeFileSync(devVarsPath, defaults);
@@ -188,8 +187,6 @@ const BUCKET = {
 export const env = {
 	DB,
 	BUCKET,
-	SESSION: new Map(),
-	SITE_URL: "http://localhost:4321",
 };
 export const context = undefined;
 export const caches = undefined;

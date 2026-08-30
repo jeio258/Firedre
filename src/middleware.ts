@@ -1,4 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
+import { caches } from "cloudflare:workers";
 
 export interface SettingsLocals {
 	settings: import("../server/settings/service").SiteSettings;
@@ -108,8 +109,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		(context.locals as unknown as SettingsLocals).settings = {};
 	}
 
-	// HTML 缓存命中检查（KV 存储，key 含配置版本号；/admin、/api 不缓存）
-	// KV 读 ~100ms，远快于回源渲染（~2-5s）；配置保存 → 版本+1 → key 变化 → 即时失效
+	// HTML 缓存命中检查（Workers Cache API，key 含配置版本号；/admin、/api 不缓存）
+	// Cache API 读远快于回源渲染（~2-5s）；配置保存 → 版本+1 → key 变化 → 即时失效
 	let htmlCacheKey = "";
 	if (
 		request.method === "GET" &&
@@ -121,15 +122,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			const { cfEnv } = await import("./lib/api");
 			const version = await getSettingsVersion(cfEnv);
 			htmlCacheKey = `html:v${version}:${url.pathname}`;
-			const cached = await cfEnv.SESSION?.get(htmlCacheKey);
+			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
-				return new Response(cached, {
+				return new Response(await cached.text(), {
 					headers: {
 						"Content-Type": "text/html; charset=utf-8",
 						// max-age=0+must-revalidate：浏览器每次向服务器验证；
-						// 配置保存 → 版本号+1 → KV 缓存 key 变化 → 立即重新渲染，配置即时生效。
+						// 配置保存 → 版本号+1 → 缓存 key 变化 → 立即重新渲染，配置即时生效。
 						"Cache-Control": "public, max-age=0, must-revalidate",
-						"X-Firedre-Cache": "KV-HIT",
+						"X-Firedre-Cache": "CACHE-HIT",
 					},
 				});
 			}
@@ -139,10 +140,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 
 	// HTML 缓存策略（配置即时生效 + 页面秒开）：
-	// 1. Worker 内 Cache API 缓存 HTML，缓存 key 包含配置版本号（KV）；
+	// 1. Worker 内 Cache API 缓存 HTML，缓存 key 包含配置版本号；
 	//    配置保存 → 版本号 +1 → 旧缓存 key 失效 → 下次请求重新渲染（配置立即生效）。
 	// 2. 响应设 max-age=0+must-revalidate：浏览器每次回源验证；
-	//    KV 缓存（key 含配置版本号）提供服务器端加速，配置保存 → 版本+1 → 旧 key 失效 → 即时生效。
+	//    Cache API（key 含配置版本号）提供服务器端加速，配置保存 → 版本+1 → 旧 key 失效 → 即时生效。
 	// 3. /admin、/api 不缓存（动态数据）。
 	const response = await next();
 	// 4. 保守安全响应头：避免 MIME 嗅探、点击劫持、Referrer 泄露。
@@ -168,10 +169,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
 			response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
 			try {
-				const { cfEnv } = await import("./lib/api");
 				const html = await response.clone().text();
 				if (html.length > 500 && html.length < 900_000) {
-					await cfEnv.SESSION?.put(htmlCacheKey, html, { expirationTtl: 60 });
+					// Cache API 需存储 Response 对象；设置相对 TTL 由 Cloudflare 缓存策略管理
+					await caches.default.put(htmlCacheKey, new Response(html));
 				}
 			} catch {
 				/* 缓存失败不影响响应 */
