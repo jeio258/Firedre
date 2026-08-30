@@ -6,10 +6,10 @@ import { join } from "node:path";
 const src = "node_modules/vditor/dist";
 const targets = ["public/vditor/dist", "dist/vditor/dist"];
 
-// 需要复制的子目录
-const subdirs = ["css", "images", "js", "ts", "types"];
-// 根目录下需要复制的文件（编辑器运行必需：主样式、主 JS、method 库等）
-const rootFiles = ["index.css", "index.js", "index.min.js", "method.js", "method.min.js", "index.d.ts", "method.d.ts"];
+// 需要复制的子目录（运行时必需；ts/types 为开发用声明，不复制以减小体积）
+const subdirs = ["css", "images", "js"];
+// 根目录下需要复制的文件（运行时必需：主样式、主 JS、method 库等，用 min 版）
+const rootFiles = ["index.css", "index.min.js", "method.min.js"];
 
 if (!existsSync(src)) {
 	console.error("[copy-vditor] source missing:", src);
