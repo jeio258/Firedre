@@ -13,10 +13,9 @@ import "@/styles/variables.styl";
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
-	<!-- 标签页图标：复用项目内置 favicon（与前台一致，含浅色/深色） -->
-	<link rel="icon" href="/favicon/favicon-light-32.png" sizes="32x32" media="(prefers-color-scheme: light)" />
+	<!-- 标签页图标：项目自带 /favicon/favicon.ico（浅色） + 深色 PNG 切换 -->
+	<link rel="icon" href="/favicon/favicon.ico" />
 	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
-	<link rel="icon" href="/favicon/favicon-light-192.png" sizes="192x192" />
 	<style is:inline>
 		/* 首屏骨架：消除 CSS 加载前文字无排版（FOUC）。完整样式加载后由 <link> 覆盖。
 		   骨架色也映射到主题变量（带 hex 兜底），与前台主题保持一致并跟随 hue。 */

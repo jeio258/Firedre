@@ -1,13 +1,8 @@
 <script lang="ts">
 import { onMount } from "svelte";
 
-type NoticeSection = {
-	label: string;
-	lines: Array<{ text: string; url?: string }>;
-};
-
 let title = "公告栏";
-let sections: NoticeSection[] = [];
+let content = "";
 let loading = true;
 let saving = false;
 let message = "";
@@ -18,26 +13,20 @@ async function load() {
 		if (resp.ok) {
 			const data = await resp.json();
 			title = data.title || "公告栏";
-			sections = Array.isArray(data.sections) ? data.sections : [];
+			// 公告内容：取第一个非空区块的第一行文本（兼容多区块旧数据，仅展示首个）
+			if (Array.isArray(data.sections)) {
+				for (const section of data.sections) {
+					if (section?.lines?.length) {
+						content = section.lines[0]?.text ?? "";
+						break;
+					}
+				}
+			}
 		}
 	} catch {
 		// 忽略
 	}
 	loading = false;
-}
-
-function addSection() {
-	sections = [...sections, { label: "", lines: [{ text: "" }] }];
-}
-
-function removeSection(index: number) {
-	sections = sections.filter((_, i) => i !== index);
-}
-
-function addLine(index: number) {
-	const next = [...sections];
-	next[index] = { ...next[index], lines: [...next[index].lines, { text: "" }] };
-	sections = next;
 }
 
 async function save() {
@@ -47,7 +36,11 @@ async function save() {
 		const resp = await fetch("/api/notice/", {
 			method: "PUT",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ title, sections }),
+			// 只保留一个公告内容输入框：保存为单区块单行
+			body: JSON.stringify({
+				title,
+				sections: [{ label: "", lines: [{ text: content }] }],
+			}),
 		});
 		const data = await resp.json();
 		if (!resp.ok || !data.ok) {
@@ -84,27 +77,10 @@ onMount(load);
 			<input type="text" bind:value={title} />
 		</label>
 
-		{#each sections as section, si}
-			<div class="section">
-				<div class="section-head">
-					<input type="text" placeholder="区块标签（如：--- 主域名 ---）" bind:value={section.label} />
-					<button class="danger" on:click={() => removeSection(si)}>删除区块</button>
-				</div>
-				{#each section.lines as line, li}
-					<div class="line">
-						<input type="text" placeholder="公告内容" bind:value={line.text} />
-						<button class="danger" on:click={() => {
-							const next = [...sections];
-							next[si] = { ...next[si], lines: next[si].lines.filter((_, i) => i !== li) };
-							sections = next;
-						}}>×</button>
-					</div>
-				{/each}
-				<button class="btn-ghost" on:click={() => addLine(si)}>+ 添加一行</button>
-			</div>
-		{/each}
-
-		<button class="btn-ghost" on:click={addSection}>+ 添加区块</button>
+		<label class="content-field">
+			<span>公告内容</span>
+			<textarea bind:value={content} placeholder="请输入公告内容"></textarea>
+		</label>
 	{/if}
 </div>
 
@@ -143,7 +119,7 @@ onMount(load);
 		border-radius: 0.4rem;
 		cursor: pointer;
 	}
-	.title-field {
+	label {
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
@@ -151,7 +127,8 @@ onMount(load);
 		font-size: 0.85rem;
 		color: var(--muted-text, #555);
 	}
-	input {
+	input,
+	textarea {
 		padding: 0.5rem 0.7rem;
 		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
@@ -159,43 +136,9 @@ onMount(load);
 		background: var(--card-bg, #fff);
 		color: var(--deep-text, inherit);
 	}
-	.section {
-		border: 1px dashed var(--line-color, #d1d5db);
-		border-radius: 0.5rem;
-		padding: 0.8rem;
-		margin-bottom: 0.8rem;
-	}
-	.section-head {
-		display: flex;
-		gap: 0.6rem;
-		margin-bottom: 0.6rem;
-	}
-	.section-head input {
-		flex: 1;
-	}
-	.line {
-		display: flex;
-		gap: 0.6rem;
-		margin-bottom: 0.5rem;
-	}
-	.line input {
-		flex: 1;
-	}
-	.danger {
-		background: none;
-		border: none;
-		color: #dc2626;
-		cursor: pointer;
-		font-size: 0.85rem;
-		padding: 0 0.4rem;
-	}
-	.btn-ghost {
-		background: var(--btn-regular-bg, #f9fafb);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: 0.4rem;
-		padding: 0.4rem 0.8rem;
-		font-size: 0.85rem;
-		cursor: pointer;
-		color: var(--deep-text, inherit);
+	textarea {
+		min-height: 160px;
+		resize: vertical;
+		line-height: 1.6;
 	}
 </style>
