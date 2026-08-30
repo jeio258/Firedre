@@ -139,19 +139,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	}
 
 	if (request.method === "GET") {
-		try {
-			const { serveHtmlFileByPath } = await import(
-				"../server/htmlFiles/service"
-			);
-			const { cfEnv } = await import("./lib/api");
-			const response = await serveHtmlFileByPath(cfEnv, url.pathname);
-			if (response) return response;
-		} catch {
-			// fall through
-		}
-	}
-
-	// HTML 缓存策略（配置即时生效 + 页面秒开）：
+		// HTML 缓存策略（配置即时生效 + 页面秒开）：
 	// 1. Worker 内 Cache API 缓存 HTML，缓存 key 包含配置版本号（KV）；
 	//    配置保存 → 版本号 +1 → 旧缓存 key 失效 → 下次请求重新渲染（配置立即生效）。
 	// 2. 响应设 max-age=0+must-revalidate：浏览器每次回源验证；
