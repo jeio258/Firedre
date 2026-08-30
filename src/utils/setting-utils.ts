@@ -63,6 +63,38 @@ function createStoredBoolean({ key, getDefault, shouldStore, afterStore }: Boole
 	};
 }
 
+interface NumberSettingOpts {
+	key: string;
+	getDefault: () => number;
+	min: number;
+	max: number;
+	/** set 时：写入 localStorage 后执行（apply 逻辑）。 */
+	afterStore?: (value: number) => void;
+}
+
+function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSettingOpts) {
+	const clamp = (value: number) => Math.min(max, Math.max(min, value));
+	return {
+		getStored(): number {
+			if (typeof localStorage === "undefined") return getDefault();
+			const stored = localStorage.getItem(key);
+			if (stored === null) return getDefault();
+			const parsed = Number.parseFloat(stored);
+			return Number.isNaN(parsed) ? getDefault() : clamp(parsed);
+		},
+		set(value: number): void {
+			const safe = clamp(value);
+			if (
+				typeof localStorage !== "undefined" &&
+				typeof localStorage.setItem === "function"
+			) {
+				localStorage.setItem(key, String(safe));
+			}
+			afterStore?.(safe);
+		},
+	};
+}
+
 export function getDefaultHue(): number {
 	const fallback = "250";
 	// 检查是否在浏览器环境中
@@ -507,58 +539,40 @@ export function getDefaultOverlayCardOpacity(): number {
 	return getWallpaperConfigFromWindow().overlay?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
 }
 
+const overlayOpacitySetting = createStoredNumber({
+	key: "overlayOpacity",
+	getDefault: getDefaultOverlayOpacity,
+	min: 0,
+	max: 1,
+	afterStore: applyOverlayOpacityToDocument,
+});
+
 export function getStoredOverlayOpacity(): number {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultOverlayOpacity();
-	}
-	const stored = localStorage.getItem("overlayOpacity");
-	if (stored === null) {
-		return getDefaultOverlayOpacity();
-	}
-	const parsed = Number.parseFloat(stored);
-	if (Number.isNaN(parsed)) {
-		return getDefaultOverlayOpacity();
-	}
-	return clampNumber(parsed, 0, 1);
+	return overlayOpacitySetting.getStored();
 }
+
+const overlayBlurSetting = createStoredNumber({
+	key: "overlayBlur",
+	getDefault: getDefaultOverlayBlur,
+	min: 0,
+	max: 20,
+	afterStore: applyOverlayBlurToDocument,
+});
 
 export function getStoredOverlayBlur(): number {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultOverlayBlur();
-	}
-	const stored = localStorage.getItem("overlayBlur");
-	if (stored === null) {
-		return getDefaultOverlayBlur();
-	}
-	const parsed = Number.parseFloat(stored);
-	if (Number.isNaN(parsed)) {
-		return getDefaultOverlayBlur();
-	}
-	return clampNumber(parsed, 0, 20);
+	return overlayBlurSetting.getStored();
 }
 
+const overlayCardOpacitySetting = createStoredNumber({
+	key: "overlayCardOpacity",
+	getDefault: getDefaultOverlayCardOpacity,
+	min: 0,
+	max: 1,
+	afterStore: applyOverlayCardOpacityToDocument,
+});
+
 export function getStoredOverlayCardOpacity(): number {
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultOverlayCardOpacity();
-	}
-	const stored = localStorage.getItem("overlayCardOpacity");
-	if (stored === null) {
-		return getDefaultOverlayCardOpacity();
-	}
-	const parsed = Number.parseFloat(stored);
-	if (Number.isNaN(parsed)) {
-		return getDefaultOverlayCardOpacity();
-	}
-	return clampNumber(parsed, 0, 1);
+	return overlayCardOpacitySetting.getStored();
 }
 
 export function applyOverlayOpacityToDocument(opacity: number): void {
@@ -598,36 +612,15 @@ export function applyOverlayCardOpacityToDocument(cardOpacity: number): void {
 }
 
 export function setOverlayOpacity(opacity: number): void {
-	const safeOpacity = clampNumber(opacity, 0, 1);
-	if (
-		typeof localStorage !== "undefined" &&
-		typeof localStorage.setItem === "function"
-	) {
-		localStorage.setItem("overlayOpacity", String(safeOpacity));
-	}
-	applyOverlayOpacityToDocument(safeOpacity);
+	overlayOpacitySetting.set(opacity);
 }
 
 export function setOverlayBlur(blur: number): void {
-	const safeBlur = clampNumber(blur, 0, 20);
-	if (
-		typeof localStorage !== "undefined" &&
-		typeof localStorage.setItem === "function"
-	) {
-		localStorage.setItem("overlayBlur", String(safeBlur));
-	}
-	applyOverlayBlurToDocument(safeBlur);
+	overlayBlurSetting.set(blur);
 }
 
 export function setOverlayCardOpacity(cardOpacity: number): void {
-	const safeCardOpacity = clampNumber(cardOpacity, 0, 1);
-	if (
-		typeof localStorage !== "undefined" &&
-		typeof localStorage.setItem === "function"
-	) {
-		localStorage.setItem("overlayCardOpacity", String(safeCardOpacity));
-	}
-	applyOverlayCardOpacityToDocument(safeCardOpacity);
+	overlayCardOpacitySetting.set(cardOpacity);
 }
 
 export function applyStoredOverlaySettingsToDocument(): void {
