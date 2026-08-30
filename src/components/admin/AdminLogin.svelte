@@ -108,18 +108,20 @@ onMount(() => {
 		flex-direction: column;
 		gap: 0.35rem;
 		font-size: 0.85rem;
-		color: #666;
+		color: var(--muted-text, #666);
 	}
 	input {
 		padding: 0.6rem 0.8rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.5rem;
 		font-size: 0.95rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, inherit);
 	}
 	button {
 		padding: 0.7rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;

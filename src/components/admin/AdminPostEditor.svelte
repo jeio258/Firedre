@@ -237,9 +237,9 @@ onMount(load);
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.25rem;
 	}
 	.toolbar {
@@ -252,6 +252,7 @@ onMount(load);
 	h2 {
 		font-size: 1.1rem;
 		margin: 0;
+		color: var(--deep-text, inherit);
 	}
 	.actions {
 		display: flex;
@@ -267,15 +268,15 @@ onMount(load);
 		border-radius: 0.4rem;
 		text-decoration: none;
 		font-size: 0.9rem;
-		border: 1px solid #d1d5db;
-		color: #374151;
-		background: #fff;
+		border: 1px solid var(--line-color, #d1d5db);
+		color: var(--deep-text, #374151);
+		background: var(--card-bg, #fff);
 		cursor: pointer;
 	}
 	.btn-primary {
 		composes: btn;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border-color: var(--primary, #5b8cff);
 	}
 	.form-grid {
@@ -289,7 +290,7 @@ onMount(load);
 		flex-direction: column;
 		gap: 0.3rem;
 		font-size: 0.85rem;
-		color: #555;
+		color: var(--muted-text, #555);
 	}
 	.form-grid .span2 {
 		grid-column: span 2;
@@ -297,14 +298,17 @@ onMount(load);
 	input,
 	textarea {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, inherit);
 	}
 	.checks {
 		display: flex;
 		gap: 1.5rem;
 		margin-bottom: 1rem;
 		font-size: 0.9rem;
+		color: var(--deep-text, inherit);
 	}
 </style>

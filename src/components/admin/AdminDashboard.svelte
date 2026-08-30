@@ -76,14 +76,15 @@ onMount(async () => {
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.5rem;
 	}
 	h2 {
 		font-size: 1.15rem;
 		margin: 0 0 1.25rem;
+		color: var(--deep-text, inherit);
 	}
 	.stats {
 		display: grid;
@@ -92,7 +93,7 @@ onMount(async () => {
 		margin-bottom: 1.5rem;
 	}
 	.stat {
-		background: #f9fafb;
+		background: var(--btn-regular-bg, #f9fafb);
 		border-radius: 0.6rem;
 		padding: 1.25rem;
 		text-align: center;
@@ -104,7 +105,7 @@ onMount(async () => {
 	}
 	.label {
 		font-size: 0.85rem;
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		margin-top: 0.3rem;
 	}
 	.links {
@@ -114,11 +115,11 @@ onMount(async () => {
 	}
 	.links a {
 		padding: 0.5rem 1rem;
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
+		background: var(--btn-regular-bg, #f9fafb);
+		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.5rem;
 		text-decoration: none;
-		color: #374151;
+		color: var(--deep-text, #374151);
 		font-size: 0.9rem;
 	}
 	.links a:hover {
@@ -126,6 +127,6 @@ onMount(async () => {
 		color: var(--primary, #5b8cff);
 	}
 	.hint {
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 	}
 </style>

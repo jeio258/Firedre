@@ -110,9 +110,9 @@ onMount(load);
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.25rem;
 	}
 	.toolbar {
@@ -124,6 +124,7 @@ onMount(load);
 	h2 {
 		font-size: 1.1rem;
 		margin: 0;
+		color: var(--deep-text, inherit);
 	}
 	.actions {
 		display: flex;
@@ -137,7 +138,7 @@ onMount(load);
 	.btn-primary {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -148,16 +149,18 @@ onMount(load);
 		gap: 0.3rem;
 		margin-bottom: 1rem;
 		font-size: 0.85rem;
-		color: #555;
+		color: var(--muted-text, #555);
 	}
 	input {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, inherit);
 	}
 	.section {
-		border: 1px dashed #d1d5db;
+		border: 1px dashed var(--line-color, #d1d5db);
 		border-radius: 0.5rem;
 		padding: 0.8rem;
 		margin-bottom: 0.8rem;
@@ -187,11 +190,12 @@ onMount(load);
 		padding: 0 0.4rem;
 	}
 	.btn-ghost {
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
+		background: var(--btn-regular-bg, #f9fafb);
+		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.4rem;
 		padding: 0.4rem 0.8rem;
 		font-size: 0.85rem;
 		cursor: pointer;
+		color: var(--deep-text, inherit);
 	}
 </style>

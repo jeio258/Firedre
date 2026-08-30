@@ -2,6 +2,10 @@
 export const prerender = false;
 
 import AdminApp from "../../components/admin/AdminApp.svelte";
+// 复用前端主题系统：variables.styl 的 :root 定义了全部主题变量（--primary/--page-bg/
+// --card-bg/--deep-text/--line-divider/--codeblock-bg/--radius-large 等），全部由 --hue
+// 经 oklch() 派生。导入后只要设好 --hue，后台即与前台共用同一套主题色。
+import "@/styles/variables.styl";
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -10,20 +14,24 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
 	<style is:inline>
-		/* 首屏骨架：消除 CSS 加载前文字无排版（FOUC）。完整样式加载后由 <link> 覆盖。 */
-		html,body{margin:0;padding:0;background:#f6f7fb;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:#1f2937;-webkit-text-size-adjust:100%}
+		/* 首屏骨架：消除 CSS 加载前文字无排版（FOUC）。完整样式加载后由 <link> 覆盖。
+		   骨架色也映射到主题变量（带 hex 兜底），与前台主题保持一致并跟随 hue。 */
+		html,body{margin:0;padding:0;background:var(--page-bg,#f6f7fb);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text,#1f2937);-webkit-text-size-adjust:100%}
 		*{box-sizing:border-box}
-		.admin-shell{display:flex;min-height:100vh;background:#f6f7fb}
-		.admin-sidebar{width:220px;flex-shrink:0;background:#1e2233;color:#e5e7eb;padding:1.25rem 0.75rem}
+		.admin-shell{display:flex;min-height:100vh;background:var(--page-bg,#f6f7fb)}
+		.admin-sidebar{width:220px;flex-shrink:0;background:var(--codeblock-bg,#1e2233);color:#e5e7eb;padding:1.25rem 0.75rem}
 		.admin-brand{font-weight:700;padding:0 0.75rem 1rem}
 		.admin-sidebar nav a{display:block;color:#cbd5e1;text-decoration:none;padding:0.5rem 0.75rem;border-radius:0.375rem}
 		.admin-main{flex:1;padding:1.5rem;min-width:0}
-		.admin-card{background:#fff;border:1px solid #e5e7eb;border-radius:0.75rem;padding:1.25rem}
+		.admin-card{background:var(--card-bg,#fff);border:1px solid var(--line-divider,#e5e7eb);border-radius:var(--radius-large,0.75rem);padding:1.25rem}
 		.admin-loading,.admin-error{padding:2rem;text-align:center;color:#6b7280}
 	</style>
+
 	<script is:inline>
-		// 对齐项目主题：从站点设置读取主题色相，注入 --hue / --primary / 页面背景，
-		// 使后台管理界面与前台使用同一套主题色。
+		// 对齐项目主题：从站点设置读取主题色相并注入 --hue。variables.styl 已把全部主题
+		// 变量定义为 oklch(… var(--hue))，因此设好 --hue 后 --primary/--page-bg/--card-bg/
+		// --deep-text/--line-divider/--codeblock-bg 等自动生效，后台与前台共用一套主题色。
+		// 另注入 --primary 等 5 个常用变量作为兜底，避免 variables.styl 未及时应用时闪错色。
 		(function () {
 			try {
 				fetch("/api/settings/")
@@ -42,9 +50,11 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 						const h = Number.isFinite(Number(hue)) ? Number(hue) : 165;
 						const root = document.documentElement;
 						root.style.setProperty("--hue", String(h));
+						// 兜底：与 variables.styl 的 :root 定义一致（内联样式优先级更高，值相同）
 						root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
 						root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
 						root.style.setProperty("--card-bg", "white");
+						root.style.setProperty("--deep-text", `oklch(0.25 0.02 ${h})`);
 						root.style.setProperty("--text-1", "oklch(0.25 0.02 " + h + ")");
 						document.body.style.background = `oklch(0.95 0.01 ${h})`;
 					})
@@ -52,8 +62,9 @@ import AdminApp from "../../components/admin/AdminApp.svelte";
 			} catch {}
 		})();
 	</script>
+
 </head>
-<body style="margin:0;background:#f3f4f6;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+<body style="margin:0;background:var(--page-bg,#f3f4f6);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
 	<AdminApp client:load />
 </body>
 </html>

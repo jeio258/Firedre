@@ -212,9 +212,9 @@ onMount(load);
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.25rem;
 	}
 	.toolbar {
@@ -226,6 +226,7 @@ onMount(load);
 	h2 {
 		font-size: 1.1rem;
 		margin: 0;
+		color: var(--deep-text, inherit);
 	}
 	.actions {
 		display: flex;
@@ -237,13 +238,13 @@ onMount(load);
 		font-size: 0.85rem;
 	}
 	.hint {
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		font-size: 0.85rem;
 	}
 	.btn-primary {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -252,12 +253,13 @@ onMount(load);
 		opacity: 0.6;
 	}
 	.btn-ghost {
-		background: #f9fafb;
-		border: 1px solid #e5e7eb;
+		background: var(--btn-regular-bg, #f9fafb);
+		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.4rem;
 		padding: 0.4rem 0.8rem;
 		font-size: 0.85rem;
 		cursor: pointer;
+		color: var(--deep-text, inherit);
 	}
 	.danger {
 		background: none;
@@ -268,11 +270,11 @@ onMount(load);
 		padding: 0.2rem 0.4rem;
 	}
 	.form {
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.5rem;
 		padding: 1rem;
 		margin-bottom: 1.25rem;
-		background: #fafbfc;
+		background: var(--btn-regular-bg, #fafbfc);
 	}
 	.form-head {
 		display: flex;
@@ -290,7 +292,7 @@ onMount(load);
 		gap: 0.3rem;
 		margin-bottom: 0.8rem;
 		font-size: 0.85rem;
-		color: #555;
+		color: var(--muted-text, #555);
 	}
 	.field.check {
 		flex-direction: row;
@@ -300,11 +302,13 @@ onMount(load);
 	.field textarea,
 	.field input {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
 		font-family: inherit;
 		resize: vertical;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, inherit);
 	}
 	.form-actions {
 		display: flex;
@@ -323,7 +327,7 @@ onMount(load);
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.8rem;
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.5rem;
 		padding: 0.7rem 0.9rem;
 	}
@@ -335,6 +339,7 @@ onMount(load);
 		margin: 0 0 0.3rem;
 		font-size: 0.9rem;
 		word-break: break-word;
+		color: var(--deep-text, inherit);
 	}
 	.meta {
 		display: flex;
@@ -351,7 +356,7 @@ onMount(load);
 		font-size: 0.72rem;
 	}
 	.loc {
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 	}
 	.row-actions {
 		display: flex;

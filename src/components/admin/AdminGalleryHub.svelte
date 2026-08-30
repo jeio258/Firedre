@@ -115,9 +115,9 @@ onMount(load);
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.25rem;
 	}
 	.toolbar {
@@ -130,6 +130,7 @@ onMount(load);
 	h2 {
 		font-size: 1.1rem;
 		margin: 0;
+		color: var(--deep-text, inherit);
 	}
 	.create {
 		display: flex;
@@ -137,14 +138,16 @@ onMount(load);
 	}
 	input {
 		padding: 0.45rem 0.7rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, inherit);
 	}
 	.btn-primary {
 		padding: 0.45rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -158,7 +161,7 @@ onMount(load);
 	td {
 		text-align: left;
 		padding: 0.5rem 0.6rem;
-		border-bottom: 1px solid #f3f4f6;
+		border-bottom: 1px solid var(--line-divider, #f3f4f6);
 	}
 	img {
 		border-radius: 0.35rem;
@@ -171,11 +174,11 @@ onMount(load);
 		font-size: 0.82rem;
 	}
 	.tag {
-		background: #f3f4f6;
+		background: var(--btn-regular-bg, #f3f4f6);
 		border-radius: 0.3rem;
 		padding: 0.1rem 0.4rem;
 		font-size: 0.72rem;
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		margin-right: 0.3rem;
 	}
 	.ops {
@@ -195,7 +198,7 @@ onMount(load);
 		padding: 0;
 	}
 	.hint {
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		padding: 1rem 0;
 	}
 </style>

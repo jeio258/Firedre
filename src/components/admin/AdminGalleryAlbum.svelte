@@ -101,9 +101,9 @@ onMount(load);
 
 <style>
 	.admin-card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 0.75rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 0.75rem);
 		padding: 1.25rem;
 	}
 	.toolbar {
@@ -115,6 +115,7 @@ onMount(load);
 	h2 {
 		font-size: 1.1rem;
 		margin: 0;
+		color: var(--deep-text, inherit);
 	}
 	.actions {
 		display: flex;
@@ -127,22 +128,23 @@ onMount(load);
 	}
 	.btn {
 		padding: 0.5rem 0.9rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.4rem;
 		text-decoration: none;
 		font-size: 0.9rem;
-		color: #374151;
+		color: var(--deep-text, #374151);
+		background: var(--card-bg, #fff);
 	}
 	.btn-primary {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
 	}
 	.hint {
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		font-size: 0.82rem;
 		margin: 0 0 1rem;
 	}

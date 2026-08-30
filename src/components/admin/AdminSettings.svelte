@@ -893,9 +893,9 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.settings-nav {
 		width: 210px;
 		flex-shrink: 0;
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 1rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 1rem);
 		padding: 0.9rem 0.6rem;
 		position: sticky;
 		top: 1.25rem;
@@ -906,7 +906,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.cat-name {
 		font-size: 0.7rem;
 		font-weight: 700;
-		color: #9ca3af;
+		color: var(--muted, #9ca3af);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		padding: 0.9rem 0.75rem 0.35rem;
@@ -920,17 +920,17 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		padding: 0.5rem 0.75rem;
 		border-radius: 0.5rem;
 		font-size: 0.88rem;
-		color: #4b5563;
+		color: var(--deep-text, #4b5563);
 		cursor: pointer;
 		transition: background 0.15s, color 0.15s;
 	}
 	.nav-item:hover {
-		background: #f3f4f6;
-		color: #111827;
+		background: var(--btn-regular-bg, #f3f4f6);
+		color: var(--deep-text, #111827);
 	}
 	.nav-item.active {
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		font-weight: 600;
 	}
 	.settings-main {
@@ -945,19 +945,19 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		position: sticky;
 		top: 0.5rem;
 		z-index: 20;
-		background: #f3f4f6;
+		background: var(--page-bg, #f3f4f6);
 		padding: 0.75rem 0.25rem;
 		border-radius: 0.75rem;
 	}
 	.settings-header h2 {
 		margin: 0;
 		font-size: 1.15rem;
-		color: #111827;
+		color: var(--deep-text, #111827);
 	}
 	.sub {
 		margin: 0.15rem 0 0;
 		font-size: 0.75rem;
-		color: #9ca3af;
+		color: var(--muted, #9ca3af);
 		font-family: ui-monospace, monospace;
 	}
 	.header-actions {
@@ -971,8 +971,8 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	}
 	.btn-save {
 		padding: 0.55rem 1.1rem;
-		background: linear-gradient(135deg, var(--primary, #5b8cff), #8b5cf6);
-		color: #fff;
+		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
+		color: var(--btn-content, #fff);
 		border: none;
 		border-radius: 0.55rem;
 		font-size: 0.9rem;
@@ -992,23 +992,23 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.loading {
 		padding: 3rem;
 		text-align: center;
-		color: #9ca3af;
+		color: var(--muted, #9ca3af);
 	}
 	.card {
-		background: #fff;
-		border: 1px solid #e5e7eb;
-		border-radius: 1rem;
+		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-divider, #e5e7eb);
+		border-radius: var(--radius-large, 1rem);
 		padding: 1.75rem;
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.04);
 	}
 	.card h3 {
 		margin: 0 0 0.75rem;
 		font-size: 0.95rem;
-		color: #374151;
+		color: var(--deep-text, #374151);
 	}
 	.field {
 		padding: 0.85rem 0;
-		border-bottom: 1px solid #f3f4f6;
+		border-bottom: 1px solid var(--line-divider, #f3f4f6);
 	}
 	.field:last-child {
 		border-bottom: none;
@@ -1018,12 +1018,12 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		align-items: baseline;
 		gap: 0.5rem;
 		font-size: 0.88rem;
-		color: #374151;
+		color: var(--deep-text, #374151);
 		margin-bottom: 0.45rem;
 		font-weight: 500;
 	}
 	.field-label small {
-		color: #9ca3af;
+		color: var(--muted, #9ca3af);
 		font-weight: 400;
 		font-size: 0.75rem;
 	}
@@ -1031,29 +1031,30 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		width: 100%;
 		box-sizing: border-box;
 		padding: 0.55rem 0.8rem;
-		border: 1px solid #d1d5db;
+		border: 1px solid var(--line-color, #d1d5db);
 		border-radius: 0.5rem;
 		font-size: 0.9rem;
 		transition: border-color 0.15s, box-shadow 0.15s;
-		background: #fafafa;
+		background: var(--btn-regular-bg, #fafafa);
+		color: var(--deep-text, inherit);
 	}
 	input:focus, textarea:focus {
 		outline: none;
 		border-color: var(--primary, #5b8cff);
 		box-shadow: 0 0 0 3px rgb(91 140 255 / 0.15);
-		background: #fff;
+		background: var(--card-bg, #fff);
 	}
 	.switch-wrap {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		color: #6b7280;
+		color: var(--muted, #6b7280);
 		font-size: 0.85rem;
 	}
 	.switch-state { font-size: 0.8rem; font-weight: 600; }
-	.switch-state.unset { color: #9ca3af; font-weight: 400; }
+	.switch-state.unset { color: var(--muted, #9ca3af); font-weight: 400; }
 	.switch.unset {
-		background: #e5e7eb;
+		background: var(--line-divider, #e5e7eb);
 		opacity: 0.55;
 	}
 	.switch {
@@ -1061,7 +1062,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		height: 24px;
 		border-radius: 12px;
 		border: none;
-		background: #e5e7eb;
+		background: var(--line-divider, #e5e7eb);
 		position: relative;
 		cursor: pointer;
 		transition: background 0.2s;
@@ -1076,7 +1077,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: #fff;
+		background: var(--card-bg, #fff);
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
 		transition: left 0.2s;
 	}
@@ -1103,12 +1104,12 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		padding: 0 0.4rem;
 	}
 	.btn-add {
-		background: #f3f4f6;
-		border: 1px dashed #d1d5db;
+		background: var(--btn-regular-bg, #f3f4f6);
+		border: 1px dashed var(--line-color, #d1d5db);
 		border-radius: 0.5rem;
 		padding: 0.45rem 0.9rem;
 		font-size: 0.85rem;
-		color: #4b5563;
+		color: var(--deep-text, #4b5563);
 		cursor: pointer;
 	}
 	.btn-add:hover {
@@ -1116,7 +1117,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		color: var(--primary, #5b8cff);
 	}
 	.json-hint {
-		color: #9ca3af;
+		color: var(--muted, #9ca3af);
 		font-size: 0.72rem;
 		font-family: ui-monospace, monospace;
 	}

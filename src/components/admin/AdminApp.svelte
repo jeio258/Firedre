@@ -235,12 +235,17 @@ onMount(() => {
 	.admin-shell {
 		display: flex;
 		min-height: 100vh;
-		background: #f6f7fb;
+		background: var(--page-bg, #f6f7fb);
 	}
 	.admin-sidebar {
 		width: 220px;
 		flex-shrink: 0;
-		background: linear-gradient(180deg, #1e2233 0%, #161a2b 100%);
+		/* 侧边栏取主题深色态（codeblock-bg 是 --hue 派生的深色），跟随主题色相 */
+		background: linear-gradient(
+			180deg,
+			var(--codeblock-topbar-bg, #1e2233) 0%,
+			var(--codeblock-bg, #161a2b) 100%
+		);
 		color: #e5e7eb;
 		display: flex;
 		flex-direction: column;
@@ -255,7 +260,7 @@ onMount(() => {
 		font-weight: 800;
 		font-size: 1.05rem;
 		letter-spacing: 0.02em;
-		background: linear-gradient(135deg, #8ab4ff, #c084fc);
+		background: linear-gradient(135deg, var(--primary, #8ab4ff), #c084fc);
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
@@ -281,7 +286,7 @@ onMount(() => {
 	}
 	.admin-sidebar nav a.active {
 		color: #fff;
-		background: linear-gradient(135deg, var(--primary, #5b8cff), #8b5cf6);
+		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
 		box-shadow: 0 2px 10px rgb(91 140 255 / 0.4);
 		font-weight: 600;
 	}
@@ -320,7 +325,7 @@ onMount(() => {
 	.admin-unauth {
 		text-align: center;
 		padding: 4rem;
-		color: #666;
+		color: var(--muted-text, #666);
 	}
 	.admin-login-wrap {
 		min-height: 90vh;
@@ -330,7 +335,11 @@ onMount(() => {
 		justify-content: center;
 		gap: 0.5rem;
 	}
-	.login-hint { color: #dc2626; font-size: 0.85rem; margin: 0; }
+	.login-hint {
+		color: #dc2626;
+		font-size: 0.85rem;
+		margin: 0;
+	}
 	.admin-error {
 		padding: 2rem;
 		color: #dc2626;
@@ -339,7 +348,7 @@ onMount(() => {
 		display: inline-block;
 		padding: 0.5rem 1rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--btn-content, #fff);
 		border-radius: 0.5rem;
 		text-decoration: none;
 	}
