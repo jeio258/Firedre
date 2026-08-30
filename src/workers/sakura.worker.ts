@@ -10,9 +10,7 @@
 import type { SakuraConfig } from "@/types/effectsConfig";
 import type { SakuraWorkerInboundMessage } from "@/types/sakura-worker";
 
-// ---------------------------------------------------------------------------
 // 模块状态
-// ---------------------------------------------------------------------------
 let canvas: OffscreenCanvas | null = null;
 let ctx: OffscreenCanvasRenderingContext2D | null = null;
 let sakuraList: SakuraList | null = null;
@@ -24,9 +22,7 @@ let windowHeight = 0;
 let isRunning = false;
 let isHidden = false; // 页面可见性,隐藏时暂停动画
 
-// ---------------------------------------------------------------------------
 // 工具:getRandom(逻辑与原 SakuraEffect.astro 完全一致)
-// ---------------------------------------------------------------------------
 function getRandom(
 	option: "x" | "y" | "s" | "r" | "a",
 	cfg: SakuraConfig,
@@ -72,9 +68,7 @@ function getRandom(option: string, cfg: SakuraConfig): unknown {
 	}
 }
 
-// ---------------------------------------------------------------------------
 // Sakura 单片樱花
-// ---------------------------------------------------------------------------
 interface SakuraFns {
 	x: (x: number, y: number) => number;
 	y: (x: number, y: number) => number;
@@ -167,9 +161,7 @@ class Sakura {
 	}
 }
 
-// ---------------------------------------------------------------------------
 // SakuraList 樱花列表
-// ---------------------------------------------------------------------------
 class SakuraList {
 	list: Sakura[] = [];
 
@@ -190,9 +182,7 @@ class SakuraList {
 	}
 }
 
-// ---------------------------------------------------------------------------
 // 核心逻辑
-// ---------------------------------------------------------------------------
 async function loadImage(): Promise<ImageBitmap> {
 	const response = await fetch("/assets/images/effects/sakura.png");
 	if (!response.ok) {
@@ -295,9 +285,7 @@ function cleanup() {
 	isRunning = false;
 }
 
-// ---------------------------------------------------------------------------
 // 错误上报:回传主线程
-// ---------------------------------------------------------------------------
 function reportError(scope: string, err: unknown) {
 	const message =
 		err instanceof Error
@@ -307,9 +295,7 @@ function reportError(scope: string, err: unknown) {
 	self.postMessage({ type: "error", message, stack });
 }
 
-// ---------------------------------------------------------------------------
 // 消息处理
-// ---------------------------------------------------------------------------
 async function handleMessage(msg: SakuraWorkerInboundMessage) {
 	switch (msg.type) {
 		case "init": {

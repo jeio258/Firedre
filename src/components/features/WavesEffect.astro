@@ -9,18 +9,14 @@
 	import type { WavesManagerLike } from "@/types/waves";
 	import { WavesRenderer } from "@/utils/waves-draw";
 
-	// ===========================================================================
 	// 通用工具
-	// ===========================================================================
 	function readPageBg(): string {
 		return getComputedStyle(document.documentElement)
 			.getPropertyValue("--page-bg")
 			.trim();
 	}
 
-	// ===========================================================================
 	// 主线程 Canvas 2D 管理器
-	// ===========================================================================
 	class WavesManager implements WavesManagerLike {
 		isRunning = false;
 		canvas: HTMLCanvasElement | null = null;
@@ -313,9 +309,7 @@
 		}
 	}
 
-	// ===========================================================================
 	// 初始化
-	// ===========================================================================
 	function initWaves(): void {
 		if (window.wavesManager) {
 			return;
@@ -325,10 +319,8 @@
 		void manager.init();
 	}
 
-	// ===========================================================================
 	// 入口:幂等初始化
 	// 守卫确保 Swup 切页重跑模块化脚本时不会重复初始化或重复注册监听器
-	// ===========================================================================
 	(function setupWaves() {
 		if (window.wavesInitialized) {
 			return;

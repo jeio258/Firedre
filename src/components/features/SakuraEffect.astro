@@ -13,10 +13,8 @@
 		SakuraWorkerOutboundMessage,
 	} from "@/types/sakura-worker";
 
-	// ===========================================================================
 	// 主线程回退实现(不支持 OffscreenCanvas 时使用)
 	// 逻辑与原 is:inline 版本完全一致,仅改为 TS + 实现 SakuraManagerLike 接口
-	// ===========================================================================
 	let windowWidth = window.innerWidth;
 	let windowHeight = window.innerHeight;
 
@@ -347,9 +345,7 @@
 		}
 	}
 
-	// ===========================================================================
 	// Worker + OffscreenCanvas 实现(优先使用,绘制循环脱离主线程)
-	// ===========================================================================
 	class WorkerSakuraManager implements SakuraManagerLike {
 		config: SakuraConfig;
 		canvas: HTMLCanvasElement | null = null;
@@ -495,9 +491,7 @@
 		}
 	}
 
-	// ===========================================================================
 	// 特性检测 + 初始化
-	// ===========================================================================
 	function supportsWorkerSakura(): boolean {
 		return (
 			typeof OffscreenCanvas !== "undefined" &&
@@ -534,10 +528,8 @@
 		}
 	}
 
-	// ===========================================================================
 	// 入口:幂等初始化 + 监听设置面板切换
 	// 守卫确保 Swup 切页重跑模块化脚本时不会重复初始化或重复注册监听器
-	// ===========================================================================
 	(function setupSakura() {
 		if (window.sakuraInitialized) {
 			return;
