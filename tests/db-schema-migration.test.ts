@@ -99,6 +99,8 @@ describe("D1 迁移：post_taxonomy 表统一（post_categories + post_tags 合�
 		expect(names).not.toContain("api_rate_limits");
 		expect(names).not.toContain("admin_login_attempts");
 		expect(names).toContain("rate_limits");
+		expect(names).toContain("admin_users");
+		expect(names).toContain("album_webdav");
 	});
 
 	it("syncPostTaxonomy 写入统一表（分类+标签）", async () => {

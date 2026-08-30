@@ -2,22 +2,26 @@ import type { APIRoute } from "astro";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { isValidGallerySlug } from "../../../../server/gallery/constants";
 import {
-	sanitizeGalleryAlbumForPublic,
-} from "../../../../server/gallery/sanitize";
+	deleteAlbumPassword,
+	getAlbumPassword,
+	setAlbumPassword,
+} from "../../../../server/gallery/password";
+import { sanitizeGalleryAlbumForPublic } from "../../../../server/gallery/sanitize";
 import {
 	deleteGalleryAlbum,
 	getGalleryAlbum,
 	getGalleryHub,
 	setAlbumEncryptedFlag,
+	setAlbumSourceFlag,
 	unlockGalleryAlbum,
 	upsertGalleryAlbum,
 	upsertGalleryHub,
 } from "../../../../server/gallery/service";
 import {
-	deleteAlbumPassword,
-	getAlbumPassword,
-	setAlbumPassword,
-} from "../../../../server/gallery/password";
+	deleteAlbumWebDavConfig,
+	getAlbumWebDavConfig,
+	setAlbumWebDavConfig,
+} from "../../../../server/gallery/webdavConfig";
 import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import {
 	badRequest,
@@ -50,6 +54,13 @@ export const GET: APIRoute = async ({ params, request }) => {
 			if (!isAdmin) return unauthorized();
 			const existing = await getAlbumPassword(cfEnv, slug);
 			return json({ hasPassword: !!existing }, 200, "private");
+		}
+
+		if (segments[1] === "webdav") {
+			// 查询相册 WebDAV 源配置（url/username，存 D1）——仅管理员
+			if (!isAdmin) return unauthorized();
+			const config = await getAlbumWebDavConfig(cfEnv, slug);
+			return json({ ok: true, config }, 200, "private");
 		}
 
 		if (segments[1] === "unlock" && request.method === "GET") {
@@ -145,6 +156,25 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, hasPassword: !!pwd });
 		}
 
+		// WebDAV 源配置（存 D1）：PUT /api/gallery/{slug}/webdav/，body { url, username? }
+		if (segments[1] === "webdav") {
+			if (!slug || !isValidGallerySlug(slug))
+				return badRequest("相册 slug 格式无效");
+			const body = (await request.json().catch(() => ({}))) as {
+				url?: string;
+				username?: string;
+			};
+			const url = String(body.url || "").trim();
+			if (!url) return badRequest("WebDAV 地址不能为空");
+			// 仅接受 http/https，防任意协议注入
+			if (!/^https?:\/\//.test(url))
+				return badRequest("WebDAV 地址需以 http(s):// 开头");
+			await setAlbumWebDavConfig(cfEnv, slug, url, body.username);
+			// 同步 frontmatter source 标记为 webdav
+			await setAlbumSourceFlag(cfEnv, slug, "webdav");
+			return json({ ok: true });
+		}
+
 		if (segments.length === 0) {
 			const body = await request.text();
 			if (!body.trim()) return badRequest("内容不能为空");
@@ -152,7 +182,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, ...result });
 		}
 
-		if (!slug || !isValidGallerySlug(slug)) return badRequest("相册 slug 格式无效");
+		if (!slug || !isValidGallerySlug(slug))
+			return badRequest("相册 slug 格式无效");
 		const body = await request.text();
 		if (!body.trim()) return badRequest("内容不能为空");
 		const result = await upsertGalleryAlbum(cfEnv, slug, body);
@@ -178,6 +209,13 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 			// 同步清除 R2 frontmatter 的 encrypted 标记
 			await setAlbumEncryptedFlag(cfEnv, slug, false);
 			return json({ ok: true, hasPassword: false });
+		}
+
+		// 清除 WebDAV 源配置并切回本地源：DELETE /api/gallery/{slug}/webdav/
+		if (segments[1] === "webdav") {
+			await deleteAlbumWebDavConfig(cfEnv, slug);
+			await setAlbumSourceFlag(cfEnv, slug, "local");
+			return json({ ok: true });
 		}
 
 		const result = await deleteGalleryAlbum(cfEnv, slug);

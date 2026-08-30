@@ -17,9 +17,17 @@ let passwordInput = "";
 let passwordMsg = "";
 let passwordSaving = false;
 
+// WebDAV 源配置（url/username 存 D1，密码走环境变量 WEBDAV_PASSWORD）
+let webdavUrl = "";
+let webdavUsername = "";
+let webdavMsg = "";
+let webdavSaving = false;
+
 async function loadPasswordState() {
 	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/password/`);
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/password/`,
+		);
 		if (resp.ok) {
 			const data = await resp.json();
 			hasPassword = !!data.hasPassword;
@@ -33,11 +41,14 @@ async function savePassword() {
 	passwordSaving = true;
 	passwordMsg = "";
 	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/password/`, {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ password: passwordInput }),
-		});
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/password/`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ password: passwordInput }),
+			},
+		);
 		const data = await resp.json();
 		if (!resp.ok || !data.ok) {
 			passwordMsg = data.message || "密码保存失败";
@@ -57,9 +68,12 @@ async function clearPassword() {
 	passwordSaving = true;
 	passwordMsg = "";
 	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/password/`, {
-			method: "DELETE",
-		});
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/password/`,
+			{
+				method: "DELETE",
+			},
+		);
 		const data = await resp.json();
 		if (!resp.ok || !data.ok) {
 			passwordMsg = data.message || "密码清除失败";
@@ -72,6 +86,78 @@ async function clearPassword() {
 		passwordMsg = "网络错误";
 	} finally {
 		passwordSaving = false;
+	}
+}
+
+async function loadWebDavConfig() {
+	try {
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
+		);
+		if (resp.ok) {
+			const data = await resp.json();
+			webdavUrl = data.config?.url ?? "";
+			webdavUsername = data.config?.username ?? "";
+		}
+	} catch {
+		// 忽略：读取失败不影响正文编辑
+	}
+}
+
+async function saveWebDavConfig() {
+	webdavSaving = true;
+	webdavMsg = "";
+	const url = webdavUrl.trim();
+	if (!url) {
+		webdavMsg = "WebDAV 地址不能为空";
+		webdavSaving = false;
+		return;
+	}
+	try {
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ url, username: webdavUsername.trim() }),
+			},
+		);
+		const data = await resp.json();
+		if (!resp.ok || !data.ok) {
+			webdavMsg = data.message || "WebDAV 配置保存失败";
+			return;
+		}
+		webdavMsg = "WebDAV 源已启用 ✓";
+	} catch {
+		webdavMsg = "网络错误";
+	} finally {
+		webdavSaving = false;
+	}
+}
+
+async function clearWebDavConfig() {
+	if (!window.confirm("清除 WebDAV 配置并切回本地源？")) return;
+	webdavSaving = true;
+	webdavMsg = "";
+	try {
+		const resp = await fetch(
+			`/api/gallery/${encodeURIComponent(slug)}/webdav/`,
+			{
+				method: "DELETE",
+			},
+		);
+		const data = await resp.json();
+		if (!resp.ok || !data.ok) {
+			webdavMsg = data.message || "清除失败";
+			return;
+		}
+		webdavUrl = "";
+		webdavUsername = "";
+		webdavMsg = "已切换为本地源 ✓";
+	} catch {
+		webdavMsg = "网络错误";
+	} finally {
+		webdavSaving = false;
 	}
 }
 
@@ -90,6 +176,7 @@ async function load() {
 		loaded = true;
 	}
 	loadPasswordState();
+	loadWebDavConfig();
 }
 
 function initEditor() {
@@ -180,6 +267,35 @@ onMount(load);
 		{/if}
 	</div>
 
+	<div class="password-box">
+		<span class="password-label">WebDAV 源（url/username 存 D1；登录密码走环境变量 WEBDAV_PASSWORD）</span>
+		<div class="password-row">
+			<input
+				class="password-input"
+				type="text"
+				placeholder="https://dav.example.com/remote.php/dav/files/user/album"
+				bind:value={webdavUrl}
+				autocomplete="off"
+			/>
+			<input
+				class="password-input webdav-user"
+				type="text"
+				placeholder="WebDAV 用户名"
+				bind:value={webdavUsername}
+				autocomplete="off"
+			/>
+			<button class="btn-primary" on:click={saveWebDavConfig} disabled={webdavSaving}>
+				{webdavSaving ? "保存中…" : "启用 WebDAV"}
+			</button>
+			{#if webdavUrl}
+				<button class="btn-danger" on:click={clearWebDavConfig} disabled={webdavSaving}>清除并切回本地</button>
+			{/if}
+		</div>
+		{#if webdavMsg}
+			<span class="password-msg">{webdavMsg}</span>
+		{/if}
+	</div>
+
 	{#if loaded}
 		<div id="vditor-editor"></div>
 	{:else}
@@ -265,6 +381,9 @@ onMount(load);
 		font-size: 0.9rem;
 		background: var(--card-bg, #fff);
 		color: var(--deep-text, #374151);
+	}
+	.webdav-user {
+		flex: 0 0 160px;
 	}
 	.password-msg {
 		display: block;

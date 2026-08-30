@@ -9,6 +9,7 @@ import YAML from "yaml";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
 import { deleteAlbumPassword, getAlbumPassword, setAlbumPassword } from "./password";
+import { getAlbumWebDavConfig } from "./webdavConfig";
 import {
 	GALLERY_HUB_R2_KEY,
 	galleryAlbumR2Key,
@@ -152,7 +153,38 @@ export async function setAlbumEncryptedFlag(
 	});
 }
 
-export async function upsertGalleryHub(env: CloudflareEnv, source: string) {
+/**
+ * 切换相册源的 frontmatter 标记（source: local / webdav）。
+ * 仅做最小化定向改写：不经过 parseAlbumSource/serializeAlbumMarkdown，避免白名单丢弃字段。
+ */
+export async function setAlbumSourceFlag(
+	env: CloudflareEnv,
+	slug: string,
+	source: "local" | "webdav",
+): Promise<void> {
+	if (!isValidGallerySlug(slug)) return;
+	const detail = await getGalleryAlbumDetail(env, slug);
+	if (!detail?.source) return;
+
+	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
+	if (frontmatter.source === source) return;
+
+	const next = { ...frontmatter, source };
+	const yaml = YAML.stringify(next, {
+		lineWidth: 0,
+		defaultKeyType: "PLAIN",
+		defaultStringType: "QUOTE_DOUBLE",
+	}).trimEnd();
+	const normalized = `---\n${yaml}\n---\n${content}`;
+	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
+		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
+	});
+}
+
+export async function upsertGalleryHub(
+	env: CloudflareEnv,
+	source: string,
+) {
 	const parsed = parseHubSource(source);
 	const normalized = serializeHubMarkdown(parsed.frontmatter, parsed.content);
 
@@ -238,14 +270,20 @@ export async function getAlbumWebDavConfigFromR2(
 	slug: string,
 ) {
 	const album = await getGalleryAlbum(env, slug);
-	if (
-		!album ||
-		album.frontmatter.source !== "webdav" ||
-		!album.frontmatter.webdav?.url
-	)
-		return null;
+	if (!album || album.frontmatter.source !== "webdav") return null;
+
+	// url/username 权威存 D1 album_webdav（方案②）；旧手写相册的 frontmatter webdav 块作向后兼容回退。
+	const d1 = await getAlbumWebDavConfig(env, slug);
+	const url = d1?.url || album.frontmatter.webdav?.url;
+	if (!url) return null;
+
 	return {
-		...album.frontmatter.webdav,
+		url,
+		...(d1?.username || album.frontmatter.webdav?.username
+			? {
+					username: d1?.username || album.frontmatter.webdav?.username,
+				}
+			: {}),
 		encrypted: album.frontmatter.encrypted === true,
 		albumPassword: (await getAlbumPassword(env, slug)) || undefined,
 	};
