@@ -100,30 +100,20 @@ export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
 
 async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 	try {
-		const cur = await getSettingsVersion(env);
+		// 原子自增：单条 UPSERT 内用 CAST(value)+1，避免并发保存时先读后写丢版本号
+		// （若两次并发保存读到同一 cur，原实现会只 +1，导致 HTML 缓存 key 不随第二次失效）。
 		await env.DB.prepare(`
 			INSERT INTO site_settings (key, value, updated_at)
-			VALUES (?, ?, datetime('now'))
+			VALUES (?, '1', datetime('now'))
 			ON CONFLICT(key) DO UPDATE SET
-				value = excluded.value,
+				value = CAST(value AS INTEGER) + 1,
 				updated_at = datetime('now')
 		`)
-			.bind(VERSION_KEY, String(Number(cur || 0) + 1))
+			.bind(VERSION_KEY)
 			.run();
 	} catch {
 		/* ignore */
 	}
-}
-
-async function readKvCache(env: CloudflareEnv): Promise<SettingsMap | null> {
-	try {
-		if (!env.SESSION) return null;
-		const raw = await env.SESSION.get(KV_SETTINGS_KEY, "json");
-		if (raw && typeof raw === "object") return raw as SettingsMap;
-	} catch {
-		/* ignore */
-	}
-	return null;
 }
 
 function groupOfKey(key: string): SettingGroup {

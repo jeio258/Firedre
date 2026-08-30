@@ -8,6 +8,7 @@ import {
 	deleteGalleryAlbum,
 	getGalleryAlbum,
 	getGalleryHub,
+	setAlbumEncryptedFlag,
 	unlockGalleryAlbum,
 	upsertGalleryAlbum,
 	upsertGalleryHub,
@@ -57,7 +58,12 @@ export const GET: APIRoute = async ({ params, request }) => {
 			return withRateLimit(
 				cfEnv,
 				request,
-				{ windowMs: 60_000, maxRequests: 10, failOpen: false },
+				{
+					windowMs: 60_000,
+					maxRequests: 10,
+					failOpen: false,
+					scope: "gallery-unlock",
+				},
 				async () => {
 					const password =
 						new URL(request.url).searchParams.get("password") || "";
@@ -73,8 +79,13 @@ export const GET: APIRoute = async ({ params, request }) => {
 		});
 		if (!album) return notFound("相册不存在");
 		// 公开响应必须剔除加密相册的密码与照片列表，避免未认证访客读取；
+		// 判锁以 D1 密码存在与否为准（对齐 unlockGalleryAlbum/gallery-files），
+		// 避免 R2 frontmatter.encrypted 与 D1 不同步时公开 GET 泄露照片。
 		// 且相册详情含敏感信息，一律私有不缓存（no-store）
-		const payload = isAdmin ? album : sanitizeGalleryAlbumForPublic(album);
+		const hasPassword = (await getAlbumPassword(cfEnv, slug)) !== "";
+		const payload = isAdmin
+			? album
+			: sanitizeGalleryAlbumForPublic(album, hasPassword);
 		return json(payload, 200, "private");
 	} catch (error) {
 		return fromServiceError(error);
@@ -91,7 +102,12 @@ export const POST: APIRoute = async ({ params, request }) => {
 	return withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 10, failOpen: false },
+		{
+			windowMs: 60_000,
+			maxRequests: 10,
+			failOpen: false,
+			scope: "gallery-unlock",
+		},
 		async () => {
 			const body = (await request.json().catch(() => ({}))) as {
 				password?: string;
@@ -122,8 +138,11 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			const body = (await request.json().catch(() => ({}))) as {
 				password?: string;
 			};
-			await setAlbumPassword(cfEnv, slug, String(body.password || ""));
-			return json({ ok: true, hasPassword: !!String(body.password || "").trim() });
+			const pwd = String(body.password || "").trim();
+			// 同步 R2 frontmatter 的 encrypted 标记，使「是否上锁」与 D1 密码存在与否一致
+			await setAlbumPassword(cfEnv, slug, pwd);
+			await setAlbumEncryptedFlag(cfEnv, slug, !!pwd);
+			return json({ ok: true, hasPassword: !!pwd });
 		}
 
 		if (segments.length === 0) {
@@ -156,6 +175,8 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 		// 仅清除相册密码（不删除相册）：DELETE /api/gallery/{slug}/password/
 		if (segments[1] === "password") {
 			await deleteAlbumPassword(cfEnv, slug);
+			// 同步清除 R2 frontmatter 的 encrypted 标记
+			await setAlbumEncryptedFlag(cfEnv, slug, false);
 			return json({ ok: true, hasPassword: false });
 		}
 

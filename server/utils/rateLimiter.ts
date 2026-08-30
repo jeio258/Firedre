@@ -21,6 +21,14 @@ export interface RateLimitConfig {
 	 * 安全敏感场景（如相册解锁防暴力破解）应设为 false，避免 D1 故障时防护失效。
 	 */
 	failOpen?: boolean;
+	/**
+	 * 端点作用域标识，用于把不同业务端点分隔到各自独立的限流桶。
+	 * 缺省时仅按 IP+窗口+次数分桶，会让窗口/次数相同的不同端点（如图片服务、
+	 * 相册解锁、WebDAV、写文章）共用同一桶，导致一类请求耗尽预算后连带阻塞
+	 * 其它端点（例如 >10 图加密相册的图片加载把解锁端点一并限流）。
+	 * 建议每个调用点传入固定 scope，如 scope: "gallery-files"。
+	 */
+	scope?: string;
 }
 
 export interface RateLimitResult {
@@ -194,7 +202,8 @@ export async function withRateLimit<T extends Response>(
 ): Promise<T> {
 	const resolvedConfig = config ?? defaultConfig;
 	const clientIp = getClientIp(request);
-	const rateKey = `${clientIp}:${resolvedConfig.windowMs}:${resolvedConfig.maxRequests}`;
+	const scopePart = resolvedConfig.scope ? `${resolvedConfig.scope}:` : "";
+	const rateKey = `${scopePart}${clientIp}:${resolvedConfig.windowMs}:${resolvedConfig.maxRequests}`;
 
 	let allowed = true;
 	let retryAfter = 0;

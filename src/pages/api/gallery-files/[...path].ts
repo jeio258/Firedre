@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import { cfEnv } from "../../../lib/api";
-import { getGalleryAlbum } from "../../../../server/gallery/service";
 import { getAlbumPassword } from "../../../../server/gallery/password";
+import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import { constantTimeEqual } from "../../../../server/utils/timingSafe";
 
 export const prerender = false;
@@ -26,25 +26,45 @@ export const GET: APIRoute = async ({ params, request }) => {
 	// 相册专属文件（非 _uploads 全局上传目录）需校验相册加密口令：
 	// 否则加密相册的图片文件可凭已知/猜测的路径直接下载，口令仅保护 URL 列表。
 	// 口令存 D1（album_passwords），不写进 R2 frontmatter。
+	// 锁门判定以 D1 密码是否存在为准（与 unlock/页面一致），并施加与解锁端点相同的
+	// 限流（10次/分钟，failOpen=false），避免本端点成为绕过解锁限流的暴力破解 oracle。
 	if (album !== "_uploads") {
-		const detail = await getGalleryAlbum(cfEnv, album);
-		if (detail?.frontmatter.encrypted) {
-			const expected = await getAlbumPassword(cfEnv, album);
-			const supplied = new URL(request.url).searchParams.get("accessPassword") || "";
-			if (!expected || !constantTimeEqual(supplied, expected))
-				return new Response("Unauthorized", { status: 401 });
+		const expected = await getAlbumPassword(cfEnv, album);
+		if (expected) {
+			// 图片服务独立限流桶（scope: gallery-files），不与解锁/WebDAV/写文章共用，
+			// 且预算放宽（加密相册每张图片一次请求，>10 图的合法相册也不应被误伤）。
+			return withRateLimit(
+				cfEnv,
+				request,
+				{
+					windowMs: 60_000,
+					maxRequests: 120,
+					failOpen: false,
+					scope: "gallery-files",
+				},
+				async () => {
+					const supplied =
+						new URL(request.url).searchParams.get("accessPassword") || "";
+					if (!constantTimeEqual(supplied, expected))
+						return new Response("Unauthorized", { status: 401 });
+					// 加密相册：口令承载于 URL，禁止共享/CDN 长期缓存，避免口令 URL 扩散
+					return serveFile(key, "private, no-store");
+				},
+			);
 		}
 	}
 
+	// 非加密相册 / 全局上传：可公开缓存
+	return serveFile(key, "public, max-age=86400, stale-while-revalidate=604800");
+};
+
+async function serveFile(key: string, cacheControl: string) {
 	const object = await cfEnv.BUCKET.get(key);
 	if (!object) return new Response("Not Found", { status: 404 });
 
 	const headers = new Headers();
 	object.writeHttpMetadata(headers);
-	headers.set(
-		"Cache-Control",
-		"public, max-age=86400, stale-while-revalidate=604800",
-	);
+	headers.set("Cache-Control", cacheControl);
 
 	return new Response(object.body, { headers });
-};
+}

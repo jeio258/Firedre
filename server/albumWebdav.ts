@@ -177,7 +177,12 @@ export async function fetchWebDavFile(
 	if (auth) headers.Authorization = auth;
 	if (options?.range) headers.Range = options.range;
 
-	const response = await fetch(url, { headers });
+	// redirect: "manual" 防止 WebDAV 源 3xx 重定向到任意外部主机造成 SSRF：
+	// scope 边界只校验了初始 URL，跟随重定向可能把请求/响应转发到 scope 之外。
+	const response = await fetch(url, { headers, redirect: "manual" });
+	if (response.status >= 300 && response.status < 400) {
+		throw new Error("WebDAV 源返回重定向，出于安全已拒绝跟随");
+	}
 	if (!response.ok && response.status !== 206)
 		throw new Error(`媒体文件加载失败 (${response.status})`);
 

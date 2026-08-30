@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { siteConfig } from "../config/index";
 import { cfEnv } from "../lib/api";
+import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
 
@@ -33,6 +34,18 @@ export const GET: APIRoute = async () => {
 	];
 	for (const [path, enabled] of staticPages) {
 		if (enabled) urls.push(`${base}${path}`);
+	}
+
+	// 相册详情（仅公开、非加密相册入 sitemap，加密相册不对外暴露 URL）
+	try {
+		const hub = await getGalleryHub(cfEnv);
+		for (const album of hub?.albums ?? []) {
+			if (album.encrypted) continue;
+			const encoded = encodeURIComponent(album.slug);
+			urls.push(`${base}/gallery/${encoded}/`);
+		}
+	} catch {
+		// 相册读取失败不影响其余 URL
 	}
 
 	// 文章

@@ -48,7 +48,9 @@ const albumMeta = {
 	location: fm.location ? String(fm.location) : undefined,
 	tags: Array.isArray(fm.tags) ? fm.tags.map(String) : [],
 	cover: fm.cover ? String(fm.cover) : undefined,
-	encrypted: fm.encrypted === true && !!albumPassword,
+	// 判锁以 D1 密码存在与否为准（对齐 unlockGalleryAlbum / gallery-files / 公开 API），
+	// 避免 R2 frontmatter.encrypted 与 D1 不同步时页面显示未锁定而实际已上锁。
+	encrypted: !!albumPassword,
 	password: albumPassword,
 	passwordHint: fm.passwordHint ? String(fm.passwordHint) : "",
 };

@@ -21,26 +21,48 @@ function makeAlbum(
 }
 
 describe("sanitizeGalleryAlbumForPublic（相册密码不泄漏）", () => {
-	it("非加密相册：剔除 password，保留照片", () => {
-		const out = sanitizeGalleryAlbumForPublic(makeAlbum());
+	it("非加密相册（D1 无密码）：剔除 password，保留照片", () => {
+		const out = sanitizeGalleryAlbumForPublic(makeAlbum(), false);
 		expect(out.frontmatter.password).toBeUndefined();
 		expect(out.frontmatter.photos).toHaveLength(1);
 		expect(out.source).toBeUndefined();
 	});
 
-	it("加密相册：剔除 password 与照片列表", () => {
+	it("加密相册（D1 有密码）：剔除 password 与照片列表", () => {
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: true }),
+			true,
 		);
 		expect(out.frontmatter.password).toBeUndefined();
 		expect(out.frontmatter.photos).toEqual([]);
 		expect(out.source).toBeUndefined();
 	});
 
+	it("R2 encrypted=false 但 D1 有密码：仍隐藏照片（R1 判锁统一回归）", () => {
+		// 关键回归：即使 frontmatter.encrypted 与 D1 不同步（写入失败等），
+		// 只要 D1 有密码就不得向公开 GET 返回照片，防止“看似加密实则公开”。
+		const out = sanitizeGalleryAlbumForPublic(
+			makeAlbum({ encrypted: false }),
+			true,
+		);
+		expect(out.frontmatter.photos).toEqual([]);
+		expect(out.frontmatter.encrypted).toBe(true);
+		expect(out.frontmatter.password).toBeUndefined();
+	});
+
+	it("R2 encrypted=true 但 D1 无密码：按未锁定放行（与 unlockGalleryAlbum 一致）", () => {
+		const out = sanitizeGalleryAlbumForPublic(
+			makeAlbum({ encrypted: true }),
+			false,
+		);
+		expect(out.frontmatter.photos).toHaveLength(1);
+	});
+
 	it("加密相册即使 frontmatter 带 password 也不会泄漏", () => {
 		// 防御性：即使未来又往 frontmatter 写了 password，公开响应也不得返回
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: true, password: "should-not-leak" }),
+			true,
 		);
 		expect(out.frontmatter.password).toBeUndefined();
 	});

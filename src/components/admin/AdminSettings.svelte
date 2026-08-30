@@ -650,6 +650,7 @@ let social: Array<{ label: string; url: string }> = [];
 
 let data: Record<string, Record<string, unknown>> = {};
 let loading = true;
+let loadError = "";
 let saving = false;
 let message = "";
 let activeGroup = "basic";
@@ -658,6 +659,26 @@ let loaded = false;
 
 function currentGroup() {
 	return GROUPS.find((g) => g.key === activeGroup) ?? GROUPS[0];
+}
+
+/**
+ * 把 nav 的 navItems/social 规整成数组：
+ * - 已是数组 → 原样拷贝；
+ * - 是 JSON 字符串（flatten / defaults 首加载产出）→ JSON.parse 回填；
+ * - 其它（空/缺失/解析失败）→ 空数组。
+ * 保证不会对字符串 .map 抛错，也不会把默认导航误丢弃为空数组。
+ */
+function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
+	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
+	if (typeof value === "string") {
+		try {
+			const parsed = JSON.parse(value);
+			if (Array.isArray(parsed)) return parsed.map((n) => ({ ...n }));
+		} catch {
+			/* 非合法 JSON 字符串则回退为空数组 */
+		}
+	}
+	return [];
 }
 
 function selectGroup(key: string) {
@@ -686,18 +707,19 @@ async function load() {
 				}
 				data[g.key] = merged;
 			}
-			data["nav"] = { ...(all["nav"] ?? {}) };
+			data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
 			const nav = data["nav"] as {
 				navItems?: Array<{ label: string; url: string }>;
 				social?: Array<{ label: string; url: string }>;
 			};
-			navItems = nav.navItems?.length
-				? nav.navItems.map((n) => ({ ...n }))
-				: [];
-			social = nav.social?.length ? nav.social.map((s) => ({ ...s })) : [];
+			// nav.navItems/social 首次加载可能为 JSON 字符串（flatten 产出），需解析回填
+			// 成数组再 map——既避免对字符串 .map 抛错（“not a function”），也避免回退成
+			// 空数组导致“保存全部”把默认导航清空。
+			navItems = parseNavArray(nav.navItems);
+			social = parseNavArray(nav.social);
 		}
 	} catch {
-		message = "加载失败";
+		loadError = "设置加载失败，请刷新重试";
 	}
 	loading = false;
 	loaded = true;
@@ -737,10 +759,24 @@ async function save() {
 	message = "";
 	try {
 		const groups: Record<string, Record<string, unknown>> = {};
+		// JSON 结构字段空值应删除（回落到默认值），而 text/textarea/number 字段
+		// 空串应保留，否则用户清空站点描述/标题后保存会回退到模板默认值。
+		const jsonFields = new Set([
+			"links",
+			"homeSubtitles",
+			"metingFallbackApis",
+			"localPlaylist",
+			"sections",
+		]);
 		for (const g of GROUPS) {
 			const payload = { ...(data[g.key] ?? {}) };
 			for (const k of Object.keys(payload)) {
-				if (payload[k] === "" || payload[k] == null) delete payload[k];
+				const v = payload[k];
+				if (jsonFields.has(k)) {
+					if (v === "" || v == null) delete payload[k];
+				} else if (v == null) {
+					delete payload[k];
+				}
 			}
 			groups[g.key] = payload;
 		}
@@ -825,6 +861,10 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 
 		{#if loading}
 			<div class="loading">加载中…</div>
+		{:else if loadError}
+			<div class="load-error">{loadError}</div>
+		{:else if !data[currentGroup().key]}
+			<div class="load-error">当前配置组数据缺失，请刷新重试</div>
 		{:else}
 			{#if activeGroup === "nav"}
 				<div class="card">
@@ -1010,6 +1050,14 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		padding: 3rem;
 		text-align: center;
 		color: var(--muted, #9ca3af);
+	}
+	.load-error {
+		padding: 2rem;
+		text-align: center;
+		color: #dc2626;
+		background: #fef2f2;
+		border: 1px solid #fecaca;
+		border-radius: 0.75rem;
 	}
 	.card {
 		background: var(--card-bg, #fff);

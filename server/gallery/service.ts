@@ -5,6 +5,7 @@ import type {
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
 import type { GalleryAlbumDetail, GalleryHubDetail } from "../../types/gallery";
+import YAML from "yaml";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
 import { deleteAlbumPassword, getAlbumPassword, setAlbumPassword } from "./password";
@@ -64,6 +65,14 @@ export async function getGalleryAlbum(
 	slug: string,
 	options: { includeSource?: boolean } = {},
 ): Promise<GalleryAlbumDetail | null> {
+	return getGalleryAlbumDetail(env, slug, options);
+}
+
+async function getGalleryAlbumDetail(
+	env: CloudflareEnv,
+	slug: string,
+	options: { includeSource?: boolean } = {},
+): Promise<GalleryAlbumDetail | null> {
 	if (!isValidGallerySlug(slug)) return null;
 
 	const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
@@ -87,14 +96,46 @@ export async function unlockGalleryAlbum(
 	const detail = await getGalleryAlbum(env, slug);
 	if (!detail) return { ok: false };
 
-	if (!detail.frontmatter.encrypted)
-		return { ok: true, photos: detail.frontmatter.photos || [] };
-
-	// 密码存 D1（动态博客方式），frontmatter 不含密码
+	// 锁门判定以 D1 密码是否存在为准（与页面 [album].astro 用 D1 密码判断一致），
+	// 避免 frontmatter.encrypted 与 D1 密码不同步时产生“看似加密实则公开”的漏洞。
 	const expected = await getAlbumPassword(env, slug);
-	if (!expected || !constantTimeEqual(password, expected)) return { ok: false };
+	if (!expected) return { ok: true, photos: detail.frontmatter.photos || [] };
+
+	if (!constantTimeEqual(password, expected)) return { ok: false };
 
 	return { ok: true, photos: detail.frontmatter.photos || [] };
+}
+
+/**
+ * 同步 R2 frontmatter 的 encrypted 标记，使「是否上锁」与 D1 密码存在与否收敛一致。
+ * 设置/清除相册密码（密码框路径）时调用：有密码 → encrypted=true，无密码 → false。
+ */
+export async function setAlbumEncryptedFlag(
+	env: CloudflareEnv,
+	slug: string,
+	encrypted: boolean,
+): Promise<void> {
+	if (!isValidGallerySlug(slug)) return;
+	const detail = await getGalleryAlbumDetail(env, slug);
+	if (!detail?.source) return;
+
+	// 用原始 frontmatter 做最小化定向改写，只改 encrypted 一行：
+	// 不经过 parseAlbumSource/serializeAlbumMarkdown（其 buildAlbumPayload 白名单
+	// 会丢弃 type≠image/video 的 photos、字符串 photo 条目及相册级自定义字段），
+	// 避免切换密码时静默破坏相册数据。
+	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
+	if (frontmatter.encrypted === encrypted) return;
+
+	const next = { ...frontmatter, encrypted };
+	const yaml = YAML.stringify(next, {
+		lineWidth: 0,
+		defaultKeyType: "PLAIN",
+		defaultStringType: "QUOTE_DOUBLE",
+	}).trimEnd();
+	const normalized = `---\n${yaml}\n---\n${content}`;
+	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
+		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
+	});
 }
 
 export async function upsertGalleryHub(env: CloudflareEnv, source: string) {
@@ -127,17 +168,22 @@ export async function upsertGalleryAlbum(
 	if (!isValidGallerySlug(slug)) throw new UserError("相册 slug 格式无效");
 
 	const parsed = parseAlbumSource(source);
-	// 从原始 frontmatter 提取访问密码：存 D1（动态博客方式），不写进 R2 文件。
-	// 后台编辑 markdown 里写 password 即更新相册密码；留空且未设 encrypted 则清除。
+	// 相册密码的唯一权威入口是后台密码框（PUT/DELETE /api/gallery/{slug}/password/，
+	// 写 D1 并同步 R2 frontmatter.encrypted）。通用 markdown 编辑不应触碰 D1 密码：
+	// 密码明文从不写进 R2 frontmatter（buildAlbumPayload 会剥掉 password 字段），
+	// 因此这里收到的 source 通常不含 password；若无条件以空值调用 setAlbumPassword
+	// 会把 D1 密码一并 DELETE，导致管理员用密码框设的密码被一次普通编辑清除。
+	// 仅当 frontmatter 显式含非空 password 时（旧手写 password 相册的向后兼容），
+	// 才同步到 D1 并强制带锁标记；否则保持 D1 现状不动。
 	const rawFm = splitGalleryMarkdown(source).frontmatter as Record<string, unknown>;
 	const rawPassword =
 		typeof rawFm.password === "string" && rawFm.password.trim()
 			? rawFm.password.trim()
 			: "";
-	await setAlbumPassword(env, slug, rawPassword);
-
-	// 有密码时强制带锁标记（无密码则保持用户显式 encrypted 标记）
-	if (rawPassword) parsed.frontmatter.encrypted = true;
+	if (rawPassword) {
+		await setAlbumPassword(env, slug, rawPassword);
+		parsed.frontmatter.encrypted = true;
+	}
 	const normalized = serializeAlbumMarkdown(parsed.frontmatter, parsed.content);
 
 	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {

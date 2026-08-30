@@ -18,22 +18,50 @@ import {
 
 export const prerender = false;
 
+/**
+ * 敏感字段黑名单：公开 GET /api/settings/ 时必须剔除这些 key，
+ * 避免音乐/分析/评论等凭据（metingAuth、vndb.apiToken、ads.customCode 等）
+ * 通过未鉴权端点泄露给任何访客。仅影响公开读取，不影响后台展示与保存。
+ */
+const SENSITIVE_SETTING_KEY =
+	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey)/i;
+
+function redactSensitive(obj: unknown): unknown {
+	if (Array.isArray(obj)) return obj.map(redactSensitive);
+	if (obj && typeof obj === "object") {
+		const out: Record<string, unknown> = {};
+		for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+			out[k] = SENSITIVE_SETTING_KEY.test(k)
+				? ""
+				: redactSensitive(v);
+		}
+		return out;
+	}
+	return obj;
+}
+
 /** GET /api/settings/ 公开读取全部配置（后台展示 = 静态真实默认 + 已保存覆盖） */
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		const { flattenSettingsDefaults } = await import("../../../../server/settings/flatten");
 		const defaults = flattenSettingsDefaults();
 		const group = url.searchParams.get("group");
 		if (group && (SETTING_GROUPS as readonly string[]).includes(group)) {
 			const db = await getSettingsGroup(cfEnv, group as never);
-			return json({ ...(defaults[group] ?? {}), ...db }, 200, "private");
+			const payload = { ...(defaults[group] ?? {}), ...db };
+			return json(
+				isAdmin ? payload : redactSensitive(payload),
+				200,
+				"private",
+			);
 		}
 		const all = await getAllSettings(cfEnv);
 		const merged: Record<string, Record<string, unknown>> = {};
 		for (const key of SETTING_GROUPS) {
 			merged[key] = { ...(defaults[key] ?? {}), ...(all[key] ?? {}) };
 		}
-		return json(merged, 200, "private");
+		return json(isAdmin ? merged : redactSensitive(merged), 200, "private");
 	} catch (error) {
 		return serverError(error);
 	}

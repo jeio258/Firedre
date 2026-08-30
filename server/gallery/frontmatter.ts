@@ -125,7 +125,11 @@ export function toAlbumSummary(
 		date: frontmatter.date || "",
 		cover: frontmatter.cover,
 		desc: frontmatter.desc,
-		count: isWebDav ? undefined : photos.length || undefined,
+		// 加密相册不对外泄露照片数量（避免信息泄漏），count 置 undefined
+		count:
+			isWebDav || frontmatter.encrypted
+				? undefined
+				: photos.length || undefined,
 		location: frontmatter.location,
 		tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : undefined,
 		encrypted: !!frontmatter.encrypted,

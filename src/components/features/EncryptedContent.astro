@@ -91,18 +91,24 @@ const labels = {
   var errorEl = document.getElementById('password-error');
   var contentEl = document.getElementById('decrypted-content');
 
+  function appendAccessPassword(els, attr, pwd) {
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var src = el.getAttribute(attr) || '';
+      if (!src) continue;
+      var sep = src.indexOf('?') >= 0 ? '&' : '?';
+      el.setAttribute(attr, src + sep + 'accessPassword=' + encodeURIComponent(pwd));
+    }
+  }
+
   function showContent(html) {
-    // 加密相册解锁后，本地图片文件（/api/gallery-files/...）需带 accessPassword 才能加载
+    // 加密相册解锁后，本地图片文件（/api/gallery-files/...）需带 accessPassword 才能加载：
+    // 1) <img src>（缩略图） 2) Fancybox 灯箱触发元素的 data-src（点开大图）
     contentEl.innerHTML = html;
     var pwd = sessionStorage.getItem(cacheKey) || '';
     if (pwd) {
-      var imgs = contentEl.querySelectorAll('img[src*="/api/gallery-files/"]');
-      for (var i = 0; i < imgs.length; i++) {
-        var img = imgs[i];
-        var src = img.getAttribute('src') || '';
-        var sep = src.indexOf('?') >= 0 ? '&' : '?';
-        img.setAttribute('src', src + sep + 'accessPassword=' + encodeURIComponent(pwd));
-      }
+      appendAccessPassword(contentEl.querySelectorAll('img[src*="/api/gallery-files/"]'), 'src', pwd);
+      appendAccessPassword(contentEl.querySelectorAll('[data-fancybox][data-src*="/api/gallery-files/"]'), 'data-src', pwd);
     }
     contentEl.classList.remove('hidden');
     ui.classList.add('hidden');
