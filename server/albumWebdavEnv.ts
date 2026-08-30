@@ -21,7 +21,7 @@ export function getWebDavPassword(env?: CloudflareEnv) {
 export async function resolveWebDavConfig(
 	slug: string,
 	options?: AlbumWebDavRuntimeOptions,
-): Promise<AlbumWebDavConfig> {
+): Promise<AlbumWebDavConfig & { encrypted?: boolean; albumPassword?: string }> {
 	if (!slug) throw new UserError("缺少相册标识");
 
 	const env = options?.env;
@@ -41,6 +41,8 @@ export async function resolveWebDavConfig(
 		url: registered.url.trim(),
 		username: registered.username?.trim() || undefined,
 		password,
+		encrypted: registered.encrypted === true,
+		albumPassword: registered.albumPassword,
 	};
 }
 

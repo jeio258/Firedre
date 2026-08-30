@@ -100,7 +100,20 @@ export function getSiteConfig(locals: unknown) {
 		categoryBar: bool(s.categoryBar, Boolean((staticSiteConfig as Record<string, unknown>).categoryBar)),
 		categoryStyle: str(s.categoryStyle, String((staticSiteConfig as Record<string, unknown>).categoryStyle ?? "")),
 		tagStyle: str(s.tagStyle, String((staticSiteConfig as Record<string, unknown>).tagStyle ?? "")),
-		keywords: (Array.isArray(staticSiteConfig.keywords) ? staticSiteConfig.keywords : []).map(String),
+		keywords: (() => {
+			const raw =
+				typeof basic.keywords === "string" && basic.keywords
+					? basic.keywords
+					: typeof s.keywords === "string" && s.keywords
+						? s.keywords
+						: Array.isArray(staticSiteConfig.keywords)
+							? staticSiteConfig.keywords.join(", ")
+							: String(staticSiteConfig.keywords ?? "");
+			return raw
+				.split(/[,，]/)
+				.map((k) => k.trim())
+				.filter(Boolean);
+		})(),
 		themeColor: {
 			...staticSiteConfig.themeColor,
 			hue: num(s.hue, (staticSiteConfig.themeColor as Record<string, unknown>).hue as number),

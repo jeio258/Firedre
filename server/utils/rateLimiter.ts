@@ -87,13 +87,19 @@ export async function checkD1RateLimit(
 			};
 		}
 
-		// 递增计数（原子 UPSERT）
+		// 递增计数（原子 UPSERT）。
+		// 表主键为 (key)；冲突目标必须是唯一索引/主键的子集，故用单列 (key)。
+		// 同窗口则 count+1；若 key 相同但窗口已切换，则重置为当前窗口并 count=1。
 		await db
 			.prepare(`
         INSERT INTO api_rate_limits (key, window_started_at, count, updated_at)
         VALUES (?, ?, ?, datetime('now'))
-        ON CONFLICT(key, window_started_at) DO UPDATE SET
-          count = count + 1,
+        ON CONFLICT(key) DO UPDATE SET
+          window_started_at = excluded.window_started_at,
+          count = CASE
+            WHEN api_rate_limits.window_started_at = excluded.window_started_at THEN api_rate_limits.count + 1
+            ELSE 1
+          END,
           updated_at = datetime('now')
       `)
 			.bind(key, windowStart, 1)

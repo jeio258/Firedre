@@ -137,7 +137,6 @@ export default defineConfig({
 				"#floating-toc-wrapper",
 			],
 			smoothScrolling: false,
-			cache: true,
 			preload: {
 				hover: true,
 				visible: true,

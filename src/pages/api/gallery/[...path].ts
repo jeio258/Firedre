@@ -2,6 +2,9 @@ import type { APIRoute } from "astro";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { isValidGallerySlug } from "../../../../server/gallery/constants";
 import {
+	sanitizeGalleryAlbumForPublic,
+} from "../../../../server/gallery/sanitize";
+import {
 	deleteGalleryAlbum,
 	getGalleryAlbum,
 	getGalleryHub,
@@ -57,7 +60,10 @@ export const GET: APIRoute = async ({ params, request }) => {
 			includeSource: isAdmin,
 		});
 		if (!album) return notFound("相册不存在");
-		return json(album, 200, isAdmin ? "private" : "default");
+		// 公开响应必须剔除加密相册的密码与照片列表，避免未认证访客读取；
+		// 且相册详情含敏感信息，一律私有不缓存（no-store）
+		const payload = isAdmin ? album : sanitizeGalleryAlbumForPublic(album);
+		return json(payload, 200, "private");
 	} catch (error) {
 		return fromServiceError(error);
 	}

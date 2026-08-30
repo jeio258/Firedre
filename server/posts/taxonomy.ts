@@ -6,7 +6,7 @@ import type {
 	PostListItem,
 	TagCountItem,
 } from "../../types/posts";
-import { categoryPathFromFrontmatter, normalizeTags } from "./frontmatter";
+import { categoryPathFromFrontmatter, normalizeTags, resolveCategories } from "./frontmatter";
 
 export type { ArchiveMonthItem, CategoryTreeNode, TagCountItem };
 
@@ -103,12 +103,7 @@ export async function syncPostTaxonomy(
 	frontmatter: PostFrontmatter,
 ) {
 	// 与 upsertPost 保持一致：优先 categories，回退到单数 category 字段
-	const resolvedCategories =
-		(frontmatter.categories?.length ?? 0) > 0
-			? frontmatter.categories
-			: frontmatter.category
-				? [String(frontmatter.category)]
-				: undefined;
+	const resolvedCategories = resolveCategories(frontmatter);
 	const categoryPath = categoryPathFromFrontmatter(resolvedCategories);
 	const tags = normalizeTags(frontmatter.tags) || [];
 

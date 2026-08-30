@@ -118,11 +118,13 @@ function buildFrontmatter(): Record<string, unknown> {
 			.split(/[,，]/)
 			.map((t) => t.trim())
 			.filter(Boolean),
-		category: category.trim() || "未分类",
 		pinned,
 		draft,
 		comment,
 	};
+	// 分类为空时不写 category 字段，让服务端自然回退为 Uncategorized
+	// （避免写成中文“未分类”导致与服务端 canonical 'Uncategorized' 不一致）
+	if (category.trim()) fm.category = category.trim();
 	if (updated) fm.updated = updated;
 	if (description.trim()) fm.description = description.trim();
 	if (image.trim()) fm.image = image.trim();

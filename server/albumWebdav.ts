@@ -2,7 +2,6 @@ import type { AlbumPhoto, AlbumWebDavConfig } from "../types/album";
 import type { CloudflareEnv } from "../types/env";
 import {
 	type AlbumAccessParams,
-	parseAlbumAccessQuery,
 	verifyAlbumAccess,
 } from "../utils/albumAuth";
 import { UserError } from "./utils/userError";
@@ -204,8 +203,13 @@ export async function handleAlbumWebDavList(
 	body: AlbumWebDavListRequest,
 	options?: AlbumWebDavRuntimeOptions,
 ) {
-	assertAlbumAccess(parseAlbumAccessQuery(body));
 	const config = await resolveWebDavConfig(body.slug, options);
+	// 以服务端相册 frontmatter 的 encrypted 状态为准，绝不信任客户端声明
+	assertAlbumAccess({
+		encrypted: config.encrypted,
+		password: config.albumPassword,
+		accessPassword: body.accessPassword,
+	});
 	const photos = await propfindWebDavAlbum(config);
 	return { photos };
 }
@@ -223,8 +227,13 @@ export async function handleAlbumWebDavFile(
 ) {
 	if (!targetUrl) throw new UserError("缺少媒体地址");
 
-	assertAlbumAccess(parseAlbumAccessQuery(accessQuery));
 	const config = await resolveWebDavConfig(slug, options);
+	// 以服务端相册 frontmatter 的 encrypted 状态为准，绝不信任客户端声明
+	assertAlbumAccess({
+		encrypted: config.encrypted,
+		password: config.albumPassword,
+		accessPassword: accessQuery.accessPassword,
+	});
 	assertTargetInWebDavScope(targetUrl, config.url);
 
 	const response = await fetchWebDavFile(targetUrl, config, { range });

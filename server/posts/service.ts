@@ -17,9 +17,9 @@ import {
 	encodePostPath,
 	isPublished,
 	mapFrontmatterToRecord,
-	normalizeCategories,
 	normalizeTags,
 	postR2Key,
+	resolveCategories,
 	serializeFrontmatter,
 	splitMarkdown,
 } from "./frontmatter";
@@ -364,9 +364,7 @@ export async function upsertPost(
 	const mapped = mapFrontmatterToRecord(frontmatter);
 	const published = isPublished(frontmatter) ? 1 : 0;
 	const r2Key = postR2Key(decoded);
-	const categories =
-		normalizeCategories(frontmatter.categories) ??
-		(frontmatter.category ? [String(frontmatter.category)] : []);
+	const categories = resolveCategories(frontmatter) ?? [];
 	const tags = normalizeTags(frontmatter.tags) ?? [];
 	const plain = stripMarkdown(content);
 	const pinOrder = normalizePinOrder(

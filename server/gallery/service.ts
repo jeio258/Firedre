@@ -169,7 +169,13 @@ export async function getAlbumWebDavConfigFromR2(
 		!album.frontmatter.webdav?.url
 	)
 		return null;
-	return album.frontmatter.webdav;
+	return {
+		...album.frontmatter.webdav,
+		encrypted: album.frontmatter.encrypted === true,
+		albumPassword: album.frontmatter.password
+			? String(album.frontmatter.password)
+			: undefined,
+	};
 }
 
 export type { AlbumDetailFrontmatter };

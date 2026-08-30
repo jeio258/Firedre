@@ -133,6 +133,23 @@ export function normalizeCategories(categories: PostFrontmatter["categories"]) {
 	return [String(categories)].filter(Boolean);
 }
 
+/**
+ * 统一的分类解析：优先复数 categories（含空数组），否则回退单数 category。
+ * upsertPost 写 categories 列与 syncPostTaxonomy 写 post_categories 都必须走这里，
+ * 保证两套存储永远一致（避免分类漂移）。
+ */
+export function resolveCategories(
+	frontmatter: PostFrontmatter,
+): string[] | undefined {
+	const normalized = normalizeCategories(frontmatter.categories);
+	if (normalized && normalized.length > 0) return normalized;
+	if (frontmatter.category) {
+		const single = String(frontmatter.category).trim();
+		return single ? [single] : undefined;
+	}
+	return undefined;
+}
+
 export function categoryPathFromFrontmatter(
 	categories: PostFrontmatter["categories"],
 ): string {
