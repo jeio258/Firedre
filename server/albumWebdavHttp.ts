@@ -138,7 +138,9 @@ async function handleWebDavFile(
 	const headers = new Headers({
 		"Content-Type": file.contentType,
 		"Accept-Ranges": "bytes",
-		"Cache-Control": "private, max-age=3600",
+		// 加密相册媒体口令可承载于 URL，禁止任何缓存（含浏览器私有缓存），
+		// 与 gallery-files 的 private, no-store 保持一致的缓存姿态，防口令 URL 扩散。
+		"Cache-Control": "private, no-store",
 	});
 	if (file.contentRange) headers.set("Content-Range", file.contentRange);
 	if (file.contentLength) headers.set("Content-Length", file.contentLength);

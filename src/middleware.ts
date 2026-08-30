@@ -145,7 +145,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	//    KV 缓存（key 含配置版本号）提供服务器端加速，配置保存 → 版本+1 → 旧 key 失效 → 即时生效。
 	// 3. /admin、/api 不缓存（动态数据）。
 	const response = await next();
-	// 4. 后台页面显式 no-store：浏览器缓存旧 admin HTML 会引用已删除的 chunk（JS 失效 →
+	// 4. 保守安全响应头：避免 MIME 嗅探、点击劫持、Referrer 泄露。
+	//    刻意不加严格 CSP——站点大量内联脚本（vditor/is:inline）依赖内联执行，
+	//    过严 CSP 会破坏现有功能（故为 P2 而非 P1）。
+	if (request.method === "GET") {
+		response.headers.set("X-Content-Type-Options", "nosniff");
+		response.headers.set("X-Frame-Options", "SAMEORIGIN");
+		response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	}
+	// 5. 后台页面显式 no-store：浏览器缓存旧 admin HTML 会引用已删除的 chunk（JS 失效 →
 	//    侧栏链接全部整页跳转 → 重新检查会话 → 表现为"切换选项自动退出登录"）
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");

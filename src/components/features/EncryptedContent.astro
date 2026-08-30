@@ -101,14 +101,38 @@ const labels = {
     }
   }
 
+  function appendAccessPasswordToSrcset(els, pwd) {
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      var srcset = (el.getAttribute('srcset') || '').split(',');
+      var out = [];
+      for (var j = 0; j < srcset.length; j++) {
+        var cand = srcset[j].trim();
+        if (!cand) continue;
+        var parts = cand.split(/\s+/);
+        var url = parts[0];
+        if (!url || url.indexOf('/api/gallery-files/') < 0) { out.push(cand); continue; }
+        var sep = url.indexOf('?') >= 0 ? '&' : '?';
+        parts[0] = url + sep + 'accessPassword=' + encodeURIComponent(pwd);
+        out.push(parts.join(' '));
+      }
+      el.setAttribute('srcset', out.join(', '));
+    }
+  }
+
   function showContent(html) {
-    // 加密相册解锁后，本地图片文件（/api/gallery-files/...）需带 accessPassword 才能加载：
-    // 1) <img src>（缩略图） 2) Fancybox 灯箱触发元素的 data-src（点开大图）
+    // 加密相册解锁后，本地媒体文件（/api/gallery-files/...）需带 accessPassword 才能加载：
+    // 1) <img src>/<video>/<source>/<iframe src> 2) Fancybox 灯箱 data-src（点开大图）
+    // 3) <img srcset>（响应式图片候选）
     contentEl.innerHTML = html;
     var pwd = sessionStorage.getItem(cacheKey) || '';
     if (pwd) {
       appendAccessPassword(contentEl.querySelectorAll('img[src*="/api/gallery-files/"]'), 'src', pwd);
+      appendAccessPassword(contentEl.querySelectorAll('video[src*="/api/gallery-files/"]'), 'src', pwd);
+      appendAccessPassword(contentEl.querySelectorAll('source[src*="/api/gallery-files/"]'), 'src', pwd);
+      appendAccessPassword(contentEl.querySelectorAll('iframe[src*="/api/gallery-files/"]'), 'src', pwd);
       appendAccessPassword(contentEl.querySelectorAll('[data-fancybox][data-src*="/api/gallery-files/"]'), 'data-src', pwd);
+      appendAccessPasswordToSrcset(contentEl.querySelectorAll('img[srcset*="/api/gallery-files/"]'), pwd);
     }
     contentEl.classList.remove('hidden');
     ui.classList.add('hidden');

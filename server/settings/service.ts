@@ -46,8 +46,6 @@ const LEGACY_KEYS: Record<string, SettingGroup> = {
 };
 
 // ── KV 缓存（用户要求配置存 KV）：读写全量配置快照 ──
-const KV_SETTINGS_KEY = "site-settings:v1";
-
 async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 	const rows = await env.DB.prepare(
 		"SELECT key, value FROM site_settings",
@@ -63,21 +61,6 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 		}
 	}
 	return out;
-}
-
-async function writeKvCache(
-	env: CloudflareEnv,
-	all: SettingsMap,
-): Promise<void> {
-	try {
-		if (env.SESSION) {
-			await env.SESSION.put(KV_SETTINGS_KEY, JSON.stringify(all), {
-				expirationTtl: 86400 * 30,
-			});
-		}
-	} catch {
-		/* KV 失败不影响主流程 */
-	}
 }
 
 // 配置版本号（D1 强一致）：HTML 缓存 key 依赖它 → 配置变更即时使旧缓存失效。
@@ -157,9 +140,8 @@ export async function getSettingsGroup(
  * 批量保存多组（D1 持久化 + KV 缓存同步 + 版本 bump）。
  *
  * 相比逐组调用 saveSettingsGroup，此处把 N 组保存聚合为：
- *   1 次 D1 批量写入 + 1 次全量读 + 1 次 KV 写 + 1 次版本 bump ≈ 4 次 I/O，
- * 避免 N×全量重读重写导致后台批量保存耗时随组数线性恶化（31 组≈6s）。
- * 读路径以 D1 为准，KV 仅为镜像，最终一致可接受。
+ *   1 次 D1 批量写入 + 1 次版本 bump，避免逐组全量重读重写导致耗时随组数恶化。
+ * 读路径一律以 D1 为准（强一致），无 KV 镜像（原镜像只写不读，属死代码已移除）。
  */
 export async function saveSettingsGroups(
 	env: CloudflareEnv,
@@ -196,9 +178,7 @@ export async function saveSettingsGroups(
 		}
 	}
 
-	// 同步 KV 镜像 + 版本 bump（各一次，避免 N×全量重读重写）
-	const all = await readAllFromD1(env);
-	await writeKvCache(env, all);
+	// 版本 bump（一次）：配置版本号变更使 HTML 缓存 key 失效，配置即时生效
 	await bumpSettingsVersion(env);
 }
 
@@ -211,7 +191,7 @@ export async function saveSettingsGroup(
 	await saveSettingsGroups(env, { [group]: data });
 }
 
-/** 兼容旧接口：读扁平 SiteSettings（basic 组） */
+/** 兼容旧接口：读扁平 SiteSettings（basic 组），仅供 middleware 类型标注 */
 export interface SiteSettings {
 	title?: string;
 	description?: string;
@@ -225,35 +205,6 @@ export interface SiteSettings {
 	commentEnabled?: boolean;
 	navItems?: Array<{ label: string; url: string }>;
 	social?: Array<{ label: string; url: string }>;
-}
-
-export async function getSiteSettings(
-	env: CloudflareEnv,
-): Promise<SiteSettings> {
-	return (await getSettingsGroup(env, "basic")) as unknown as SiteSettings;
-}
-
-export async function saveSiteSettings(
-	env: CloudflareEnv,
-	settings: SiteSettings,
-): Promise<void> {
-	await saveSettingsGroup(
-		env,
-		"basic",
-		settings as unknown as Record<string, unknown>,
-	);
-}
-
-/** 更新单字段（供其它模块写入） */
-export async function updateSettingsField(
-	env: CloudflareEnv,
-	group: SettingGroup,
-	field: string,
-	value: unknown,
-): Promise<void> {
-	const current = await getSettingsGroup(env, group);
-	current[field] = value;
-	await saveSettingsGroup(env, group, current);
 }
 
 /** 前台覆盖用的扁平设置形状 */

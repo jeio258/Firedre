@@ -92,3 +92,32 @@ describe("sanitizeHast", () => {
 		expect(a.properties.href).toBeUndefined();
 	});
 });
+
+describe("sanitizeHast srcset（P2-1）", () => {
+	it("净化为逗号分隔 URL 列表，丢弃 javascript: 候选", () => {
+		const img = {
+			type: "element",
+			tagName: "img",
+			properties: {
+				srcset:
+					"a.jpg 1x, javascript:alert(1) 2x, /local/b.jpg 2x",
+			},
+			children: [],
+		};
+		sanitizeHast(img);
+		expect(img.properties.srcset).toBe("a.jpg 1x, /local/b.jpg 2x");
+	});
+
+	it("全部候选非法时删除 srcset", () => {
+		const img = {
+			type: "element",
+			tagName: "img",
+			properties: {
+				srcset: "javascript:alert(1) 1x, vbscript:msgbox 2x",
+			},
+			children: [],
+		};
+		sanitizeHast(img);
+		expect(img.properties.srcset).toBeUndefined();
+	});
+});

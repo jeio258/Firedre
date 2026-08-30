@@ -330,6 +330,22 @@ export async function getPostBySlug(
 	};
 }
 
+/**
+ * 把用户搜索关键词转义为 FTS5 安全的查询表达式。
+ * 直接 bind 原始关键词到 `MATCH ?` 时，FTS 语法操作符（`"`、`*`、`NEAR`、
+ * `AND`/`OR` 等）会让 D1 抛 SQLite 错误 → 接口返回 500。此处把关键词按空白
+ * 拆分，每个词用双引号包裹（内部 `"` 转义为 `""`），再以 AND 连接，既屏蔽
+ * 操作符注入，又保持“多词同时命中”的原搜索意图。
+ */
+function escapeFtsKeyword(keyword: string): string {
+	return keyword
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean)
+		.map((token) => `"${token.replace(/"/g, '""')}"`)
+		.join(" AND ");
+}
+
 export async function searchPosts(
 	env: CloudflareEnv,
 	keyword: string,
@@ -337,6 +353,7 @@ export async function searchPosts(
 ): Promise<PostListItem[]> {
 	const q = keyword.trim();
 	if (!q) return [];
+	const safeQuery = escapeFtsKeyword(q);
 
 	const { results } = await env.DB.prepare(`
     SELECT p.* FROM posts_fts f
@@ -345,7 +362,7 @@ export async function searchPosts(
     ORDER BY rank
     LIMIT ?
   `)
-		.bind(q, limit)
+		.bind(safeQuery, limit)
 		.all<PostRecord>();
 
 	return sortPosts((results || []).map(recordToListItem));

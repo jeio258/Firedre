@@ -24,6 +24,7 @@ const UNSAFE_TAG_NAMES = new Set([
 const URL_PROPERTY_NAMES = new Set([
 	"href",
 	"src",
+	"srcset",
 	"xlink:href",
 	"action",
 	"formaction",
@@ -31,6 +32,24 @@ const URL_PROPERTY_NAMES = new Set([
 	"cite",
 	"background",
 ]);
+
+/**
+ * 净化为逗号分隔的 URL 列表（如 srcset="a.jpg 1x, b.jpg 2x"）。
+ * 逐个净化候选 URL，丢弃非法项；若全部非法则整体删除属性。
+ */
+function sanitizeSrcset(value: unknown): string | undefined {
+	if (typeof value !== "string") return undefined;
+	const parts = value.split(",").map((p) => p.trim());
+	const cleaned: string[] = [];
+	for (const part of parts) {
+		if (!part) continue;
+		const [url, ...descriptor] = part.split(/\s+/);
+		const clean = sanitizeUrl(url);
+		if (clean === undefined) continue; // 丢弃危险候选
+		cleaned.push(descriptor.length ? `${clean} ${descriptor.join(" ")}` : clean);
+	}
+	return cleaned.length ? cleaned.join(", ") : undefined;
+}
 
 /** 直接删除的属性（iframe srcdoc 可内嵌脚本） */
 const STRIP_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
@@ -78,9 +97,15 @@ export function sanitizeHast(node: unknown): unknown {
 					continue;
 				}
 				if (URL_PROPERTY_NAMES.has(lowerKey)) {
-					const clean = sanitizeUrl(n.properties[key]);
-					if (clean === undefined) delete n.properties[key];
-					else n.properties[key] = clean;
+					if (lowerKey === "srcset") {
+						const clean = sanitizeSrcset(n.properties[key]);
+						if (clean === undefined) delete n.properties[key];
+						else n.properties[key] = clean;
+					} else {
+						const clean = sanitizeUrl(n.properties[key]);
+						if (clean === undefined) delete n.properties[key];
+						else n.properties[key] = clean;
+					}
 				}
 			}
 		}

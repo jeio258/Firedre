@@ -55,27 +55,43 @@ const albumMeta = {
 	passwordHint: fm.passwordHint ? String(fm.passwordHint) : "",
 };
 
-const photos: Array<{ url: string; date?: string }> = Array.isArray(fm.photos)
-	? (fm.photos as Array<Record<string, unknown>>)
-			.filter((p) => p && typeof p === "object" && p.url)
-			.map((p) => ({
-				url: String(p.url),
-				date: p.date ? String(p.date) : undefined,
-			}))
-	: [];
+const photos: Array<{ url: string; type?: string; poster?: string; date?: string }> =
+	Array.isArray(fm.photos)
+		? (fm.photos as Array<unknown>)
+				.filter(
+					(p) =>
+						p &&
+						(typeof p === "string" ||
+							(typeof p === "object" && (p as { url?: unknown }).url)),
+				)
+				.map((p) => {
+					if (typeof p === "string") return { url: p };
+					const obj = p as Record<string, unknown>;
+					return {
+						url: String(obj.url),
+						type: obj.type ? String(obj.type) : undefined,
+						poster: obj.poster ? String(obj.poster) : undefined,
+						date: obj.date ? String(obj.date) : undefined,
+					};
+				})
+		: [];
 const cover = albumMeta.cover || "";
 const columnWidth = 240;
 
-// LQIP 渐变占位
-const coverLqipProps = cover
-	? getLqipProps(cover, undefined, true)
+// 加密相册的 cover 通常指向 /api/gallery-files/（需 accessPassword），
+// 而封面横幅在解锁控件之外、无法带口令加载 → 会 401 显示破图。
+// 加密时隐藏封面图，仅保留占位色块，避免泄漏相册内容缩略图。
+const coverLoaded = cover && (!albumMeta.encrypted || !cover.includes("/api/gallery-files/"));
+const coverUrl = coverLoaded ? cover : "";
+const coverLqipProps = coverUrl
+	? getLqipProps(coverUrl, undefined, true)
 	: { style: "" };
 ---
 
 <MainGridLayout title={albumMeta.name} description={albumMeta.description || ""}>
   <!-- 相册封面横幅 -->
   <div class="w-full rounded-(--radius-large) overflow-hidden relative">
-    {cover ? (
+    {coverUrl ? (
       <div class="relative w-full aspect-[3/1] min-h-[200px] max-h-[360px] overflow-hidden">
         <div class="lqip-placeholder absolute inset-0 pointer-events-none" style={coverLqipProps.style} aria-hidden="true"></div>
         <img
@@ -173,7 +189,7 @@ const coverLqipProps = cover
               style={`column-count: 2; column-gap: 0.75rem; --col-width: ${columnWidth}px;`}
             >
               {photos.map((photo) => (
-                <PhotoCard src={typeof photo === "string" ? photo : String((photo as { url?: unknown }).url ?? "")} albumId={albumMeta.id} />
+                <PhotoCard src={photo.url} type={photo.type} poster={photo.poster} albumId={albumMeta.id} />
               ))}
             </div>
           </EncryptedContent>
@@ -183,7 +199,7 @@ const coverLqipProps = cover
             style={`column-count: 2; column-gap: 0.75rem; --col-width: ${columnWidth}px;`}
           >
             {photos.map((photo) => (
-              <PhotoCard src={typeof photo === "string" ? photo : String((photo as { url?: unknown }).url ?? "")} albumId={albumMeta.id} />
+              <PhotoCard src={photo.url} type={photo.type} poster={photo.poster} albumId={albumMeta.id} />
             ))}
           </div>
         )

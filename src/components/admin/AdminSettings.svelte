@@ -810,8 +810,12 @@ async function save() {
 /** 把 hue 应用到后台 documentElement（--hue 及兜底主题变量）。 */
 function applyHueToAdmin(hue: unknown) {
 	if (typeof document === "undefined") return;
-	const h = Number.isFinite(Number(hue)) ? Number(hue) : undefined;
-	if (h == null) return;
+	// 空字符串/null/undefined 或越界值一律忽略，绝不落到 0（红色）。
+	// Number(null)=0、Number("")=0 是 JS 陷阱：清空 hue 后保存若走到这，
+	// 会把主题色相错误应用成红色。
+	if (hue == null || hue === "") return;
+	const h = Number(hue);
+	if (!Number.isFinite(h) || h < 0 || h > 360) return;
 	const root = document.documentElement;
 	root.style.setProperty("--hue", String(h));
 	root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);

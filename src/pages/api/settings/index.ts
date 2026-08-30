@@ -24,7 +24,7 @@ export const prerender = false;
  * 通过未鉴权端点泄露给任何访客。仅影响公开读取，不影响后台展示与保存。
  */
 const SENSITIVE_SETTING_KEY =
-	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey)/i;
+	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey|adsense)/i;
 
 function redactSensitive(obj: unknown): unknown {
 	if (Array.isArray(obj)) return obj.map(redactSensitive);
