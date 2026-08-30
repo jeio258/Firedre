@@ -276,7 +276,7 @@ const GROUPS: Group[] = [
 				name: "overlayCardOpacity",
 				label: "卡片透明度 (0-1)",
 				type: "number",
-				hint: "卡片背景不透明度，值越小越透明",
+				hint: "卡片背景透明度，值越小越透明",
 			},
 		],
 	},
@@ -630,7 +630,7 @@ const GROUPS: Group[] = [
 			{ name: "size", label: "尺寸", type: "number" },
 			{
 				name: "opacity",
-				label: "不透明度",
+				label: "看板娘透明度 (0-1)",
 				type: "number",
 				placeholder: "0-1",
 			},
