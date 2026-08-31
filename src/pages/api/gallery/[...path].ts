@@ -14,6 +14,7 @@ import {
 	setAlbumEncryptedFlag,
 	setAlbumSourceFlag,
 	unlockGalleryAlbum,
+	updateGalleryAlbumOrder,
 	upsertGalleryAlbum,
 	upsertGalleryHub,
 } from "../../../../server/gallery/service";
@@ -185,6 +186,17 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 	try {
 		const slug = segments[0];
+
+		// 相册排序（方案A：后台拖拽后整组提交）：PUT /api/gallery/order/
+		if (segments.length === 1 && slug === "order") {
+			const body = (await request.json().catch(() => ({}))) as {
+				slugs?: unknown;
+			};
+			if (!Array.isArray(body.slugs)) return badRequest("slugs 需为数组");
+			const slugs = body.slugs.map(String);
+			const result = await updateGalleryAlbumOrder(cfEnv, slugs);
+			return json({ ok: true, albums: result.albums });
+		}
 
 		// 相册密码管理（动态博客方式，存 D1）：PUT /api/gallery/{slug}/password/
 		if (segments[1] === "password") {

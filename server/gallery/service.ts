@@ -207,6 +207,58 @@ export async function upsertGalleryHub(env: CloudflareEnv, source: string) {
 	};
 }
 
+/**
+ * 确保相册 slug 出现在 hub（gallery/index.md）的 albums 列表中。
+ * 创建相册时调用：相册文件写进 R2 后，若 slug 不在列表则追加到末尾，
+ * 使新相册能立即出现在前端 /gallery/ 与后台管理列表。已存在则保持原顺序不动。
+ */
+async function ensureAlbumInHub(env: CloudflareEnv, slug: string) {
+	const hub = await getGalleryHub(env, { includeSource: true });
+	if (!hub?.source) return;
+	const parsed = parseHubSource(hub.source);
+	const slugs = normalizeAlbumSlugs(parsed.frontmatter.albums);
+	if (slugs.includes(slug)) return; // 已在列表，不重复、不改顺序
+	slugs.push(slug);
+	parsed.frontmatter.albums = slugs;
+	await upsertGalleryHub(
+		env,
+		serializeHubMarkdown(parsed.frontmatter, parsed.content),
+	);
+}
+
+/**
+ * 用新的 slug 顺序覆盖 hub albums 数组（方案A：后台拖拽排序）。
+ * 仅保留在 R2 中真实存在的相册，避免拖入不存在的 slug；
+ * 顺序完全由调用方给定的 slugs 决定。
+ */
+export async function updateGalleryAlbumOrder(
+	env: CloudflareEnv,
+	slugs: string[],
+) {
+	const clean = slugs.filter(isValidGallerySlug);
+	const seen = new Set<string>();
+	const unique: string[] = [];
+	for (const s of clean) {
+		if (seen.has(s)) continue;
+		seen.add(s);
+		// 仅保留真实存在的相册
+		const detail = await getGalleryAlbum(env, s);
+		if (detail) unique.push(s);
+	}
+
+	const hub = await getGalleryHub(env, { includeSource: true });
+	if (!hub?.source) {
+		throw new UserError("相册数据不存在");
+	}
+	const parsed = parseHubSource(hub.source);
+	parsed.frontmatter.albums = unique;
+	const result = await upsertGalleryHub(
+		env,
+		serializeHubMarkdown(parsed.frontmatter, parsed.content),
+	);
+	return result;
+}
+
 export async function upsertGalleryAlbum(
 	env: CloudflareEnv,
 	slug: string,
@@ -239,6 +291,8 @@ export async function upsertGalleryAlbum(
 	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
 		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
 	});
+	// 创建相册：确保该相册进入前端/后台列表（自动追加到末尾）
+	await ensureAlbumInHub(env, slug);
 
 	return {
 		r2Key: galleryAlbumR2Key(slug),
