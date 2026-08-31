@@ -40,7 +40,6 @@ function parsePath(pathname: string): {
 	section: Section;
 	slug?: string;
 	edit?: boolean;
-	isNew?: boolean;
 } {
 	const parts = pathname
 		.replace(/^\/admin\/?/, "")
@@ -56,8 +55,8 @@ function parsePath(pathname: string): {
 	}
 	if (first === "gallery") {
 		if (parts[1]) {
-			if (parts[1] === "new")
-				return { section: "album-edit", isNew: true };
+			// /admin/gallery/new/ = 新建相册（slug 为空，组件据此进入创建模式）
+			if (parts[1] === "new") return { section: "album-edit" };
 			return { section: "album-edit", slug: decodeURIComponent(parts[1]) };
 		}
 		return { section: "gallery" };
@@ -77,7 +76,7 @@ function parsePath(pathname: string): {
 	return { section: "dashboard" };
 }
 
-async function render(s: Section, slug?: string, isNew = false) {
+async function render(s: Section, slug?: string) {
 	section = s;
 	viewError = "";
 	const loader = VIEWS[s];
@@ -94,9 +93,6 @@ async function render(s: Section, slug?: string, isNew = false) {
 		if ((s === "posts-edit" || s === "album-edit") && slug) {
 			viewProps = { slug, ...viewProps };
 		}
-		if (s === "album-edit" && isNew) {
-			viewProps = { isNew: true, ...viewProps };
-		}
 		View = mod.default;
 		viewKey = slug ?? s;
 	} catch (e) {
@@ -111,13 +107,13 @@ function handleLoginSuccess() {
 	navigate(window.location.pathname);
 }
 
-let routeState: { section: Section; edit?: boolean; slug?: string; isNew?: boolean } | null =
+let routeState: { section: Section; edit?: boolean; slug?: string } | null =
 	null;
 
 async function navigate(pathname: string) {
 	const parsed = parsePath(pathname);
 	routeState = parsed;
-	await render(parsed.section, parsed.slug, parsed.isNew);
+	await render(parsed.section, parsed.slug);
 }
 
 // 拦截侧栏链接：SPA 导航（无刷新）

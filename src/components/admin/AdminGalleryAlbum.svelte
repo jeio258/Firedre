@@ -4,14 +4,16 @@ import Vditor from "vditor";
 import "vditor/dist/index.css";
 
 export let slug = "";
-export let isNew = false;
+
+// 创建模式：slug 为空（/admin/gallery/new/ 路由）即新建，仅多一个 slug 输入框，布局完全复用
+$: isNew = slug === "";
 
 let editor: Vditor | null = null;
 let rawSource = "";
 let loaded = false;
 let saving = false;
 let message = "";
-// 创建模式：相册 slug 由用户在创建页填写，保存时必填
+// 创建模式：相册 slug 为空（/admin/gallery/new/），由用户在页面填写，保存时必填
 let newSlug = "";
 
 // 相册密码管理（存 D1，动态博客方式，不写进 frontmatter）
