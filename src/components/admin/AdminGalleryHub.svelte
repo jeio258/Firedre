@@ -15,7 +15,6 @@ type AlbumSummary = {
 let albums: AlbumSummary[] = [];
 let loading = true;
 let message = "";
-let newSlug = "";
 
 async function load() {
 	try {
@@ -27,13 +26,9 @@ async function load() {
 	loading = false;
 }
 
+// 创建相册：直接进入创建页，不先填 slug；slug 在创建页保存时必填
 function create() {
-	const slug = newSlug.trim();
-	if (!slug) {
-		alert("请输入相册 slug");
-		return;
-	}
-	window.location.href = `/admin/gallery/${encodeURIComponent(slug)}/`;
+	window.location.href = `/admin/gallery/new/`;
 }
 
 async function remove(slug: string) {
@@ -59,7 +54,6 @@ onMount(load);
 	<div class="toolbar">
 		<h2>相册管理</h2>
 		<div class="create">
-			<input type="text" placeholder="新相册 slug（如 my-album）" bind:value={newSlug} />
 			<button class="btn-primary" on:click={create}>创建相册</button>
 		</div>
 	</div>

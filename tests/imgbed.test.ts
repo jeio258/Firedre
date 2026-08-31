@@ -4,11 +4,11 @@ import { UserError } from "../server/utils/userError";
 
 /**
  * 图床 API 拉取服务测试（方案①）：
- * mock global.fetch 模拟 cfbed /api/manage/list 响应，验证直链拼接与类型识别。
+ * mock global.fetch 模拟列表接口响应，验证直链拼接与类型识别。
+ * 端点 = 完整列表接口 URL，代码直接使用不拼接。
  */
 
-const LIST_URL =
-	"https://cfbed.sanyue.de/api/manage/list?dir=firefly-2026&count=-1";
+const LIST_URL = "https://cfbed.sanyue.de/api/manage/list";
 
 function jsonResponse(body: unknown, ok = true, status = 200): Response {
 	return new Response(JSON.stringify(body), {
@@ -35,14 +35,14 @@ describe("fetchImgbedPhotos", () => {
 		vi.stubGlobal("fetch", fetchMock);
 
 		const photos = await fetchImgbedPhotos(
-			"https://cfbed.sanyue.de",
+			LIST_URL,
 			"test-token",
 			"firefly-2026",
 		);
 
-		// 校验鉴权 header 与 URL
+		// 校验鉴权 header 与 URL（端点即完整列表 URL，直接追加 dir 参数）
 		expect(fetchMock).toHaveBeenCalledWith(
-			LIST_URL,
+			`${LIST_URL}?dir=firefly-2026&count=-1`,
 			expect.objectContaining({
 				headers: { Authorization: "Bearer test-token" },
 			}),
@@ -65,7 +65,7 @@ describe("fetchImgbedPhotos", () => {
 			vi.fn().mockResolvedValue(jsonResponse({}, false, 403)),
 		);
 		await expect(
-			fetchImgbedPhotos("https://cfbed.sanyue.de", "bad", "x"),
+			fetchImgbedPhotos(LIST_URL, "bad", "x"),
 		).rejects.toThrow(UserError);
 	});
 
@@ -75,7 +75,7 @@ describe("fetchImgbedPhotos", () => {
 			vi.fn().mockResolvedValue(jsonResponse({ files: [] })),
 		);
 		await expect(
-			fetchImgbedPhotos("https://cfbed.sanyue.de", "t", "empty"),
+			fetchImgbedPhotos(LIST_URL, "t", "empty"),
 		).rejects.toThrow(/未找到文件/);
 	});
 
@@ -85,14 +85,10 @@ describe("fetchImgbedPhotos", () => {
 		);
 		vi.stubGlobal("fetch", fetchMock);
 
-		const photos = await fetchImgbedPhotos(
-			"https://cfbed.sanyue.de",
-			"test-token",
-			"",
-		);
+		const photos = await fetchImgbedPhotos(LIST_URL, "test-token", "");
 
 		expect(fetchMock).toHaveBeenCalledWith(
-			"https://cfbed.sanyue.de/api/manage/list?count=-1",
+			`${LIST_URL}?count=-1`,
 			expect.objectContaining({
 				headers: { Authorization: "Bearer test-token" },
 			}),

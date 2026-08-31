@@ -16,7 +16,7 @@ import { getSettingsGroup } from "../settings/service";
 export interface ImgbedConfig {
 	/** 是否启用图床 API 方式 */
 	enabled: boolean;
-	/** 图床 API 端点（如 https://cfbed.sanyue.de），可自定义、可切换任意兼容图床 */
+	/** 图床列表接口完整 URL（用户直接填写，如 https://imge.994613.xyz/api/manage/list） */
 	endpoint: string;
 	/** 图床目录（可选，用户自行填写，作为 ?dir= 参数；留空 = 根目录） */
 	dir: string;
@@ -39,7 +39,8 @@ export async function getImgbedConfig(
 	if (!enabled || !endpoint || !token) return null;
 	return {
 		enabled,
-		endpoint: endpoint.replace(/\/$/, ""),
+		// 端点即完整列表接口 URL，直接使用，不拼接、不裁剪尾部斜杠
+		endpoint,
 		dir,
 		token,
 	};

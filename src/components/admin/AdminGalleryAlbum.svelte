@@ -4,12 +4,15 @@ import Vditor from "vditor";
 import "vditor/dist/index.css";
 
 export let slug = "";
+export let isNew = false;
 
 let editor: Vditor | null = null;
 let rawSource = "";
 let loaded = false;
 let saving = false;
 let message = "";
+// 创建模式：相册 slug 由用户在创建页填写，保存时必填
+let newSlug = "";
 
 // 相册密码管理（存 D1，动态博客方式，不写进 frontmatter）
 let hasPassword = false;
@@ -153,20 +156,25 @@ async function clearPassword() {
 }
 
 async function load() {
-	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`);
-		if (resp.ok) {
-			const data = await resp.json();
-			rawSource = data.source ?? "";
+	// 创建模式：无 slug 不拉取已有相册，直接初始化空编辑器
+	if (!isNew) {
+		try {
+			const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`);
+			if (resp.ok) {
+				const data = await resp.json();
+				rawSource = data.source ?? "";
+			}
+		} catch {
+			message = "加载失败";
 		}
-		loaded = true;
-		await tick();
-		initEditor();
-	} catch {
-		message = "加载失败";
-		loaded = true;
 	}
-	loadPasswordState();
+	loaded = true;
+	await tick();
+	initEditor();
+	// 创建模式（尚未保存，无 slug）不加载密码状态；图床目录为全局配置仍可加载
+	if (!isNew) {
+		loadPasswordState();
+	}
 	loadImgbedStatus();
 }
 
@@ -196,8 +204,18 @@ async function save() {
 		saving = false;
 		return;
 	}
+	// 创建模式：相册 slug 必填，未填则阻止保存
+	let targetSlug = slug;
+	if (isNew) {
+		targetSlug = newSlug.trim();
+		if (!targetSlug) {
+			message = "请填写相册 slug";
+			saving = false;
+			return;
+		}
+	}
 	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
+		const resp = await fetch(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
 			method: "PUT",
 			headers: { "Content-Type": "text/markdown" },
 			body: content,
@@ -205,6 +223,11 @@ async function save() {
 		const data = await resp.json();
 		if (!resp.ok || !data.ok) {
 			message = data.message || "保存失败";
+			return;
+		}
+		// 创建模式保存成功后跳转到该相册的真实编辑页
+		if (isNew) {
+			window.location.href = `/admin/gallery/${encodeURIComponent(targetSlug)}/`;
 			return;
 		}
 		message = "已保存 ✓";
@@ -220,77 +243,92 @@ onMount(load);
 
 <div class="admin-card">
 	<div class="toolbar">
-		<h2>相册：{slug}</h2>
+		<h2>{isNew ? "创建相册" : `相册：${slug}`}</h2>
 		<div class="actions">
+			{#if isNew}
+				<input
+					class="slug-input"
+					type="text"
+					bind:value={newSlug}
+					placeholder="相册 slug（必填，保存时校验）"
+					autocomplete="off"
+					title="相册 slug，保存时必填"
+				/>
+			{/if}
 			{#if message}
 				<span class="msg">{message}</span>
 			{/if}
 			<button class="btn-primary" on:click={save} disabled={saving}>
-				{saving ? "保存中…" : "保存"}
+				{saving ? "保存中…" : isNew ? "创建" : "保存"}
 			</button>
 			<a class="btn" href="/admin/gallery/">返回相册列表</a>
 		</div>
 	</div>
 	<p class="hint">
-		编辑 gallery/{slug}/index.md。frontmatter 支持 title/desc/date/location/tags/encrypted/photos（URL 列表）。
-		图片可用下方「图床 API」从图床拉取公开直链后写入 photos。
+		{isNew
+			? "填写相册 slug 与内容后点击「创建」，保存时 slug 必填。"
+			: `编辑 gallery/${slug}/index.md。frontmatter 支持 title/desc/date/location/tags/encrypted/photos（URL 列表）。图片可用下方「图床 API」从图床拉取公开直链后写入 photos。`}
 	</p>
 
-	<div class="password-box">
-		<span class="password-label">相册访问密码（存 D1，不写入文件）</span>
-		<div class="password-row">
-			<input
-				class="password-input"
-				type="password"
-				bind:value={passwordInput}
-				placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"}
-				autocomplete="off"
-			/>
-			<button class="btn-primary" on:click={savePassword} disabled={passwordSaving}>
-				{passwordSaving ? "保存中…" : "保存密码"}
-			</button>
-			{#if hasPassword}
-				<button class="btn-danger" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
-			{/if}
-			<span class="dir-divider"></span>
-			<input
-				class="dir-input"
-				type="text"
-				bind:value={imgbedDir}
-				placeholder="图床目录 ?dir=（留空=根目录）"
-				autocomplete="off"
-				title="图床目录（?dir=），存全局配置；留空 = 从根目录拉取"
-			/>
-			<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
-				{imgbedDirSaving ? "保存中…" : "保存目录"}
-			</button>
-		</div>
-		{#if passwordMsg}
-			<span class="password-msg">{passwordMsg}</span>
-		{/if}
-		{#if imgbedDirMsg}
-			<span class="password-msg">{imgbedDirMsg}</span>
-		{/if}
-	</div>
-
-	<div class="password-box">
-		<span class="password-label">图床 API（方案①：全局配置端点+密钥，目录用上方 ?dir=）</span>
-		<div class="password-row">
-			{#if imgbedEnabled}
-				<span class="imgbed-info">
-					图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
-				</span>
-				<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
-					{imgbedFetching ? "拉取中…" : "从图床获取图片"}
+	{#if !isNew}
+		<div class="password-box">
+			<span class="password-label">相册访问密码（存 D1，不写入文件）</span>
+			<div class="password-row">
+				<input
+					class="password-input"
+					type="password"
+					bind:value={passwordInput}
+					placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"}
+					autocomplete="off"
+				/>
+				<button class="btn-primary" on:click={savePassword} disabled={passwordSaving}>
+					{passwordSaving ? "保存中…" : "保存密码"}
 				</button>
-			{:else}
-				<span class="imgbed-info">图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。</span>
+				{#if hasPassword}
+					<button class="btn-danger" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
+				{/if}
+				<span class="dir-divider"></span>
+				<input
+					class="dir-input"
+					type="text"
+					bind:value={imgbedDir}
+					placeholder="图床目录 ?dir=（留空=根目录）"
+					autocomplete="off"
+					title="图床目录（?dir=），存全局配置；留空 = 从根目录拉取"
+				/>
+				<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
+					{imgbedDirSaving ? "保存中…" : "保存目录"}
+				</button>
+			</div>
+			{#if passwordMsg}
+				<span class="password-msg">{passwordMsg}</span>
+			{/if}
+			{#if imgbedDirMsg}
+				<span class="password-msg">{imgbedDirMsg}</span>
 			{/if}
 		</div>
-		{#if imgbedMsg}
-			<span class="password-msg">{imgbedMsg}</span>
-		{/if}
-	</div>
+
+		<div class="password-box">
+			<span class="password-label">图床 API（方案①：全局配置端点+密钥，目录用上方 ?dir=）</span>
+			<div class="password-row">
+				{#if imgbedEnabled}
+					<span class="imgbed-info">
+						图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
+					</span>
+					<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
+						{imgbedFetching ? "拉取中…" : "从图床获取图片"}
+					</button>
+				{:else}
+					<span class="imgbed-info">图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。</span>
+				{/if}
+			</div>
+			{#if imgbedMsg}
+				<span class="password-msg">{imgbedMsg}</span>
+			{/if}
+		</div>
+	{:else}
+		<p class="hint">创建保存后，可在此设置相册访问密码、图床目录（?dir=）与从图床获取图片。</p>
+	{/if}
 
 	{#if loaded}
 		<div id="vditor-editor"></div>
@@ -369,6 +407,16 @@ onMount(load);
 		flex-wrap: wrap;
 	}
 	.password-input {
+		flex: 0 0 auto;
+		width: 220px;
+		padding: 0.5rem 0.7rem;
+		border: 1px solid var(--line-color, #d1d5db);
+		border-radius: 0.4rem;
+		font-size: 0.9rem;
+		background: var(--card-bg, #fff);
+		color: var(--deep-text, #374151);
+	}
+	.slug-input {
 		flex: 0 0 auto;
 		width: 220px;
 		padding: 0.5rem 0.7rem;
