@@ -313,9 +313,13 @@ onMount(load);
 				<span class="imgbed-info">
 					图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
 				</span>
-				<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
-					{imgbedFetching ? "拉取中…" : "从图床获取图片"}
-				</button>
+				{#if isNew}
+					<span class="password-msg">请先创建相册，再从此处拉取图床图片。</span>
+				{:else}
+					<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
+						{imgbedFetching ? "拉取中…" : "从图床获取图片"}
+					</button>
+				{/if}
 			{:else}
 				<span class="imgbed-info">图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。</span>
 			{/if}
