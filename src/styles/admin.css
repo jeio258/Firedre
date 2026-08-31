@@ -1,8 +1,7 @@
-/* 后台共享样式：抽自各 Admin 组件重复定义的 .admin-card（其余类如 .toolbar/.btn-primary
- * 在各组件存在 padding/gap/composes 差异，暂保留组件内定义，避免统一时改变后台布局外观）。
- * 由 AdminApp 壳一次性引入，组件内对应的 .admin-card 块已删除。 */
+/* 后台共享样式：抽自各 Admin 组件重复定义的公共类。
+ * 由 AdminApp 壳一次性引入，组件内对应的重复块已删除，仅保留有差异的局部覆盖。 */
 
-/* 后台文本清晰度：全局 --muted = oklch(0.93…) 是近白“占位/背景基调”（前端 LQIP 占位背景用），
+/* 后台文本清晰度：全局 --muted = oklch(0.93…) 是近白"占位/背景基调"（前端 LQIP 占位背景用），
  * 并非文本色。后台组件误用 var(--muted) 作为文字色 → 白卡上近白字、看不清。
  * 此处仅在 .admin-shell 作用域内把 --muted 收敛为可读的中灰，不改全局变量、不影响前端。 */
 .admin-shell {
@@ -14,4 +13,38 @@
 	border: 1px solid var(--line-divider, #e5e7eb);
 	border-radius: var(--radius-large, 0.75rem);
 	padding: 1.25rem;
+}
+
+/* 以下为各 Admin 组件原本重复定义的公共类，收敛到此处统一维护。
+ * 组件内若无差异，直接删除对应 <style> 块；有差异的（如 padding/margin）在组件内留局部覆盖。 */
+.admin-shell h2 {
+	font-size: 1.1rem;
+	margin: 0;
+	color: var(--deep-text, inherit);
+}
+.admin-shell .toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+.admin-shell .actions {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+}
+.admin-shell .msg {
+	color: #16a34a;
+	font-size: 0.85rem;
+}
+.admin-shell .btn-primary {
+	padding: 0.5rem 0.9rem;
+	background: var(--primary, #5b8cff);
+	color: #fff;
+	border: none;
+	border-radius: 0.4rem;
+	cursor: pointer;
+}
+.admin-shell .btn-primary:disabled {
+	opacity: 0.6;
 }

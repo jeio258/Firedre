@@ -107,16 +107,7 @@ onMount(load);
 
 <style>
 	.toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 1rem;
 		gap: 1rem;
-	}
-	h2 {
-		font-size: 1.1rem;
-		margin: 0;
-		color: var(--deep-text, inherit);
 	}
 	.create {
 		display: flex;
@@ -132,11 +123,6 @@ onMount(load);
 	}
 	.btn-primary {
 		padding: 0.45rem 0.9rem;
-		background: var(--primary, #5b8cff);
-		color: #fff;
-		border: none;
-		border-radius: 0.4rem;
-		cursor: pointer;
 	}
 	table {
 		width: 100%;

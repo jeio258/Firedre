@@ -252,40 +252,9 @@
 </div>
 
 <style>
-	.toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 1rem;
-	}
-	h2 {
-		font-size: 1.1rem;
-		margin: 0;
-		color: var(--deep-text, inherit);
-	}
-	.actions {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-	}
-	.msg {
-		color: #16a34a;
-		font-size: 0.85rem;
-	}
 	.hint {
 		color: var(--muted, #6b7280);
 		font-size: 0.85rem;
-	}
-	.btn-primary {
-		padding: 0.5rem 0.9rem;
-		background: var(--primary, #5b8cff);
-		color: #fff;
-		border: none;
-		border-radius: 0.4rem;
-		cursor: pointer;
-	}
-	.btn-primary:disabled {
-		opacity: 0.6;
 	}
 	.btn-ghost {
 		padding: 0.4rem 0.7rem;

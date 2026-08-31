@@ -276,25 +276,7 @@ onMount(load);
 
 <style>
 	.toolbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 1rem;
 		gap: 1rem;
-	}
-	h2 {
-		font-size: 1.1rem;
-		margin: 0;
-		color: var(--deep-text, inherit);
-	}
-	.actions {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-	}
-	.msg {
-		color: #16a34a;
-		font-size: 0.85rem;
 	}
 	.btn {
 		padding: 0.5rem 0.9rem;

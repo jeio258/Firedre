@@ -1060,10 +1060,6 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		align-items: center;
 		gap: 0.75rem;
 	}
-	.msg {
-		color: #16a34a;
-		font-size: 0.85rem;
-	}
 	.btn-save {
 		padding: 0.55rem 1.1rem;
 		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
