@@ -73,9 +73,17 @@ async function saveImgbedDir() {
 async function fetchFromImgbed() {
 	imgbedFetching = true;
 	imgbedMsg = "";
+	// 创建页 slug 未保存：用页面填写的 newSlug 作为目标相册（后端会先自动创建），
+	// 避免发出空 slug 的无效请求导致“密码错误”误报。
+	const targetSlug = (isNew ? newSlug.trim() : slug).trim();
+	if (!targetSlug) {
+		imgbedMsg = "请先填写相册 slug，再拉取图床图片";
+		imgbedFetching = false;
+		return;
+	}
 	try {
 		const resp = await fetch(
-			`/api/gallery/${encodeURIComponent(slug)}/imgbed/photos/`,
+			`/api/gallery/${encodeURIComponent(targetSlug)}/imgbed/photos/`,
 			{ method: "POST" },
 		);
 		const data = await resp.json();

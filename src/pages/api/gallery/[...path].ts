@@ -132,7 +132,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 					const { fetchImgbedPhotos } = await import(
 						"../../../../server/gallery/imgbed"
 					);
-					const { setAlbumPhotos } = await import(
+					const { setAlbumPhotos, upsertGalleryAlbum } = await import(
 						"../../../../server/gallery/service"
 					);
 					const cfg = await getImgbedConfig(cfEnv);
@@ -140,6 +140,16 @@ export const POST: APIRoute = async ({ params, request }) => {
 						return badRequest(
 							"未配置图床 API（请先在站点设置 → 相册 配置端点与密钥）",
 						);
+					// 若相册尚未存在（创建页填 slug 未保存时点拉图），先用空内容自动创建，
+					// 使拉图不依赖“相册已保存”，且相册自动进入前端/后台列表。
+					const existing = await getGalleryAlbum(cfEnv, slug);
+					if (!existing) {
+						await upsertGalleryAlbum(
+							cfEnv,
+							slug,
+							`---\nlayout: gallery-album\ntitle: ${slug}\nsource: local\n---\n`,
+						);
+					}
 					const photos = await fetchImgbedPhotos(
 						cfg.endpoint,
 						cfg.token,
