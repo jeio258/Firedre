@@ -2,7 +2,6 @@
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
-import { getImage } from "astro:assets";
 import { coverImageConfig } from "@/config";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import {
@@ -86,19 +85,6 @@ const remoteReferrerPolicy =
 	!isLocal && shouldAddNoReferrer(isPublic ? url(src) : src)
 		? "no-referrer"
 		: undefined;
-
-// 允许的远程图域：经 _image 按需缩放（配置了 remotePatterns 的域）
-const isRemoteOptimizable =
-	!isLocal &&
-	!isPublic &&
-	/^https?:\/\//i.test(src) &&
-	/\.alcy\.cc$/i.test(new URL(src).hostname);
-
-// 远程可缩放图：生成优化 URL（单尺寸，按封面宽度缩放）
-let remoteOptimizedSrc: string | null = null;
-if (isRemoteOptimizable) {
-	remoteOptimizedSrc = (await getImage({ src, width: 828, format: "webp", quality })).src;
-}
 ---
 
 <div
@@ -144,7 +130,7 @@ if (isRemoteOptimizable) {
 
 	{!isLocal && (
 		<img
-			src={remoteOptimizedSrc || (isPublic ? url(src) : src)}
+			src={isPublic ? url(src) : src}
 			alt={alt || ""}
 			class={imageClass}
 			style={imageStyle}
@@ -152,7 +138,7 @@ if (isRemoteOptimizable) {
 			fetchpriority={fetchpriority}
 			decoding="async"
 			data-cover-img
-			data-remote={remoteOptimizedSrc ? undefined : "true"}
+			data-remote="true"
 			referrerpolicy={remoteReferrerPolicy}
 		/>
 	)}
