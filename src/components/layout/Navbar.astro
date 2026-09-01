@@ -313,113 +313,85 @@ const logoVariants = await Promise.all(
             </div>
         )}
         <NavMenuPanel links={links}></NavMenuPanel>
-        {isDisplaySettingsEnabled && <DisplaySettings client:load></DisplaySettings>}
+        {isDisplaySettingsEnabled && <DisplaySettings client:load settings={pageSettings}></DisplaySettings>}
     </div>
 </div>
 
-<script>
-function loadButtonScript() {
-    let settingBtn = document.getElementById("display-settings-switch");
-    if (settingBtn) {
-        settingBtn.onclick = function () {
-            let settingPanel = document.getElementById("display-setting");
-            if (settingPanel) {
-                settingPanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
-
-    let menuBtn = document.getElementById("nav-menu-switch");
-    if (menuBtn) {
-        menuBtn.onclick = function () {
-            let menuPanel = document.getElementById("nav-menu-panel");
-            if (menuPanel) {
-                menuPanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
-
-    let musicBtn = document.getElementById("music-player-switch");
-    if (musicBtn) {
-        musicBtn.onclick = function () {
-            let musicPanel = document.getElementById("music-nav-panel");
-            if (musicPanel) {
-                musicPanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
-
-    // 背景视频播放器控制按钮
-    let bgPlayerBtn = document.getElementById("bg-player-toggle");
-    if (bgPlayerBtn) {
-        bgPlayerBtn.onclick = function () {
-            window.dispatchEvent(new CustomEvent("bg-player-toggle"));
-        };
-        function toggleBgPlayerIcon(playing: boolean) {
-            var playIcon = bgPlayerBtn!.querySelector(".bg-player-icon-play");
-            var pauseIcon = bgPlayerBtn!.querySelector(".bg-player-icon-pause");
-            if (playIcon && pauseIcon) {
-                playIcon.classList.toggle("hidden", playing);
-                pauseIcon.classList.toggle("hidden", !playing);
-            }
-            var i18nPlay = bgPlayerBtn!.getAttribute("data-i18n-play") ?? "";
-            var i18nPause = bgPlayerBtn!.getAttribute("data-i18n-pause") ?? "";
-            var label = playing ? i18nPause : i18nPlay;
-            bgPlayerBtn!.setAttribute("title", label);
-            bgPlayerBtn!.setAttribute("aria-label", label);
+<script is:inline>
+  // 解析期事件委托：面板开关按钮、外部点击关闭、背景播放器
+  (function () {
+    var PANELS = [
+      ["display-settings-switch", "display-setting"],
+      ["nav-menu-switch", "nav-menu-panel"],
+      ["music-player-switch", "music-nav-panel"],
+      ["scheme-switch", "theme-mode-panel"]
+    ];
+    document.addEventListener("click", function (event) {
+      var t = event.target;
+      if (!t || t.nodeType !== 1) return;
+      var bgBtn = document.getElementById("bg-player-toggle");
+      if (bgBtn && bgBtn.contains(t)) {
+        window.dispatchEvent(new CustomEvent("bg-player-toggle"));
+      }
+      for (var i = 0; i < PANELS.length; i++) {
+        var btn = document.getElementById(PANELS[i][0]);
+        var panel = document.getElementById(PANELS[i][1]);
+        if (!btn || !panel) continue;
+        if (btn.contains(t)) {
+          panel.classList.toggle("float-panel-closed");
+          continue;
         }
-        window.addEventListener("bg-player-state-change", function (e) {
-            var ce = e as CustomEvent;
-            var playing = ce.detail && ce.detail.playing;
-            toggleBgPlayerIcon(playing);
-        });
-        // 切换壁纸模式时隐藏/显示播放按钮
-        window.addEventListener("wallpaperModeChange", function (e) {
-            var ce = e as CustomEvent;
-            var mode = ce.detail && ce.detail.mode;
-            bgPlayerBtn!.style.display = mode === "none" ? "none" : "";
-        });
-        // Swup 导航时同步播放按钮状态（BackgroundPlayer 可能被重建，也可能持久存在）
-        function syncBgPlayerBtn() {
-            var playing = document.documentElement.hasAttribute("data-bg-video-playing");
-            toggleBgPlayerIcon(playing);
+        if (!panel.classList.contains("float-panel-closed") && !panel.contains(t)) {
+          panel.classList.add("float-panel-closed");
         }
-        if (window.swup && window.swup.hooks) {
-            window.swup.hooks.on("content:replace", syncBgPlayerBtn);
-        } else {
-            document.addEventListener("swup:enable", function () {
-                window.swup.hooks.on("content:replace", syncBgPlayerBtn);
-            });
-        }
-    }
-
-    let themeSwitchBtn = document.getElementById("scheme-switch");
-    if (themeSwitchBtn) {
-        themeSwitchBtn.onclick = function () {
-            let themePanel = document.getElementById("theme-mode-panel");
-            if (themePanel) {
-                themePanel.classList.toggle("float-panel-closed");
-            }
-        };
-    }
-
-    document.addEventListener("click", function(event) {
-        const panels = ["display-setting", "nav-menu-panel", "music-nav-panel", "theme-mode-panel"];
-        const buttons = ["display-settings-switch", "nav-menu-switch", "music-player-switch", "scheme-switch"];
-
-        panels.forEach((id, index) => {
-            const panel = document.getElementById(id);
-            const button = document.getElementById(buttons[index]);
-            if (panel && button && !panel.classList.contains("float-panel-closed")) {
-                if (event.target instanceof Node && !panel.contains(event.target) && !button.contains(event.target)) {
-                    panel.classList.add("float-panel-closed");
-                }
-            }
-        });
+      }
     });
-}
+  })();
+</script>
 
-loadButtonScript();
+<script>
+// 背景播放器：图标同步与显隐切换（点击由解析期委托处理）
+(function setupBgPlayer() {
+    let bgPlayerBtn = document.getElementById("bg-player-toggle");
+    if (!bgPlayerBtn) return;
+
+    function toggleBgPlayerIcon(playing: boolean) {
+        var playIcon = bgPlayerBtn!.querySelector(".bg-player-icon-play");
+        var pauseIcon = bgPlayerBtn!.querySelector(".bg-player-icon-pause");
+        if (playIcon && pauseIcon) {
+            playIcon.classList.toggle("hidden", playing);
+            pauseIcon.classList.toggle("hidden", !playing);
+        }
+        var i18nPlay = bgPlayerBtn!.getAttribute("data-i18n-play") ?? "";
+        var i18nPause = bgPlayerBtn!.getAttribute("data-i18n-pause") ?? "";
+        var label = playing ? i18nPause : i18nPlay;
+        bgPlayerBtn!.setAttribute("title", label);
+        bgPlayerBtn!.setAttribute("aria-label", label);
+    }
+    window.addEventListener("bg-player-state-change", function (e) {
+        var ce = e as CustomEvent;
+        var playing = ce.detail && ce.detail.playing;
+        toggleBgPlayerIcon(playing);
+    });
+    // 切换壁纸模式时隐藏/显示播放按钮
+    window.addEventListener("wallpaperModeChange", function (e) {
+        var ce = e as CustomEvent;
+        var mode = ce.detail && ce.detail.mode;
+        bgPlayerBtn!.style.display = mode === "none" ? "none" : "";
+    });
+    // Swup 导航时同步播放按钮状态（BackgroundPlayer 可能被重建，也可能持久存在）
+    function syncBgPlayerBtn() {
+        var playing = document.documentElement.hasAttribute("data-bg-video-playing");
+        toggleBgPlayerIcon(playing);
+    }
+    if (window.swup && window.swup.hooks) {
+        window.swup.hooks.on("content:replace", syncBgPlayerBtn);
+    } else {
+        document.addEventListener("swup:enable", function () {
+            window.swup.hooks.on("content:replace", syncBgPlayerBtn);
+        });
+    }
+})();
 
 // 为semifull模式添加滚动检测逻辑
 function initSemifullScrollDetection() {

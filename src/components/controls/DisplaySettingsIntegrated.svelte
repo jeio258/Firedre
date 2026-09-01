@@ -68,12 +68,16 @@ type OverlaySliderItem = {
 
 type TabKey = "appearance" | "wallpaper" | "effects";
 
-// 运行时站点设置（客户端注入；必须在其它读取前定义，避免 TDZ）
-const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
+// 运行时站点设置：优先 SSR 传入的 prop（SSR 无 window），客户端兜底 __FIREFLY_SETTINGS__
+let { settings: _settingsProp = {} } = $props();
+const settings =
+	_settingsProp && typeof _settingsProp === "object" && Object.keys(_settingsProp).length > 0
+		? _settingsProp
+		: (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
 
 // 后台可编辑的面板开关（静态 displaySettingsConfig 为兜底）
 const __panel = (() => {
-	const s = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined)?.panel ?? {};
+	const s = ((settings as any)?.panel) ?? {};
 	return s as Record<string, unknown>;
 })();
 const panelBool = (k: string, fallback: boolean) =>
