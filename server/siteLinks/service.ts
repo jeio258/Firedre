@@ -91,7 +91,10 @@ export async function listEnabledSiteLinks(
 		const key = location ?? "__all";
 		if (store[key]) return store[key];
 		const all = await service.listEnabled(env);
-		for (const l of all) (store[l.location] ??= []).push(l);
+		for (const l of all) {
+			if (!store[l.location]) store[l.location] = [];
+			if (!store[l.location].some((x) => x.name === l.name)) store[l.location].push(l);
+		}
 		store.__all = all;
 		return store[key] ?? [];
 	}
