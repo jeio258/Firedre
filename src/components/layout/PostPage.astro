@@ -4,6 +4,7 @@ const settings =
 import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "@/components/layout/PostCard.astro";
 import { siteConfig } from "@/config";
+import { processCoverImageSync } from "@/utils/image-utils";
 import type { PostForList } from "@/utils/post-types";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -12,6 +13,13 @@ const { page } = Astro.props;
 
 let delay = 0;
 const interval = 50;
+
+// LCP 首图域 preconnect（外部图时预热连接）
+const firstCoverOrigin = page.data[0]
+	? /^https?:\/\//i.test(processCoverImageSync(page.data[0].data.image, page.data[0].id))
+		? new URL(processCoverImageSync(page.data[0].data.image, page.data[0].id)).origin
+		: ""
+	: "";
 
 type PostEntry = PostForList;
 
@@ -31,6 +39,8 @@ const initialLayoutClass =
 const coverPositionClass =
 	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).coverPosition === "left" ? " cover-left" : "";
 ---
+
+{firstCoverOrigin && <link slot="head" rel="preconnect" href={firstCoverOrigin} crossorigin />}
 
 <div
   id="post-list-container"
@@ -57,6 +67,7 @@ const coverPositionClass =
         pinned={entry.data.pinned}
         password={!!entry.data.password}
         loading={index < 2 ? "eager" : "lazy"}
+        fetchpriority={index === 0 ? "high" : "low"}
         class:list="onload-animation post-card-item"
         style={`animation-delay: calc(var(--content-delay) + ${delay++ * interval}ms);`}
       />

@@ -25,6 +25,7 @@ interface Props {
 	layout?: ResponsiveImageLayout;
 	formats?: ImageFormat[];
 	loading?: "lazy" | "eager";
+	fetchpriority?: "high" | "low" | "auto";
 	apiUrls?: string[];
 	// 高度跟随图片本身宽高比（不裁上下，只裁两边），用于文章详情页封面
 	naturalHeight?: boolean;
@@ -40,6 +41,7 @@ const {
 	layout = "constrained",
 	formats = getImageFormats(),
 	loading = "lazy",
+	fetchpriority = "auto",
 	apiUrls = [],
 	naturalHeight = false,
 } = Astro.props;
@@ -113,6 +115,7 @@ const remoteReferrerPolicy =
 			class="w-full h-full"
 			position={position}
 			loading={loading}
+			fetchpriority={fetchpriority}
 			formats={formats}
 			quality={quality}
 			layout={layout}
@@ -132,6 +135,7 @@ const remoteReferrerPolicy =
 			class={imageClass}
 			style={imageStyle}
 			loading={loading}
+			fetchpriority={fetchpriority}
 			decoding="async"
 			data-cover-img
 			data-remote="true"
