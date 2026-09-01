@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 const adapter = cloudflare({
-	imageService: "passthrough",
+	imageService: "compile",
 });
 
 // https://astro.build/config
@@ -117,6 +117,10 @@ export default defineConfig({
 	image: {
 		// 组件可自行传入 layout/widths；这里只控制 Markdown 正文图片
 		layout: "none",
+		// 允许远程图经 _image 按需缩放（封面/壁纸源）
+		remotePatterns: [
+			{ protocol: "https", hostname: "**.alcy.cc" },
+		],
 	},
 
 	integrations: [
