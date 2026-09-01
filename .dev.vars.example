@@ -1,0 +1,11 @@
+# 本地开发环境变量（复制为 .dev.vars，勿提交）
+ADMIN_USERNAME=admin
+# 密码必须为 bcrypt 哈希（运行 pnpm migrate-password 生成）
+ADMIN_PASSWORD=$2b$10$your.bcrypt.hash.here
+# API Token（可选，用于程序化访问）
+ADMIN_API_TOKEN=dev-admin-token
+# 会话签名独立密钥（必须配置，不允许使用弱凭据降级）
+SESSION_SECRET=your-strong-session-secret-min-32-chars
+# WebDAV 相册密码
+WEBDAV_PASSWORD=your_webdav_password
+SITE_URL=http://localhost:4321

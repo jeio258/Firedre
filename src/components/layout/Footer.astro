@@ -1,0 +1,95 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import { footerConfig } from "@/config";
+import { getFooterConfig, getProfileConfig } from "@/config/runtime";
+import { listEnabledSiteLinks, type SiteLinkView } from "../../../server/siteLinks/service";
+import { cfEnv } from "../../lib/api";
+
+import { url } from "@/utils/url-utils";
+const footerConfigRuntime = getFooterConfig(Astro.locals);
+const profileConfigRuntime = getProfileConfig(Astro.locals);
+// 站点链接管理：页脚 Powered by 区改为后台可编辑的 site_links（location=footer），
+// 替换原硬编码的 Firefly 等外链（RSS/Sitemap 为站点固定功能链接，保留）
+const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(cfEnv, "footer");
+
+
+
+const currentYear = new Date().getFullYear();
+
+// 读取FooterConfig.html文件内容
+let customFooterHtml = "";
+if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
+	try {
+		const footerConfigPath = path.join(
+			process.cwd(),
+			"src",
+			"config",
+			"FooterConfig.html",
+		);
+		customFooterHtml = fs.readFileSync(footerConfigPath, "utf-8");
+		// 移除HTML注释
+		customFooterHtml = customFooterHtml.replace(/<!--[\s\S]*?-->/g, "").trim();
+	} catch (error) {
+		console.warn(
+			"FooterConfig.html文件读取失败:",
+			error instanceof Error ? error.message : String(error),
+		);
+	}
+}
+---
+
+
+<div
+  class="transition border-t border-black/10 dark:border-white/15 my-10 border-dashed mx-32"
+>
+</div>
+
+<div
+  class="transition border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl mb-12 flex flex-col items-center justify-center px-6"
+>
+  <div class="transition text-50 text-sm text-center wrap">
+    <div class="mb-2">
+      {customFooterHtml && <div set:html={customFooterHtml} />}
+      {footerConfigRuntime.customHtml && <div set:html={String(footerConfigRuntime.customHtml)} />}
+    </div>
+    <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
+      &copy; <span id="copyright-year">{footerConfigRuntime.startYear ? `${footerConfigRuntime.startYear}-${currentYear}` : currentYear}</span>
+      {profileConfigRuntime.name}. All Rights Reserved.
+      <span aria-hidden="true">/</span>
+      <a
+        class="transition link text-(--primary) font-medium"
+        target="_blank"
+        href={url("rss.xml")}>RSS</a
+      >
+      <span aria-hidden="true">/</span>
+      <a
+        class="transition link text-(--primary) font-medium"
+        target="_blank"
+        href={url("sitemap.xml")}>Sitemap</a
+      >
+    </div>
+    {footerConfigRuntime.text && (
+      <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">{String(footerConfigRuntime.text)}</div>
+    )}
+    {footerConfigRuntime.icp && (
+      <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">
+        <a class="link" href="https://beian.miit.gov.cn/" target="_blank">{String(footerConfigRuntime.icp)}</a>
+      </div>
+    )}
+    <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
+      <span>Powered by</span>
+      <a class="transition link text-(--primary) font-medium" target="_blank" href="https://astro.build">Astro</a>
+      <span aria-hidden="true">&</span>
+      {footerLinks.map((fl) => (
+        <a class="transition link text-(--primary) font-medium" target={/^https?:\/\//i.test(fl.url) ? "_blank" : undefined} href={fl.url}>{fl.name}</a>
+      ))}
+    </div>
+    </div>
+    <!-- 
+      注意：请勿随意修改或删除 "Powered by Astro & Firefly" 部分，这是对开源项目的尊重和支持。
+      如果您需要在底部增加内容，请在src/config/footerConfig.ts中修改enable属性为true，然后编辑src/config/FooterConfig.html文件。
+      您可以随意在src/config/FooterConfig.html中随意添加自定义内容，不需要修改Footer.astro文件。
+    -->
+  </div>
+</div>

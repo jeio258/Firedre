@@ -1,0 +1,51 @@
+---
+import { getCommentConfig } from "@/config/runtime";
+
+// 运行时评论配置（后台可编辑；静态 config 为兜底）
+const comment = getCommentConfig(Astro.locals);
+
+
+
+interface Props {
+	identifier: string;
+	url: string;
+	title: string;
+}
+
+const { identifier, url, title } = Astro.props;
+
+const shortname = comment.disqus?.shortname || "";
+if (!shortname) {
+	throw new Error("Disqus comments are not configured");
+}
+---
+
+<div id="disqus_thread"></div>
+
+<script is:inline define:vars={{ shortname, identifier, url, title }}>
+  const rawPath = new URLSearchParams(window.location.search).get("path")
+  // 仅接受站内相对路径作为评论线程标识，拒绝外部 scheme/控制字符注入
+  const requestedPath = rawPath && /^\/[^\s"'<>]*$/.test(rawPath) ? rawPath : null
+  let effectiveIdentifier = identifier
+  let effectiveUrl = url
+  if (requestedPath) {
+    effectiveIdentifier = requestedPath.replace(/^\/+|\/+$/g, "")
+    effectiveUrl = new URL(requestedPath, window.location.origin).href
+  }
+  // @ts-ignore
+  window.disqus_config = function () {
+    this.page.url = effectiveUrl
+    this.page.identifier = effectiveIdentifier
+    this.page.title = title
+  }
+
+  ;(function () {
+    var d = document,
+      s = d.createElement('script')
+    s.src = 'https://' + shortname + '.disqus.com/embed.js'
+    s.setAttribute('data-timestamp', new Date().toString())
+    ;(d.head || d.body).appendChild(s)
+  })()
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<style is:global></style>

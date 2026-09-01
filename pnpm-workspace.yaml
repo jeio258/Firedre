@@ -1,0 +1,12 @@
+packages:
+  - '.'
+overrides:
+  katex: ^0.18.3
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+  '@parcel/watcher': true
+  typeit: true
+  '@biomejs/biome': true
+  unrs-resolver: true

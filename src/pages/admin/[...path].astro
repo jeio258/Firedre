@@ -1,0 +1,32 @@
+---
+export const prerender = false;
+
+import AdminApp from "../../components/admin/AdminApp.svelte";
+// 复用前端主题系统：与 index.astro 一致，使深链接/直链后台页也加载主题变量并跟随 hue。
+import "@/styles/variables.styl";
+
+// SSR 同步内联站点主题色相（middleware 注入 Astro.locals.settings），消除客户端 fetch 导致的默认色闪烁。
+const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
+	?.settings ?? {};
+const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Firedre 后台</title>
+	<!-- 标签页图标：项目自带 /favicon/favicon.ico（浅色） + 深色 PNG 切换 -->
+	<link rel="icon" href="/favicon/favicon.ico" />
+	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
+	<style define:vars={{ configHue }}>
+		/* SSR 已内联主题色相：直链/刷新后台子页首屏即主题色，不闪默认色。
+		   define:vars 注入 configHue（is:inline 的裸 {configHue} 不会被 Astro 插值）。 */
+		html{--hue:var(--configHue)}
+		body{margin:0;font-family:system-ui,sans-serif;background:var(--page-bg,#f3f4f6)}
+	</style>
+</head>
+<body>
+	<AdminApp client:load />
+</body>
+</html>

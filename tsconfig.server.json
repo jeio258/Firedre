@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "@cloudflare/workers-types",
+      "node",
+      "astro/client"
+    ],
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": false
+  },
+  "include": [
+    "server/**/*",
+    "types/**/*",
+    "src/plugins/**/*",
+    "src/config/**/*",
+    "src/utils/image-utils.ts",
+    "src/utils/fetch-dedup.ts"
+  ]
+}

@@ -1,0 +1,134 @@
+---
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import { profileConfig } from "@/config/profileConfig";
+import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
+import { url } from "@/utils/url-utils";
+import { listEnabledSiteLinks, type SiteLinkView } from "../../../server/siteLinks/service";
+import { cfEnv } from "../../lib/api";
+
+const settings =
+	(
+		Astro.locals as {
+			settings?: { avatar?: string; author?: string; name?: string };
+		}
+	).settings ?? {};
+const effectiveAvatar = settings.avatar || profileConfig.avatar || "";
+const effectiveName =
+	((settings as any)?.["profile"]?.["name"] as string | undefined) ||
+	settings.name ||
+	settings.author ||
+	profileConfig.name ||
+	"";
+// 个人简介（后台可配置；静态 config 为兜底）
+const effectiveBio =
+	((settings as any)?.["profile"]?.["bio"] as string | undefined) ||
+	(settings as any)?.["bio"] ||
+	profileConfig.bio ||
+	"";
+// 所在地 / 邮箱（后台可配置；静态 config 为兜底）
+const effectiveLocation =
+	((settings as any)?.["profile"]?.["location"] as string | undefined) ||
+	"";
+const effectiveEmail =
+	((settings as any)?.["profile"]?.["email"] as string | undefined) || "";
+// 社交链接（后台可配置；统一数组处理）
+const profileLinks = (
+	await listEnabledSiteLinks(cfEnv, "profile")
+).map((l: SiteLinkView) => ({
+	name: l.name,
+	url: l.url,
+	icon: l.icon || "material-symbols:link",
+	showName: false,
+}));
+
+interface Props {
+	class?: string;
+	style?: string;
+}
+const { style } = Astro.props;
+const className = Astro.props.class;
+---
+
+<div class:list={["card-base", "p-3", className]} style={style}>
+  <a
+    aria-label="Go to About Page"
+    href={url("/about/")}
+    class="group block relative mx-auto mt-1 lg:mx-0 lg:mt-0 mb-3
+       max-w-48 lg:max-w-none overflow-hidden rounded-xl active:scale-95"
+  >
+    <div
+      class="absolute transition pointer-events-none group-hover:bg-black/30 group-active:bg-black/50
+        w-full h-full z-50 flex items-center justify-center"
+    >
+      <Icon
+        name="fa7-regular:address-card"
+        class="transition opacity-0 scale-90 group-hover:scale-100 group-hover:opacity-100 text-white text-5xl"
+      />
+    </div>
+    <ImageWrapper
+      src={effectiveAvatar}
+      alt="Profile Image of the Author"
+      class="profile-avatar-image mx-auto lg:w-full h-full lg:mt-0"
+      loading="eager"
+      fetchpriority="high"
+      widths={[350]}
+      sizes="350px"
+    />
+  </a>
+  <div class="px-2">
+    <div
+      class="font-bold text-xl text-center mb-1 dark:text-neutral-50 transition"
+    >
+      {effectiveName}
+    </div>
+    <div
+      class="h-1 w-5 bg-(--primary) mx-auto rounded-full mb-2 transition"
+    >
+    </div>
+    <div class="text-center text-neutral-400 mb-2.5 transition">
+      {effectiveBio}
+    </div>
+    {(effectiveLocation || effectiveEmail) && (
+      <div class="text-center text-neutral-400 text-sm mb-2.5 transition flex flex-col gap-1 items-center">
+        {effectiveLocation && (
+          <div class="flex items-center gap-1.5">
+            <Icon name="material-symbols:location-on" class="text-base" aria-hidden="true" />
+            <span>{effectiveLocation}</span>
+          </div>
+        )}
+        {effectiveEmail && (
+          <div class="flex items-center gap-1.5">
+            <Icon name="fa7-solid:envelope" class="text-base" aria-hidden="true" />
+            <a rel="me" href={`mailto:${effectiveEmail}`} class="transition hover:text-(--primary)">{effectiveEmail}</a>
+          </div>
+        )}
+      </div>
+    )}
+                <div class="flex flex-wrap gap-2 justify-center mb-1">
+            {profileLinks.length > 0 && profileLinks.map((item: { showName?: boolean; name?: string; url?: string; icon?: string }) => {
+                const showName = item.showName;
+                const className = showName
+                    ? "btn-regular rounded-lg h-10 gap-2 px-3 font-bold active:scale-95"
+                    : "btn-regular rounded-lg h-10 w-10 active:scale-90";
+                const linkUrl = item.url || "#";
+                if (linkUrl.startsWith("mailto:")) {
+                    const encodedEmail = encodeMailto(linkUrl);
+                    return (
+                        <a rel="me" aria-label={item.name} href="#" data-encoded-email={encodedEmail} onclick={MAILTO_ONCLICK_SCRIPT}
+                            class={className}>
+                            <Icon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></Icon>
+                            {showName && item.name}
+                        </a>
+                    );
+                }
+                return (
+                    <a rel="me" aria-label={item.name} href={linkUrl} target={/^https?:\/\//i.test(linkUrl) ? "_blank" : undefined} class={className}>
+                        <Icon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></Icon>
+                        {showName && item.name}
+                    </a>
+                );
+            })}
+        </div></div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+---
+import { getLqipProps } from "@/utils/lqip-utils";
+
+interface Props {
+	src: string;
+	albumId: string;
+	alt?: string;
+	type?: string;
+	poster?: string;
+}
+
+const { src, albumId, alt = "", type, poster } = Astro.props;
+
+// 未显式标注类型时，按扩展名自动识别（与 server 端 toAlbumSummary 一致）
+const isVideo =
+	type === "video" || (!type && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(src));
+
+// LQIP 渐变占位：video 用封面 poster 生成占位，避免给视频本体做 LQIP
+const lqipSrc = isVideo && poster ? poster : src;
+const lqipProps = getLqipProps(lqipSrc, undefined, true);
+---
+
+<div class="gallery-photo-card break-inside-avoid mb-3">
+  <div
+    data-fancybox={`gallery-${albumId}`}
+    data-src={src}
+    data-type={isVideo ? "video" : "image"}
+    class="block rounded-xl overflow-hidden relative group cursor-pointer"
+  >
+    <div class="lqip-placeholder absolute inset-0 pointer-events-none" style={lqipProps.style} aria-hidden="true"></div>
+    {isVideo ? (
+      <video
+        src={src}
+        {...(poster ? { poster } : {})}
+        preload="metadata"
+        controls
+        playsinline
+        class="w-full h-auto object-cover opacity-0 transition-all duration-500 ease-out group-hover:scale-105"
+      />
+    ) : (
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        class="w-full h-auto object-cover opacity-0 transition-all duration-500 ease-out group-hover:scale-105"
+      />
+    )}
+  </div>
+</div>

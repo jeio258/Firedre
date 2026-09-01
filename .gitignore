@@ -1,0 +1,65 @@
+# build output
+/dist/
+
+# generated vndb covers
+public/vndb-covers/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+
+# macOS-specific files
+.DS_Store
+
+.vercel
+
+package-lock.json
+bun.lockb
+yarn.lock
+
+# ide
+.idea
+*.iml
+
+# docs
+Firefly-docs/
+
+# 开发工作树与本地计划（不提交远程）
+.worktrees/
+docs/superpowers/
+
+# lite 版本
+Firefly-Lite/
+
+cache/
+package/
+.obsidian/
+
+# vibe coding
+.codex*
+.claude
+.mimocode
+/dist/
+# 本地化 vditor 编辑器资源需纳入版本控制（dev/生产共用，避免在线 CDN 加载慢）
+!public/vditor/
+dev-log.txt
+tail.log
+*.log
+.dev.vars
+.wrangler/
+
+# test output
+coverage/
+docs/

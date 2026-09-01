@@ -1,0 +1,99 @@
+---
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+import Pagination from "@/components/common/Pagination.astro";
+import PostPage from "@/components/layout/PostPage.astro";
+import { siteConfig } from "@/config";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { apiPostToPostForList } from "@/utils/post-types";
+
+// 运行时站点配置（后台可编辑；静态 config 为兜底）
+
+
+
+export const prerender = false;
+
+// Firedre：首页分页从 D1 动态获取
+const { listPosts } = await import("../../server/posts/service");
+const { cfEnv } = await import("../lib/api");
+
+const pageNum = Astro.params.page ? Number(Astro.params.page) : 1;
+const pageSize = Math.max(1, ((settings as any)?.["pagination"] ?? siteConfig.pagination).postsPerPage);
+const result = await listPosts(cfEnv, { page: pageNum, pageSize });
+const posts = result.posts.map(apiPostToPostForList);
+const totalPages = Math.max(1, Math.ceil(result.total / pageSize));
+
+const page = {
+	data: posts,
+	page: result.page,
+	size: pageSize,
+	total: result.total,
+	totalPages,
+	lastPage: totalPages,
+	start: (result.page - 1) * pageSize + 1,
+	end: Math.min(result.page * pageSize, result.total),
+	url: {
+		current: result.page > 1 ? `/page/${result.page}/` : "/",
+		prev: result.page > 1 ? `/page/${result.page - 1}/` : undefined,
+		next: result.page < totalPages ? `/page/${result.page + 1}/` : undefined,
+		first: result.page > 1 ? "/" : undefined,
+		last: result.page < totalPages ? `/page/${totalPages}/` : undefined,
+		isFirst: result.page <= 1,
+		isLast: result.page >= totalPages,
+	},
+	currentPage: result.page,
+};
+
+const len = page.data.length;
+---
+
+<MainGridLayout>
+  <PostPage page={page} />
+  {
+    page.total > page.size && (
+      <Pagination
+        class="mx-auto onload-animation"
+        page={page}
+        style={`animation-delay: calc(var(--content-delay) + ${len * 50}ms)`}
+      />
+    )
+  }
+</MainGridLayout>
+
+<script>
+  // 响应式分页处理脚本
+  document.addEventListener("DOMContentLoaded", function () {
+    // 如果启用了响应式分页，添加相应的CSS类
+    const responsiveEnabled = true; // ${((settings as any)?.["pagination"] ?? siteConfig.pagination).responsive}
+    if (responsiveEnabled) {
+      const deviceType = getDeviceType();
+      document.body.classList.add(`device-${deviceType}`);
+
+      // 监听窗口大小变化
+      let resizeTimeout: any;
+      window.addEventListener("resize", function () {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function () {
+          const newDeviceType = getDeviceType();
+          const currentDeviceType = document.body.className.match(
+            /device-(mobile|tablet|desktop)/
+          )?.[1];
+
+          if (currentDeviceType !== newDeviceType) {
+            document.body.classList.remove(`device-${currentDeviceType}`);
+            document.body.classList.add(`device-${newDeviceType}`);
+          }
+        }, 250);
+      });
+    }
+  });
+
+  function getDeviceType() {
+    if (typeof window === "undefined") return "desktop";
+
+    const width = window.innerWidth;
+    if (width < 768) return "mobile";
+    if (width < 1024) return "tablet";
+    return "desktop";
+  }
+</script>
