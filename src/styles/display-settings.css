@@ -1,4 +1,4 @@
-/* 显示设置面板样式 */
+
 
 #display-setting input[type="range"] {
 	-webkit-appearance: none;
@@ -133,7 +133,6 @@
 	background: rgba(255, 255, 255, 0.6);
 }
 
-/* 分区标题 */
 #display-setting .section-title {
 	display: flex;
 	gap: 0.5rem;

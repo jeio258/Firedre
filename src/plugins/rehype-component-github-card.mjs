@@ -1,18 +1,10 @@
-/// <reference types="mdast" />
+
 import { h } from "hastscript";
 import githubCardData from "../constants/github-card-data.json" with {
 	type: "json",
 };
 import { isValidGithubRepository } from "../utils/github-card-utils.ts";
 
-/**
- * Creates a GitHub Card component.
- *
- * @param {Object} properties - The properties of the component.
- * @param {string} properties.repo - The GitHub repository in the format "owner/repo".
- * @param {import('mdast').RootContent[]} children - The children elements of the component.
- * @returns {import('mdast').Parent} The created GitHub Card component.
- */
 export function GithubCardComponent(properties, children) {
 	if (Array.isArray(children) && children.length !== 0)
 		return h("div", { class: "hidden" }, [

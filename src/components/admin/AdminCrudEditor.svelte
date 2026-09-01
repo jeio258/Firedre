@@ -3,7 +3,6 @@
 	import { apiJson } from "@/lib/adminApi";
 	import { type Snippet } from "svelte";
 
-	// ── 类型 ──
 	export type CrudFieldType = "text" | "number" | "checkbox" | "select";
 
 	export interface CrudField {
@@ -13,22 +12,22 @@
 		placeholder?: string;
 		options?: { value: string; label: string }[];
 		required?: boolean;
-		/** 表单值 → 提交 payload（如 tags 逗号串 → 数组） */
+
 		toPayload?: (v: string | number | boolean) => unknown;
 	}
 
 	interface Props {
-		/** API 基础路径，如 /api/friends/ */
+
 		apiPath: string;
 		title: string;
 		addLabel: string;
 		entityName: string;
 		fields: CrudField[];
-		/** 删除确认用：返回唯一标识文本 */
+
 		identify: (item: Record<string, unknown>) => string;
-		/** 可选：置于工具栏下方的额外块（如站点域名管理） */
+
 		extraBlock?: Snippet;
-		/** 列表行内容；入参 { item, onEdit, onRemove } */
+
 		children: Snippet;
 	}
 

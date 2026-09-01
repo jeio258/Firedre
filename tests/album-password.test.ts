@@ -5,9 +5,6 @@ import {
 	deleteAlbumPassword,
 } from "../server/gallery/password";
 
-/**
- * 极简 in-memory D1 mock（仅覆盖 album_passwords 表用到的 prepare/bind/first/run）。
- */
 function makeDbMock() {
 	const store = new Map<string, string>();
 	const db = {

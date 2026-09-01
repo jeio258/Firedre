@@ -17,10 +17,6 @@ import { filterNsfw, isBangumiNsfw } from "@/utils/nsfw-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
-//参考：霞葉 https://kasuha.com/posts/fuwari-enhance-ep2/
-
 // 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.bangumi) {
 	return Astro.redirect("/404/");
@@ -29,7 +25,6 @@ if (!getSiteConfig(Astro.locals).pages.bangumi) {
 // 获取构建时间
 const buildTime = formatDateI18nWithTime(new Date());
 
-////////////// Bangumi 配置 ////////////////////////
 const bangumiConfig = {
 	username:
 		((settings as any)?.["bangumi"]?.username ??
@@ -49,14 +44,13 @@ const bangumiConfig = {
 	},
 	// 数据获取设置
 	pagination: {
-		limit: 50, // 每页获取数量
-		delay: 50, // 请求间隔毫秒数，避免频率限制
-		maxTotal: 1000, // 最大获取总数，防止无限循环（0=无限制）
+		limit: 50,          
+		delay: 50,                  
+		maxTotal: 1000,                        
 	},
 	// NSFW 处理："off" | "blur" | "hide"
 	nsfw: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.nsfw ?? "off",
 };
-//////////////////////////////////////////////////
 
 const isDynamic = bangumiConfig.mode === "dynamic";
 
@@ -84,7 +78,6 @@ async function fetchBangumiData(username: string, subjectType: number) {
 	let allData: UserSubjectCollection[] = [];
 	let hasMore = true;
 
-	// 开发模式下只获取一页数据，加快调试速度
 	const isDev = import.meta.env.DEV;
 	const maxPages = isDev ? 1 : 0; // 0 表示不限制
 
@@ -220,7 +213,7 @@ if (!isDynamic) {
 			return aIndex - bIndex;
 		});
 	}
-} // end if (!isDynamic)
+}                       
 
 const activeTab = tabs[0]?.id || "anime";
 ---
@@ -228,7 +221,7 @@ const activeTab = tabs[0]?.id || "anime";
 <MainGridLayout title={i18n(I18nKey.bangumi)} description={i18n(I18nKey.bangumiSubtitle)}>
   <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
     <div class="card-base z-10 px-9 py-6 relative w-full">
-        <!-- 页面标题 -->
+
         <div class="relative w-full mb-8">
             <div class="mb-6">
                 <div class="flex items-center gap-3 mb-3">
@@ -250,7 +243,7 @@ const activeTab = tabs[0]?.id || "anime";
             </div>
 
       {isDynamic ? (
-        /* ==================== Dynamic 模式 ==================== */
+
         <>
           {!isUserIdConfigured ? (
             <div class="text-center py-16">
@@ -280,7 +273,7 @@ const activeTab = tabs[0]?.id || "anime";
           )}
         </>
       ) : (
-        /* ==================== Static 模式 ==================== */
+
         <>
       {fetchFailed ? (
         <div class="text-center py-16">
@@ -319,7 +312,7 @@ const activeTab = tabs[0]?.id || "anime";
 </MainGridLayout>
 
 <style>
-  /* 自定义样式 */
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

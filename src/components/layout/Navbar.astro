@@ -19,14 +19,12 @@ import DropdownMenu from "./DropdownMenu.astro";
 import NavMenuPanel from "./NavMenuPanel.astro";
 import { listEnabledSiteLinks, type SiteLinkView } from "../../../server/siteLinks/service";
 import { cfEnv } from "../../lib/api";
-// 运行时站点配置（后台可编辑；静态 config 为兜底）
-// 运行时站点配置（后台可编辑；静态 config 为兜底），统一经 runtime getter 读取
+
 const wallpaperConfig = getWallpaperConfig(Astro.locals);
 const navbarConfig = getNavbarConfig(Astro.locals);
 const siteConfigRuntime = getSiteConfig(Astro.locals);
 const panelConfig = getPanelConfig(Astro.locals);
 
-// 站点链接管理：导航栏「链接」下拉改为后台可编辑的 site_links（location=navbar）
 const navbarLinks = await listEnabledSiteLinks(cfEnv, "navbar");
 const navbarLinkChildren: NavBarLink[] = navbarLinks.map((l: SiteLinkView) => ({
 	name: l.name,
@@ -36,15 +34,11 @@ const navbarLinkChildren: NavBarLink[] = navbarLinks.map((l: SiteLinkView) => ({
 }));
 const musicConfigRuntime = getMusicConfig(Astro.locals);
 
-
 const className = Astro.props.class;
 
 // 检查是否为首页
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
-// 获取导航栏透明模式配置：
-// banner 模式用 banner.navbar 配置；fullscreen 模式用 fullscreen.navbar，
-// 首页开启动态透明时用 semifull（顶部透明、下滑不透明），否则完全透明
 const wallpaperMode = wallpaperConfig.mode;
 const navbarTransparentMode =
 	wallpaperMode === "banner"
@@ -96,10 +90,10 @@ const pageKeyMap: Record<string, string> = {
 function isPageEnabled(link: NavBarLink): boolean {
 	if (!link.pageKey) return true;
 	const overrideKey = pageKeyMap[link.pageKey];
-	// 来源 1：basic 组页面开关（pageDynamic/pageGallery/…）
+
 	if (overrideKey && typeof pageSettings[overrideKey] === "boolean")
 		return pageSettings[overrideKey] as boolean;
-	// 来源 2：对应配置组的 enabled（dynamic.enabled/gallery.enabled/…）
+
 	const groupVal = (
 		pageSettings[link.pageKey] as { enabled?: unknown } | undefined
 	)?.enabled;
@@ -119,13 +113,10 @@ function filterLinks(link: NavBarLink): NavBarLink | null {
 	return { ...link, children: filteredChildren };
 }
 
-// 导航链接统一取自 getNavbarConfig（已合并后台 navItems 或静态默认配置，含子菜单 children）。
-// 仅对禁用的子页做过滤、并对文案做 i18n 处理；不再平铺丢弃 children。
 const sourceLinks = Array.isArray((navbarConfig as unknown as { links?: unknown }).links)
 	? ((navbarConfig as unknown as { links?: Array<{ label?: string; url?: string; icon?: string; name?: string }> }).links as NavBarLink[])
 	: [];
-// 用后台可编辑的站点链接（location=navbar）替换静态「链接」下拉子菜单（在 i18n 翻译前替换，
-// 使子项也走统一的 resolveNavbarName 文案解析）。D1 无数据时不注入，空菜单由 filterLinks 过滤掉。
+
 const sourceLinksWithSiteLinks = navbarLinkChildren.length > 0
 	? sourceLinks.map((link) =>
 			link.name === "链接" ? { ...link, children: navbarLinkChildren } : link,
@@ -146,7 +137,6 @@ const logoFiles = import.meta.glob<ImageMetadata>(
 	{ import: "default" },
 );
 
-// 仅 src 目录下的本地图片交给 Astro 优化，public 目录和网络图片直接用原地址
 async function resolveLocalLogo(value: string): Promise<ImageMetadata | null> {
 	if (
 		logoConfig?.type !== "image" ||
@@ -196,9 +186,7 @@ const logoVariants = await Promise.all(
       bannerBlur: wallpaperConfig.banner?.navbar?.blur ?? 20,
       fsDynamic: wallpaperConfig.fullscreen?.navbar?.dynamicTransparent ?? false,
     }}>
-      // 首帧前按运行时壁纸模式修正导航栏透明模式：SSR 的 data-transparent-mode 按 config 设置，
-      // 与运行时模式不一致时（如 config fullscreen + 存储 banner）会先按错误模式渲染闪烁，
-      // 这里在解析期同步按 data-wallpaper-mode 修正（早于 rAF/DOMContentLoaded）
+
       (function () {
         const wm = document.documentElement.getAttribute("data-wallpaper-mode");
         const navbar = document.getElementById("navbar");
@@ -266,7 +254,7 @@ const logoVariants = await Promise.all(
                 })}
             </div>
             <div class="flex col-start-3 justify-self-end">
-                <!--<SearchPanel client:load>-->
+
                 <Search
                     client:load
                 />
@@ -292,7 +280,7 @@ const logoVariants = await Promise.all(
                             <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
                         </button>
                 )}
-                {/* @ts-ignore */}
+                {                }
                 <LightDarkSwitch client:load></LightDarkSwitch>
                 <a
                   href="/admin/"
@@ -379,7 +367,7 @@ const logoVariants = await Promise.all(
         var mode = ce.detail && ce.detail.mode;
         bgPlayerBtn!.style.display = mode === "none" ? "none" : "";
     });
-    // Swup 导航时同步播放按钮状态（BackgroundPlayer 可能被重建，也可能持久存在）
+
     function syncBgPlayerBtn() {
         var playing = document.documentElement.hasAttribute("data-bg-video-playing");
         toggleBgPlayerIcon(playing);
@@ -401,8 +389,6 @@ function initSemifullScrollDetection() {
     const transparentMode = navbar.getAttribute('data-transparent-mode');
     if (transparentMode !== 'semifull') return;
 
-    // 无论首页/非首页，semifull 都由滚动位置决定是否进入 scrolled 状态
-    // 先移除之前的滚动监听器，避免重复绑定
     if (window.semifullScrollHandler) {
         window.removeEventListener('scroll', window.semifullScrollHandler as () => void);
         window.semifullScrollHandler = undefined;
@@ -415,8 +401,7 @@ function initSemifullScrollDetection() {
 
     function updateNavbarState() {
         if (document.documentElement.classList.contains('is-page-transitioning')) {
-            // 全屏壁纸模式：切换期间保持当前 scrolled 状态，避免点击瞬间导航栏背景突然消失
-            // （否则导航栏会闪一下透明、切完又恢复成卡片底色）；其他模式沿用旧的强制透明逻辑
+
             if (
                 document.documentElement.getAttribute('data-wallpaper-mode') !==
                 'fullscreen'
@@ -428,8 +413,8 @@ function initSemifullScrollDetection() {
         }
 
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        const threshold = 50; // 滚动阈值，可以根据需要调整
-        // 使用批量DOM操作优化性能
+        const threshold = 50;                 
+
         if (scrollTop > threshold) {
             navbar!.classList.add('scrolled');
         } else {
@@ -446,7 +431,6 @@ function initSemifullScrollDetection() {
         }
     }
 
-    // 移除之前的滚动事件监听器（如果存在）
     if (window.semifullScrollHandler) {
         window.removeEventListener('scroll', window.semifullScrollHandler as () => void);
     }

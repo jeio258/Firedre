@@ -202,7 +202,7 @@ function createItem(entry: DynamicData) {
 	const content = root.querySelector<HTMLElement>("[data-dynamic-content]");
 	if (content) {
 		content.id = `${anchorId}-content`;
-		// 动态/Memos/第三方 API 的 HTML 未经过服务端消毒，注入前做前端消毒
+
 		content.innerHTML = sanitizeDynamicHtml(entry.html);
 		for (const image of entry.images) {
 			const element = document.createElement("img");

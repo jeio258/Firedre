@@ -4,10 +4,6 @@ import { cfEnv, json, serverError, unauthorized } from "../../../lib/api";
 
 export const prerender = false;
 
-/**
- * 图片上传：保存到 R2 uploads/{yyyy}/{mm}/{uuid}.{ext}
- * 供 Vditor 编辑器与后台使用；返回可访问的 URL。
- */
 export const POST: APIRoute = async ({ request }) => {
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
@@ -18,14 +14,13 @@ export const POST: APIRoute = async ({ request }) => {
 		if (!(file instanceof File) || !file.size)
 			return json({ message: "缺少文件" }, 400);
 
-		// 大小限制：5MB，防止 R2 存储滥用/成本失控
-		const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+		const MAX_FILE_SIZE = 5 * 1024 * 1024;       
 		if (file.size > MAX_FILE_SIZE)
 			return json({ message: "文件过大，最大支持 5MB" }, 400);
 
 		const extMatch = /\.([a-zA-Z0-9]+)$/.exec(file.name || "");
 		const ext = extMatch ? extMatch[1].toLowerCase() : "png";
-		// 注意：排除 svg 以防存储型 XSS（SVG 可内嵌脚本）
+
 		const allowed = new Set([
 			"jpg",
 			"jpeg",
@@ -57,7 +52,6 @@ export const POST: APIRoute = async ({ request }) => {
 		const uuid = crypto.randomUUID();
 		const key = `gallery/_uploads/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${uuid}.${ext}`;
 
-		// 下载时强制 attachment 或安全 content-type？R2 存储普通图片即可。
 		const safeContentType = validMimes[0] || "application/octet-stream";
 
 		await cfEnv.BUCKET.put(key, file.stream(), {

@@ -2,11 +2,6 @@ import { h } from "hastscript";
 import { visit } from "unist-util-visit";
 import { shouldAddNoReferrer } from "../utils/image-utils.ts";
 
-/**
- * 将带有 alt 文本的图片转换为包含 figcaption 的 figure 元素的 rehype 插件
- *
- * @returns {Function} A transformer function for the rehype plugin
- */
 export default function rehypeFigure() {
 	return (tree) => {
 		visit(tree, "element", (node, index, parent) => {
@@ -28,8 +23,6 @@ export default function rehypeFigure() {
 
 			const imgProps = { ...node.properties };
 
-			// 添加 referrerpolicy（如果需要）解决 403 问题
-			// 无论是否有 alt，都要检查并添加 referrerpolicy
 			if (imgProps.src && shouldAddNoReferrer(imgProps.src)) {
 				imgProps.referrerpolicy = "no-referrer";
 			}

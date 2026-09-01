@@ -5,15 +5,6 @@ import { i18n } from "@/i18n/translation";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
-// MusicPlayer 的视图控制脚本只需要发一份：页面上可能同时有导航栏面板和侧栏
-// 两个 widget，脚本内容除 widgetId 外完全一致。这里统一发一次，由脚本自己
-// 遍历所有 .music-player-widget 初始化。
-//
-// 必须保持 is:inline 且不加 data-swup-ignore-script：@swup/scripts-plugin 会在
-// content:replace 时重新执行全文档的内联脚本，侧栏 widget 换页后靠这个重跑完成
-// 初始化；改成 bundled module 只会执行一次，会静默失效。
 const config = musicPlayerConfig;
 
 const viewConfigStr = JSON.stringify({
@@ -34,12 +25,11 @@ const viewConfigStr = JSON.stringify({
 });
 ---
 
-<!-- 播放列表条目模板：所有 widget 共用一份 -->
 <template id="playlist-item-template">
 <div class="playlist-item flex items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors group">
     <div class="w-8 h-8 rounded-md overflow-hidden shrink-0 relative bg-neutral-200 dark:bg-neutral-700">
         <img src="" class="item-cover w-full h-full object-cover" loading="lazy" alt="" />
-        <!-- Active Indicator overlay with animated equalizer / play icon -->
+
         <div class="item-active-overlay absolute inset-0 bg-(--primary)/20 hidden items-center justify-center">
             <div class="eq-bars flex items-end gap-[2px] h-3.5">
                 <span class="eq-bar w-[3px] bg-(--primary) rounded-sm"></span>
@@ -88,7 +78,7 @@ const viewConfigStr = JSON.stringify({
     }
 
     function initWidget(widget) {
-        // ── UI element refs ──
+
         var ui = {
             widget: widget,
             loading: widget.querySelector('.music-loading'),
@@ -132,7 +122,6 @@ const viewConfigStr = JSON.stringify({
             ui.cover, ui.title, ui.artist, ui.playlistContainer, ui.itemTemplate];
         if (_critical.some(function(el) { return !el; })) return;
 
-        // ── Local state (drawers, user scrolling, virtual scroll) ──
         var ITEM_H = 42;
         var OVERSCAN = 8;
         var local = {
@@ -150,7 +139,6 @@ const viewConfigStr = JSON.stringify({
             }
         };
 
-        // ── UI update functions ──
         function setLoading(bool) {
             if (bool) {
                 ui.loading.classList.remove('opacity-0', 'pointer-events-none');
@@ -258,7 +246,6 @@ const viewConfigStr = JSON.stringify({
             ui.totalTime.innerText = '0:00';
         }
 
-        // ── Virtual scroll helpers (absolute-position based) ──
         var PRIMARY_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6366f1';
 
         function vsApplyActiveStyle(el, isActive) {
@@ -310,7 +297,6 @@ const viewConfigStr = JSON.stringify({
             itemEl.setAttribute('aria-label', track.name + ' - ' + track.artist);
             itemEl.onclick = function () { mgr.playTrackByIndex(idx); };
 
-            // Absolute positioning for virtual scroll
             itemEl.style.position = 'absolute';
             itemEl.style.left = '0';
             itemEl.style.right = '0';
@@ -343,7 +329,7 @@ const viewConfigStr = JSON.stringify({
                 }
                 container.appendChild(frag);
             } else {
-                // Incremental: remove out-of-range, add new items
+
                 var oldEls = vs.renderedEls;
                 for (var ri = vs.renderedStart; ri < vs.renderedEnd; ri++) {
                     if (ri < start || ri >= end) {
@@ -484,7 +470,6 @@ const viewConfigStr = JSON.stringify({
             }
         }
 
-        // ── Full sync from manager state (for late-mount) ──
         function syncAll() {
             var s = mgr.getState();
             if (!s.initialized) return;
@@ -516,15 +501,13 @@ const viewConfigStr = JSON.stringify({
             renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : 'none');
             if (s.currentLrcIndex >= 0) updateLrcHighlight(s.currentLrcIndex);
 
-            // Cover image: if already set, show it
             if (s.track && s.track.pic && ui.cover.src && ui.cover.complete && ui.cover.naturalWidth > 0) {
                 ui.cover.classList.remove('opacity-0');
             }
-            // Update cover animation state to match play state
+
             ui.cover.style.animationPlayState = s.isPlaying ? 'running' : 'paused';
         }
 
-        // ── Event listeners (fm:* from manager) ──
         var handlers = {};
 
         function on(name, fn) {
@@ -583,7 +566,6 @@ const viewConfigStr = JSON.stringify({
             ui.title.innerText = e.detail.message || cfg.i18n.error;
         });
 
-        // ── Button click delegates ──
         ui.btnPlay.addEventListener('click', function () { mgr.togglePlay(); });
         ui.btnNext.addEventListener('click', function () { mgr.playNext(); });
         ui.btnPrev.addEventListener('click', function () { mgr.playPrev(); });
@@ -604,7 +586,6 @@ const viewConfigStr = JSON.stringify({
             mgr.seek(percent);
         });
 
-        // ── Drawer logic (local state) ──
         ui.btnLrc.addEventListener('click', function () {
             var isOpen = ui.lrcDrawer.style.gridTemplateRows === '1fr';
             if (isOpen) {
@@ -616,7 +597,7 @@ const viewConfigStr = JSON.stringify({
                 ui.iconLrcOn.classList.add('hidden');
                 ui.iconLrcOff.classList.remove('hidden');
             } else {
-                // Close playlist if open
+
                 ui.playlistDrawer.style.gridTemplateRows = '0fr';
                 ui.playlistDrawer.classList.remove('opacity-100');
                 ui.playlistDrawer.classList.add('opacity-0');
@@ -643,7 +624,7 @@ const viewConfigStr = JSON.stringify({
                 ui.btnDrawer.classList.remove('text-(--primary)');
                 local.vs.drawerOpen = false;
             } else {
-                // Close lyrics if open
+
                 ui.lrcDrawer.style.gridTemplateRows = '0fr';
                 ui.lrcDrawer.classList.remove('opacity-100');
                 ui.lrcDrawer.classList.add('opacity-0');
@@ -659,7 +640,6 @@ const viewConfigStr = JSON.stringify({
                 ui.btnDrawer.classList.add('text-(--primary)');
                 local.vs.drawerOpen = true;
 
-                // Render playlist after drawer transition settles
                 if (local.vs.playlist.length > 0) {
                     requestAnimationFrame(function () {
                         vsSetContainerHeight();
@@ -669,12 +649,10 @@ const viewConfigStr = JSON.stringify({
             }
         });
 
-        // ── Playlist virtual scroll listener ──
         ui.playlistContainer.addEventListener('scroll', function () {
             vsRequestUpdate();
         });
 
-        // ── Lyrics user scroll detection ──
         function resetScrollTimeout() {
             clearTimeout(local.scrollTimeout);
             local.scrollTimeout = setTimeout(function () {
@@ -703,7 +681,6 @@ const viewConfigStr = JSON.stringify({
             resetScrollTimeout();
         });
 
-        // ── Cover image events ──
         ui.cover.addEventListener('load', function () {
             ui.cover.classList.remove('opacity-0');
         });
@@ -711,7 +688,6 @@ const viewConfigStr = JSON.stringify({
             ui.cover.classList.add('opacity-0');
         });
 
-        // ── Cleanup on DOM removal ──
         var observer = new MutationObserver(function (mutations) {
             for (var i = 0; i < mutations.length; i++) {
                 var removed = mutations[i].removedNodes;
@@ -732,21 +708,17 @@ const viewConfigStr = JSON.stringify({
             observer.observe(widget.parentNode, { childList: true });
         }
 
-        // ── Init: either sync existing state or trigger init ──
         var currentState = mgr.getState();
         if (currentState.initialized) {
-            // Manager already initialized (late mount) – sync all UI
+
             syncAll();
         } else {
-            // First widget to mount – show loading and trigger init
+
             setLoading(true);
             scheduleInit();
         }
     }
 
-    // 每个 widget 只初始化一次。导航栏那份 widget 在 swup 容器之外、DOM 不会被
-    // 替换，而本脚本每次导航都会被重跑；侧栏 widget 会被整体替换，新 DOM 上没有
-    // 这个标记，因此仍会正常重新初始化（旧实例由内部的 MutationObserver 清理）。
     function initAll() {
         var widgets = document.querySelectorAll('.music-player-widget');
         for (var i = 0; i < widgets.length; i++) {
@@ -762,9 +734,7 @@ const viewConfigStr = JSON.stringify({
 </script>
 
 <style>
-    /* Now-playing equalizer bars —— 样式必须跟 <template> 待在同一个组件里：
-       Astro 的作用域 class 是编译期打在模板元素上的，克隆出来的条目带的是本组件的
-       hash，规则写在 MusicPlayer.astro 里会匹配不上。 */
+
     .eq-bars .eq-bar {
         animation: eq-bounce 1.2s ease-in-out infinite;
     }

@@ -1,9 +1,5 @@
-/* 后台共享样式：抽自各 Admin 组件重复定义的公共类。
- * 由 AdminApp 壳一次性引入，组件内对应的重复块已删除，仅保留有差异的局部覆盖。 */
 
-/* 后台文本清晰度：全局 --muted = oklch(0.93…) 是近白"占位/背景基调"（前端 LQIP 占位背景用），
- * 并非文本色。后台组件误用 var(--muted) 作为文字色 → 白卡上近白字、看不清。
- * 此处仅在 .admin-shell 作用域内把 --muted 收敛为可读的中灰，不改全局变量、不影响前端。 */
+
 .admin-shell {
 	--muted: oklch(0.5 0.025 var(--hue));
 }
@@ -15,8 +11,6 @@
 	padding: 1.25rem;
 }
 
-/* 以下为各 Admin 组件原本重复定义的公共类，收敛到此处统一维护。
- * 组件内若无差异，直接删除对应 <style> 块；有差异的（如 padding/margin）在组件内留局部覆盖。 */
 .admin-shell h2 {
 	font-size: 1.1rem;
 	margin: 0;
@@ -33,7 +27,7 @@
 	align-items: center;
 	gap: 0.6rem;
 }
-/* 移动端：toolbar 堆叠，搜索框自适应宽度，按钮完整显示 */
+
 @media (max-width: 640px) {
 	.admin-shell .toolbar {
 		flex-direction: column;
@@ -64,7 +58,6 @@
 	opacity: 0.6;
 }
 
-/* ─── 表单/列表公共类：抽自 AdminFriendsEditor / AdminSiteLinksEditor 重复定义 ─── */
 .admin-shell .hint {
 	color: var(--muted, #6b7280);
 	font-size: 0.85rem;

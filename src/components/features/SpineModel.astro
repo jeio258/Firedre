@@ -5,10 +5,9 @@ import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
 ---
 
-<!-- Spine Web Player CSS 将在 script 中动态加载 -->{
+                                             {
   spineModelConfig.enable && (
     <div
       id="spine-model-container"
@@ -28,7 +27,6 @@ import { url } from "@/utils/url-utils";
   )
 }
 
-<!-- 引入消息框组件 -->
 {spineModelConfig.enable && <MessageBox />}
 
 {spineModelConfig.enable && (
@@ -47,7 +45,6 @@ import { url } from "@/utils/url-utils";
     cdnLink.href =
       "https://unpkg.com/@esotericsoftware/spine-player@4.2.*/dist/spine-player.min.css";
 
-    // 监听加载失败事件，自动回退到本地文件
     cdnLink.onerror = function () {
       console.warn("⚠️ Spine CSS CDN failed, trying local fallback...");
 
@@ -70,9 +67,8 @@ import { url } from "@/utils/url-utils";
     document.head.appendChild(cdnLink);
   }
 
-  // 消息框功能已移至公共组件 MessageBox.astro
-  let isClickProcessing = false; // 防止重复点击的标志
-  let lastClickTime = 0; // 记录最后一次点击时间
+  let isClickProcessing = false;             
+  let lastClickTime = 0;              
 
   // 全局变量，防止重复初始化
   window.spineModelInitialized = window.spineModelInitialized || false;
@@ -186,7 +182,6 @@ import { url } from "@/utils/url-utils";
         script.onerror = (_error) => {
           console.warn("⚠️ CDN failed, trying local fallback...");
 
-          // 尝试本地回退
           const fallbackScript = document.createElement("script");
           fallbackScript.src = jsPath;
           fallbackScript.onload = () => {
@@ -238,8 +233,8 @@ import { url } from "@/utils/url-utils";
         skeleton: modelPath,
         atlas: atlasPath,
         animation: "idle",
-        backgroundColor: "#00000000", // 透明背景
-        showControls: false, // 隐藏控件
+        backgroundColor: "#00000000",        
+        showControls: false,        
         alpha: true,
         premultipliedAlpha: false,
         success: (player) => {

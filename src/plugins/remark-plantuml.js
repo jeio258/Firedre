@@ -1,15 +1,6 @@
 import { visit } from "unist-util-visit";
 import { buildUrl, encodePlantUML, injectTheme } from "./plantuml-encoder.js";
 
-/**
- * @typedef {Object} RemarkPlantumlOptions
- * @property {boolean} [enable=true] 是否启用 PlantUML 处理，false 时 plantuml 代码块原样交给下游处理
- * @property {string} [server="https://www.plantuml.com/plantuml"] PlantUML 服务器地址
- * @property {string} [lightTheme=""] 亮色模式注入的 PlantUML 主题名，空串不注入
- * @property {string} [darkTheme=""] 暗色模式注入的 PlantUML 主题名，空串不注入
- */
-
-/** @type {RemarkPlantumlOptions} */
 const DEFAULT_OPTIONS = {
 	enable: true,
 	server: "https://www.plantuml.com/plantuml",
@@ -17,16 +8,6 @@ const DEFAULT_OPTIONS = {
 	darkTheme: "",
 };
 
-/**
- * 识别 markdown 源中的 ```plantuml``` fenced code block，并在 remark 阶段
- * 将其转换为一个携带双主题 URL 数据属性的自定义节点，供 rehype 阶段渲染。
- *
- * 转换策略：参考 `remark-mermaid.js`，保留 `hChildren`（原始代码作为文本节点）
- * 以兼容 MDX 编译器对 hProperties 的处理。
- *
- * @param {RemarkPlantumlOptions} [options] 插件选项
- * @returns {(tree: import('mdast').Root) => void} remark transformer
- */
 export function remarkPlantuml(options = {}) {
 	const config = { ...DEFAULT_OPTIONS, ...options };
 

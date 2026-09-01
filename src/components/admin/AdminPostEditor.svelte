@@ -4,7 +4,6 @@ import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
 
-/** 根据标题生成拼音 slug（中文转拼音，英文/数字保留，其余清洗为连字符） */
 function slugifyTitle(title: string): string {
 	if (!title) return "";
 	const segments = title.split(/([\u4e00-\u9fa5]+)/).filter(Boolean);
@@ -53,7 +52,7 @@ async function load() {
 	if (isNew) {
 		published = new Date().toISOString().slice(0, 10);
 		loaded = true;
-		// 新建文章也必须初始化正文编辑器，否则 #vditor-editor 为空、无正文编辑框
+
 		await tick();
 		initEditor();
 		return;
@@ -91,14 +90,13 @@ async function initEditor() {
 		editor.setValue(rawContent);
 		return;
 	}
-	// 动态加载 vditor JS：避免 1MB+ 编辑器库静态进 Worker bundle，缩短冷启动
+
 	const { default: Vditor } = await import("vditor");
 	editor = new Vditor("vditor-editor", {
 		height: 480,
 		mode: "ir",
 		value: rawContent,
-		// cdn 指向本地 /vditor（资源由 scripts/copy-vditor.mjs 复制到 public/vditor），
-		// 避免在线 CDN 网络延迟导致的编辑器加载慢；dev 与生产均可直接使用。
+
 		cdn: "/vditor",
 		cache: { enable: false },
 		upload: {
@@ -124,8 +122,7 @@ function buildFrontmatter(): Record<string, unknown> {
 		draft,
 		comment,
 	};
-	// 分类为空时不写 category 字段，让服务端自然回退为 Uncategorized
-	// （避免写成中文“未分类”导致与服务端 canonical 'Uncategorized' 不一致）
+
 	if (category.trim()) fm.category = category.trim();
 	if (updated) fm.updated = updated;
 	if (description.trim()) fm.description = description.trim();
@@ -310,7 +307,7 @@ onMount(load);
 		color: var(--muted-text, #555);
 	}
 	.form-grid .span2 {
-		/* 1 / -1 在双栏通栏、单栏占满整行，不会创建隐式列（防移动端溢出） */
+
 		grid-column: 1 / -1;
 	}
 	input,
@@ -329,7 +326,7 @@ onMount(load);
 		font-size: 0.9rem;
 		color: var(--deep-text, inherit);
 	}
-	/* 移动端：表单单栏，固定宽输入改全宽 */
+
 	@media (max-width: 767px) {
 		.form-grid {
 			grid-template-columns: 1fr;

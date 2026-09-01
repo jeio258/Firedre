@@ -12,8 +12,6 @@ import { formatDateI18nWithTime } from "@/utils/date-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 interface Props {
 	class?: string;
 	style?: string;
@@ -24,15 +22,11 @@ const { class: className, style, widgetConfig } = Astro.props;
 
 const showTitle = widgetConfig?.showTitle !== false;
 
-// ---- 构建时收集版本和环境信息 ----
-
 // 版本号（模板固定值，避免 Worker 运行时文件系统访问）
 const FIREFLY_VERSION = "6.16.5";
 const ASTRO_VERSION = "7.2.3";
 const PNPM_VERSION = "11.22.0";
 
-// Node 版本：Cloudflare Worker（workerd + nodejs_compat）运行时 process.version 为空，
-// 导致部署后 Node 版本不显示。用构建时确定的常量兜底（与下方 FIREFLY/ASTRO/PNPM 版本一致）。
 const NODE_VERSION = "v22.23.2";
 const nodeVersion = process.version || NODE_VERSION;
 
@@ -42,7 +36,6 @@ const pnpmVersion = `v${PNPM_VERSION}`;
 // 构建时间
 const buildTime = formatDateI18nWithTime(new Date());
 
-// Firedre：构建平台（部署目标固定为 Cloudflare Pages；v12 适配器 define 干扰 import.meta.env，用常量最可靠）
 const buildPlatform = "Cloudflare Pages";
 
 // 系统信息（平台 + 架构）
@@ -62,7 +55,6 @@ const osName = platformMap[process.platform] || process.platform;
 const archName = archMap[process.arch] || process.arch;
 const systemInfo = `${osName} / ${archName}`;
 
-// 站点域名（去掉协议前缀）——统一走 getSiteConfig（兼容 basic.siteUrl 驼峰键）
 const siteUrl = getSiteConfig(Astro.locals).site_url;
 const siteDomain = siteUrl
 	? siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
@@ -71,8 +63,6 @@ const siteDomain = siteUrl
 // 文章许可
 const licenseName = ((((settings as any)?.["license"]) as any)?.["enable"] ?? licenseConfig.enable) ? ((((settings as any)?.["license"]) as any)?.["name"] ?? licenseConfig.name) : "None";
 
-// ---- 组装展示数据 ----
-// 始终显示的项目（列表）
 const mainItems = [
 	{
 		icon: "material-symbols:cloud-outline",
@@ -92,8 +82,6 @@ const mainItems = [
 	},
 ];
 
-// 可折叠的项目（格子布局）
-// fullWidth: true 表示独占一行
 const detailItems: {
 	icon: string;
 	label: string;
@@ -149,7 +137,7 @@ const detailItems: {
   style={style}
 >
   <div class="flex flex-col gap-2">
-    {/* 始终显示的项目（列表卡片） */}
+    {                   }
     <div class="flex flex-col gap-2">
       {
         mainItems.map((item: { icon: string; label: string; value: string; href?: string }) => (
@@ -185,7 +173,7 @@ const detailItems: {
       }
     </div>
 
-    {/* 可折叠区域（格子布局） */}
+    {                 }
     <site-info-collapse
       data-expand-text={i18n(I18nKey.siteInfoExpand)}
       data-collapse-text={i18n(I18nKey.siteInfoCollapse)}
@@ -254,7 +242,6 @@ const detailItems: {
       const expandText = this.dataset.expandText || "展开构建信息";
       const collapseText = this.dataset.collapseText || "收起构建信息";
 
-      // 初始状态已在 HTML 中通过 class="collapsed" 设定，JS 只需同步文字
       let expanded = false;
       textEl.textContent = expandText;
 

@@ -3,10 +3,6 @@ import { cfEnv } from "../../lib/api";
 
 export const prerender = false;
 
-/**
- * 日历组件数据：所有已发布文章元数据（按日期降序，忽略置顶）
- * 响应结构保持与 Firefly 原版 /api/allPostMeta.json 一致
- */
 export const GET: APIRoute = async () => {
 	const { results } = await cfEnv.DB.prepare(`
 		SELECT slug, title, description, date, categories, password

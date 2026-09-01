@@ -55,7 +55,7 @@ function getTypeColor(seasonType: number): string {
 	role="button"
 	tabindex="0"
 >
-	<!-- 海报 -->
+
 	<div class="relative aspect-2/3 overflow-hidden bg-neutral-100 dark:bg-neutral-800">
 		{#if anime.poster}
 			<div class="lqip-placeholder absolute inset-0 pointer-events-none" style="background: var(--muted)" aria-hidden="true"></div>

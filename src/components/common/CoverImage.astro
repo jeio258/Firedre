@@ -14,8 +14,6 @@ import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 interface Props {
 	id?: string;
 	src: string;
@@ -94,22 +92,19 @@ const remoteReferrerPolicy =
 	data-api-urls={apiUrls.length > 0 ? JSON.stringify(apiUrls) : undefined}
 	data-natural-height={naturalHeight ? "true" : undefined}
 >
-	<!-- LQIP 渐变占位 -->
+
 	<div class="lqip-placeholder absolute inset-0 pointer-events-none" style={lqipProps.style} aria-hidden="true"></div>
 
-	<!-- 加载动画 -->
 	{showLoading && (
 		<div class="loading-spinner absolute inset-0 flex items-center justify-center z-10" style="background-color: var(--card-bg);">
 			<div class="spinner"></div>
 		</div>
 	)}
 
-	<!-- 错误提示 -->
 	<div class="error-message absolute inset-0 items-center justify-center z-20 hidden pointer-events-none">
 		<span class="text-white text-sm px-3 py-1 rounded-sm bg-black/50">Image API Error</span>
 	</div>
 
-	<!-- 本地图片 -->
 	{isLocal && (
 		<ImageWrapper
 			src={src}
@@ -130,7 +125,6 @@ const remoteReferrerPolicy =
 		/>
 	)}
 
-	<!-- 远程图片 -->
 	{!isLocal && (
 		<img
 			src={isPublic ? url(src) : src}
@@ -157,33 +151,27 @@ const remoteReferrerPolicy =
 		}
 	}
 
-	/* 加载动画容器 */
 	.loading-spinner {
 		transition: opacity 0.3s ease-out;
 	}
 
-	/* 加载完成后隐藏 */
 	.cover-image-container[data-loading="false"] .loading-spinner {
 		opacity: 0;
 		pointer-events: none;
 	}
 
-	/* 错误状态隐藏加载动画 */
 	.cover-image-container[data-error="true"] .loading-spinner {
 		display: none;
 	}
 
-	/* 错误状态显示错误信息 */
 	.cover-image-container[data-error="true"] .error-message {
 		display: flex;
 	}
 
-	/* 错误状态隐藏失败的远程图片 */
 	.cover-image-container[data-error="true"] img[data-remote="true"] {
 		display: none;
 	}
 
-	/* 旋转加载动画 */
 	.spinner {
 		width: 40px;
 		height: 40px;
@@ -199,15 +187,12 @@ const remoteReferrerPolicy =
 		}
 	}
 
-	/* 图片样式（height 用 !important 覆盖 Astro Picture/Image 注入的 height:auto，
-	   使本地图也能像远程图一样以 object-fit: cover 填满容器，与主页卡片封面行为一致） */
 	.cover-image-container img {
 		width: 100%;
 		height: 100% !important;
 		object-fit: cover;
 	}
 
-	/* 自然高度模式（详情页封面）：高度跟随图片原始宽高比，不裁上下、只裁两边 */
 	.cover-image-container[data-natural-height] {
 		min-height: 0;
 	}
@@ -231,7 +216,7 @@ const remoteReferrerPolicy =
 			let currentApiIndex = 1; // 0号已由服务端设为img.src
 			const apiUrlsAttr = container.getAttribute('data-api-urls');
 			if (apiUrlsAttr) {
-				try { apiUrls = JSON.parse(apiUrlsAttr); } catch (_e) { /* ignore */ }
+				try { apiUrls = JSON.parse(apiUrlsAttr); } catch (_e) {              }
 			}
 
 			const hideLoading = () => {
@@ -274,7 +259,6 @@ const remoteReferrerPolicy =
 		});
 	}
 
-	// 防止 Swup 切页重跑脚本时重复注册监听器（initCoverImages 由一次性 astro:page-load 监听器在切页时触发）
 	if (!window.__coverImageInit) {
 		window.__coverImageInit = true;
 		initCoverImages();

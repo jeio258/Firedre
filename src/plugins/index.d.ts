@@ -1,4 +1,4 @@
-// Type declarations for JavaScript/MJS plugin files
+
 declare module '*.js' {
 	import type { Pluggable } from 'unified';
 	const plugin: Pluggable;

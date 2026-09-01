@@ -65,7 +65,7 @@ export async function syncPostTaxonomy(
 	slug: string,
 	frontmatter: PostFrontmatter,
 ) {
-	// 与 upsertPost 保持一致：优先 categories，回退到单数 category 字段
+
 	const resolvedCategories = resolveCategories(frontmatter);
 	const categoryPath = categoryPathFromFrontmatter(resolvedCategories);
 	const tags = normalizeTags(frontmatter.tags) || [];

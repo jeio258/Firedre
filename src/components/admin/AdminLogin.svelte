@@ -39,8 +39,7 @@ async function submit(event: SubmitEvent) {
 			error = data.message || "登录失败";
 			return;
 		}
-		// 验证会话 Cookie 已建立（重试一次，消除 Set-Cookie 竞态）；
-		// 即使验证失败也跳转后台——AdminApp 会自行校验并展示登录表单，避免误报卡死
+
 		for (let attempt = 0; attempt < 2; attempt++) {
 			try {
 				const me = await fetch("/api/admin/me/", { credentials: "include" });

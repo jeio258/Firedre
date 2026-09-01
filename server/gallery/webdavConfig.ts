@@ -1,10 +1,4 @@
-/**
- * 相册 WebDAV 源配置（D1 存储）。
- *
- * 设计：相册 index.md 的 frontmatter 只保留 `source: webdav` 标记，
- * url/username 存于本表（album_webdav）。与 album_passwords 一致走 D1 存储，
- * 避免 WebDAV 服务器地址/账号写进 R2 文件。登录密码（WEBDAV_PASSWORD）恒走环境变量。
- */
+
 
 import type { CloudflareEnv } from "../../types/env";
 
@@ -15,7 +9,6 @@ export interface AlbumWebDavConfigRow {
 	updated_at: string;
 }
 
-/** 读取 WebDAV 配置（无则返回 null） */
 export async function getAlbumWebDavConfig(
 	env: CloudflareEnv,
 	slug: string,
@@ -33,7 +26,6 @@ export async function getAlbumWebDavConfig(
 	};
 }
 
-/** 写入 WebDAV 配置（upsert） */
 export async function setAlbumWebDavConfig(
 	env: CloudflareEnv,
 	slug: string,
@@ -58,7 +50,6 @@ export async function setAlbumWebDavConfig(
 		.run();
 }
 
-/** 删除 WebDAV 配置 */
 export async function deleteAlbumWebDavConfig(
 	env: CloudflareEnv,
 	slug: string,

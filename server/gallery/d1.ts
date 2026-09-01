@@ -1,14 +1,4 @@
-/**
- * 相册 D1 数据层（完全动态化）。
- *
- * 架构：相册元数据存 D1（权威），实际图片文件仍存 R2。
- *   - albums       相册主表：slug/title/desc/date/location/tags/cover/source/content...
- *   - album_photos 照片表：url/type/poster/date/sort_order
- *   - album_passwords / album_webdav 沿用现有 D1 表
- *
- * 本层返回的 frontmatter 结构与 server/gallery/frontmatter.ts 的
- * normalizeAlbumFrontmatter 输出保持一致，使上层 service / 前端页面无需改动。
- */
+
 
 import type {
 	AlbumDetailFrontmatter,
@@ -16,7 +6,6 @@ import type {
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
 
-/** D1 中一行 albums 表记录（snake_case） */
 interface AlbumRow {
 	slug: string;
 	title: string;
@@ -31,7 +20,6 @@ interface AlbumRow {
 	content: string;
 }
 
-/** D1 中一行 album_photos 表记录 */
 interface AlbumPhotoRow {
 	url: string;
 	type: string | null;
@@ -40,7 +28,6 @@ interface AlbumPhotoRow {
 	sort_order: number;
 }
 
-/** 相册 D1 数据 + 照片列表 */
 export interface AlbumD1Data {
 	frontmatter: AlbumDetailFrontmatter;
 	content: string;
@@ -60,7 +47,6 @@ function parseSource(raw: string): AlbumSource {
 	return raw === "webdav" ? "webdav" : "local";
 }
 
-/** 读取单个相册的 D1 元数据 + 照片列表，返回与 normalizeAlbumFrontmatter 一致的结构 */
 export async function getAlbumFromD1(
 	env: CloudflareEnv,
 	slug: string,
@@ -110,11 +96,6 @@ async function loadPhotos(
 	return results || [];
 }
 
-/**
- * 写入/更新相册到 D1（元数据权威）。
- * - 全量替换 frontmatter 字段与 photos 列表（photos 由入参决定，维护 sort_order）。
- * - 返回写入后的 D1 数据，供上层复用。
- */
 export async function upsertAlbumToD1(
 	env: CloudflareEnv,
 	slug: string,
@@ -157,7 +138,6 @@ export async function upsertAlbumToD1(
 		)
 		.run();
 
-	// 照片列表：全量删除后重插，维护 sort_order（调用方传入 photos 的数组顺序即排序）
 	await env.DB.prepare("DELETE FROM album_photos WHERE album_slug = ?")
 		.bind(slug)
 		.run();
@@ -182,7 +162,6 @@ export async function upsertAlbumToD1(
 	return { frontmatter: { ...frontmatter, source }, content };
 }
 
-/** 删除相册（级联删除照片，依赖 albums 外键 ON DELETE CASCADE） */
 export async function deleteAlbumFromD1(env: CloudflareEnv, slug: string) {
 	await env.DB.prepare("DELETE FROM albums WHERE slug = ?").bind(slug).run();
 }

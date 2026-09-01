@@ -4,10 +4,6 @@ import { cfEnv, fromServiceError } from "../../lib/api";
 
 export const prerender = false;
 
-/**
- * 动态流数据：响应结构与 Firefly 原版 /api/dynamic.json 一致
- * （id / published(ms) / html / images / searchText / pinned / location）
- */
 export const GET: APIRoute = async () => {
 	try {
 		const items = await getAllDynamics(cfEnv);

@@ -1,8 +1,4 @@
-/**
- * Memos API 客户端适配器
- * 直接从 Memos API 获取数据并转换为动态系统格式
- * @author: CuteLeaf <xiaye@msn.com>
- */
+
 import { Marked } from "marked";
 
 interface MemoAttachment {
@@ -50,12 +46,6 @@ export interface DynamicEntry {
 	location?: string;
 }
 
-/**
- * 专用的 marked 实例，用于把 Memos 的 Markdown 渲染为 HTML
- * 启用 GFM 与单换行转 <br>（贴近 Memos 的社交化渲染效果），
- * 链接默认新标签页打开并防止反向标签页劫持；
- * 图片由 extractImages 单独提取并追加到内容后，故此处直接渲染为空
- */
 const memosMarked = new Marked({ gfm: true, breaks: true });
 import { safeUrlScheme } from "../../server/utils/safeUrl";
 
@@ -64,7 +54,7 @@ memosMarked.use({
 		link({ href, title, tokens }) {
 			const text = this.parser.parseInline(tokens);
 			const titleAttr = title ? ` title="${String(title).replace(/"/g, "&quot;")}"` : "";
-			// 只允许安全 scheme，拦截 javascript:/data:/vbscript: 及属性注入
+
 			const safeHref = safeUrlScheme(href);
 			if (!safeHref) {
 				return `<span>${text}</span>`;
@@ -78,17 +68,10 @@ memosMarked.use({
 	},
 });
 
-/**
- * 将 Memos 的 Markdown 内容转换为 HTML
- * 图片语法由 marked 的 image 渲染器置空，避免重复渲染
- */
 function markdownToHtml(markdown: string): string {
 	return memosMarked.parse(markdown) as string;
 }
 
-/**
- * 从内容中提取纯文本用于搜索
- */
 function extractPlainText(content: string): string {
 	return content
 		.replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
@@ -99,10 +82,6 @@ function extractPlainText(content: string): string {
 		.trim();
 }
 
-/**
- * 从 Memos 内容中提取图片
- * 使用 marked 的词法分析器定位图片 token，可正确处理含括号的图片地址与可选标题
- */
 function extractImages(memo: Memo, memosApiUrl: string): DynamicImage[] {
 	const images: DynamicImage[] = [];
 
@@ -126,7 +105,7 @@ function extractImages(memo: Memo, memosApiUrl: string): DynamicImage[] {
 	if (memo.attachments) {
 		for (const attachment of memo.attachments) {
 			if (attachment.type.startsWith("image/")) {
-				// Memos 文件服务路径: /file/attachments/{id}/{filename}
+
 				const attachmentId = attachment.name.split("/").pop() || "";
 				const src =
 					attachment.externalLink ||
@@ -146,9 +125,6 @@ function extractImages(memo: Memo, memosApiUrl: string): DynamicImage[] {
 // 请求去重缓存，避免同页面多个组件重复请求
 const pendingRequests = new Map<string, Promise<DynamicEntry[]>>();
 
-/**
- * 从 Memos API 获取数据并转换为动态格式
- */
 export async function fetchMemos(
 	memosApiUrl: string,
 	options?: { pageSize?: number; maxPages?: number; parent?: string },
@@ -200,8 +176,6 @@ async function fetchMemosInternal(
 		pageToken = data.nextPageToken;
 	}
 
-	// Memos 的 ListMemos API 并不会按 parent 过滤 creator（实测带不带 parent 返回结果一致），
-	// 因此这里在客户端按 creator 二次过滤，确保只显示指定用户的动态
 	const userFilteredMemos = parent
 		? allMemos.filter((memo) => memo.creator === parent)
 		: allMemos;

@@ -2,12 +2,6 @@ import { describe, it, expect } from "vitest";
 import { SETTING_GROUPS } from "../server/settings/service";
 import { flattenSettingsDefaults } from "../server/settings/flatten";
 
-/**
- * 回归保护：清除 widgets/expressive/encrypt/plantuml 四个死配置组后，
- * 确保：1) 死组不再出现在 SETTING_GROUPS；2) 保留的每个组都能在后台
- * 默认值（flattenSettingsDefaults）中找到对应映射；3) 组列表与默认值无漂移。
- */
-
 const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt", "plantuml"];
 
 describe("SETTING_GROUPS 已清除死配置组", () => {

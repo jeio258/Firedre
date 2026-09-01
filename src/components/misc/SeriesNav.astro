@@ -90,7 +90,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
   .series-nav-toggle[aria-expanded="true"] .details-arrow {
     transform: rotate(180deg);
   }
-  /* 展开后头部与列表相连，底部两角设为直角；收起动画走完才恢复圆角 */
+
   .series-nav.is-expanded .series-nav-toggle {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -129,7 +129,6 @@ const { seriesName, posts, currentPostId } = Astro.props;
     }
   }
 
-  // 事件委托，Swup 切页后新内容也能直接工作；避免重复注册（@swup/scripts-plugin 会重跑内联脚本）
   if (!window.__seriesNavInit) {
     window.__seriesNavInit = true;
     document.addEventListener('click', onSeriesNavToggle);

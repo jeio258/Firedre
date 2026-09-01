@@ -1,7 +1,4 @@
-/**
- * 图标加载管理器
- * 负责处理图标的加载状态显示
- */
+
 
 let bodyObserver: MutationObserver | null = null;
 
@@ -82,7 +79,7 @@ export function initIconLoader(): void {
 			setTimeout(() => {
 				observer.disconnect();
 				if (!checkIconLoaded()) {
-					// console.warn(`Icon load timeout: ${iconName}`);
+
 				}
 			}, 5000);
 		}
@@ -96,7 +93,6 @@ export function initIconLoader(): void {
 	// 初始化页面上现有的图标
 	document.querySelectorAll("[data-icon-container]").forEach(initContainer);
 
-	// 复用单个 body observer，避免 Swup 切页重复调用 initIconLoader 时累积多个 observer
 	bodyObserver?.disconnect();
 	if (window.MutationObserver) {
 		const observer = new MutationObserver((mutations) => {

@@ -48,7 +48,6 @@ async function remove(slug: string) {
 	}
 }
 
-// ── 拖拽排序（方案A：原生 HTML5 drag & drop） ──
 let dragIndex = -1;
 
 function onDragStart(index: number) {

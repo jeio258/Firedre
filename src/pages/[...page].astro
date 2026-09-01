@@ -9,8 +9,6 @@ import { apiPostToPostForList } from "@/utils/post-types";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 export const prerender = false;
 
 // Firedre：首页分页从 D1 动态获取
@@ -63,8 +61,8 @@ const len = page.data.length;
 <script>
   // 响应式分页处理脚本
   document.addEventListener("DOMContentLoaded", function () {
-    // 如果启用了响应式分页，添加相应的CSS类
-    const responsiveEnabled = true; // ${((settings as any)?.["pagination"] ?? siteConfig.pagination).responsive}
+
+    const responsiveEnabled = true;                                                                              
     if (responsiveEnabled) {
       const deviceType = getDeviceType();
       document.body.classList.add(`device-${deviceType}`);

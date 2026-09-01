@@ -2,10 +2,9 @@ import type { FriendInput, FriendRecord } from "../../types/friends";
 import { UserError } from "../utils/userError";
 import { isSafeHttpUrl } from "../utils/safeUrl";
 import { createCrudService } from "../utils/crud";
-// 统一 URL scheme 校验（白名单 http/https + 相对路径，拦截 javascript: 等存储型 XSS）
+
 export { isSafeHttpUrl };
 
-/** normalizeInput 的规范化产物（键序与 columns 一致） */
 interface FriendNormalized {
 	title: string;
 	imgurl: string;
@@ -25,7 +24,6 @@ function normalizeInput(raw: FriendInput): FriendNormalized {
 	if (!imgurl) throw new UserError("友链头像不能为空");
 	if (!siteurl) throw new UserError("友链地址不能为空");
 
-	// 仅允许安全 URL scheme，拦截 javascript:/data:/vbscript: 等存储型 XSS
 	if (!isSafeHttpUrl(siteurl)) throw new UserError("友链地址仅支持 http/https 或相对路径");
 	if (!isSafeHttpUrl(imgurl)) throw new UserError("友链头像仅支持 http/https 或相对路径");
 
@@ -68,10 +66,8 @@ const service = createCrudService<FriendRecord, FriendInput, FriendNormalized>({
 	notFoundMessage: "友链不存在",
 });
 
-/** 前台展示：仅启用且按权重降序 */
 export const listEnabledFriends = service.listEnabled;
 
-/** 后台管理：全部友链，按权重降序 */
 export const listFriends = service.list;
 
 export const getFriend = service.get;

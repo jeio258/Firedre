@@ -1,7 +1,4 @@
 ---
-// 樱花特效:优先使用 OffscreenCanvas + Web Worker 绘制(脱离主线程,
-// 避免页面切换时主线程阻塞导致樱花掉帧);不支持时回退到主线程 Canvas 2D 实现。
-// 配置见 src/config/effectsConfig.ts,通信协议见 src/types/sakura-worker.ts
 
 ---
 
@@ -13,8 +10,6 @@
 		SakuraWorkerOutboundMessage,
 	} from "@/types/sakura-worker";
 
-	// 主线程回退实现(不支持 OffscreenCanvas 时使用)
-	// 逻辑与原 is:inline 版本完全一致,仅改为 TS + 实现 SakuraManagerLike 接口
 	let windowWidth = window.innerWidth;
 	let windowHeight = window.innerHeight;
 
@@ -192,10 +187,7 @@
 		isRunning = false;
 		private boundHandleResize: (() => void) | null = null;
 		private resizeRafId: number | null = null;
-		/**
-		 * init/stop 周期代际标记。每次 stop 自增,使 await 期间被取消的 init 失效,
-		 * 避免图片加载期间用户切换导致重复创建 canvas(DOM 泄漏)。
-		 */
+
 		private initGeneration = 0;
 
 		constructor(config: SakuraConfig) {
@@ -206,7 +198,7 @@
 			if (!this.config.enable || this.isRunning) {
 				return;
 			}
-			// 提前标记运行,防止 await 图片加载期间重入导致重复创建 canvas
+
 			this.isRunning = true;
 			const gen = ++this.initGeneration;
 
@@ -224,7 +216,6 @@
 						reject(new Error("Failed to load sakura image"));
 				});
 
-				// await 期间若被 stop 或被更新的 init 取代,则中止本次初始化
 				if (gen !== this.initGeneration) {
 					return;
 				}
@@ -302,7 +293,7 @@
 		}
 
 		handleResize() {
-			// 用 rAF 节流,避免 resize 事件高频触发频繁重置 canvas(重置会清空内容)
+
 			if (this.resizeRafId !== null) return;
 			this.resizeRafId = requestAnimationFrame(() => {
 				this.resizeRafId = null;
@@ -316,7 +307,7 @@
 		}
 
 		stop() {
-			// 使进行中的 init 失效,避免其在 await 完成后继续创建资源
+
 			this.initGeneration++;
 			if (this.resizeRafId !== null) {
 				cancelAnimationFrame(this.resizeRafId);
@@ -345,7 +336,6 @@
 		}
 	}
 
-	// Worker + OffscreenCanvas 实现(优先使用,绘制循环脱离主线程)
 	class WorkerSakuraManager implements SakuraManagerLike {
 		config: SakuraConfig;
 		canvas: HTMLCanvasElement | null = null;
@@ -354,7 +344,7 @@
 		private boundHandleResize: (() => void) | null = null;
 		private boundHandleVisibility: (() => void) | null = null;
 		private resizeRafId: number | null = null;
-		/** Worker 是否已完成 init(收到 ready)。用于区分 init 阶段失败与运行期错误。 */
+
 		private workerReady = false;
 
 		constructor(config: SakuraConfig) {
@@ -369,7 +359,7 @@
 			this.workerReady = false;
 
 			try {
-				// 创建 canvas 并转移到 Worker(转移后主线程不能再获取其 context)
+
 				this.canvas = document.createElement("canvas");
 				this.canvas.setAttribute(
 					"style",
@@ -380,7 +370,6 @@
 
 				const offscreen = this.canvas.transferControlToOffscreen();
 
-				// 创建 Worker(Vite 自动打包 src/workers/sakura.worker.ts)
 				this.worker = new Worker(
 					new URL("../../workers/sakura.worker.ts", import.meta.url),
 					{ type: "module" },
@@ -390,7 +379,7 @@
 					console.warn(
 						`[SakuraWorker] error: ${e.message} (${e.filename}:${e.lineno}:${e.colno})`,
 					);
-					// init 阶段(尚未 ready)的 worker 级错误说明初始化失败,清理保持状态一致
+
 					if (!this.workerReady) {
 						this.stop();
 					}
@@ -404,9 +393,7 @@
 						this.workerReady = true;
 					} else if (data.type === "error") {
 						console.warn("[SakuraWorker]", data.message, data.stack ?? "");
-						// init 阶段(尚未 ready)的 error 说明初始化失败:
-						// worker 内部已清理,主线程也需清理残留 canvas 与 worker,
-						// 否则会留下空白 canvas + idle worker(资源泄漏),且 isRunning 状态不一致
+
 						if (!this.workerReady) {
 							this.stop();
 						}
@@ -415,7 +402,6 @@
 					}
 				};
 
-				// 发送 init 消息,转移 OffscreenCanvas 所有权给 Worker
 				this.worker.postMessage(
 					{
 						type: "init",
@@ -461,8 +447,7 @@
 				this.resizeRafId = null;
 			}
 			if (this.worker) {
-				// terminate 会立即回收 worker 整个 JS 堆(含 ImageBitmap),
-				// postMessage({type:"stop"}) 可能因 terminate 抢先而无法处理,但无害
+
 				this.worker.postMessage({ type: "stop" });
 				this.worker.terminate();
 				this.worker = null;
@@ -528,15 +513,12 @@
 		}
 	}
 
-	// 入口:幂等初始化 + 监听设置面板切换
-	// 守卫确保 Swup 切页重跑模块化脚本时不会重复初始化或重复注册监听器
 	(function setupSakura() {
 		if (window.sakuraInitialized) {
 			return;
 		}
 		window.sakuraInitialized = true;
 
-		// 读取用户设置：后台站点设置优先 → localStorage（设置面板切换）→ 配置默认值
 		const fireflySettings = (window as unknown as { __FIREFLY_SETTINGS__?: { effects?: Record<string, unknown> } }).__FIREFLY_SETTINGS__;
 		const settingsSakura = fireflySettings?.effects?.sakura as boolean | undefined;
 		const storedEnabled = localStorage.getItem("sakuraEnabled");

@@ -40,8 +40,6 @@ export function parseDirectiveNode() {
 			) {
 				const name = node.name ? node.name.toLowerCase() : "";
 
-				// 检查是否是 Admonition 类型
-				// 仅对 containerDirective 进行 Admonition 转换
 				if (
 					node.type === "containerDirective" &&
 					ADMONITION_TYPES.includes(name)
@@ -83,7 +81,6 @@ export function parseDirectiveNode() {
 					node.data = data;
 					node.attributes = node.attributes || {};
 
-					// Add specific attributes for directive labels
 					if (
 						node.children.length > 0 &&
 						node.children[0].data &&

@@ -154,7 +154,7 @@ function buildAlbumPayload(
 	if (Array.isArray(frontmatter.tags) && frontmatter.tags.length)
 		payload.tags = frontmatter.tags.map(String);
 	if (frontmatter.comment === true) payload.comment = true;
-	// 密码不再写入 frontmatter（存 D1 表 album_passwords），仅保留带锁标记
+
 	payload.encrypted = frontmatter.encrypted === true;
 
 	if (frontmatter.source === "webdav" && frontmatter.webdav?.url) {

@@ -19,7 +19,7 @@ export const spineModelConfig: SpineModelConfig = {
 
 	// 位置配置
 	position: {
-		// 显示位置 bottom-left，bottom-right，top-left，top-right，注意：在右下角可能会挡住返回顶部按钮
+
 		corner: "bottom-left",
 		// 距离边缘0px
 		offsetX: 0,
@@ -75,14 +75,12 @@ export const spineModelConfig: SpineModelConfig = {
 		mobileBreakpoint: 768,
 	},
 
-	// 层级
-	zIndex: 1000, // 层级
+	zIndex: 1000,      
 
 	// 透明度
 	opacity: 1.0,
 };
 
-// Live2D 看板娘配置 (使用 l2d-widget 库，文档：https://l2d-widget.hacxy.cn)
 export const live2dWidgetConfig: Live2DWidgetConfig = {
 	// Live2D 看板娘开关
 	enable: false,
@@ -113,7 +111,7 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 	position: "bottom-left" as const,
 	// 画布尺寸（px）
 	size: { width: 200, height: 200 },
-	// 主题色，用于菜单、状态条等 UI 元素的背景色，默认 'rgba(96,165,250,0.9)'
+
 	primaryColor: "var(--l2d-msg-bg)",
 	// 入场/退场动画时长（ms）
 	transitionDuration: 1500,
@@ -171,8 +169,8 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 		interval: 6000,
 		// 位置偏移量（px），基于默认位置（模型正上方居中）进行微调
 		offset: {
-			x: 0, // 正值右移，负值左移
-			y: 0, // 正值下移，负值上移
+			x: 0,             
+			y: 0,             
 		},
 	},
 	// 响应式配置

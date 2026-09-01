@@ -1,5 +1,5 @@
-// 站点默认值的唯一数据源（后台表单 + middleware SSR 合并共用）。
-// 后台与运行时读取同一份 settingsDefaults，避免多份副本发散。
+
+
 export const settingsDefaults = {
 	basic: {
 		title: "Firefly",

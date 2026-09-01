@@ -1,7 +1,5 @@
 import type { NavBarConfig, NavBarLink } from "../types/navBarConfig";
 
-// 导航栏配置 - 根据顺序动态生成导航栏链接
-// NavBar Configuration - Dynamically generate navigation bar links based on order
 const getDynamicNavBarConfig = (): NavBarConfig => {
 	// 基础导航栏链接
 	const links: NavBarLink[] = [];
@@ -86,8 +84,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 		],
 	});
 
-	// 站点外链「链接」下拉：子菜单由后台「链接管理」D1 表 site_links（location=navbar）驱动，
-	// 此处仅保留菜单外壳（name/icon），不再硬编码具体外链。D1 为空时该菜单不渲染。
 	links.push({
 		name: "链接",
 		url: "#",
@@ -98,8 +94,6 @@ const getDynamicNavBarConfig = (): NavBarConfig => {
 	return { links } as NavBarConfig;
 };
 
-// 链接预设 - 可自由自定义导航栏链接的名称、图标和URL
-// Link Presets - Allows free customization of the name, icon, and URL of navigation bar links
 export const LinkPresets: Record<string, NavBarLink> = {
 	Home: {
 		name: "主页",

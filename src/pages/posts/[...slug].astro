@@ -47,7 +47,6 @@ import {
 } from "@/utils/schema-utils";
 import { url } from "@/utils/url-utils";
 
-
 export const prerender = false;
 
 const slug = Astro.params.slug || "";
@@ -78,8 +77,6 @@ const bannerPostMeta = {
 	minutes: remarkPluginFrontmatter.minutes,
 };
 
-// 处理随机图：如果image为"api"，则从配置的API获取随机图
-// 站点绝对 URL（统一走 getSiteConfig，兼容后台 basic.siteUrl 驼峰键）
 const siteUrl = getSiteConfig(Astro.locals).site_url;
 const processedImage = processCoverImageSync(entry.data.image, entry.id);
 const apiUrls = getApiUrlList(entry.data.image, entry.id);
@@ -100,7 +97,6 @@ const getDirectImageUrl = (src: string | undefined): string | null => {
 	return src.startsWith("/") ? url(src) : null;
 };
 
-// 海报优先复用页面上已经优化过的图片，本地源路径不再单独导入。
 const posterCoverUrl = showPostCover ? null : getDirectImageUrl(processedImage);
 const posterCoverSelector = showPostCover ? "#post-cover img" : null;
 const posterAvatarUrl = getDirectImageUrl(((settings as any)?.["avatar"] ?? profileConfig.avatar));
@@ -118,11 +114,9 @@ const coverImage =
 		siteUrl,
 	)) ?? undefined;
 
-// 作者个人页（/about/）绝对 URL，用于 author.url 指向唯一标识作者的页面
 const aboutUrl =
 	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
-// 作者实体：与首页/about 的 Person 共用同一 @id（#person），author 用 @id 关联
 const authorAvatarUrl = await getAuthorAvatarUrl();
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
@@ -132,7 +126,6 @@ const authorPerson = buildPersonEntity({
 	description: ((settings as any)?.["bio"] ?? profileConfig.bio),
 });
 
-// publisher 实体（Organization，含真实 logo），article 的 publisher 用其 @id 关联
 const publisher = buildPublisherEntity({
 	site: siteUrl,
 	siteConfig,
@@ -177,7 +170,7 @@ const jsonLd = {
 							...(coverImage.height ? { height: coverImage.height } : {}),
 						},
 					}
-				: {}), // 优化：有封面才输出，避免 image:null
+				: {}),                           
 			datePublished: entry.data.published.toISOString(),
 			...(entry.data.category ? { articleSection: entry.data.category } : {}),
 			...(remarkPluginFrontmatter.words
@@ -214,9 +207,9 @@ const seriesData = await getSeriesPosts(entry);
   encrypted={!!entry.data.password}
   bannerPostMeta={bannerPostMeta}
 >
-  <!-- KaTeX 按需加载 - 仅在文章页面 -->
+
   <KatexManager slot="head" />
-  
+
   <script
     is:inline
     slot="head"
@@ -289,7 +282,6 @@ const seriesData = await getSeriesPosts(entry);
         )
       }
 
-      <!-- word count and reading time -->
       {
         !usePostCoverOverlay && (
           <div
@@ -340,7 +332,6 @@ const seriesData = await getSeriesPosts(entry);
         )
       }
 
-      <!-- title -->
       {
         !usePostCoverOverlay && (
           <div class="relative onload-animation">
@@ -360,7 +351,6 @@ const seriesData = await getSeriesPosts(entry);
         )
       }
 
-      <!-- metadata -->
       {
         !usePostCoverOverlay && (
           <div class="onload-animation">
@@ -413,7 +403,7 @@ const seriesData = await getSeriesPosts(entry);
             <Fragment set:html={html} />
           </Markdown>
 
-          {/* 打赏按钮 & 分享按钮 */}
+          {                 }
           {
             (((settings as any)?.["post"] ?? siteConfig.post).sharePoster || (((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
@@ -503,7 +493,7 @@ const seriesData = await getSeriesPosts(entry);
             <Fragment set:html={html} />
           </Markdown>
 
-          {/* 打赏按钮 & 分享按钮 */}
+          {                 }
           {
             (((settings as any)?.["post"] ?? siteConfig.post).sharePoster || (((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
@@ -591,7 +581,6 @@ const seriesData = await getSeriesPosts(entry);
     </div>
   </div>
 
-  <!-- 上次编辑时间 -->
   {
     ((settings as any)?.["post"] ?? siteConfig.post).showLastModified && (() => {
       const lastModified = dayjs(entry.data.updated || entry.data.published);
@@ -634,7 +623,7 @@ const seriesData = await getSeriesPosts(entry);
     const dateStr = card?.dataset.date;
 
     if (card && dateStr) {
-      // 讀取伺服器給的日期，用原生 Date 算出差異天數（避免向客戶端打包整個 dayjs）
+
       const lastModified = new Date(dateStr);
       const daysDiff = Math.floor(
         (Date.now() - lastModified.getTime()) / 86400000,
@@ -696,6 +685,5 @@ const seriesData = await getSeriesPosts(entry);
 
   <RecommendedPost relatedPosts={relatedPosts} currentPostId={entry.id} />
 
-  <!-- 评论 -->
   {entry.data.comment && !entry.data.password && settings.comment?.enabled !== false && <Comment post={entry} />}
 </MainGridLayout>

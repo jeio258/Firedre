@@ -4,8 +4,6 @@ import { getCommentConfig } from "@/config/runtime";
 // 运行时评论配置（后台可编辑；静态 config 为兜底）
 const comment = getCommentConfig(Astro.locals);
 
-
-
 interface Props {
 	path: string;
 }
@@ -22,7 +20,7 @@ const config = {
 	...(comment.waline?.visitorCount ? { pageview: true } : {}),
 };
 ---
-<!-- Waline -->
+
 <div class="relative w-full">
   <div id="waline"></div>
   <link rel="stylesheet" href="https://unpkg.com/@waline/client@v3/dist/waline.css" />

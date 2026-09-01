@@ -1,23 +1,22 @@
-/* 横幅文字阴影 - 更柔和的扩散效果 */
+
 .banner-title {
     text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
-    /* 防止大字体标题溢出容器 */
+
     overflow-wrap: break-word;
     word-break: break-word;
-    /* 响应式字体大小：取用户配置值与视口宽度10%中的较小值，防止小屏幕溢出 */
+
     font-size: var(--banner-title-size, 3rem);
     font-size: min(var(--banner-title-size, 3rem), 10vw);
-    /* 独立字体设置，通过 fontConfig.bannerTitleFont 配置 */
+
     font-family: var(--font-banner-title, inherit);
 }
 
 .banner-subtitle {
     text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
-    /* 独立字体设置，通过 fontConfig.bannerSubtitleFont 配置 */
+
     font-family: var(--font-banner-subtitle, inherit);
 }
 
-/* 首页横幅标题下方的链接图标行（半透明圆按钮） */
 .banner-links {
     animation: banner-fadeInUp 0.3s ease-out 0.5s both;
 }
@@ -37,7 +36,6 @@
     transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
 }
 
-/* 图标跟随按钮颜色（SVG 默认 fill 为黑，需显式指定） */
 .banner-link svg {
     fill: currentColor;
 }
@@ -55,16 +53,12 @@
     font-size: 0.9rem;
 }
 
-/* banner 首页标题下方有链接时，主内容容器（z-30, pointer-events-auto）会覆盖标题区域、
-   拦截链接点击；让容器不拦截，网格内容（卡片/侧边栏/footer）恢复可交互 */
 body.is-home.enable-banner .w-full.z-30.pointer-events-none > .relative.w-full {
     pointer-events: none;
 }
 body.is-home.enable-banner .w-full.z-30.pointer-events-none #main-grid {
     pointer-events: auto;
 }
-
-/* 横幅背景暗层透明度 - 通过配置文件 common.dimOpacity 控制，内联样式覆盖 */
 
 .banner-post-title {
     max-width: 72rem;
@@ -81,13 +75,6 @@ body.is-home.enable-banner .w-full.z-30.pointer-events-none #main-grid {
     vertical-align: middle;
     line-height: 1.2;
 }
-
-/* .banner-page-title-icon {
-    font-size: 1.2em;
-    line-height: 1;
-    vertical-align: middle;
-    transform: translateY(0.08em);
-  } */
 
 .banner-page-title-text {
     line-height: 1.2;

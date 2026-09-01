@@ -1,6 +1,5 @@
 @reference "tailwindcss";
 
-/* PhotoSwipe 按钮样式 */
 .pswp__button {
     transition: all 0.2s ease !important;
     background-color: rgba(0, 0, 0, 0.4) !important;

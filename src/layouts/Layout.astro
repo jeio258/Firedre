@@ -40,7 +40,6 @@ import "@/styles/main.css";
 import "@/styles/variables.styl";
 import "@rehype-callouts-theme";
 
-
 interface Props {
 	title?: string;
 	description?: string;
@@ -61,7 +60,6 @@ let {
 	hasWallpaper = false,
 } = Astro.props;
 
-// 为 body 加类决定 banner 高度（仅首屏）。Swup 切页在转场后才改，故用 hook 在点击时立即改
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）
@@ -72,23 +70,14 @@ const settings =
 		}
 	).settings ?? {};
 
-// defines global css variables
-// 为何在 Layout 而非 GlobalStyles：github.com/withastro/astro/issues/6728#issuecomment-1502203757
 const configHue = settings.hue ?? ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue;
 
-// 获取导航栏透明模式配置（banner 模式专属）
 const navbarTransparentMode =
 	((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi";
 // 判断是否应该显示顶部高光效果（只在full和semifull模式下显示）
 const shouldShowTopHighlight =
 	navbarTransparentMode === "full" || navbarTransparentMode === "semifull";
 
-// 子菜单 / 浮动面板的毛玻璃模糊度：跟随 navbar.blur，但不受壁纸模式影响，
-// 且带一个最小值 —— 导航栏可以用 blur: 0 关掉毛玻璃，面板则始终保留毛玻璃。
-// 之所以不复用 #navbar 上的 --navbar-glass-blur：
-// setting-utils.ts 的 updateNavbarTransparency() 会在切到 overlay / none 模式时
-// 把它清成 0px；这里放到 :root 上，同时也能让不在导航栏 DOM 内的
-// .float-panel（#translate-panel、#mobile-toc-panel）继承到。
 const NAVBAR_PANEL_MIN_BLUR = 2;
 const navbarPanelBlur = Math.max(
 	((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
@@ -105,7 +94,7 @@ const effectiveDescription =
 	siteConfig.description;
 let pageTitle: string;
 const siteSubtitle = ((settings as any)?.["subtitle"] ?? siteConfig.subtitle) || "";
-// 站点标识 = 站点名（+ 副标题，后台可配置，所有页面标签栏都体现）
+
 const siteIdentity = siteSubtitle ? `${effectiveTitle} - ${siteSubtitle}` : effectiveTitle;
 if (title) {
 	pageTitle = `${title} - ${siteIdentity}`;
@@ -131,21 +120,18 @@ const favicons: Favicon[] =
 			? ((settings as any)?.["favicon"] ?? siteConfig.favicon)
 			: defaultFavicons;
 
-// const siteLang = ((settings as any)?.["lang"] ?? siteConfig.lang).replace('_', '-')
 if (!lang) {
 	lang = `${((settings as any)?.["lang"] ?? siteConfig.lang)}`;
 }
 const siteLang = lang.replace("_", "-");
 
-// 首页站点级结构化数据用的作者头像 URL（Person.image），经 toAbsoluteImageUrl 三分解析
 const avatarUrl = await getAuthorAvatarUrl();
 // 作者个人页（/about/）绝对 URL，作为 Person.url
 const effectiveSiteUrl = settings.siteUrl || ((settings as any)?.["site_url"] ?? siteConfig.site_url);
 const aboutUrl = toAbsoluteUrl("/about/", effectiveSiteUrl) ?? effectiveSiteUrl;
-// 站点 publisher logo（Organization.logo），用于首页 @graph 的 Organization 节点
+
 const siteLogo = await getSiteLogo();
 
-// 使用固定的banner偏移量，position配置用于图片定位
 ---
 
 <!doctype html>
@@ -254,9 +240,6 @@ const siteLogo = await getSiteLogo();
       ))
     }
 
-    <!-- 为特定域名的图片添加 referrerpolicy 以解决 403 问题 -->
-    <!-- 注：静态图片（ImageWrapper 组件、Markdown 正文图）已在构建期加好 referrerpolicy；
-         此脚本仅作为运行时兜底，处理动态注入的图片（解密内容、第三方评论/统计部件等）。 -->
     {((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
      ((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (
       <script
@@ -320,7 +303,6 @@ const siteLogo = await getSiteLogo();
       </script>
     )}
 
-    <!-- Set the theme before the page is rendered to avoid a flash -->
     <script
       is:inline
       define:vars={{
@@ -370,7 +352,6 @@ const siteLogo = await getSiteLogo();
         document.documentElement.classList.remove("dark");
       }
 
-      // Set the theme for Expressive Code
       document.documentElement.setAttribute(
         "data-theme",
         isDark ? darkTheme : lightTheme
@@ -396,8 +377,6 @@ const siteLogo = await getSiteLogo();
         : Number(cardRadius);
       document.documentElement.style.setProperty("--radius-large", resolvedRadius + "rem");
 
-      // 内容定位已由 --content-top 纯 CSS 决定（layout-base.css），无需 --banner-height-extend 变量/计算
-
       // 初始化壁纸模式 - 在页面渲染前同步应用（其余布局由 CSS 属性选择器接管）
       const wallpaperMode = isWallpaperSwitchable
         ? localStorage.getItem("wallpaperMode") || defaultWallpaperMode
@@ -409,8 +388,6 @@ const siteLogo = await getSiteLogo();
         wallpaperMode
       );
 
-      // 初始化期间禁用 content-panel/wrapper 过渡，避免加载时布局/变量变化产生内容移动动画；
-      // load 后移除（仅首次设置，swup 切页重跑脚本时不再重复）。布局已由 CSS 接管，无需 rAF 校正
       if (!window.__fireflyLayoutTransitionGuard) {
         window.__fireflyLayoutTransitionGuard = true;
         document.documentElement.setAttribute("data-layout-init", "");
@@ -457,7 +434,6 @@ const siteLogo = await getSiteLogo();
         "banner-height": `${BANNER_HEIGHT}vh`,
       }}
     ></style>
-    <!-- defines global css variables. This will be applied to <html> <body> and some other elements idk why -->
 
     <slot name="head" />
 
@@ -468,7 +444,6 @@ const siteLogo = await getSiteLogo();
       href={`${Astro.site}rss.xml`}
     />
 
-    <!-- Font Setup (Astro Font API) -->
     <FontSetup />
   </head>
   <body
@@ -480,7 +455,7 @@ const siteLogo = await getSiteLogo();
       },
     ]}
   >
-    <!-- 首帧前按运行时壁纸模式翻转卡片透明类（布局已由 data-wallpaper-mode 属性规则接管） -->
+
     <script is:inline>
       (function () {
         const wm = document.documentElement.getAttribute("data-wallpaper-mode");
@@ -494,7 +469,7 @@ const siteLogo = await getSiteLogo();
 
     <div id="progress-bar"></div>
 
-    {/* 卡片样式：根据 localStorage 覆盖默认配置 */}
+    {                                 }
     <script is:inline define:vars={{
       defaultBorder: ((settings as any)?.["card"] ?? siteConfig.card)?.border ?? false,
       defaultFollowTheme: ((settings as any)?.["card"] ?? siteConfig.card)?.followTheme ?? false,
@@ -512,37 +487,28 @@ const siteLogo = await getSiteLogo();
       })();
     </script>
 
-    <!-- 页面顶部渐变高光效果 - 只在full和semifull模式下显示 -->
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}
     <ConfigCarrier />
     <MusicManager />
     <slot />
 
-    <!-- 播放器视图脚本：必须在 <slot /> 之后（解析到它时所有 widget 的 DOM 要已存在），
-         且在 MusicManager 之后（swup 重跑按文档顺序，window.__fireflyMusic 得先就位） -->
     {((((settings as any)?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || (((settings as any)?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (
       <MusicPlayerView />
     )}
 
-
-    <!-- Sakura Effect -->
     <script is:inline define:vars={{ fireflySettings: settings }}>
       // 后台站点设置注入客户端（樱花等客户端组件的开关/参数读取）
       window.__FIREFLY_SETTINGS__ = fireflySettings;
     </script>
     {settings.effects?.sakura !== false && <SakuraEffect />}
 
-    <!-- Water Waves Effect -->
     {settings.effects?.waves !== false && <WavesEffect />}
 
-    <!-- Fancybox Manager -->
     <MarkdownEnhancer client:load />
     <FancyboxManager />
 
-    <!-- Tab 代码块交互 -->
     <CodeGroupManager />
 
-    <!-- GitHub 卡片客户端实时补全（forks/stars） -->
     <GithubCardManager />
   {settings.ads?.enabled !== false && settings.ads?.adSenseId ? (
     <script is:inline data-ad-client={String(settings.ads.adSenseId)} async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -553,7 +519,6 @@ const siteLogo = await getSiteLogo();
 
   </body>
 </html>
-
 
 <script>
   import { initLayout } from "@/utils/layout-init";

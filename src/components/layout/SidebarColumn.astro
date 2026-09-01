@@ -30,10 +30,9 @@ const {
 	encrypted = false,
 } = Astro.props;
 
-// 静态容器 id（左侧为 wrapper，右侧为 static，保持原有 id 不变）
 const staticId =
 	side === "left" ? "left-sidebar-wrapper" : "right-sidebar-static";
-// 双侧栏或该侧为主侧栏时用静态容器（不被 swup 替换，避免闪烁）；否则用动态容器
+
 const staticShown = position === "both" || position === side;
 const hasComponents =
 	side === "left" ? effectiveHasLeftComponents : effectiveHasRightComponents;
@@ -43,7 +42,7 @@ const staticSideBarShown =
 	enable &&
 	hasComponents &&
 	(side === "left" || effectiveIsBothSidebars || position === "right");
-// 左侧静态容器在非双侧栏时 side 传 undefined（SideBar 内部回退为 "left"）
+
 const staticSideBarSide =
 	side === "left"
 		? effectiveIsBothSidebars

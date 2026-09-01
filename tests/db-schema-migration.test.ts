@@ -11,16 +11,6 @@ import {
 } from "../server/posts/taxonomy";
 import type { PostFrontmatter } from "../types/posts";
 
-/**
- * D1 迁移集成测试：按序应用 migrations/*.sql 到内存 SQLite，验证最终 schema
- * 的读写与查询路径端到端可用。
- *
- * 背景：分类/标签统一为单表 post_taxonomy(post_slug, type, value)，
- * 通用限流与登录防暴统一为 rate_limits(key, kind, ...)。本测试守卫
- * 干净 schema 不回归——旧表（post_categories/post_tags/api_rate_limits/admin_login_attempts）
- * 必须不存在，新表必须可用。
- */
-
 interface D1Like {
 	prepare(sql: string): D1StmtLike;
 }

@@ -26,7 +26,6 @@ const {
 	nsfw = "off",
 }: Props = $props();
 
-// NSFW 拦截：mode === "hide" 时过滤掉命中条目
 const safeItems = $derived(filterNsfw(items, nsfw, isVndbNsfw));
 
 const filterCounts = $derived.by(() => {

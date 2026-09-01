@@ -8,11 +8,6 @@ import {
 	deleteAlbumWebDavConfig,
 } from "../server/gallery/webdavConfig";
 
-/**
- * 相册 WebDAV 源配置（D1 存储）测试：
- * 应用 migrations/*.sql 到内存 SQLite，验证 album_webdav 表的读写与清除。
- */
-
 interface D1Like {
 	prepare(sql: string): D1StmtLike;
 }

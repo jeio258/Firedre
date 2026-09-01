@@ -4,25 +4,23 @@ import { parseAlbumSource, serializeAlbumMarkdown } from "../../../server/galler
 
 export let slug = "";
 
-// 创建模式：slug 为空（/admin/gallery/new/ 路由）即新建，仅多一个 slug 输入框
 $: isNew = slug === "";
 
 let loaded = false;
 let saving = false;
 let message = "";
-// 创建模式：相册 slug 为空（/admin/gallery/new/），由用户在页面填写，保存时必填
+
 let newSlug = "";
-// 保存时保留相册当前的加锁标记（锁的权威是 D1 密码表，此处仅同步 frontmatter 标记）
+
 let hadEncrypted = false;
 
-// ---- 元数据表单字段（对应 albums 表 / frontmatter）----
 let formTitle = "";
 let formDate = "";
 let formLocation = "";
 let formTags = "";
 let formCover = "";
 let formDesc = "";
-// 照片列表：每行一个 URL（含 type/poster/date 可选），保存时转成 photos 数组
+
 let photosText = "";
 let photos: Array<{ url: string; type?: string; poster?: string; date?: string }> = [];
 
@@ -32,7 +30,6 @@ let passwordInput = "";
 let passwordMsg = "";
 let passwordSaving = false;
 
-// 图床 API 源（方案①）：全局配置端点+密钥（站点设置 → 相册），图床目录（?dir=）由用户填写存全局，留空=根目录
 let imgbedEnabled = false;
 let imgbedEndpoint = "";
 let imgbedDir = "";
@@ -50,7 +47,7 @@ function parsePhotosText(text: string) {
 		.map((line) => {
 			const [url, ...rest] = line.split(/\s+/);
 			const meta = rest[0] || "";
-			// 支持行尾可选注释：url type video|image poster date
+
 			return { url, type: meta === "video" || meta === "image" ? meta : undefined };
 		});
 }
@@ -551,7 +548,7 @@ onMount(load);
 		font-size: 0.82rem;
 		color: #16a34a;
 	}
-	/* 移动端：表单单栏，固定宽输入改全宽 */
+
 	@media (max-width: 767px) {
 		.form-grid {
 			grid-template-columns: 1fr;

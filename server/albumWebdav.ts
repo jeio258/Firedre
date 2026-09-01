@@ -177,8 +177,6 @@ export async function fetchWebDavFile(
 	if (auth) headers.Authorization = auth;
 	if (options?.range) headers.Range = options.range;
 
-	// redirect: "manual" 防止 WebDAV 源 3xx 重定向到任意外部主机造成 SSRF：
-	// scope 边界只校验了初始 URL，跟随重定向可能把请求/响应转发到 scope 之外。
 	const response = await fetch(url, { headers, redirect: "manual" });
 	if (response.status >= 300 && response.status < 400) {
 		throw new Error("WebDAV 源返回重定向，出于安全已拒绝跟随");
@@ -201,8 +199,7 @@ export async function handleAlbumWebDavList(
 	options?: AlbumWebDavRuntimeOptions,
 ) {
 	const config = await resolveWebDavConfig(body.slug, options);
-	// 锁门依据 = D1 相册密码存在性（与 gallery-files/unlock 链路一致），
-	// 而非 frontmatter.encrypted：避免 frontmatter 与 D1 脱同步时看似加密实则公开。
+
 	assertAlbumAccess({
 		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,
@@ -226,8 +223,7 @@ export async function handleAlbumWebDavFile(
 	if (!targetUrl) throw new UserError("缺少媒体地址");
 
 	const config = await resolveWebDavConfig(slug, options);
-	// 锁门依据 = D1 相册密码存在性（与 gallery-files/unlock 链路一致），
-	// 而非 frontmatter.encrypted：避免 frontmatter 与 D1 脱同步时看似加密实则公开。
+
 	assertAlbumAccess({
 		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,

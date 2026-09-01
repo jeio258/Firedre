@@ -1,13 +1,4 @@
-/**
- * Firedre 后台管理员用户（D1 存储，单用户模型）
- *
- * 凭据权威在 D1 表 admin_users，不再依赖 Secrets 的用户名/密码。
- * 设计约束：
- * - 系统只有一个管理员（首个创建的用户即管理员）；
- * - 尚未创建管理员时，任何人都可创建（初始化流程）；创建后禁止再建第二个用户；
- * - 只允许修改密码，不支持启用/禁用/删除/多用户。
- * bcrypt 哈希存储，SESSION_SECRET 不落库。
- */
+
 
 import type { CloudflareEnv } from "../../types/env";
 import bcrypt from "bcryptjs";
@@ -22,7 +13,6 @@ export interface AdminUserRow {
 	updated_at: string;
 }
 
-/** 按用户名查询用户（含哈希，仅服务端内部使用） */
 export async function getAdminUserByUsername(
 	db: D1Database,
 	username: string,
@@ -37,7 +27,6 @@ export async function getAdminUserByUsername(
 	return row ?? null;
 }
 
-/** 系统是否已创建管理员（初始化状态判断） */
 export async function hasAdminUser(db: D1Database): Promise<boolean> {
 	const row = await db
 		.prepare("SELECT COUNT(*) AS c FROM admin_users")
@@ -45,7 +34,6 @@ export async function hasAdminUser(db: D1Database): Promise<boolean> {
 	return Boolean(row && Number(row.c) > 0);
 }
 
-/** 校验用户名密码（bcrypt），并检查用户是否启用 */
 export async function verifyAdminUserCredentials(
 	db: D1Database,
 	username: string,
@@ -57,10 +45,6 @@ export async function verifyAdminUserCredentials(
 	return bcrypt.compare(password, user.password_hash);
 }
 
-/**
- * 创建管理员。仅当系统尚无任何管理员时允许（首个用户即管理员）。
- * 返回冲突状态：conflict=true 表示已有管理员，禁止再创建。
- */
 export async function createAdminUser(
 	db: D1Database,
 	username: string,
@@ -85,7 +69,6 @@ export async function createAdminUser(
 	return { ok: true };
 }
 
-/** 修改密码 */
 export async function updateAdminUserPassword(
 	db: D1Database,
 	username: string,
@@ -105,10 +88,6 @@ export async function updateAdminUserPassword(
 	return true;
 }
 
-/**
- * 登录鉴权：D1 唯一管理员的 bcrypt + enabled 校验。
- * 不再有 Secrets 兜底；D1 无用户时直接返回 false（前端引导初始化）。
- */
 export async function authenticateAdmin(
 	env: CloudflareEnv,
 	db: D1Database,

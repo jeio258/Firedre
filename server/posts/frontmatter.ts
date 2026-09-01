@@ -88,7 +88,6 @@ export function postR2Key(slug: string) {
 	return `posts/${slug}.md`;
 }
 
-/** slug 可为多段路径（如 guide/firefly-layout-system），逐段编码 */
 export function encodePostPath(slug: string) {
 	const segments = slug
 		.split("/")
@@ -108,9 +107,6 @@ export function decodePostSlug(pathSegment: string) {
 	}
 }
 
-/**
- * 合法文章 slug：允许 '/'（子目录文章），禁止 '..'、路径穿越与前后空白。
- */
 export function isValidPostSlug(slug: string) {
 	if (!slug || slug.trim() !== slug) return false;
 	if (slug.includes("..") || slug.includes("\\")) return false;
@@ -133,11 +129,6 @@ export function normalizeCategories(categories: PostFrontmatter["categories"]) {
 	return [String(categories)].filter(Boolean);
 }
 
-/**
- * 统一的分类解析：优先复数 categories（含空数组），否则回退单数 category。
- * upsertPost 写 categories 列与 syncPostTaxonomy 写 post_taxonomy(type='category') 都必须走这里，
- * 保证两套存储永远一致（避免分类漂移）。
- */
 export function resolveCategories(
 	frontmatter: PostFrontmatter,
 ): string[] | undefined {
@@ -160,7 +151,6 @@ export function categoryPathFromFrontmatter(
 	return parts.length ? parts.join("/") : "Uncategorized";
 }
 
-/** Firefly 风格：draft/hidden 视为未发布 */
 export function isPublished(fm: PostFrontmatter) {
 	if (fm.draft === true || fm.hidden === true) return false;
 	return true;
@@ -183,9 +173,6 @@ export function serializeFrontmatter(fm: PostFrontmatter, content: string) {
 	return `${lines.join("\n")}${content}`;
 }
 
-/**
- * 将 Firefly 风格 frontmatter 映射为 D1 记录字段。
- */
 export function mapFrontmatterToRecord(frontmatter: PostFrontmatter) {
 	const categories =
 		normalizeCategories(frontmatter.categories) ??

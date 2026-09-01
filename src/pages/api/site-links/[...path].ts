@@ -20,7 +20,6 @@ import {
 
 export const prerender = false;
 
-// GET /api/site-links/  - 链接列表（后台含全部，前台仅启用）
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
@@ -37,7 +36,6 @@ export const GET: APIRoute = async ({ params, request }) => {
 			);
 		}
 
-		// 单条：/api/site-links/{id}/
 		if (segments.length === 1) {
 			const id = Number(segments[0]);
 			if (!Number.isInteger(id) || id <= 0) return badRequest("无效的链接ID");
@@ -52,7 +50,6 @@ export const GET: APIRoute = async ({ params, request }) => {
 	}
 };
 
-// POST /api/site-links/  - 新增链接
 export const POST: APIRoute = async ({ request }) => {
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
@@ -67,7 +64,6 @@ export const POST: APIRoute = async ({ request }) => {
 	}
 };
 
-// PUT /api/site-links/{id}/  - 修改链接
 export const PUT: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
@@ -86,7 +82,6 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	}
 };
 
-// DELETE /api/site-links/{id}/  - 删除链接
 export const DELETE: APIRoute = async ({ params, request }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);

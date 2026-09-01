@@ -3,7 +3,7 @@ import { safeJsonLd, toAbsoluteUrl } from "../src/utils/schema-utils";
 
 describe("schema-utils.toAbsoluteUrl 对裸域名 base 的防御", () => {
 	it("base 为裸域名（无协议）时不抛 Invalid URL，并补全 https://", () => {
-		// 后台 siteUrl 可填 www.994613.xyz（无协议）；修复前 new URL(base) 抛错导致 SSR 白屏
+
 		const url = toAbsoluteUrl("/about/", "www.994613.xyz");
 		expect(url).toBe("https://www.994613.xyz/about/");
 	});

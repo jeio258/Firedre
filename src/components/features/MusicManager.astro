@@ -6,8 +6,6 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { url } from "@/utils/url-utils";
 
-
-
 const musicSettings = (settings.music ?? {}) as Record<string, unknown>;
 
 const config = {
@@ -121,7 +119,6 @@ const managerConfigStr = JSON.stringify({
 
     var config = JSON.parse(managerConfigStr);
 
-    // ── Helpers ──
     function formatTime(seconds) {
         if (!seconds || isNaN(seconds)) return '0:00';
         var min = Math.floor(seconds / 60);
@@ -152,7 +149,6 @@ const managerConfigStr = JSON.stringify({
         return result.sort(function (a, b) { return a.time - b.time; });
     }
 
-    // ── Audio element (persistent, attached to body) ──
     var audio = document.createElement('audio');
     audio.crossOrigin = 'anonymous';
     audio.style.display = 'none';
@@ -160,8 +156,7 @@ const managerConfigStr = JSON.stringify({
     document.body.appendChild(audio);
     audio.pause(); // 确保不自动播放
 
-    // ── State ──
-    var loadVersion = 0; // incremented on each loadTrack to discard stale play() results
+    var loadVersion = 0;                                                                 
     var state = {
         playlist: [],
         currentIndex: 0,
@@ -183,12 +178,10 @@ const managerConfigStr = JSON.stringify({
     else if (config.playMode === 'one') state.playMode = 1;
     else state.playMode = 0;
 
-    // ── Event helpers ──
     function emit(name, detail) {
         window.dispatchEvent(new CustomEvent(name, { detail: detail || {} }));
     }
 
-    // ── Meting fetch ──
     async function fetchMetingData() {
         if (!config.meting) return;
         var m = config.meting;
@@ -228,7 +221,6 @@ const managerConfigStr = JSON.stringify({
         throw new Error('All Meting APIs failed');
     }
 
-    // ── Lyrics ──
     function loadLyrics(track) {
         state.lyrics = [];
         state.currentLrcIndex = -1;
@@ -276,8 +268,8 @@ const managerConfigStr = JSON.stringify({
                 state.error = null;
                 emit('fm:play-state', { isPlaying: true });
             }).catch(function (e) {
-                if (ver !== loadVersion) return; // stale, discard
-                if (e.name === 'AbortError') return; // interrupted by new load
+                if (ver !== loadVersion) return;                  
+                if (e.name === 'AbortError') return;                           
                 console.warn('Autoplay blocked:', e);
             });
         } else {
@@ -286,7 +278,6 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    // ── Track loading ──
     function loadTrack(index, autoPlay) {
         if (index < 0 || index >= state.playlist.length) return;
         state.currentIndex = index;
@@ -322,7 +313,6 @@ const managerConfigStr = JSON.stringify({
         tryPlayCurrentTrackUrl(autoPlay, ver);
     }
 
-    // ── Playback controls ──
     function togglePlay() {
         if (audio.paused) {
             audio.play().then(function () {
@@ -407,7 +397,6 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    // ── Audio events → broadcast ──
     audio.addEventListener('timeupdate', function () {
         if (isNaN(audio.duration)) return;
         var ct = audio.currentTime;
@@ -459,7 +448,6 @@ const managerConfigStr = JSON.stringify({
         }
     });
 
-    // ── Init (idempotent) ──
     async function init() {
         if (state.initialized || state.initializing) return;
         state.initializing = true;
@@ -515,7 +503,6 @@ const managerConfigStr = JSON.stringify({
         }
     }
 
-    // ── Public API ──
     window.__fireflyMusic = {
         init: init,
         getState: function () {

@@ -14,7 +14,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
 ---
 
 <MainGridLayout title={i18n(I18nKey.tags)} description={i18n(I18nKey.allTags)}>
-    <!-- 页面标题 -->
+
     <div class="card-base px-8 py-6 mb-4">
         <div class="text-2xl font-bold text-(--primary) mb-2">
             {i18n(I18nKey.tags)}
@@ -45,7 +45,6 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
         </div>
     </div>
 
-    <!-- 空状态 -->
     {
         tags.length === 0 && (
             <div class="card-base px-8 py-12 text-center">
@@ -58,7 +57,6 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
         )
     }
 
-    <!-- Top 10 标签排行 -->
     {topTags.length > 0 && (
         <div class="card-base px-8 py-6 mt-4">
             <h2 class="text-lg font-bold text-75 mb-4">

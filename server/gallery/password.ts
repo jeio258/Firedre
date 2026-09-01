@@ -1,14 +1,5 @@
 import type { CloudflareEnv } from "../../types/env";
 
-/**
- * 相册访问密码存储（D1）。
- *
- * 设计：相册 index.md 的 frontmatter 只保留 `encrypted: true` 标记，
- * 密码明文存于此表（与 dynamics 一样走 D1 存储），避免密码写进 R2 文件
- * 导致公开 API / R2 泄漏。SSR 渲染 EncryptedContent 需要明文加密内容，
- * 解锁/图片校验也读取此处做恒定时间比对。
- */
-
 export async function getAlbumPassword(
 	env: CloudflareEnv,
 	slug: string,

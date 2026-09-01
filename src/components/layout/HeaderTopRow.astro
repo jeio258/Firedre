@@ -9,7 +9,6 @@ interface Props {
 
 const { stickyNavbar, navbarWidthFull } = Astro.props;
 
-// Firedre：后台站点设置可隐藏整个导航栏（nav.enabled === false），统一经 runtime.getNavbarConfig
 const navbarConfigRuntime = getNavbarConfig(Astro.locals);
 const navbarHidden = navbarConfigRuntime.enabled === false;
 ---
@@ -34,5 +33,4 @@ const navbarHidden = navbarConfigRuntime.enabled === false;
     </div>
 </div>
 )}
-
 

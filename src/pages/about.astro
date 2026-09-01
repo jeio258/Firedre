@@ -13,13 +13,11 @@ import { buildProfilePage } from "@/utils/schema-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 // Firedre：关于页内容来自 R2（后台可编辑）
 const { getAbout } = await import("../../server/about/service");
 const { cfEnv } = await import("../lib/api");
 const aboutDetail = await getAbout(cfEnv);
-// 数据缺失时优雅降级（首次部署/本地 dev R2 无内容），不抛 500。
+
 const aboutHtml = aboutDetail?.html ?? "";
 
 const avatarUrl = await getAuthorAvatarUrl();

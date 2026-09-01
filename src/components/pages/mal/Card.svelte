@@ -70,7 +70,6 @@ const yearText = $derived(
 );
 const dateText = $derived(seasonText || yearText);
 
-// 进度：动画看集数，漫画看章节（无章节信息时回退到卷数）
 const watched = $derived(
   isManga ? item.list_status?.num_chapters_read || 0 : item.list_status?.num_episodes_watched || 0,
 );

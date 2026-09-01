@@ -1,11 +1,4 @@
-/**
- * Firedre 管理员认证模块
- *
- * 功能：
- * - Session Cookie 管理（HttpOnly + SameSite=Lax）
- * - HMAC 会话令牌签名
- * - 密码哈希验证（bcrypt，唯一管理员存 D1）
- */
+
 
 import bcrypt from "bcryptjs";
 import type { CloudflareEnv } from "../../types/env";
@@ -13,21 +6,16 @@ import { constantTimeEqual } from "../utils/timingSafe";
 import { getAdminEnvFromProcess, loadAdminEnv } from "./loadAdminEnv";
 
 export const ADMIN_SESSION_COOKIE = "admin_session";
-/** 单次管理会话有效时长（离开 /admin 后会清除 Cookie） */
+
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 4; // 4 hours
-/** bcrypt 工作因子 */
+
 export const BCRYPT_ROUNDS = 10;
 
 export interface AdminAuthEnv {
-	/** 会话签名独立密钥（必须配置，不允许降级使用弱凭据） */
+
 	SESSION_SECRET?: string;
 }
 
-/**
- * 会话令牌签名密钥。
- * SESSION_SECRET 是必须配置的独立密钥，不允许降级使用弱凭据。
- * 这是安全硬性要求：使用密码或 Token 作为 HMAC 密钥会显著降低会话伪造难度。
- */
 function getSecret(env: AdminAuthEnv): string {
 	const secret = env.SESSION_SECRET?.trim();
 	if (!secret) {
@@ -165,10 +153,6 @@ export function resolveAdminEnv(env?: CloudflareEnv): AdminAuthEnv {
 	return getAdminEnvFromProcess();
 }
 
-/**
- * 判断密码是否为 bcrypt 哈希。
- * bcrypt 哈希以 $2$、$2a$、$2b$ 或 $2y$ 开头，长度固定为 60 字符。
- */
 export function isBcryptHash(password: string): boolean {
 	return (
 		(password.startsWith("$2$") ||
@@ -179,9 +163,6 @@ export function isBcryptHash(password: string): boolean {
 	);
 }
 
-/**
- * 生成 bcrypt 哈希
- */
 export async function hashPassword(password: string): Promise<string> {
 	return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
@@ -200,7 +181,6 @@ export async function verifyAdminRequest(
 	const username = await getSessionUser(token, adminEnv);
 	if (!username) return false;
 
-	// D1 凭据权威：若该用户在 D1 中存在但已被禁用 → 会话立即失效（禁用即时生效）。
 	if (env?.DB) {
 		try {
 			const row = await env.DB.prepare(
@@ -217,9 +197,6 @@ export async function verifyAdminRequest(
 	return true;
 }
 
-/**
- * 导出供测试使用
- */
 export const authExports = {
 	getSecret,
 	isBcryptHash,

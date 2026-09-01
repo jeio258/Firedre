@@ -12,7 +12,6 @@ const backToTopBtn = document.getElementById("back-to-top-btn");
 const toc = document.getElementById("toc-wrapper");
 const navbar = document.getElementById("navbar-wrapper");
 
-/** 优化的滚动处理函数（从 Layout.astro 迁出；visit:end 切页后也会调用） */
 export function scrollFunction(): void {
 	if (document.documentElement.classList.contains("is-page-transitioning")) {
 		return;
@@ -25,7 +24,6 @@ export function scrollFunction(): void {
 	// 根据滚动位置动态更新侧边栏 sticky 间距
 	updateSidebarStickySpacing();
 
-	// 使用批量DOM操作优化性能
 	const operations: (() => void)[] = [];
 
 	if (backToTopBtn) {
@@ -90,9 +88,8 @@ export function scrollFunction(): void {
 
 let scrollTimeout: number;
 
-/** 注册滚动 / 窗口尺寸监听并初始化滚动状态（从 Layout.astro 迁出） */
 export function initScroll(): void {
-	// 使用优化的滚动性能处理
+
 	window.addEventListener(
 		"scroll",
 		() => {

@@ -17,7 +17,6 @@ import {
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
 	buildVndbTabs,
 	fetchVndbUlist,
 	type VndbTab,
@@ -30,7 +29,6 @@ if (!getSiteConfig(Astro.locals).pages.vndb) {
 
 const buildTime = formatDateI18nWithTime(new Date());
 
-////////////// VNDB 配置 ////////////////////////
 const vndbConfig = {
 	userId:
 		((settings as any)?.["vndb"]?.username ??
@@ -49,7 +47,6 @@ const vndbConfig = {
 	// NSFW 处理："off" | "blur" | "hide"
 	nsfw: (((settings as any)?.["vndb"] ?? siteConfig.vndb)?.nsfw ?? "blur") as "off" | "blur" | "hide",
 };
-//////////////////////////////////////////////////
 
 const isDynamic = vndbConfig.mode === "dynamic";
 const isUserIdConfigured =

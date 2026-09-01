@@ -23,11 +23,6 @@
     svgBlobUrlCache.clear();
   }
 
-  /**
-   * 灯箱 CSS 按需注入：用 ?url 拿静态资源地址，Astro 不会把 ?url 导入的样式打进页面头部。
-   * 仅在页面存在可点开图片时才真正加载；Swup 换页被 updateHead 顶掉后，下次 setup() 会重新注入
-   * （网络层有 hash 缓存，不产生额外请求）。
-   */
   let cssUrls: string[] = [];
   async function injectFancyboxCss(): Promise<void> {
     if (cssUrls.length === 0) {
@@ -203,7 +198,7 @@
       Fancybox.close();
       Fancybox.unbind(document.body);
     }
-    // 恢复原始 URL 并清除标记，避免 blob URL 被 revoke 后图片损坏
+
     document.querySelectorAll<HTMLElement>("[data-svg-fixed]").forEach((el) => {
       const original = el.dataset.originalSrc;
       if (!original) return;
@@ -219,10 +214,6 @@
   // 初始化
   setup();
 
-  // Swup 生命周期整合
-  // 切页换入后延到下一帧再 setup：让首帧先绘制，避免每趟对全图 querySelectorAll +
-  // fetch(blob) 的同步长任务阻塞换入瞬间（尤其文章页图多时）。setup 内部有
-  // data-svg-fixed / Fancybox.unbind 守卫，延一帧不会重绑或丢图。
   document.addEventListener("swup:content:replace", () => {
     requestAnimationFrame(setup);
   });

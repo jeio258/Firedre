@@ -20,7 +20,7 @@ export function formatLoginRateLimitMessage(retryAfterSec: number) {
 export function getRequestClientIp(request: Request) {
 	return (
 		request.headers.get("CF-Connecting-IP") ||
-		// 仅信任 Cloudflare 设置的连接 IP；不信任可被客户端伪造的 X-Forwarded-For
+
 		"unknown"
 	);
 }

@@ -9,8 +9,6 @@ import { computeTocItems } from "@/utils/toc-shared";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 interface Props {
 	headings: MarkdownHeading[];
 	encrypted?: boolean;
@@ -31,7 +29,6 @@ const hideSidebarOnPostPage =
 	sidebarLayoutConfig.hideSidebarOnPostPage === true;
 ---
 
-<!-- 悬浮TOC按钮 -->
 <div id="floating-toc-wrapper" class="floating-toc-wrapper" data-is-sidebar-toc-enabled={String(isSidebarTocEnabled)} data-sidebar-position={sidebarPosition} data-show-both-sidebars-on-post={String(sidebarLayoutConfig.showBothSidebarsOnPostPage ?? false)} data-hide-sidebar-on-post={String(hideSidebarOnPostPage)}>
   <FloatingButton
     id="floating-toc-btn"
@@ -42,7 +39,6 @@ const hideSidebarOnPostPage =
     class="hide"
   />
 
-  <!-- 悬浮TOC面板 - 移到 Wrapper 内部以便相对定位 -->
   <div
     id="floating-toc-panel"
     class="floating-toc-panel hide overflow-hidden rounded-2xl shadow-2xl backdrop-blur-lg border border-white/20 dark:border-white/10 md:w-80 w-[calc(100vw-2rem)] md:max-h-96 max-h-[calc(100vh-8rem)] py-3"
@@ -86,7 +82,7 @@ const hideSidebarOnPostPage =
             <p>{i18n(I18nKey.tocEmpty)}</p>
           </div>
         )}
-        {/* 加密文章：留空，客户端解密后由 TOCManager 填充 */}
+        {                                   }
         </div>
     </div>
   </div>
@@ -111,26 +107,25 @@ const hideSidebarOnPostPage =
 	backdrop-filter: blur(20px)
 	-webkit-backdrop-filter: blur(20px)
 	z-index: 1001
-	
+
 	&.show
 		transform: translateY(0)
 		opacity: 1
 		pointer-events: auto
-		
+
 	&.hide
 		transform: translateY(20px)
 		opacity: 0
 		pointer-events: none
 		visibility: hidden
-		
+
 .toc-scroll-container
-	/* 面板 max-height 24rem 减去面板自身 py-3 上下共 1.5rem */
+
 	max-height: calc(24rem - 1.5rem)
 
 	@media (max-width: 768px)
 		max-height: calc(24rem - 1.5rem)
 
-/* 响应式调整 - 仅保留 Panel 尺寸调整 */
 @media (max-width: 1024px)
 	.floating-toc-panel
 		width: calc(100vw - 2rem)
@@ -144,7 +139,6 @@ const hideSidebarOnPostPage =
 		max-height: 28rem
 		bottom: calc(100% + 1rem)
 
-/* 暗色主题半透明效果 */
 :global(.dark) .floating-toc-panel
 	backdrop-filter: blur(20px)
 	-webkit-backdrop-filter: blur(20px)
@@ -204,7 +198,7 @@ const hideSidebarOnPostPage =
     window.addEventListener("beforeunload", closeTOC);
     window.addEventListener("pagehide", closeTOC);
     window.addEventListener("popstate", closeTOC);
-    
+
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) closeTOC();
     });
@@ -229,7 +223,7 @@ const hideSidebarOnPostPage =
 
       const href = link.getAttribute("href");
       const isExternalLink = href && !href.startsWith("#") && !href.startsWith("javascript:");
-      
+
       if (isExternalLink && !window.tocInternalNavigation) {
         const tocPanel = document.getElementById("floating-toc-panel");
         if (!tocPanel || !tocPanel.contains(link)) {
@@ -270,7 +264,6 @@ const hideSidebarOnPostPage =
       return true;
     }
 
-    // 双侧边栏模式（含文章页临时双侧栏）：小屏幕或侧边栏目录未启用时显示悬浮目录
     const effectiveIsBothSidebars = sidebarPosition === 'both' || showBothSidebarsOnPost;
     if (effectiveIsBothSidebars) {
       const isSmallScreen = window.innerWidth < 1280;
@@ -321,8 +314,6 @@ const hideSidebarOnPostPage =
         scrollOffset: 80,
       });
 
-      // attach() 自校正：SSR 锚点与当前正文一致则直接附着；
-      // 缺失或过时（加密未解密/异常情况）则自动回退 DOM 遍历重建。
       window.FloatingTOC.manager.attach();
 
       // 设置点击事件 - 标记为 TOC 内部导航
@@ -355,12 +346,12 @@ const hideSidebarOnPostPage =
     document.addEventListener("swup:contentReplaced", () => {
       setTimeout(initFloatingTOC, 100);
     });
-    
+
     // Astro 页面切换事件
     document.addEventListener("astro:page-load", () => {
       setTimeout(initFloatingTOC, 100);
     });
-    
+
     // 浏览器导航事件
     window.addEventListener("popstate", () => {
       setTimeout(initFloatingTOC, 200);

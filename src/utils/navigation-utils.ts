@@ -1,13 +1,5 @@
-/**
- * 导航工具函数
- * 提供统一的页面导航功能，支持 Swup 无刷新跳转
- */
 
-/**
- * 导航到指定页面
- * @param url 目标页面URL
- * @param options 导航选项
- */
+
 export function navigateToPage(
 	url: string,
 	options?: {
@@ -51,19 +43,15 @@ export function navigateToPage(
 			}
 		} catch (error) {
 			console.error("Swup navigation failed:", error);
-			// 降级到普通跳转
+
 			fallbackNavigation(url, options);
 		}
 	} else {
-		// Swup 不可用时的降级处理
+
 		fallbackNavigation(url, options);
 	}
 }
 
-/**
- * 降级导航函数
- * 当 Swup 不可用时使用普通的页面跳转
- */
 function fallbackNavigation(
 	url: string,
 	options?: {

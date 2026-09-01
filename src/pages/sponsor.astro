@@ -15,8 +15,6 @@ import { cfEnv } from "../lib/api";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 // 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.sponsor) {
 	return Astro.redirect("/404/");
@@ -31,8 +29,7 @@ const isCommentEnabled =
 const title = ((((settings as any)?.["sponsor"]) as any)?.["title"] ?? sponsorConfig.title) || i18n(I18nKey.sponsorTitle);
 const description =
 	((((settings as any)?.["sponsor"]) as any)?.["description"] ?? sponsorConfig.description) || i18n(I18nKey.sponsorDescription);
-// 打赏方式统一改由后台「链接管理」site_links（location=sponsor）驱动：
-// kind=qr 渲染二维码图片，kind=link 渲染「前往打赏」跳转按钮。
+
 const sponsorSiteLinks = await listEnabledSiteLinks(cfEnv, "sponsor");
 const enabledMethods = sponsorSiteLinks.map((l: SiteLinkView) => ({
 	name: l.name,
@@ -54,7 +51,7 @@ function getQrLqipProps(qrCode: string) {
 <MainGridLayout title={title} description={description}>
   <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">
     <div class="card-base z-10 px-9 py-6 relative w-full">
-      <!-- 页面标题和描述 -->
+
       <div class="mb-8">
         <div class="flex items-center gap-3 mb-3">
             <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
@@ -82,12 +79,11 @@ function getQrLqipProps(qrCode: string) {
         )}
       </div>
 
-      <!-- 打赏方式 -->
       <div class="mb-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {enabledMethods.map((method: any) => (
                       <div class="flex flex-col items-center card-base p-6 rounded-lg bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 hover:border-(--primary) transition-colors">
-                        <!-- 图标和名称 -->
+
                         <div class="flex items-center gap-3 mb-4">
                           {method.icon && (
                             <Icon name={method.icon} class="text-2xl text-neutral-900 dark:text-neutral-100 transition-colors" />
@@ -97,14 +93,12 @@ function getQrLqipProps(qrCode: string) {
                           </h3>
                         </div>
 
-                        <!-- 描述 -->
                         {method.description && (
                           <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-4 text-center">
                             {method.description}
                           </p>
                         )}
 
-                        <!-- 二维码或链接 -->
                         {method.qrCode && (
                           <div class="relative w-full max-w-[200px] aspect-square bg-white rounded-lg p-4 shadow-md mb-4 overflow-hidden">
                             <div class="lqip-placeholder absolute inset-0 rounded-lg pointer-events-none" style={getQrLqipProps(method.qrCode).style} aria-hidden="true"></div>
@@ -135,7 +129,6 @@ function getQrLqipProps(qrCode: string) {
     </div>
   </div>
 
-  <!-- 打赏者列表 -->
   {showSponsorsList && (
     <div class="flex w-full rounded-(--radius-large) overflow-hidden relative mt-4">
       <div class="card-base z-10 px-9 py-6 relative w-full">
@@ -158,8 +151,8 @@ function getQrLqipProps(qrCode: string) {
           <div class="sponsor-grid">
             {sponsors.map((sponsor: any) => (
               <div class="group flex items-center gap-3 p-3 rounded-xl border border-(--line-divider) hover:border-(--primary) transition-all duration-200">
-                {/* 头像占位 */}
-                <!-- 新的头像逻辑：有头像用图片，没有用首字母 -->
+                {          }
+
                 {sponsor.avatar ? (
                   <img 
                     src={url(sponsor.avatar)}
@@ -170,14 +163,13 @@ function getQrLqipProps(qrCode: string) {
                   />
                 ) : null}
 
-                <!-- 首字母头像（作为兜底，图片加载失败也会显示这个） -->
                 <div 
                   class={`w-9 h-9 rounded-full bg-(--primary)/10 flex items-center justify-center shrink-0 group-hover:bg-(--primary)/20 transition-colors ${sponsor.avatar ? 'hidden' : ''}`}
                 >
                   <span class="text-sm font-bold text-(--primary)">{sponsor.name.charAt(0)}</span>
                 </div>
 
-                {/* 信息 */}
+                {        }
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
                     <span class="font-semibold text-sm text-neutral-900 dark:text-neutral-100 truncate">
@@ -206,7 +198,7 @@ function getQrLqipProps(qrCode: string) {
       </div>
     </div>
   )}
-  <!-- 评论区 -->
+
   {isCommentEnabled && (
     <div class="mt-4">
       <Comment customPath="/sponsor/" title="sponsor"  />
@@ -215,7 +207,7 @@ function getQrLqipProps(qrCode: string) {
 </MainGridLayout>
 
 <style>
-  /* 透明模式下使用半透明背景 */
+
   :global(body.wallpaper-transparent .usage-info-box) {
     background-color: rgba(var(--primary-rgb, 70, 130, 180), 0.15) !important;
   }

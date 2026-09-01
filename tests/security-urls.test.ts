@@ -38,7 +38,7 @@ describe("notice.isSafeNoticeUrl 拦截危险 scheme", () => {
 
 describe("album 锁门依据 = D1 密码存在性（P1-3 WebDAV 脱同步防护）", () => {
 	it("D1 密码存在即上锁：无 accessPassword 拒绝", () => {
-		// 即使前端/客户端不声明 encrypted，只要 config.encrypted=true 且 password 非空，就必须提供密码
+
 		expect(verifyAlbumAccess({ encrypted: true, password: "secret", accessPassword: "" })).toBe(false);
 	});
 

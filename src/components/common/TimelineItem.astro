@@ -1,21 +1,6 @@
 ---
 import { ICONS, type IconName } from "./mdx-icons";
 
-// MDX 时间线条目组件（配合 Timeline 使用）
-//
-// 属性：
-// - date：时间标签，如 "2024-03-10"，可选
-// - title：条目标题，可选
-// - type：节点颜色，default 为主题色，其余对应提示框色板，可选
-//   （tip / note / important / warning / caution）
-// - icon：内置图标名，在圆点内显示，可选
-//   （star / rocket / git / flag / book / heart / zap / bug / tag / calendar / code / edit）
-// - children：条目正文，支持 Markdown 内容（经 <slot /> 渲染）
-//
-// 图标是组件内置的内联 SVG（Feather/Lucide 风格，MIT 许可），不依赖
-// icons-data.json 图标库。有 icon 时圆点渲染为带图标的圆形徽章，无 icon 时
-// 保持原来的小圆点。节点颜色统一由 .timeline-item 上的 --node-bg 控制。
-
 interface Props {
 	date?: string;
 	title?: string;
@@ -41,7 +26,7 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 </li>
 
 <style>
-	/* 节点颜色：default 为主题色，其余对应提示框色板 */
+
 	.timeline-item {
 		--node-bg: var(--primary);
 		--node-ring: color-mix(in srgb, var(--primary) 22%, transparent);
@@ -88,7 +73,6 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		align-items: flex-start;
 	}
 
-	/* 无 icon：小圆点 */
 	.timeline-marker::before {
 		content: "";
 		width: 0.625rem;
@@ -99,13 +83,12 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		box-shadow: 0 0 0 3px var(--node-ring);
 	}
 
-	/* 有 icon：隐藏小圆点，改为带图标的圆形徽章 */
 	.timeline-marker:has(.timeline-marker-icon)::before {
 		content: none;
 	}
 
 	.timeline-marker-icon {
-		/* 防止被标记列（flex 容器）压缩成椭圆 */
+
 		flex-shrink: 0;
 		display: flex;
 		align-items: center;
@@ -146,7 +129,6 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		color: var(--deep-text);
 	}
 
-	/* 暗色下 --deep-text 仍为深色，需覆盖为亮色文字 */
 	:global(.dark) .timeline-item-title {
 		color: var(--btn-content);
 	}
@@ -155,7 +137,6 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		margin-top: var(--spacing-sm);
 	}
 
-	/* 正文首尾与标题/条目贴合，避免 prose 外边距撑出空隙（slot 内容为结构选择器，可命中） */
 	.timeline-item-body > :first-child {
 		margin-top: 0;
 	}

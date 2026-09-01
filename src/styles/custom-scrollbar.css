@@ -1,4 +1,4 @@
-/* 通用自定义滚动条样式 */
+
 .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
@@ -33,7 +33,6 @@
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.4) 100%);
 }
 
-/* 暗色模式滚动条 - Webkit */
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%);
     border: 1px solid rgba(0, 0, 0, 0.1);

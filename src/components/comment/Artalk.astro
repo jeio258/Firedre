@@ -5,8 +5,6 @@ import { getCommentConfig, getSiteConfig } from "@/config/runtime";
 const comment = getCommentConfig(Astro.locals);
 const siteTitle = getSiteConfig(Astro.locals).title;
 
-
-
 interface Props {
 	path: string;
 }
@@ -22,15 +20,13 @@ const config = {
 	...(comment.artalk?.visitorCount ? { pageview: true } : {}),
 };
 ---
-<!-- Artalk -->
+
 <div class="relative w-full">
-    <!-- 挂载点 -->
+
     <div id="artalk" style="--at-color-main: var(--primary); --at-color-bg: var(--card-bg); --at-color-border: var(--line-divider);"></div>
 
-    <!-- 引入 Artalk 样式 -->
     <link rel="stylesheet" href="https://unpkg.com/artalk/dist/Artalk.css"/>
 
-    <!-- 脚本逻辑 -->
     <script type="module" is:inline define:vars={{config}}>
         import Artalk from 'https://unpkg.com/artalk/dist/Artalk.mjs';
         const rawPath = new URLSearchParams(window.location.search).get("path");

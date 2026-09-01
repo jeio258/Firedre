@@ -37,8 +37,7 @@ export async function handleAlbumWebdavHttp(
 
 	try {
 		if (pathname.endsWith("/file") || url.searchParams.has("url")) {
-			// WebDAV 媒体与 gallery-files 同属图片服务场景：独立桶 + 放宽预算，
-			// 避免多图相册每张一次请求被误伤（scope 防止与解锁/列表/写文章共用）。
+
 			return withRateLimit(
 				options?.env ?? ({} as CloudflareEnv),
 				request,
@@ -104,8 +103,7 @@ async function handleWebDavFile(
 	const headers = new Headers({
 		"Content-Type": file.contentType,
 		"Accept-Ranges": "bytes",
-		// 加密相册媒体口令可承载于 URL，禁止任何缓存（含浏览器私有缓存），
-		// 与 gallery-files 的 private, no-store 保持一致的缓存姿态，防口令 URL 扩散。
+
 		"Cache-Control": "private, no-store",
 	});
 	if (file.contentRange) headers.set("Content-Range", file.contentRange);

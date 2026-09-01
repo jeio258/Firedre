@@ -2,12 +2,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchImgbedPhotos } from "../server/gallery/imgbed";
 import { UserError } from "../server/utils/userError";
 
-/**
- * 图床 API 拉取服务测试（方案①）：
- * mock global.fetch 模拟列表接口响应，验证直链拼接与类型识别。
- * 端点 = 完整列表接口 URL，代码直接使用不拼接。
- */
-
 const LIST_URL = "https://cfbed.sanyue.de/api/manage/list";
 
 function jsonResponse(body: unknown, ok = true, status = 200): Response {
@@ -40,7 +34,6 @@ describe("fetchImgbedPhotos", () => {
 			"firefly-2026",
 		);
 
-		// 校验鉴权 header 与 URL（端点即完整列表 URL，直接追加 dir 参数）
 		expect(fetchMock).toHaveBeenCalledWith(
 			`${LIST_URL}?dir=firefly-2026&count=-1`,
 			expect.objectContaining({
@@ -48,7 +41,6 @@ describe("fetchImgbedPhotos", () => {
 			}),
 		);
 
-		// 图片：a.jpg → 直链 + 类型；sub/b.png → 直链；notes.txt 被过滤
 		expect(photos).toHaveLength(2);
 		expect(photos[0]).toEqual({
 			url: "https://cfbed.sanyue.de/file/a.jpg",

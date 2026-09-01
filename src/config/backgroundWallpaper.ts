@@ -1,23 +1,13 @@
 import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 
 export const backgroundWallpaper: BackgroundWallpaperConfig = {
-	// 壁纸模式："banner" 横幅壁纸，"fullscreen" 全屏壁纸，"overlay" 覆盖透明，"none" 纯色背景无壁纸
+
 	mode: "banner",
 	// 是否启用背景视频播放，配置后将在导航栏显示视频播放按钮
 	playerEnable: true,
-	/**
-	 * 背景图片配置。图片路径支持三种格式：
-	 * 1. public 目录（以 "/" 开头，不优化）："/assets/images/banner.avif"
-	 * 2. src 目录（不以 "/" 开头，自动优化，推荐）："assets/images/banner.avif"
-	 * 3. 远程 URL："https://example.com/banner.jpg"（不优化，注意控制体积）
-	 *
-	 * 单张图或随机图 API 直接填字符串（如 "https://t.alcy.cc/pc"），
-	 * 多张图填数组，每次刷新随机显示一张。
-	 * 自定义图片请勿命名为 d1-d6 / m1-m6，以免与示例图冲突被覆盖。
-	 */
+
 	src: {
-		// 桌面背景图片（支持单张或多张随机）
-		// desktop: "assets/images/DesktopWallpaper/d1.avif",
+
 		desktop: [
 			"assets/images/DesktopWallpaper/d1.avif",
 			"assets/images/DesktopWallpaper/d2.avif",
@@ -26,8 +16,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			"assets/images/DesktopWallpaper/d5.avif",
 			"assets/images/DesktopWallpaper/d6.avif",
 		],
-		// 移动背景图片（支持单张或多张随机）
-		// mobile: "assets/images/MobileWallpaper/m1.avif",
+
 		mobile: [
 			"assets/images/MobileWallpaper/m1.avif",
 			"assets/images/MobileWallpaper/m2.avif",
@@ -36,17 +25,14 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			"assets/images/MobileWallpaper/m5.avif",
 			"assets/images/MobileWallpaper/m6.avif",
 		],
-		// 背景视频播放地址
-		// 支持单个视频路径（字符串）或多个视频循环（数组，参考上面壁纸配置）
-		// 支持远程视频URL，本地视频请放在 public/assets/videos/ 目录下
-		// playerUrl: "/assets/videos/firefly.mp4",
+
 		playerUrl: "https://bed.twoleaf.cn/file/1785658612716_firefly.mp4",
 	},
 	// 横幅壁纸和全屏壁纸共享配置
 	common: {
 		// 壁纸遮罩暗度，让横幅文字显示更清晰，0-1之间，值越大越暗
 		dimOpacity: 0.2,
-		// 多视频播放模式："order" 顺序循环，"random" 随机切换（仅当 playerUrl 为数组时生效）
+
 		playerMode: "random",
 		// 主页横幅文字
 		homeText: {
@@ -68,21 +54,18 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {
-				// 是否启用打字机效果
-				// 打字机开启 → 循环显示所有副标题
-				// 打字机关闭 → 每次刷新随机显示一条副标题
+
 				enable: true,
 				// 打字速度（毫秒）
 				speed: 100,
-				// 删除速度（毫秒）
+
 				deleteSpeed: 50,
 				// 完全显示后的暂停时间（毫秒）
 				pauseTime: 2000,
 			},
 			// 是否显示标题下方的链接图标
 			linksEnable: true,
-			// 首页横幅标题下方的链接图标（可选，支持 showName 显示文字）
-			// 图标支持 Iconify 格式：fa7-brands:github、fa7-solid:envelope、mdi:rss 等
+
 			links: [
 				{
 					name: "GitHub",
@@ -113,26 +96,23 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			enable: false,
 			// 轮播切换间隔（毫秒）
 			interval: 5000,
-			// 过渡效果: 'fade' 渐变 | 'zoom' 缩放 | 'slide' 滑动 | 'kenburns' 旋转木马
+
 			transitionEffect: "zoom",
 		},
 	},
 	// Banner模式特有配置
 	banner: {
-		// 图片位置
-		// 支持所有CSS object-position值，如: 'top', 'center', 'bottom', 'left top', 'right bottom', '25% 75%', '10px 20px'..
-		// 如果不知道怎么配置百分百之类的配置，推荐直接使用：'center'居中，'top'顶部居中，'bottom' 底部居中，'left'左侧居中，'right'右侧居中
+
 		position: "0% 20%",
-		// 文章横幅信息："description" 显示描述，"meta" 显示日期、字数和阅读时长
+
 		postInfo: {
 			mode: "description",
 		},
 		// 导航栏配置
 		navbar: {
-			// 导航栏透明模式："semi" 半透明，"full" 完全透明，"semifull" 动态透明
+
 			transparentMode: "semi",
-			// 毛玻璃模糊度，0 即关闭导航栏的毛玻璃
-			// 注意：导航栏子菜单与浮动面板始终保留毛玻璃，模糊度跟随此项但有最小值
+
 			blur: 5,
 		},
 		// 水波纹动画效果配置，开启会影响页面性能，增加内存占用，请根据自己的喜好开启
@@ -158,7 +138,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	},
 	// 覆盖透明覆盖模式特有配置
 	overlay: {
-		// 层级：需 >= 0，否则被根元素 html 的背景色盖住（负 z-index 元素渲染在根背景之下）
+
 		zIndex: 0,
 		// 壁纸透明度
 		opacity: 0.8,
@@ -167,10 +147,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 卡片透明度，0-1之间，值越小越透明
 		cardOpacity: 0.6,
 	},
-	// 全屏壁纸模式特有配置
-	// 全屏模式下壁纸固定全屏显示，首屏居中标题，内容区在首屏之下、下滑时覆盖壁纸
-	// 壁纸模糊度(blur)、卡片透明度(cardOpacity)、层级(zIndex) 复用上方 overlay 模式的配置；
-	// 背景透明度(opacity)不适用（全屏壁纸不透明）；导航栏透明模式由卡片透明度控制，脱离 banner 的 navbar 配置
+
 	fullscreen: {
 		// 图片位置
 		position: "center",
@@ -179,8 +156,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			// 是否开启动态透明：开启后首页顶部导航栏透明，下滑后变不透明（仅首页生效）
 			dynamicTransparent: false,
 		},
-		// 首页下滑时壁纸模糊渐变开关（从 0 渐变为 overlay.blur 的最大模糊）
-		// 关闭后该设备上全屏壁纸保持清晰（首页与非首页都不模糊），设置面板的模糊度滑块也会隐藏
+
 		blurRamp: {
 			enable: {
 				// 桌面端是否启用模糊渐变

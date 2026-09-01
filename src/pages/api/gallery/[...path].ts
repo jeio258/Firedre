@@ -65,8 +65,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 
 		if (segments[1] === "unlock" && request.method === "GET") {
-			// 解锁限流：防暴力破解相册密码（D1 持久化，跨边缘节点一致）；
-			// failOpen=false：D1 故障时拒绝解锁，避免暴力破解防护失效。
+
 			return withRateLimit(
 				cfEnv,
 				request,
@@ -90,10 +89,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 			includeSource: isAdmin,
 		});
 		if (!album) return notFound("相册不存在");
-		// 公开响应必须剔除加密相册的密码与照片列表，避免未认证访客读取；
-		// 判锁以 D1 密码存在与否为准（对齐 unlockGalleryAlbum/gallery-files），
-		// 避免 R2 frontmatter.encrypted 与 D1 不同步时公开 GET 泄露照片。
-		// 且相册详情含敏感信息，一律私有不缓存（no-store）
+
 		const hasPassword = (await getAlbumPassword(cfEnv, slug)) !== "";
 		const payload = isAdmin
 			? album
@@ -109,9 +105,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 	const slug = segments[0];
 	if (!slug || !isValidGallerySlug(slug)) return notFound();
 
-	// 图床拉图：POST /api/gallery/{slug}/imgbed/photos/
-	// 服务端用全局图床配置（端点+密钥+图床目录）调图床 API 列目录（dir=图床目录）→ 拼公开直链 → 写入 frontmatter.photos
-	// 相册 slug 优先级最高，不被图床目录覆盖；图床目录留空 = 根目录。
 	if (segments[1] === "imgbed" && segments[2] === "photos") {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (!isAdmin) return unauthorized();
@@ -140,8 +133,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 						return badRequest(
 							"未配置图床 API（请先在站点设置 → 相册 配置端点与密钥）",
 						);
-					// 若相册尚未存在（创建页填 slug 未保存时点拉图），先用空内容自动创建，
-					// 使拉图不依赖“相册已保存”，且相册自动进入前端/后台列表。
+
 					const existing = await getGalleryAlbum(cfEnv, slug);
 					if (!existing) {
 						await upsertGalleryAlbum(
@@ -164,7 +156,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 		);
 	}
 
-	// 解锁限流：防暴力破解相册密码（D1 持久化）；failOpen=false 避免 D1 故障时防护失效
 	return withRateLimit(
 		cfEnv,
 		request,
@@ -197,7 +188,6 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	try {
 		const slug = segments[0];
 
-		// 相册排序（方案A：后台拖拽后整组提交）：PUT /api/gallery/order/
 		if (segments.length === 1 && slug === "order") {
 			const body = (await request.json().catch(() => ({}))) as {
 				slugs?: unknown;
@@ -208,7 +198,6 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, albums: result.albums });
 		}
 
-		// 相册密码管理（动态博客方式，存 D1）：PUT /api/gallery/{slug}/password/
 		if (segments[1] === "password") {
 			if (!slug || !isValidGallerySlug(slug))
 				return badRequest("相册 slug 格式无效");
@@ -216,13 +205,12 @@ export const PUT: APIRoute = async ({ params, request }) => {
 				password?: string;
 			};
 			const pwd = String(body.password || "").trim();
-			// 同步 R2 frontmatter 的 encrypted 标记，使「是否上锁」与 D1 密码存在与否一致
+
 			await setAlbumPassword(cfEnv, slug, pwd);
 			await setAlbumEncryptedFlag(cfEnv, slug, !!pwd);
 			return json({ ok: true, hasPassword: !!pwd });
 		}
 
-		// WebDAV 源配置（存 D1）：PUT /api/gallery/{slug}/webdav/，body { url, username? }
 		if (segments[1] === "webdav") {
 			if (!slug || !isValidGallerySlug(slug))
 				return badRequest("相册 slug 格式无效");
@@ -269,7 +257,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	if (!isAdmin) return unauthorized();
 
 	try {
-		// 仅清除相册密码（不删除相册）：DELETE /api/gallery/{slug}/password/
+
 		if (segments[1] === "password") {
 			await deleteAlbumPassword(cfEnv, slug);
 			// 同步清除 R2 frontmatter 的 encrypted 标记
@@ -277,7 +265,6 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, hasPassword: false });
 		}
 
-		// 清除 WebDAV 源配置并切回本地源：DELETE /api/gallery/{slug}/webdav/
 		if (segments[1] === "webdav") {
 			await deleteAlbumWebDavConfig(cfEnv, slug);
 			await setAlbumSourceFlag(cfEnv, slug, "local");

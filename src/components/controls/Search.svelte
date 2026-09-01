@@ -9,7 +9,6 @@ import { FLOATING_PANEL_CLOSE_EVENT } from "@/utils/floating-panel-utils";
 import { searchPostsApi } from "@/utils/search-api";
 import { url as formatUrl, getSearchUrl } from "@/utils/url-utils";
 
-// --- State ---
 let keywordDesktop = "";
 let keywordMobile = "";
 let result: SearchResult[] = [];
@@ -36,8 +35,7 @@ const handleDesktopFocus = (event: FocusEvent): void => {
 };
 
 const setPanelVisibility = (show: boolean, isDesktop: boolean): void => {
-	// SSR 下 document 未定义：组件被响应式语句在服务端渲染时触发（keywordDesktop === "" 时
-	// search() 会调用到这里），必须安全短路，否则 Astro 捕获到未处理的 ReferenceError。
+
 	if (typeof document === "undefined") return;
 	const panel = document.getElementById("search-panel");
 	if (
@@ -70,7 +68,6 @@ const handleResultClick = (event: Event, url: string): void => {
 	navigateToPage(url);
 };
 
-// --- Core Search Logic（D1 FTS5 API） ---
 const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 	if (!keyword) {
 		cancelPendingSearch();
@@ -104,7 +101,6 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 	}, 300); // 300ms debounce
 };
 
-// --- Initialization onMount ---
 onMount(() => {
 	const panel = document.getElementById("search-panel");
 	panel?.addEventListener(FLOATING_PANEL_CLOSE_EVENT, cancelPendingSearch);
@@ -115,7 +111,6 @@ onMount(() => {
 	};
 });
 
-// --- Reactive Statements ---
 $: if (initialized && (keywordDesktop || keywordDesktop === "")) {
 	search(keywordDesktop, true);
 }
@@ -124,7 +119,6 @@ $: if (initialized && (keywordMobile || keywordMobile === "")) {
 }
 </script>
 
-<!-- search bar for desktop view -->
 <div id="search-bar" class="hidden lg:flex transition-all items-center h-11 mr-2 rounded-lg
       bg-black/4 hover:bg-black/6 focus-within:bg-black/6
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
@@ -139,18 +133,15 @@ $: if (initialized && (keywordMobile || keywordMobile === "")) {
     >
 </div>
 
-<!-- toggle btn for phone/tablet view -->
 <button on:click={togglePanel} aria-label="Search Panel" aria-controls="search-panel" aria-expanded="false" id="search-switch"
 		class="btn-plain scale-animation lg:hidden! rounded-lg w-9 h-9 md:w-11 md:h-11 active:scale-90">
     <Icon icon="material-symbols:search" class="text-[1.25rem]"></Icon>
 </button>
 
-<!-- search panel -->
 <div id="search-panel" class="float-panel float-panel-closed search-panel absolute md:w-120
 top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
      data-floating-panel data-floating-panel-trigger="search-switch search-input-desktop" inert aria-hidden="true">
 
-    <!-- search bar inside panel for phone/tablet -->
     <div id="search-bar-inside" class="flex relative lg:hidden transition-all items-center h-11 rounded-xl
       bg-black/4 hover:bg-black/6 focus-within:bg-black/6
       dark:bg-white/5 dark:hover:bg-white/10 dark:focus-within:bg-white/10
@@ -163,7 +154,6 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
         >
     </div>
 
-    <!-- search results -->
     {#if isSearching}
         <div class="transition first-of-type:mt-2 lg:first-of-type:mt-0 block rounded-xl text-lg px-3 py-2 text-50">
             {i18n(I18nKey.searchLoading)}

@@ -1,9 +1,4 @@
-/**
- * 图表插件共享 CSS 类名常量
- *
- * 集中管理 rehype 插件（服务端）和客户端脚本共用的类名，
- * 修改类名时只需改这一处，避免 CSS / JS 不一致导致交互失效。
- */
+
 
 // 容器
 export const DIAGRAM_CONTAINER = "diagram-container";

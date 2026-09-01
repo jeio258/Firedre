@@ -22,7 +22,7 @@ interface Group {
 const CATEGORIES = ["站点配置", "功能配置", "页面配置", "扩展功能"] as const;
 
 const GROUPS: Group[] = [
-	// ── 站点配置 ──
+
 	{
 		key: "basic",
 		title: "站点配置",
@@ -318,7 +318,7 @@ const GROUPS: Group[] = [
 			},
 		],
 	},
-	// ── 功能配置 ──
+
 	{
 		key: "font",
 		title: "字体",
@@ -555,7 +555,6 @@ const GROUPS: Group[] = [
 		],
 	},
 
-	// ── 扩展功能 ──
 	{
 		key: "announcement",
 		title: "公告",
@@ -685,13 +684,6 @@ function currentGroup() {
 	return GROUPS.find((g) => g.key === activeGroup) ?? GROUPS[0];
 }
 
-/**
- * 把 nav 的 navItems/social 规整成数组：
- * - 已是数组 → 原样拷贝；
- * - 是 JSON 字符串（flatten / defaults 首加载产出）→ JSON.parse 回填；
- * - 其它（空/缺失/解析失败）→ 空数组。
- * 保证不会对字符串 .map 抛错，也不会把默认导航误丢弃为空数组。
- */
 function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
 	if (typeof value === "string") {
@@ -699,7 +691,7 @@ function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 			const parsed = JSON.parse(value);
 			if (Array.isArray(parsed)) return parsed.map((n) => ({ ...n }));
 		} catch {
-			/* 非合法 JSON 字符串则回退为空数组 */
+
 		}
 	}
 	return [];
@@ -734,9 +726,7 @@ async function load() {
 			navItems?: Array<{ label: string; url: string }>;
 			social?: Array<{ label: string; url: string }>;
 		};
-		// nav.navItems/social 首次加载可能为 JSON 字符串（flatten 产出），需解析回填
-		// 成数组再 map——既避免对字符串 .map 抛错（“not a function”），也避免回退成
-		// 空数组导致“保存全部”把默认导航清空。
+
 		navItems = parseNavArray(nav.navItems);
 		social = parseNavArray(nav.social);
 	} catch {
@@ -746,7 +736,6 @@ async function load() {
 	loaded = true;
 }
 
-// 布尔开关两态：开 ↔ 关（load 时已填充 Firefly 真实默认值，关=必隐藏）
 function cycleBool(key: string, field: string) {
 	data[key][field] = !data[key][field];
 	markDirty();
@@ -780,8 +769,7 @@ async function save() {
 	message = "";
 	try {
 		const groups: Record<string, Record<string, unknown>> = {};
-		// JSON 结构字段空值应删除（回落到默认值），而 text/textarea/number 字段
-		// 空串应保留，否则用户清空站点描述/标题后保存会回退到模板默认值。
+
 		const jsonFields = new Set([
 			"links",
 			"homeSubtitles",
@@ -789,8 +777,7 @@ async function save() {
 			"localPlaylist",
 			"sections",
 		]);
-		// 密码/密钥字段（type === "password"）：留空 = 保留已存值，不提交覆盖；
-		// 避免每次保存站点设置时用空串把已配置的密钥（如图床 Token）清掉。
+
 		const passwordFields = new Set(
 			GROUPS.flatMap((g) =>
 				(g.fields ?? [])
@@ -829,8 +816,7 @@ async function save() {
 			return;
 		}
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
-		// 保存后立即把主题色相应用到当前后台页面，避免切换/重载时闪回旧主题。
-		// variables.styl 的全部主题变量由 --hue 派生，设好 --hue 后台即跟随项目主题。
+
 		applyHueToAdmin(groups["basic"]?.hue);
 	} catch {
 		message = "网络错误，修改尚未保存";
@@ -839,12 +825,9 @@ async function save() {
 	}
 }
 
-/** 把 hue 应用到后台 documentElement（--hue 及兜底主题变量）。 */
 function applyHueToAdmin(hue: unknown) {
 	if (typeof document === "undefined") return;
-	// 空字符串/null/undefined 或越界值一律忽略，绝不落到 0（红色）。
-	// Number(null)=0、Number("")=0 是 JS 陷阱：清空 hue 后保存若走到这，
-	// 会把主题色相错误应用成红色。
+
 	if (hue == null || hue === "") return;
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
@@ -1223,7 +1206,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		font-size: 0.72rem;
 		font-family: ui-monospace, monospace;
 	}
-	/* 移动端：settings 二级导航改横向 tab，主区单列全宽 */
+
 	@media (max-width: 767px) {
 		.settings-app {
 			flex-direction: column;
@@ -1261,7 +1244,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 			flex-wrap: wrap;
 			gap: 0.4rem;
 		}
-		/* 导航项/社交链接编辑行：窄屏纵向堆叠 */
+
 		.row {
 			flex-direction: column;
 			align-items: stretch;

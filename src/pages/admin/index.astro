@@ -2,13 +2,9 @@
 export const prerender = false;
 
 import AdminApp from "../../components/admin/AdminApp.svelte";
-// 复用前端主题系统：variables.styl 的 :root 定义了全部主题变量（--primary/--page-bg/
-// --card-bg/--deep-text/--line-divider/--codeblock-bg/--radius-large 等），全部由 --hue
-// 经 oklch() 派生。导入后只要设好 --hue，后台即与前台共用同一套主题色。
+
 import "@/styles/variables.styl";
 
-// 后台站点主题色相（middleware 已把合并后的设置注入 Astro.locals.settings，SSR 同步可用）。
-// 这里直接内联到 <html> 上，无需客户端再 fetch /api/settings，避免“默认色→主题色”跳变闪烁。
 const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
 	?.settings ?? {};
 const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
@@ -19,12 +15,11 @@ const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
-	<!-- 标签页图标：项目自带 /favicon/favicon.ico（浅色） + 深色 PNG 切换 -->
+
 	<link rel="icon" href="/favicon/favicon.ico" />
 	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
 	<style define:vars={{ configHue }}>
-		/* SSR 已内联主题色相：首屏即主题色，消除 CSS 加载前文字无排版（FOUC）与默认色闪烁。
-	   define:vars 注入 configHue（is:inline 的裸 {configHue} 不会被 Astro 插值）。 */
+
 		html{--hue:var(--configHue)}
 		html,body{margin:0;padding:0;background:var(--page-bg,#f6f7fb);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text,#1f2937);-webkit-text-size-adjust:100%}
 		*{box-sizing:border-box}

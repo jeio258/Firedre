@@ -1,4 +1,4 @@
-/** 字段含义详见 src/config/musicConfig.ts */
+
 export type MusicPlayerConfig = {
 	mode?: "meting" | "local";
 	volume?: number;
@@ -16,11 +16,11 @@ export type MusicPlayerConfig = {
 	};
 	local?: {
 		playlist?: Array<{
-			name: string; // 歌曲名称
-			artist: string; // 艺术家
-			url: string; // 音乐文件路径（相对于 public 目录）
-			cover?: string; // 封面图片路径（相对于 public 目录）
-			lrc?: string; // 歌词内容，支持 LRC 格式
+			name: string;        
+			artist: string;       
+			url: string;                         
+			cover?: string;                         
+			lrc?: string;                  
 		}>;
 	};
 };

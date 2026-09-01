@@ -22,7 +22,6 @@ const {
 
 let activeCategory = $state("");
 
-// 初始化 activeCategory / 当 initialActiveCategory 变化时重置状态
 $effect(() => {
 	if (initialActiveCategory) {
 		activeCategory = initialActiveCategory;

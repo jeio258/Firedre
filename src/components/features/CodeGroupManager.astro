@@ -1,10 +1,5 @@
 ---
-// Tab 代码块（rehype-code-group）交互管理器
-//
-// 插件自带的脚本依赖 DOMContentLoaded 并为每个代码组单独绑定事件，
-// Swup 跳转后该事件不再触发，标签会失效。
-// 这里改用挂在 document 上的事件委托兜底：跳转后无需重新初始化，
-// 且与插件脚本的行为一致（幂等），两者同时存在也不会冲突。
+
 ---
 
 <script>
@@ -18,7 +13,6 @@
   const getBlocks = (group: Element): HTMLElement[] =>
     Array.from(group.querySelectorAll<HTMLElement>(`:scope > ${BLOCK_SELECTOR}`));
 
-  /** 激活指定序号的标签与对应代码块 */
   function activate(group: Element, index: number, focusTab = false) {
     const tabs = getTabs(group);
     const blocks = getBlocks(group);
@@ -42,7 +36,6 @@
     if (focusTab) tabs[target].focus({ preventScroll: true });
   }
 
-  /** 从事件目标定位所属代码组与标签序号 */
   function resolveTab(target: EventTarget | null) {
     if (!(target instanceof Element)) return null;
     const tab = target.closest<HTMLElement>(TAB_SELECTOR);

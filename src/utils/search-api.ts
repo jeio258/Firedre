@@ -1,6 +1,4 @@
-/**
- * 客户端搜索：调用 D1 FTS5 搜索 API，结果映射为 SearchResult 形状并高亮关键词
- */
+
 
 import type { SearchResult } from "@/global";
 
@@ -12,7 +10,6 @@ function escapeHtml(text: string): string {
 		.replace(/"/g, "&quot;");
 }
 
-/** 将关键词在文本中出现的片段包裹 <mark> */
 export function highlightText(text: string, keyword: string): string {
 	const escaped = escapeHtml(text);
 	const q = keyword.trim();

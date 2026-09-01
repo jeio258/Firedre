@@ -25,11 +25,6 @@ import { pathsEqual, url } from "@/utils/url-utils";
 
 const stickyNavbar = siteConfig.navbar.stickyNavbar ?? false;
 
-/**
- * 进度条：WAAPI 驱动 transform/opacity（合成线程动画）。
- * 替代原 width 关键帧 + `void offsetWidth` 强制回流方案——后者在大型文章 DOM 上
- * 会触发整棵布局树同步重排，正是切页卡顿来源之一。
- */
 function startProgressBar(): void {
 	const bar = document.getElementById("progress-bar");
 	if (!bar) return;
@@ -49,12 +44,6 @@ function startProgressBar(): void {
 	);
 }
 
-/**
- * Swup 默认只替换 <body>，<head> 里的 <title> 不会随客户端转场更新。
- * 这里从新页面响应 HTML 解析 <title> 并写入 document.title，
- * 使文章页（及所有页面）的标签栏标题在 SPA 切页后也正确生效。
- * 用 DOMParser 解析以正确解码 &amp; / &lt; 等 HTML 实体。
- */
 function syncDocumentTitle(visit: { to?: { html?: string } }): void {
 	const html = visit?.to?.html;
 	if (!html) return;
@@ -86,18 +75,12 @@ function finishProgressBar(): void {
 	);
 }
 
-/**
- * Swup 页面切换编排（从 Layout.astro 迁出）。
- * 注册 link:click / content:replace / visit:start / page:view / visit:end 钩子。
- */
 function registerSwupHooks(): void {
-	// 非首页全屏模式与 overlay 一致（内容在最上面），首页 hero 结构回顶即可，
-	// 均无需自定义 swup 回顶行为，保留默认滚动到顶部
-	// TODO: temp solution to change the height of the banner
+
 	window.swup.hooks.on(
 		"link:click",
 		(_visit: unknown, { el }: { el: HTMLAnchorElement }) => {
-			// Remove the delay for the first time page load
+
 			document.documentElement.style.setProperty("--content-delay", "0ms");
 
 			// 同页链接点击不需要过渡保护
@@ -135,13 +118,10 @@ function registerSwupHooks(): void {
 		},
 	);
 	window.swup.hooks.on("content:replace", (visit: { to?: { html?: string } }) => {
-		// 客户端转场后同步标签栏标题（SSR 已正确输出，此处补齐 SPA 切页缺失的 title 更新）
+
 		syncDocumentTitle(visit);
 
 		initializeFloatingPanels();
-
-		// 侧边栏组件可见性由 page:view 统一更新（含 refreshSidebarStickyState 的
-		// offsetHeight 布局读取），content:replace 不重复执行，避免每趟切页强制布局两次
 
 		// 只处理katex元素的容器，使用浏览器原生滚动条
 		scheduleContentOverflowEnhancements();
@@ -166,9 +146,6 @@ function registerSwupHooks(): void {
 			}
 		}
 
-		// 重新初始化semifull模式的滚动检测
-		// （全屏模式跳过：导航栏状态由 updateNavbarTransparency 统一管理，
-		//   避免切换页面时 initSemifullScrollDetection 重置 scrolled 导致背景闪烁）
 		const navbar = document.getElementById("navbar");
 		if (navbar) {
 			const transparentMode = navbar.getAttribute("data-transparent-mode");
@@ -188,23 +165,21 @@ function registerSwupHooks(): void {
 		// Start progress bar（WAAPI 合成线程动画，不强制回流）
 		startProgressBar();
 
-		// 更新首页状态（body.is-home 驱动 CSS --content-top 等）
 		const bodyElement = document.querySelector("body") as HTMLElement;
 		const isHomePage = pathsEqual(visit.to.url, url("/"));
 		const wasHome = bodyElement.classList.contains("is-home");
 		const contentPanel = document.querySelector(
 			".content-panel",
 		) as HTMLElement | null;
-		// FLIP 只在 is-home 状态变化（首页↔非首页）时才有意义；文章↔文章、首页↔首页
-		// 类未变 → delta 必为 0，直接短路，避免常见切页白付两次强制布局读取
+
 		if (isHomePage !== wasHome && contentPanel) {
 			const oldTop = contentPanel.getBoundingClientRect().top; // 类切换前读
 			bodyElement.classList.toggle("is-home", isHomePage);
 			const newTop = contentPanel.getBoundingClientRect().top; // 类切换后读
 			const delta = oldTop - newTop;
-			// 超大位移（>75% 视口，如全屏首页→非首页）不做 FLIP：新页内容重排叠加会抖动，直接到位由 swup 淡入掩盖
+
 			if (delta !== 0 && Math.abs(delta) <= window.innerHeight * 0.75) {
-				// 标准 FLIP：禁用过渡→设 invert transform→回流提交→启用过渡→移除 transform（触发合成动画）
+
 				contentPanel.style.willChange = "transform";
 				contentPanel.style.transition = "none";
 				contentPanel.style.transform = `translateY(${delta}px)`;
@@ -218,14 +193,10 @@ function registerSwupHooks(): void {
 			}
 		}
 
-		// Control navbar transparency based on page
 		const navbar = document.getElementById("navbar");
 		if (navbar) {
 			navbar.setAttribute("data-is-home", isHomePage.toString());
 
-			// 重新初始化semifull模式的滚动检测
-			// （全屏模式跳过：导航栏状态由 updateNavbarTransparency 统一管理，
-			//   避免切换页面时 initSemifullScrollDetection 重置 scrolled 导致背景闪烁）
 			const transparentMode = navbar.getAttribute("data-transparent-mode");
 			const navWallpaperMode = document.documentElement.getAttribute(
 				"data-wallpaper-mode",
@@ -246,20 +217,16 @@ function registerSwupHooks(): void {
 			}
 		}
 
-		// 转场时临时增高页面，避免滚动动画跳变
 		const heightExtend = document.getElementById("page-height-extend");
 		if (heightExtend) {
 			heightExtend.classList.remove("hidden");
 		}
 
-		// Hide the TOC while scrolling back to top
 		const toc = document.getElementById("toc-wrapper");
 		if (toc) {
 			toc.classList.add("toc-not-ready");
 		}
 
-		// 确保页面滚动到顶部，切页期间使用即时回顶，移动端不使用，避免出现闪烁
-		// （非首页全屏模式与 overlay 一致、内容在最上面，回顶即内容顶部）
 		const shouldUseSmoothScroll = window.innerWidth >= 768;
 		if (shouldUseSmoothScroll) {
 			window.scrollTo({
@@ -273,7 +240,6 @@ function registerSwupHooks(): void {
 		updateMainGridCols();
 		updateSidebarComponentsVisibility();
 
-		// hide the temp high element when the transition is done
 		const heightExtend = document.getElementById("page-height-extend");
 		if (heightExtend) {
 			heightExtend.classList.remove("hidden");
@@ -283,7 +249,7 @@ function registerSwupHooks(): void {
 		updateFullscreenTitleParallax();
 		syncFullscreenOverlays();
 		syncFullscreenBlur();
-		// 页面切换后同步首页标题显隐（body.is-home 已更新，按新页面重算 hidden 类）
+
 		syncBannerHomeTextVisibility();
 		// 页面切换后按新页面刷新导航栏透明状态（全屏首页动态透明 / 非首页完全透明）
 		updateNavbarTransparency(
@@ -302,10 +268,9 @@ function registerSwupHooks(): void {
 				if (postListContainer) {
 					postListContainer.style.transition = "";
 				}
-			}, 600); // 等待主内容区动画完成（0.4s + 0.1s delay + 100ms buffer）
+			}, 600);                                                
 		}
 
-		// 同步主题状态 - 解决从首页进入文章页面时代码块渲染问题
 		const storedTheme =
 			localStorage.getItem("theme") ||
 			siteConfig.themeColor.defaultMode ||
@@ -370,7 +335,6 @@ function registerSwupHooks(): void {
 	});
 }
 
-/** 注册 Swup 钩子（swup 就绪时立即执行，否则等待 swup:enable 事件） */
 export function setupSwupTransitions(): void {
 	if (window?.swup?.hooks) {
 		registerSwupHooks();

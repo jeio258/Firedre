@@ -7,7 +7,6 @@ import type {
 import { UserError } from "../utils/userError";
 import { safeUrlScheme } from "../utils/safeUrl";
 
-/** 仅允许 http/https/mailto/tel 或相对路径，拦截 javascript:/data: 等危险 scheme */
 export function isSafeNoticeUrl(raw: unknown): boolean {
 	return safeUrlScheme(raw) !== null;
 }
@@ -62,7 +61,7 @@ export function parseNoticePayload(raw: string): NoticeBoard {
 	try {
 		parsed = JSON.parse(raw);
 	} catch {
-		// 输入不是合法 JSON：这是客户端请求错误（400），而非服务器内部错误（500）。
+
 		throw new UserError("公告内容格式无效，需为 JSON 格式 { title, sections }");
 	}
 	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))

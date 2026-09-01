@@ -30,7 +30,7 @@ const labels = {
   data-encrypted={encryptedData}
   data-slug={slug}
 >
-  <!-- Lock UI -->
+
   <div id="password-ui" class="flex justify-center py-16 px-4">
     <div class="card-base flex flex-col items-center gap-3 max-w-100 w-full p-8">
       <Icon name="material-symbols:shield-lock" class="text-8xl text-(--primary)" />
@@ -67,7 +67,6 @@ const labels = {
     </div>
   </div>
 
-  <!-- Decrypted content injected here -->
   <div id="decrypted-content" class="hidden"></div>
 </div>
 
@@ -121,8 +120,7 @@ const labels = {
   }
 
   function showContent(html) {
-    // 加密相册解锁后，本地媒体(/api/gallery-files/)需带 accessPassword 才能加载：
-    //   <img/video/source/iframe src>、Fancybox 灯箱 data-src、<img srcset>
+
     contentEl.innerHTML = html;
     var pwd = sessionStorage.getItem(cacheKey) || '';
     if (pwd) {
@@ -146,7 +144,7 @@ const labels = {
       ns.textContent = old.textContent;
       old.parentNode.replaceChild(ns, old);
     }
-    // Re-init components after content is in DOM
+
     setTimeout(function() {
       document.dispatchEvent(new CustomEvent('password:decrypted'));
     }, 100);

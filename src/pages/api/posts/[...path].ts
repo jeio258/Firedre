@@ -25,13 +25,6 @@ import {
 
 export const prerender = false;
 
-/**
- * 移除公开响应中的敏感字段（加密文章明文密码/密码提示）。
- * 密码仅在服务端用于 AES 加密内容，绝不下发给未认证访问者。
- *
- * 对加密文章（password 非空）额外剔除渲染后的明文正文（html/headings）
- * 与源码（source/markdown），避免未认证调用者绕过密码保护直接读取明文。
- */
 function redactPostSecrets<T>(post: T): T {
 	const copy = { ...(post as Record<string, unknown>) };
 	const isEncrypted = Boolean(
@@ -46,8 +39,7 @@ function redactPostSecrets<T>(post: T): T {
 		copy.frontmatter = fm;
 	}
 	if (isEncrypted) {
-		// 加密文章正文必须以密文形式下发（由 EncryptedContent 在 SSR 时加密），
-		// API 不返回明文 html/headings/source/markdown。
+
 		delete copy.html;
 		delete copy.headings;
 		delete copy.source;
@@ -163,7 +155,6 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 
-	// 删除操作限流：每分钟最多 5 次（D1 持久化）
 	return withRateLimit(
 		cfEnv,
 		request,

@@ -15,7 +15,7 @@ let sidebarOpen = false;
 let View: unknown = null;
 let viewProps: Record<string, unknown> = {};
 let viewError = "";
-// 仅在组件就绪后更新，使 {#key} 在加载期间保持旧视图（消除切换闪屏）
+
 let viewKey = "dashboard";
 
 const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
@@ -58,7 +58,7 @@ function parsePath(pathname: string): {
 	}
 	if (first === "gallery") {
 		if (parts[1]) {
-			// /admin/gallery/new/ = 新建相册（slug 为空，组件据此进入创建模式）
+
 			if (parts[1] === "new") return { section: "album-edit" };
 			return { section: "album-edit", slug: decodeURIComponent(parts[1]) };
 		}
@@ -90,9 +90,7 @@ async function render(s: Section, slug?: string) {
 	}
 	try {
 		const mod = await loader();
-		// 仅在新组件就绪后才更新 props/View/key：加载期间旧视图保持可见，
-		// 避免"切换菜单→白屏/重渲闪烁"（{#key} 旧写法在 section 变化时立即重挂，
-		// 新组件异步 load() 未完成前会闪空内容）。
+
 		viewProps = { ...(VIEW_PROPS[s] ?? {}) };
 		if ((s === "posts-edit" || s === "album-edit") && slug) {
 			viewProps = { slug, ...viewProps };
@@ -147,8 +145,7 @@ async function handleNav(event: MouseEvent) {
 }
 
 async function checkAuth() {
-	// 会话检查：仅 401 判为未登录；网络错误/超时（worker 冷启动可达数秒）自动重试，
-	// 避免"检查超时 → 误判登出 → 显示登录表单"（表现为切换选项自动退出登录）
+
 	for (let attempt = 0; attempt < 3; attempt++) {
 		const ctrl = new AbortController();
 		const timer = setTimeout(() => ctrl.abort(), 10000);
@@ -207,7 +204,7 @@ onMount(() => {
 </script>
 
 {#if checking}
-	<!-- 会话检查中：只显示居中轻量 loading，不渲染后台框架，避免未登录时闪现后台页面 -->
+
 	<div class="admin-checking">正在加载…</div>
 {:else if !authed}
 	<div class="admin-login-wrap">
@@ -217,14 +214,10 @@ onMount(() => {
 		<AdminLogin onSuccess={handleLoginSuccess} />
 	</div>
 {:else}
-	<!-- data-no-swup（置于后台根：涵盖侧栏 + 各 section 内容里的所有 /admin/ 链接，如
-	仪表盘快捷、编辑器“返回列表”、列表“编辑/新建”等）：后台是自洽 SPA，内部导航统一由
-	handleNav 的 preventDefault+pushState 接管。若不标记，全局 Swup 会拦截这些链接做整页过渡，
-	而后台没有 #swup-container 等容器→报 Container mismatch→回退为硬整页刷新→切菜单闪屏。
-	（Swup 的 ignoreVisit 对 el.closest('[data-no-swup]') 生效，故单点标记可覆盖整棵后台 DOM。）-->
+
 	<div class="admin-shell" data-no-swup>
 	{#if sidebarOpen}
-		<!-- 移动端抽屉遮罩：点击关闭侧栏 -->
+
 		<div class="admin-sidebar-backdrop" on:click={() => (sidebarOpen = false)}></div>
 	{/if}
 		<aside class="admin-sidebar" class:open={sidebarOpen}>
@@ -374,9 +367,7 @@ onMount(() => {
 		min-width: 0;
 		position: relative;
 	}
-	/* 移动端菜单按钮（默认隐藏，≤767px 显示）
-	   - admin-menu-open：位于主区，抽屉关闭时可见，点击打开
-	   - admin-menu-close：位于侧栏品牌行，抽屉内，点击关闭 */
+
 	.admin-menu-toggle {
 		display: none;
 	}
@@ -444,7 +435,7 @@ onMount(() => {
 		padding: 4rem;
 		color: var(--muted-text, #666);
 	}
-	/* 会话检查中的独立居中 loading（不渲染后台框架） */
+
 	.admin-checking {
 		min-height: 90vh;
 		display: flex;

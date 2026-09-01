@@ -1,7 +1,4 @@
-/**
- * 后台"真实配置"默认值：从 runtime.ts（静态 config 同构输出）展平为后台表单字段。
- * 与 AdminSettings GROUPS 字段一一对应 —— 后台显示 = 静态真实默认 + 已保存覆盖。
- */
+
 import {
 	getSiteConfig, getProfileConfig, getCommentConfig, getMusicConfig,
 	getWallpaperConfig, getFooterConfig, getEffectsConfig, getPioConfig,
@@ -112,9 +109,6 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		umamiId: ana.umamiAnalytics?.websiteId, umamiUrl: ana.umamiAnalytics?.scriptUrl,
 	};
 
-	// 先以 settings-defaults（后台表单默认值单一数据源，与 middleware SSR 共用）作基底，
-	// 再以上列 runtime 派生组覆盖，保证 GET /api/settings 的默认值完整且与运行时一致，
-	// 同时保留 runtime 静态真实默认值（如 siteConfig.title 等）的优先级。
 	return {
 		...settingsDefaults,
 		basic, profile, comment, music, theme, effects, footer: footerL, pio: pioL,

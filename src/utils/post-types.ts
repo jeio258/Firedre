@@ -1,9 +1,4 @@
-/**
- * Firedre 前端文章数据模型
- *
- * 保持与 Firefly 组件期望的 CollectionEntry<"posts"> 形状兼容（id + data），
- * 以便 PostCard / PostPage / PostMeta / License / SeriesNav 等组件无需改动。
- */
+
 
 export interface PostFrontmatterLike {
 	title: string;
@@ -37,7 +32,6 @@ export interface PostForList {
 	data: PostFrontmatterLike;
 }
 
-/** API 列表项（server/posts/service 返回） */
 export interface ApiPostListItem {
 	slug: string;
 	title: string;
@@ -55,7 +49,6 @@ export interface ApiPostListItem {
 	frontmatter?: Record<string, unknown>;
 }
 
-/** API 文章详情 */
 export interface ApiPostDetail extends ApiPostListItem {
 	html: string;
 	headings: Array<{ depth: number; slug: string; text: string }>;
@@ -86,12 +79,11 @@ function dateValue(value: unknown): Date {
 	if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
 	const strVal = str(value);
 	if (!strVal) return new Date(0);
-	// 兼容 YYYY-MM-DD 与 ISO
+
 	const d = new Date(strVal.length === 10 ? `${strVal}T00:00:00` : strVal);
 	return Number.isNaN(d.getTime()) ? new Date(0) : d;
 }
 
-/** API 列表项 → Firefly 兼容的 PostForList */
 export function apiPostToPostForList(item: ApiPostListItem): PostForList {
 	const fm = item.frontmatter ?? {};
 	const category = str(fm.category) || item.categories?.[0] || "";
@@ -129,7 +121,6 @@ export function apiPostToPostForList(item: ApiPostListItem): PostForList {
 	};
 }
 
-/** API 详情 → 兼容 entry 的对象（含正文 html 与元数据） */
 export function apiPostToEntry(post: ApiPostDetail): {
 	entry: PostForList;
 	html: string;

@@ -3,19 +3,13 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 
 interface Props {
-	/**
-	 * "ellipsis"：桌面端页码行里的 `⋯`，点开后原地变成和相邻页码同尺寸的输入框
-	 * "current"：移动端 `3 / 20` 卡片里的当前页数字，点开后原地变成透明底输入框
-	 */
+
 	variant: "ellipsis" | "current";
 	currentPage: number;
 	lastPage: number;
-	/** 前端分页（Svelte 调用方）走这个回调，不改 URL */
+
 	onJump?: (page: number) => void;
-	/**
-	 * 整页跳转（Astro island）走这两个。函数没法跨 island 边界传，只能传字符串模板：
-	 * hrefTemplate 里的 {page} 会被替换成页码，第 1 页用 hrefFirst（是 `/` 而不是 `/1/`）
-	 */
+
 	hrefTemplate?: string;
 	hrefFirst?: string;
 }
@@ -85,8 +79,6 @@ function submit() {
 	if (target !== currentPage) jump(target);
 }
 
-// 不用 bind:value：清洗后的值可能和上一次相同，Svelte 不会重渲染，
-// 非法字符就会留在 DOM 里，所以这里直接把 input.value 一起改掉
 function onInput(event: Event) {
 	const el = event.currentTarget as HTMLInputElement;
 	const cleaned = el.value.replace(/\D/g, "").slice(0, digits);

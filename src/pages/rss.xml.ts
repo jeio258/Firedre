@@ -14,9 +14,6 @@ function stripInvalidXmlChars(str: string): string {
 	);
 }
 
-/**
- * Firedre：RSS 从 D1 + R2 动态生成（运行时渲染全文）
- */
 export async function GET(context: APIContext): Promise<Response> {
 	const { listPosts, getPostBySlug } = await import(
 		"../../server/posts/service"

@@ -26,7 +26,6 @@ import FloatingButton from "@/components/common/FloatingButton.astro";
     const commentSection = document.getElementById("post-comments");
     if (!btn) return;
 
-    // No comment section on current page: keep hidden.
     if (!commentSection) {
       btn.style.display = "none";
       btn.classList.add("hide");

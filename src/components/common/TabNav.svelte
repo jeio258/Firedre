@@ -11,7 +11,7 @@ interface Props {
 	tabs: Tab[];
 	activeTab: string;
 	onTabChange: (tabId: string) => void;
-	/** 是否把选中的 tab 同步到 URL hash（默认开启；嵌套的次级 tab 应关闭） */
+
 	useHash?: boolean;
 }
 

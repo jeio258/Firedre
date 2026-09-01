@@ -1,9 +1,5 @@
-/**
- * HAST 安全消毒：在 rehypeRaw 之后执行，移除 Markdown 原始 HTML 中的危险内容。
- * 作为 allowDangerousHtml 的兜底防护；不依赖 sanitize-html（避免误伤 KaTeX/Mermaid 输出）。
- */
 
-/** 需要整体移除的危险标签（可承载脚本/表单/外部资源注入） */
+
 const UNSAFE_TAG_NAMES = new Set([
 	"script",
 	"object",
@@ -20,7 +16,6 @@ const UNSAFE_TAG_NAMES = new Set([
 	"applet",
 ]);
 
-/** 需净化的 URL 属性名 */
 const URL_PROPERTY_NAMES = new Set([
 	"href",
 	"src",
@@ -33,10 +28,6 @@ const URL_PROPERTY_NAMES = new Set([
 	"background",
 ]);
 
-/**
- * 净化为逗号分隔的 URL 列表（如 srcset="a.jpg 1x, b.jpg 2x"）。
- * 逐个净化候选 URL，丢弃非法项；若全部非法则整体删除属性。
- */
 function sanitizeSrcset(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 	const parts = value.split(",").map((p) => p.trim());
@@ -51,14 +42,11 @@ function sanitizeSrcset(value: unknown): string | undefined {
 	return cleaned.length ? cleaned.join(", ") : undefined;
 }
 
-/** 直接删除的属性（iframe srcdoc 可内嵌脚本） */
 const STRIP_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
 
 export function sanitizeUrl(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
-	// WHATWG URL 解析会把 scheme 内的 ASCII tab/CR/LF 剥离，因此
-	// `java\tscript:`、`java\nscript:` 等会被浏览器当作 javascript: 执行。
-	// 必须先移除这些控制字符再做 scheme 白名单检查，否则可绕过本校验。
+
 	const v = value.replace(/[\t\r\n]/g, "").trim();
 	const lower = v.toLowerCase();
 	if (
@@ -68,16 +56,13 @@ export function sanitizeUrl(value: unknown): string | undefined {
 	)
 		return undefined;
 	if (lower.startsWith("data:")) {
-		// 仅放行 data:image/*（LQIP/内联图）；svg+xml 可内嵌脚本，一并拦截
+
 		if (!lower.startsWith("data:image/") || lower.includes("svg"))
 			return undefined;
 	}
 	return v;
 }
 
-/**
- * 递归清理 HAST：移除危险标签、事件处理器属性（on*）与危险 URL。
- */
 export function sanitizeHast(node: unknown): unknown {
 	const n = node as {
 		type?: string;
@@ -118,7 +103,6 @@ export function sanitizeHast(node: unknown): unknown {
 	return n;
 }
 
-/** rehype 插件形态：在 unified 管线中作为兜底消毒步骤 */
 export function rehypeSanitizeDangerous() {
 	return (tree: unknown) => {
 		sanitizeHast(tree);

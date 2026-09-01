@@ -106,8 +106,6 @@ function serializeMenus(menus: Props["config"]["menus"]) {
 <script>
 	import { createWidget } from "l2d-widget";
 
-	// 修复 l2d-widget 气泡 不会自动换行
-	// l2d-widget 使用行内样式，CSS 无法覆盖，需用 JS 修改
 	function patchTipBubble(el: HTMLElement) {
 		if (el.style.whiteSpace === "nowrap") {
 			el.style.whiteSpace = "normal";
@@ -215,7 +213,7 @@ function serializeMenus(menus: Props["config"]["menus"]) {
 					...(tips.offset && { offset: tips.offset }),
 					...(tips.typing && { typing: tips.typing }),
 				};
-				
+
 				if (tipsConfig === false || Object.keys(tipsConfig).length > 0) {
 					if (Array.isArray(options.model)) {
 						options.model.forEach((m: any) => m.tips = tipsConfig);

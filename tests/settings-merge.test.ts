@@ -80,9 +80,9 @@ describe("normalizeValue", () => {
 	});
 
 	it("should handle strings that look like JSON but aren't", () => {
-		// String starting with [ but not ending with ]
+
 		expect(normalizeValue("[hello")).toBe("[hello");
-		// String starting with { but not ending with }
+
 		expect(normalizeValue("{hello")).toBe("{hello");
 	});
 });
@@ -97,7 +97,7 @@ describe("assignFlat", () => {
 	it("should skip empty strings", () => {
 		const target: Record<string, unknown> = { existing: "value" };
 		assignFlat(target, { title: "", description: null });
-		// Empty string and null should NOT override existing values
+
 		expect(target).toEqual({ existing: "value" });
 	});
 

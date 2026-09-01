@@ -10,26 +10,13 @@ import {
 } from "./utils/diagramConstants.js";
 import { extractText } from "./utils/extractText.js";
 
-/**
- * 生成当前 HAST 节点的随机 id，避免同一页多个图表冲突。
- *
- * @returns {string}
- */
 function generateId() {
 	const rand = Math.random().toString(36).slice(2, 8);
 	return `plantuml-${rand}`;
 }
 
-/** 已注入客户端脚本的 tree 集合，用于避免同一 tree 多次注入 */
 const scriptInjectedTrees = new WeakSet();
 
-/**
- * rehype 插件：把 `div.plantuml-container`（由 remark-plantuml 标记）改写为
- * 可交互的 `.plantuml-diagram-container`，并在每棵 tree 末尾注入一次客户端
- * 渲染脚本，负责主题切换、加载失败降级与缩放/全屏控制。
- *
- * @returns {(tree: import('hast').Root) => void} rehype transformer
- */
 export function rehypePlantuml() {
 	return (tree) => {
 		let foundAny = false;

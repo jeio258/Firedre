@@ -123,7 +123,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 			});
 		}
 
-		// 后台管理员改密（仅已登录管理员）：POST /api/admin/users/password
 		if (action === "users") {
 			const isAdmin = await verifyAdminRequest(request, cfEnv);
 			if (!isAdmin) return unauthorized();
@@ -167,7 +166,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	try {
 		const adminEnv = resolveAdminEnv(cfEnv);
-		// verifyAdminRequest 是权威门禁：校验 Cookie 会话，且会检查 D1 用户 enabled（禁用即时生效）。
+
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (!isAdmin) return json({ authenticated: false }, 200, "private");
 
@@ -178,7 +177,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		const username = token ? await getSessionUser(token, adminEnv) : null;
 		return json({ authenticated: true, username: username || "" }, 200, "private");
 	} catch (error) {
-		// 配置缺失（如 SESSION_SECRET 未设）时校验会抛异常；统一降级为未认证，避免裸 500
+
 		return json({ authenticated: false }, 200, "private");
 	}
 };

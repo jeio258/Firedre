@@ -30,8 +30,8 @@ export type SiteConfig = {
 	title: string;
 	subtitle: string;
 	site_url: string;
-	description?: string; // 网站描述，用于生成 <meta name="description">
-	keywords?: string[]; // 站点关键词，用于生成 <meta name="keywords">
+	description?: string;                                       
+	keywords?: string[];                                     
 
 	lang: "en" | "zh_CN" | "zh_TW" | "ja" | "ru" | "ko";
 
@@ -53,10 +53,8 @@ export type SiteConfig = {
 		radius?: number;
 	};
 
-	// 站点开始日期，用于计算运行天数
-	siteStartDate?: string; // 格式: "YYYY-MM-DD"
+	siteStartDate?: string;                    
 
-	// 可选：站点时区，使用 IANA 时区标识，例如 "Asia/Shanghai"、"UTC"
 	timezone?: string;
 
 	favicon: Array<{
@@ -66,41 +64,39 @@ export type SiteConfig = {
 	}>;
 
 	navbar: {
-		/** 导航栏Logo图标，可选类型：icon库、本地图片、网络图片链接 */
+
 		logo?: {
 			type: "icon" | "image" | "url";
-			value: string; // icon名、本地图片路径或网络图片url
-			valueDark?: string; // 暗色模式下的图片，仅 image / url 类型生效，不设置则亮暗色共用 value
-			alt?: string; // 图片alt文本
+			value: string;                        
+			valueDark?: string;                                               
+			alt?: string;           
 		};
-		title?: string; // 导航栏标题，如果不设置则使用 title
-		widthFull?: boolean; // 导航栏是否占满屏幕宽度
-		menuAlign?: "left" | "center"; // 导航菜单对齐方式（仅桌面端菜单）
-		followTheme?: boolean; // 导航栏图标和标题是否跟随主题色
-		stickyNavbar?: boolean; // 导航栏是否固定在顶部始终可见
+		title?: string;                        
+		widthFull?: boolean;               
+		menuAlign?: "left" | "center";                    
+		followTheme?: boolean;                   
+		stickyNavbar?: boolean;                  
 	};
 
 	// 页面开关配置
 	pages: {
-		booknav: boolean; // 书签导航页面开关
-		friends: boolean; // 友链页面开关
-		sponsor: boolean; // 打赏页面开关
-		guestbook: boolean; // 留言板页面开关
+		booknav: boolean;            
+		friends: boolean;          
+		sponsor: boolean;          
+		guestbook: boolean;           
 		bangumi: boolean;
 		vndb: boolean;
-		mal: boolean; // MyAnimeList 页面开关
-		gallery: boolean; // 相册页面开关
-		bilibili: boolean; // 哔哩哔哩追番页面开关
-		dynamic: boolean; // 动态页面开关
+		mal: boolean;                    
+		gallery: boolean;          
+		bilibili: boolean;              
+		dynamic: boolean;          
 	};
 
 	// 分类导航栏开关
 	categoryBar?: boolean;
 
-	// 分类导航栏按钮样式："pill"=胶囊，"rectangle"=矩形（配色同胶囊）
 	categoryStyle?: "pill" | "rectangle";
 
-	// 标签样式："pill"=主题色胶囊，"pill-gray"=中性灰胶囊，"rectangle"=主题色矩形
 	tagStyle?: "pill" | "pill-gray" | "rectangle";
 
 	// 归档页是否折叠非最新年份文章
@@ -108,34 +104,33 @@ export type SiteConfig = {
 
 	// 文章列表布局配置
 	postListLayout: {
-		defaultMode: "list" | "grid"; // 默认布局模式：list=列表模式，grid=网格模式
-		mobileDefaultMode?: "list" | "grid"; // 移动端默认布局模式（视口宽度<780px时使用），不设置则跟随 defaultMode
-		// 列表模式下封面图的位置："right"=右侧（默认），"left"=左侧。网格模式封面固定在顶部，不受此项影响
+		defaultMode: "list" | "grid";                              
+		mobileDefaultMode?: "list" | "grid";                                               
+
 		coverPosition?: "left" | "right";
-		descriptionLines?: number; // 文章简介显示行数，设为 0 则不截断，默认 2
-		showStatsIcons?: boolean; // 文章卡片底部统计是否显示图标
-		// 标签显示位置："meta"=跟随元数据行（默认），"bottom"=卡片底部独立一行（将替换stats显示，二者只能选其一）
+		descriptionLines?: number;                           
+		showStatsIcons?: boolean;                  
+
 		tagsPosition?: "meta" | "bottom";
-		// 底部标签样式："chip"=按钮样式，跟随 tagStyle 的胶囊/矩形（默认），"text"=无底色，只有文字
+
 		tagsBottomStyle?: "chip" | "text";
 		// PostMeta 元数据显示控制
 		meta?: {
-			showPublished?: boolean; // 是否显示发布日期
-			showCategory?: boolean; // 是否显示分类
-			showTags?: boolean; // 是否显示标签
-			tagCount?: number; // 标签数量
-			showWords?: boolean; // 是否显示字数
-			showReadingTime?: boolean; // 是否显示阅读时间
+			showPublished?: boolean;            
+			showCategory?: boolean;          
+			showTags?: boolean;          
+			tagCount?: number;        
+			showWords?: boolean;          
+			showReadingTime?: boolean;            
 		};
 		// PostStats 统计信息显示控制
 		stats?: {
-			showPublished?: boolean; // 是否显示发布日期
-			showWords?: boolean; // 是否显示字数
-			showReadingTime?: boolean; // 是否显示阅读时间
+			showPublished?: boolean;            
+			showWords?: boolean;          
+			showReadingTime?: boolean;            
 		};
 		grid: {
-			// 网格布局配置，仅在 defaultMode 为 "grid" 或允许切换布局时生效
-			// 是否开启瀑布流布局
+
 			masonry: boolean;
 			// 网格模式卡片最小宽度(px)，浏览器根据容器宽度自动计算列数，默认 320
 			columnWidth?: number;
@@ -163,12 +158,12 @@ export type SiteConfig = {
 
 	// bangumi配置
 	bangumi?: {
-		userId?: string; // Bangumi用户ID
-		mode?: "static" | "dynamic"; // 数据模式：static=构建时获取，dynamic=客户端实时获取
-		apiUrl?: string; // Bangumi API 地址
-		subjectBaseUrl?: string; // 条目详情页地址
-		categoryOrder?: ("anime" | "game" | "book" | "music" | "real")[]; // 条目类型排序顺序
-		// 各分类的显示启用状态，未设置时默认启用
+		userId?: string;               
+		mode?: "static" | "dynamic";                                     
+		apiUrl?: string;                  
+		subjectBaseUrl?: string;           
+		categoryOrder?: ("anime" | "game" | "book" | "music" | "real")[];            
+
 		categories?: {
 			book?: boolean;
 			anime?: boolean;
@@ -176,28 +171,28 @@ export type SiteConfig = {
 			game?: boolean;
 			real?: boolean;
 		};
-		nsfw?: NsfwMode; // NSFW 处理："off" 不过滤 | "blur" 仅模糊封面 | "hide" 隐藏条目
+		nsfw?: NsfwMode;                                                  
 	};
 
 	// VNDB 配置
 	vndb?: {
-		userId?: string; // VNDB 用户 ID，例如 "u2"
-		mode?: "static" | "dynamic"; // 数据模式：static=构建时获取，dynamic=客户端实时获取
-		downloadCovers?: boolean; // 构建时下载并压缩 VNDB 封面到本地
-		apiUrl?: string; // VNDB API 地址
-		vnBaseUrl?: string; // VNDB 条目详情页地址，末尾需要带 /
-		apiToken?: string; // 私密列表访问令牌，仅 static 模式下使用
-		nsfw?: NsfwMode; // NSFW 处理："off" 不过滤 | "blur" 仅模糊封面 | "hide" 隐藏条目
+		userId?: string;                      
+		mode?: "static" | "dynamic";                                     
+		downloadCovers?: boolean;                       
+		apiUrl?: string;               
+		vnBaseUrl?: string;                        
+		apiToken?: string;                           
+		nsfw?: NsfwMode;                                                  
 	};
 
 	// MyAnimeList 配置
 	mal?: {
-		username?: string; // MyAnimeList 用户名，列表需为公开状态
-		clientId?: string; // MyAnimeList Client ID，从 https://myanimelist.net/apiconfig 注册免费应用后获取
-		apiUrl?: string; // MAL API 地址
-		animeBaseUrl?: string; // 动画条目详情页地址，末尾需要带 /
-		mangaBaseUrl?: string; // 漫画条目详情页地址，末尾需要带 /
-		nsfw?: NsfwMode; // NSFW 处理："off" 不过滤 | "blur" 仅模糊封面 | "hide" 隐藏条目
+		username?: string;                            
+		clientId?: string;                                                                       
+		apiUrl?: string;              
+		animeBaseUrl?: string;                     
+		mangaBaseUrl?: string;                     
+		nsfw?: NsfwMode;                                                  
 	};
 
 	// Bilibili 配置
@@ -210,26 +205,12 @@ export type SiteConfig = {
 		postsPerPage: number; // 每页显示的文章数量
 	};
 
-	// 图片优化配置
 	imageOptimization?: {
-		/**
-		 * 输出图片格式
-		 * - "avif": 仅输出 AVIF 格式（最小体积，兼容性较低）
-		 * - "webp": 仅输出 WebP 格式（体积适中，兼容性好）
-		 * - "both": 同时输出 AVIF 和 WebP（推荐，浏览器自动选择最佳格式）
-		 */
+
 		formats?: "avif" | "webp" | "both";
-		/**
-		 * 图片压缩质量 (1-100)
-		 * 值越低体积越小但质量越差，推荐 70-85
-		 */
+
 		quality?: number;
-		/**
-		 * 为特定域名的图片添加 referrerpolicy="no-referrer" 属性
-		 * 开启后可解决指定域名图片加载时的 403 问题（如防盗链图片）
-		 * 示例：["i0.hdslb.com", "*.bilibili.com"] 支持通配符 *
-		 * 仅影响匹配域名的图片标签，不影响其他链接的 referrer 行为
-		 */
+
 		noReferrerDomains?: string[];
 	};
 };

@@ -11,14 +11,6 @@ import {
 	verifyAdminUserCredentials,
 } from "../server/auth/adminUser";
 
-/**
- * 后台管理员用户（D1 存储，单用户模型）测试：
- * - 首次创建唯一管理员（初始化）
- * - 已有管理员后禁止重复创建
- * - 改密
- * - 登录鉴权（D1 唯一管理员 bcrypt + enabled）
- */
-
 interface D1Like {
 	prepare(sql: string): D1StmtLike;
 }

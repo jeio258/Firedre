@@ -1,16 +1,14 @@
-/* TOC 共享样式 */
 
-/* TOC 滚动容器 */
+
 .toc-scroll-container {
 	overflow-y: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 	scroll-behavior: smooth;
-	/* 滚到顶/底后不再把滚动传导给页面 */
+
 	overscroll-behavior: contain;
 }
 
-/* TOC 内容容器 */
 .toc-content {
 	display: flex;
 	flex-direction: column;
@@ -25,7 +23,6 @@
 	padding: 0.125rem 0;
 }
 
-/* TOC 链接样式 */
 .toc-item {
 	display: flex;
 	align-items: center;
@@ -126,7 +123,6 @@
 	background: var(--primary);
 }
 
-/* 活动指示器基础样式 */
 .toc-active-indicator {
 	position: absolute;
 	left: 0;

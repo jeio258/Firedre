@@ -1,17 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { unlockGalleryAlbum, upsertGalleryAlbum } from "../server/gallery/service";
 
-/**
- * 回归保护：R1「两套真相源」修复。
- *
- * 修复前：unlockGalleryAlbum 以 frontmatter.encrypted 为锁门条件，导致
- * 「后台密码框设了密码（写 D1）但 markdown 没写 encrypted:true」时，
- * 页面显示锁但 API 直接返回全部照片 → 相册实际公开。
- *
- * 修复后：以 D1 密码是否存在为唯一锁门依据，与页面 [album].astro 判定一致。
- */
-
-/** in-memory R2 mock：gallery/{slug}/index.md 源文件（含 put 支持） */
 function makeBucketMock(sourceBySlug: Record<string, string>) {
 	return {
 		get: async (key: string) => {
@@ -27,7 +16,6 @@ function makeBucketMock(sourceBySlug: Record<string, string>) {
 	};
 }
 
-/** in-memory D1 mock：album_passwords 表 */
 function makeDbMock(passwords: Record<string, string>) {
 	return {
 		prepare(sql: string) {
@@ -45,7 +33,7 @@ function makeDbMock(passwords: Record<string, string>) {
 							return null;
 						},
 						run: async () => {
-							// 写路径需真正写入 map，供 setAlbumPassword/delete 断言
+
 							if (sql.includes("INSERT INTO album_passwords")) {
 								const slug = String(bound.args[0]);
 								const pwd = String(bound.args[1]);
@@ -116,8 +104,7 @@ describe("unlockGalleryAlbum 锁门判定以 D1 密码为准（R1 两套真相�
 	});
 
 	it("有 D1 密码但 frontmatter 无 encrypted 标记时仍视为锁定（防相册实际公开）", async () => {
-		// 后台密码框只写 D1，不写 markdown。即使 markdown 无 encrypted:true，
-		// 只要 D1 有密码就锁定，密码正确才放行。
+
 		const env = buildEnv({ a: UNENCRYPTED_ALBUM }, { a: "secret123" });
 		const wrong = await unlockGalleryAlbum(env, "a", "wrong");
 		expect(wrong.ok).toBe(false);

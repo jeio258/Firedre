@@ -1,6 +1,6 @@
 export interface PostFrontmatter {
 	title: string;
-	/** Firefly 风格发布时间（YYYY-MM-DD） */
+
 	published?: string;
 	date?: string;
 	updated?: string;
@@ -16,7 +16,7 @@ export interface PostFrontmatter {
 	pinned?: boolean;
 	hidden?: boolean;
 	draft?: boolean;
-	/** Firefly 附加字段 */
+
 	password?: string;
 	passwordHint?: string;
 	series?: string;
@@ -62,16 +62,16 @@ export interface PostListItem {
 	tags?: string[];
 	cover?: string;
 	path: string;
-	/** D1 published 列（1=已发布，0=草稿），后台文章管理据此显示状态 */
+
 	published: number;
 	top?: number | boolean;
 	pin_order?: number;
 	pinned?: boolean;
 	hidden?: boolean;
 	draft?: boolean;
-	/** 加密文章标记（非空即加密） */
+
 	password?: string;
-	/** 完整 frontmatter（含 series/author/comment 等 Firefly 字段） */
+
 	frontmatter?: Record<string, unknown>;
 }
 
@@ -81,9 +81,9 @@ export interface PostDetail extends PostListItem {
 	words: number;
 	minutes: number;
 	frontmatter: PostFrontmatter;
-	/** 完整 Markdown 源码（仅管理员 GET 时返回） */
+
 	source?: string;
-	/** Markdown 正文（不含 frontmatter，仅管理员 GET 时返回） */
+
 	markdown?: string;
 }
 

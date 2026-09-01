@@ -1,6 +1,4 @@
-/**
- * 主网格列布局与侧边栏可见性 / 吸顶间距管理（从 Layout.astro 迁出）。
- */
+
 
 const sidebarStickyState: Record<
 	"left" | "right",
@@ -103,7 +101,6 @@ export function updateMainGridCols(): void {
 	for (const cls of newGridClasses.split(" "))
 		if (cls) mainGrid.classList.add(cls);
 
-	// position为right时，swup导航不会替换静态元素的class，需手动更新列定位
 	if (sidebarPosition === "right") {
 		const rightSidebar = document.getElementById("right-sidebar");
 		const swupContainer = document.getElementById("swup-container");
@@ -111,7 +108,7 @@ export function updateMainGridCols(): void {
 		const footer = mainGrid.querySelector(".footer");
 
 		if (shouldBothSidebars) {
-			// 文章页临时双侧栏：主内容移到第2列，右侧栏移到第3列，页脚居中
+
 			clearColPositioning(swupContainer, swupWrapper, footer);
 			swupContainer?.classList.add(
 				"md:col-start-2",
@@ -156,19 +153,15 @@ export function updateSidebarComponentsVisibility(): void {
 			: widget.classList.remove("hidden");
 	});
 
-	// 处理 hideOnNonPostPage === true 的组件
 	document.querySelectorAll(".widget-hide-on-non-post").forEach((widget) => {
 		!isPostPage
 			? widget.classList.add("hidden")
 			: widget.classList.remove("hidden");
 	});
 
-	// 组件可见性变化后，重新读取 top 容器可见性并重算 sticky 间距，避免 swup 切页后残留旧间距
 	refreshSidebarStickyState();
 }
 
-// 重新读取侧边栏 top 容器的可见性并应用间距。
-// 含 offsetHeight 布局读取，仅初始化 / 切页时调用；滚动路径使用缓存值，避免每帧强制布局
 export function refreshSidebarStickyState(): void {
 	(["left", "right"] as const).forEach((side) => {
 		const sticky = document.getElementById(`${side}-sidebar-sticky`);
@@ -179,7 +172,6 @@ export function refreshSidebarStickyState(): void {
 		const hasVisibleTop = !!topContainer && topContainer.offsetHeight > 1;
 		sidebarStickyState[side].hasVisibleTop = hasVisibleTop;
 
-		// swup 从非文章页切换到文章页时，top 容器可能残留 mb-4，需要按可见性动态修正
 		if (topContainer) {
 			if (hasVisibleTop) {
 				topContainer.classList.add("mb-4");
@@ -192,8 +184,6 @@ export function refreshSidebarStickyState(): void {
 	updateSidebarStickySpacing();
 }
 
-// 根据当前滚动位置动态更新侧边栏 sticky 顶部偏移。
-// 滚动路径：仅切换滚动相关的 top-0/top-4，不再读取布局（hasVisibleTop 由 refreshSidebarStickyState 缓存）
 export function updateSidebarStickySpacing(): void {
 	const scrollTop = document.documentElement.scrollTop || window.scrollY || 0;
 	const isScrolled = scrollTop > 2;

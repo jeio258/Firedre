@@ -19,7 +19,6 @@ import Layout from "./Layout.astro";
 
 import "@/styles/expressive-code.css";
 
-
 interface Props {
 	title?: string;
 	description?: string;
@@ -46,7 +45,7 @@ const settings =
 			settings?: import("../../server/settings/service").SettingsShape;
 		}
 	).settings ?? {};
-// 背景壁纸：统一经 runtime.getWallpaperConfig 读取（后台 theme.bannerUrl/mobileImages 覆盖静态默认，替换语义）
+
 const wallpaperConfig = getWallpaperConfig(Astro.locals);
 const toImageArray = (v: unknown): string[] => {
 	if (Array.isArray(v)) return (v as string[]).map(String).filter(Boolean);
@@ -122,9 +121,8 @@ const {
 
 <WallpaperSection state={banner} backgroundImages={backgroundImages} title={title} bannerPostMeta={bannerPostMeta} />
 
-<!-- Main content -->
 <div class="content-panel absolute w-full z-30 pointer-events-none">
-    <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
+
     <div class="relative w-full xl:w-[92vw] max-w-(--page-width) mx-auto pointer-events-auto">
         <div id="main-grid"
           class={`transition duration-700 w-full left-0 right-0 grid ${gridCols} grid-rows-[auto_1fr_auto] lg:grid-rows-[auto] mx-auto gap-4 px-2 md:px-4 ${!mobileShowSidebar ? 'mobile-no-sidebar' : ''}`}
@@ -148,18 +146,18 @@ const {
                 headings={headings}
                 encrypted={encrypted}
             />
-                    
-            {/* 主内容区包装器 - 包含静态栏位和swup容器，作为单个grid item */}
+
+            {                                           }
             <div class={staticBarClass}>
-                {/* 分类导航栏 - 全站渲染并显示 */}
+                {                     }
                 {shouldRenderCategoryBar && <div id="category-bar-wrapper"><CategoryBar currentPostCategory={postCategory} /></div>}
-                {/* 主内容区 - 始终渲染，确保 Swup 容器存在 */}
+                {                              }
                 <main
                     id="swup-container"
                     class="transition-main"
                     data-current-post-category={postCategory || ""}
                 >
-                {/* 为每个页面提供一个隐藏的h1标题，用于SEO和可访问性 */}
+                {                                 }
                 <h1 class="sr-only">{title}</h1>
                 <div id="content-wrapper" class="onload-animation transition-leaving">
                     <slot></slot>
@@ -181,7 +179,7 @@ const {
                 encrypted={encrypted}
             />
 
-            {/* 移动端底部组件 - 768px及以下显示 */}
+            {                          }
             {sidebarLayoutConfig.mobileBottomComponents && sidebarLayoutConfig.mobileBottomComponents.length > 0 && (
                 <div id="mobile-bottom-sidebar" class="col-span-1 block md:hidden mt-4">
 					<SideBar side="bottom" headings={headings} encrypted={encrypted}></SideBar>
@@ -199,13 +197,5 @@ const {
 </div>
 
 <FloatingControls headings={headings} encrypted={encrypted} />
-
-<!--
-    触屏设备上让代码块的复制按钮默认隐藏，点一下代码块才显形。
-    expressive-code 没给 <pre> 加 tabindex，点击代码区不会产生焦点，
-    所以纯 CSS 的 :focus-within 拿不到这个状态，只能在这里补一个类。
-    显隐规则见 src/styles/expressive-code.css 的 @media (hover: none) 段。
--->
-
 
 </Layout>

@@ -208,10 +208,6 @@ export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	};
 }
 
-/**
- * 构建 wiki-link resolver：从 D1 查询已发布文章元数据。
- * 匹配顺序：slug 精确 → 子目录路径（含 /index 变体）→ 裸文件名（唯一时）。
- */
 export function buildWikiLinkResolver(env: CloudflareEnv): WikiLinkResolver {
 	const loadMetas = async (): Promise<WikiLinkPostMeta[]> => {
 		const now = Date.now();
@@ -285,9 +281,6 @@ export function buildWikiLinkResolver(env: CloudflareEnv): WikiLinkResolver {
 	};
 }
 
-/**
- * 清除 WikiLink 缓存（在文章更新/删除时调用）
- */
 export function clearWikiLinkCache(): void {
 	wikiMetaCache.delete("posts");
 }
@@ -330,13 +323,6 @@ export async function getPostBySlug(
 	};
 }
 
-/**
- * 把用户搜索关键词转义为 FTS5 安全的查询表达式。
- * 直接 bind 原始关键词到 `MATCH ?` 时，FTS 语法操作符（`"`、`*`、`NEAR`、
- * `AND`/`OR` 等）会让 D1 抛 SQLite 错误 → 接口返回 500。此处把关键词按空白
- * 拆分，每个词用双引号包裹（内部 `"` 转义为 `""`），再以 AND 连接，既屏蔽
- * 操作符注入，又保持“多词同时命中”的原搜索意图。
- */
 function escapeFtsKeyword(keyword: string): string {
 	return keyword
 		.trim()

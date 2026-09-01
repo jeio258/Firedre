@@ -1,8 +1,5 @@
 <script lang="ts">
-/**
- * 侧边栏动态组件 - 从 API 获取数据
- * 支持自定义 API 地址，方便接入第三方后端
- */
+
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
@@ -71,9 +68,6 @@ function getPlainText(html: string): string {
 	return dynamicHtmlToText(html);
 }
 
-// 格式化日期
-// 本地 API 使用 formatDynamicDate（带时区转换）
-// 第三方 API 和 Memos 使用浏览器本地时区，不做额外转换
 function formatDate(timestamp: number): string {
 	if (apiUrl.startsWith("http") || memos?.enable) {
 		return new Date(Number(timestamp)).toLocaleDateString("zh-CN", {

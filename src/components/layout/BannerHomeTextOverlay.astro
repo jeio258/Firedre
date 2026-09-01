@@ -4,9 +4,6 @@ import TypewriterText from "@/components/features/TypewriterText.astro";
 import { getWallpaperConfig } from "@/config/runtime";
 import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
 
-// 背景壁纸统一经 runtime.getWallpaperConfig 解析（后台 theme 组覆盖静态默认），
-// 避免此处重复实现导致 typewriter（布尔开关）被误当作对象、subtitle（JSON 字符串）未解析。
-
 interface Props {
 	showHomeText: boolean;
 	initialRandomSubtitle: string | undefined;
@@ -51,11 +48,11 @@ const subtitles = homeText?.subtitle || [];
                         )}
                     </div>
                 )}
-                {/* 横幅标题下方的链接图标（subtitle 的兄弟节点，避免被打字机/随机副标题的 textContent 覆盖清掉） */}
+                {                                                                }
                 {homeTextLinksEnable && homeTextLinks && homeTextLinks.length > 0 && (
                     <div class="banner-links mt-5 flex items-center justify-center gap-3 pointer-events-auto">
                         {homeTextLinks.map((link: { url: string; name?: string; icon?: string; showName?: boolean }) => {
-                            // mailto 链接做 base64 加密防爬虫（点击时才解码导航，与 Profile 一致）
+
                             const isMailto = link.url.startsWith("mailto:");
                             const encodedEmail = isMailto
                                 ? encodeMailto(link.url)
@@ -73,7 +70,7 @@ const subtitles = homeText?.subtitle || [];
                                     style="color: #fff"
                                     onclick={isMailto ? MAILTO_ONCLICK_SCRIPT : undefined}
                                 >
-                                    {/* 内联 fill: currentColor，避免 CSS 加载前 SVG 默认黑色图标闪现 */}
+                                    {                                                   }
                                     <Icon name={link.icon || "material-symbols:link"} class="text-[1.25rem]" style="fill: currentColor" />
                                     {link.showName && <span>{link.name}</span>}
                                 </a>

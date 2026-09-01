@@ -11,10 +11,6 @@ import {
 
 export const prerender = false;
 
-/**
- * 静态说明页 API：从 R2 读取 spec/{name}.md 并渲染
- * （guestbook 等无后台管理的固定页面）
- */
 export const GET: APIRoute = async ({ params }) => {
 	const segments = (params.path || "").split("/").filter(Boolean);
 	if (segments.length !== 1) return badRequest("路径无效");

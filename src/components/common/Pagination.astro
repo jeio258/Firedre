@@ -21,7 +21,6 @@ const className = Astro.props.class;
 const ADJ_DIST = 2;
 const VISIBLE = ADJ_DIST * 2 + 1;
 
-// for test
 let count = 1;
 let l = page.currentPage;
 let r = page.currentPage;
@@ -53,15 +52,14 @@ const getPageUrl = (p: number) => {
 	return `/${p}/`;
 };
 
-// 传给 PageJump island 的跳转模板。函数没法跨 island 边界传，只能给字符串
 const jumpHrefTemplate = url("/{page}/");
 const jumpHrefFirst = url("/");
 ---
 
 <div class:list={[className, "pagination-wrapper flex flex-col gap-4 items-center"]} style={style}>
-  <!-- 分页控件 -->
+
   <div class="flex flex-row gap-3 justify-center" role="navigation" aria-label={i18n(I18nKey.postList)}>
-    <!-- 移动端简化版分页 -->
+
     <div class="mobile-pagination flex items-center gap-3">
       <a
         href={page.url.prev || "#"}
@@ -119,7 +117,6 @@ const jumpHrefFirst = url("/");
       </a>
     </div>
 
-    <!-- 桌面端完整版分页 -->
     <div class="desktop-pagination flex items-center gap-3">
       <a
         href={page.url.prev || "#"}

@@ -37,7 +37,7 @@ async function initEditor() {
 		editor.setValue(rawContent);
 		return;
 	}
-	// 动态加载 vditor JS：避免 1MB+ 编辑器库静态进 Worker bundle，缩短冷启动
+
 	const { default: Vditor } = await import("vditor");
 	editor = new Vditor("vditor-editor", {
 		cdn: "/vditor",

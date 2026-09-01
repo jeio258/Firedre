@@ -23,7 +23,7 @@ export const analyticsConfig: AnalyticsConfig = {
 			enabled: false,
 			// 录制会话采样率，范围 0-1，例如 0.15 表示记录 15% 的会话
 			sampleRate: 0.15,
-			// 隐私遮罩级别："moderate" 会遮罩所有输入框；"strict" 额外遮罩页面全部文本
+
 			maskLevel: "moderate",
 			// 单次录制最大时长（毫秒）
 			maxDuration: 300000,
@@ -41,7 +41,7 @@ export const analyticsConfig: AnalyticsConfig = {
 		ck: "",
 		// 是否开启事件分析功能
 		autoTrack: false,
-		//  Hash路由模式, 项目使用History API路由, 所以不必开启默认false
+
 		hashMode: false,
 		// 是否开启网站录屏功能
 		screenRecord: true,

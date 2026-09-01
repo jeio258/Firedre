@@ -1,15 +1,6 @@
 ---
 import { ICONS, type IconName } from "./mdx-icons";
 
-// MDX 步骤条条目组件（配合 Steps 使用）
-//
-// 属性：
-// - title：步骤标题，可选
-// - type：编号圆颜色，default 为主题色，其余对应提示框色板，可选
-//   （tip / note / important / warning / caution）
-// - icon：内置图标名（同 TimelineItem），有 icon 时编号圆显示图标而非数字，可选
-// - children：步骤正文，支持 Markdown 内容（经 <slot /> 渲染）
-
 interface Props {
 	title?: string;
 	type?: "default" | "tip" | "note" | "important" | "warning" | "caution";
@@ -33,12 +24,11 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 </li>
 
 <style>
-	/* 编号圆颜色：default 为主题色，其余对应提示框色板 */
+
 	.step-item {
 		--step-bg: var(--primary);
 		--step-ring: color-mix(in srgb, var(--primary) 22%, transparent);
 
-		/* 递增放在条目上而非 ::before：有 icon 隐藏数字后，后续编号仍连续 */
 		counter-increment: step;
 		position: relative;
 		z-index: 1;
@@ -90,12 +80,10 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		font-variant-numeric: tabular-nums;
 	}
 
-	/* 自动编号在 ::before 上读值 */
 	.step-marker::before {
 		content: counter(step);
 	}
 
-	/* 有 icon 时隐藏数字（counter 仍递增） */
 	.step-item:has(.step-marker-icon) .step-marker::before {
 		content: none;
 	}
@@ -126,7 +114,6 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		color: var(--deep-text);
 	}
 
-	/* 暗色下 --deep-text 仍为深色，需覆盖为亮色文字 */
 	:global(.dark) .step-item-title {
 		color: var(--btn-content);
 	}
@@ -135,7 +122,6 @@ const iconHtml = icon ? ICONS[icon] : undefined;
 		margin-top: var(--spacing-sm);
 	}
 
-	/* 贴平正文首尾的 prose 外边距 */
 	.step-item-body > :first-child {
 		margin-top: 0;
 	}

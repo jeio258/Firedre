@@ -12,8 +12,6 @@ import { getTagUrl } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 interface Props {
 	class?: string;
 	entry: PostForList;
@@ -57,7 +55,6 @@ const hasCover =
 
 const coverWidth = "30%";
 
-// 网格模式封面是否撑满卡片贴边，false 则按卡片内容区的内边距内缩（间距随断点变化）
 const gridCoverFullWidth =
 	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).grid.coverFullWidth ?? false;
 
@@ -94,7 +91,6 @@ const bottomTagsAsText =
 const descriptionClampLines = String(descriptionLines);
 const shouldClampDescription = descriptionLines > 0;
 
-// 底部标签：超出 tagCount 的部分折叠成一个 +N 提示，tagCount 为 0 时不限制
 const tagList = tags ?? [];
 const bottomTags = metaTagCount > 0 ? tagList.slice(0, metaTagCount) : tagList;
 const hiddenTags = tagList.slice(bottomTags.length);
@@ -116,7 +112,7 @@ const minutes = 0;
   ]}
   style={style}
 >
-  <!-- pinned icon -->
+
   <div
     class:list={[
       "post-card-content",
@@ -147,7 +143,6 @@ const minutes = 0;
       }
     </a>
 
-    <!-- metadata -->
     <PostMetadata
       published={published}
       tags={tags}
@@ -166,7 +161,6 @@ const minutes = 0;
       className="mb-4 post-meta card-header-meta"
     />
 
-    <!-- description -->
     <div
       class:list={[
         "transition text-75 md:pr-4 description grow",
@@ -177,7 +171,6 @@ const minutes = 0;
       {descriptionText}
     </div>
 
-    <!-- bottom tags（与 stats 二选一） -->
     {showTagsAtBottom && bottomTags.length > 0 && (
       <div
         class:list={[
@@ -215,7 +208,6 @@ const minutes = 0;
       </div>
     )}
 
-    <!-- stats（与底部标签二选一） -->
     {!showTagsAtBottom && (
       <PostStats
         published={published}
@@ -293,8 +285,6 @@ const minutes = 0;
     line-clamp: var(--descriptionClampLines);
   }
 
-  /* === List Mode Mobile Styles === */
-  /* 移动端列表模式：封面在右侧，内容缩小 */
   :global(.list-mode) .post-card-wrapper {
     flex-direction: row !important;
   }
@@ -314,7 +304,6 @@ const minutes = 0;
     border-radius: 0.75rem !important;
   }
 
-  /* 封面在左侧：封面改钉左边，内容用 margin-left:auto 推到右边并镜像内边距 */
   :global(.list-mode.cover-left) .has-cover .post-card-content {
     margin-left: auto !important;
     padding: 0.75rem 0.75rem 0.75rem 0.5rem !important;
@@ -347,14 +336,12 @@ const minutes = 0;
     display: flex !important;
   }
 
-  /* 移动端列表模式 - 隐藏tags，只在有空间时显示 */
   :global(.list-mode) .stats a {
     font-size: 0.65rem !important;
     padding: 0.125rem 0.375rem !important;
     height: 1.25rem !important;
   }
 
-  /* === Desktop List Mode overrides === */
   @media (min-width: 768px) {
     :global(.list-mode) .post-card-wrapper {
       flex-direction: row !important;
@@ -373,7 +360,6 @@ const minutes = 0;
       border-radius: 0.75rem !important;
     }
 
-    /* 封面在左侧：内边距完全镜像右侧模式（靠封面那侧 0.5rem，靠卡片边缘那侧 2.25rem） */
     :global(.list-mode.cover-left) .has-cover .post-card-content {
       padding: 1.75rem 2.25rem 1.75rem 0.5rem !important;
     }
@@ -383,7 +369,6 @@ const minutes = 0;
       left: 1rem !important;
     }
 
-    /* 标题装饰条是贴着卡片左边缘的设计，封面移到左侧后不再成立，直接隐藏 */
     :global(.list-mode.cover-left) .has-cover .post-card-title::before {
       display: none !important;
     }
@@ -419,8 +404,6 @@ const minutes = 0;
     }
   }
 
-  /* === Grid Mode Styles === */
-  /* 网格模式：封面在顶部（移动端和桌面端一致） */
   :global(.grid-mode) .post-card-wrapper {
     flex-direction: column-reverse !important;
     height: 100% !important;
@@ -445,7 +428,6 @@ const minutes = 0;
     aspect-ratio: 2/1 !important;
   }
 
-  /* 非贴边：封面按卡片内容区的内边距内缩，跟随 --grid-card-padding 随屏幕变化 */
   :global(.grid-mode) .post-card-wrapper.grid-cover-inset .post-card-image {
     width: calc(100% - var(--grid-card-padding, 1rem) * 2) !important;
     margin: var(--grid-card-padding, 1rem) var(--grid-card-padding, 1rem) 0 !important;

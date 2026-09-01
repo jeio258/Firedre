@@ -1,7 +1,4 @@
-/**
- * TOC (Table of Contents) 工具类
- * 用于 SidebarTOC 和 FloatingTOC 的共享逻辑
- */
+
 
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -34,9 +31,6 @@ export class TOCManager {
 		this.scrollOffset = config.scrollOffset || 80;
 	}
 
-	/**
-	 * 查找文章内容容器
-	 */
 	private getContentContainer(): Element | null {
 		return (
 			document.querySelector(".custom-md") ||
@@ -45,9 +39,6 @@ export class TOCManager {
 		);
 	}
 
-	/**
-	 * 查找所有标题
-	 */
 	private getAllHeadings(): HTMLElement[] {
 		const contentContainer = this.getContentContainer();
 		if (!contentContainer) {
@@ -58,9 +49,6 @@ export class TOCManager {
 		);
 	}
 
-	/**
-	 * 获取标题的纯文本内容（排除 script/style 标签的文本）
-	 */
 	private getCleanTextContent(element: HTMLElement): string {
 		const clone = element.cloneNode(true) as HTMLElement;
 		for (const el of clone.querySelectorAll("script, style")) {
@@ -69,16 +57,10 @@ export class TOCManager {
 		return clone.textContent || "";
 	}
 
-	/**
-	 * 空状态文案
-	 */
 	private getEmptyStateHTML(): string {
 		return `<div class="text-center py-8 text-gray-500 dark:text-gray-400"><p>${i18n(I18nKey.tocEmpty)}</p></div>`;
 	}
 
-	/**
-	 * 将 DOM 标题转换为与服务端一致的 TocInput
-	 */
 	private domHeadingsToInputs(headings: HTMLElement[]): TocInput[] {
 		return headings.map((heading) => {
 			const depth = Number.parseInt(heading.tagName.charAt(1), 10);
@@ -86,7 +68,6 @@ export class TOCManager {
 				.replace(/#+\s*$/, "")
 				.trim();
 
-			// 空文本回退（例如动态副标题）
 			if (!text) {
 				const dataSubtitles = heading.getAttribute("data-subtitles");
 				if (dataSubtitles) {
@@ -103,9 +84,6 @@ export class TOCManager {
 		});
 	}
 
-	/**
-	 * 生成TOC HTML（客户端 fallback 路径，与服务端 SSR 输出保持一致）
-	 */
 	public generateTOCHTML(): string {
 		const headings = this.getAllHeadings();
 
@@ -131,9 +109,6 @@ export class TOCManager {
 		return tocHTML;
 	}
 
-	/**
-	 * 更新TOC内容（重建，DOM 遍历路径）
-	 */
 	public updateTOCContent(): void {
 		const tocContent = document.getElementById(this.contentId);
 		if (!tocContent) return;
@@ -144,9 +119,6 @@ export class TOCManager {
 		);
 	}
 
-	/**
-	 * 获取可见的标题ID
-	 */
 	private getVisibleHeadingIds(): string[] {
 		const headings = this.getAllHeadings();
 		const visibleHeadingIds: string[] = [];
@@ -187,9 +159,6 @@ export class TOCManager {
 		return visibleHeadingIds;
 	}
 
-	/**
-	 * 更新活动状态
-	 */
 	public updateActiveState(): void {
 		if (!this.tocItems || this.tocItems.length === 0) return;
 
@@ -215,9 +184,6 @@ export class TOCManager {
 		this.updateActiveIndicator(activeItems);
 	}
 
-	/**
-	 * 更新活动指示器
-	 */
 	private updateActiveIndicator(activeItems: HTMLElement[]): void {
 		const indicator = document.getElementById(this.indicatorId);
 		if (!indicator || !this.tocItems.length) return;
@@ -250,9 +216,6 @@ export class TOCManager {
 		}
 	}
 
-	/**
-	 * 滚动到活动项
-	 */
 	private scrollToActiveItem(activeItem: HTMLElement): void {
 		if (!activeItem) return;
 
@@ -261,7 +224,6 @@ export class TOCManager {
 			?.closest(".toc-scroll-container");
 		if (!tocContainer) return;
 
-		// 清除之前的定时器
 		if (this.scrollTimeout) {
 			clearTimeout(this.scrollTimeout);
 		}
@@ -293,9 +255,6 @@ export class TOCManager {
 		}, 100);
 	}
 
-	/**
-	 * 处理点击事件
-	 */
 	public handleClick(event: Event): void {
 		event.preventDefault();
 		const target = event.currentTarget as HTMLAnchorElement;
@@ -317,9 +276,6 @@ export class TOCManager {
 		}
 	}
 
-	/**
-	 * 设置IntersectionObserver
-	 */
 	public setupObserver(): void {
 		const headings = this.getAllHeadings();
 
@@ -344,18 +300,12 @@ export class TOCManager {
 		});
 	}
 
-	/**
-	 * 绑定点击事件
-	 */
 	public bindClickEvents(): void {
 		this.tocItems.forEach((item) => {
 			item.addEventListener("click", this.handleClick.bind(this));
 		});
 	}
 
-	/**
-	 * 清理
-	 */
 	public cleanup(): void {
 		if (this.observer) {
 			this.observer.disconnect();
@@ -367,10 +317,6 @@ export class TOCManager {
 		}
 	}
 
-	/**
-	 * 重建目录（DOM 遍历生成列表）+ 绑定交互。
-	 * 用于 fallback：加密文章解密后、空 SSR、或站内导航后侧栏 DOM 变旧时。
-	 */
 	public render(): void {
 		this.updateTOCContent();
 		this.bindClickEvents();
@@ -378,11 +324,6 @@ export class TOCManager {
 		this.updateActiveState();
 	}
 
-	/**
-	 * 判断现有锚点是否与当前正文的目录完全一致（避免站内导航后侧栏 DOM 未被
-	 * swup 替换、仍显示上一篇目录的情况）。用与 SSR 相同的算法从当前正文算出
-	 * 期望 id 序列并逐一比对——不同文章即使共用个别标题名也不会误判。
-	 */
 	private anchorsMatchCurrentContent(anchors: HTMLElement[]): boolean {
 		const expected = computeTocItems(
 			this.domHeadingsToInputs(this.getAllHeadings()),
@@ -394,10 +335,6 @@ export class TOCManager {
 		);
 	}
 
-	/**
-	 * 附着到已有的服务端渲染锚点上（不重新生成列表），只绑定滚动高亮/点击。
-	 * 若没有 SSR 锚点、或锚点属于上一篇文章（侧栏未被 swup 替换），回退到 render()。
-	 */
 	public attach(): void {
 		const tocContent = document.getElementById(this.contentId);
 		if (!tocContent) return;
@@ -416,17 +353,11 @@ export class TOCManager {
 		this.updateActiveState();
 	}
 
-	/**
-	 * 初始化（向后兼容别名，等价于 render()）
-	 */
 	public init(): void {
 		this.render();
 	}
 }
 
-/**
- * 检查是否为文章页面
- */
 export function isPostPage(): boolean {
 	return window.location.pathname.includes("/posts/");
 }

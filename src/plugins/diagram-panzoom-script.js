@@ -1,13 +1,4 @@
-/*
- * 图表 pan-zoom / 全屏交互脚本（共享）
- *
- * 为 .diagram-container 提供：
- *   - 拖拽平移（鼠标，触摸设备禁用拖拽避免干扰滚动）
- *   - 缩放控制栏（+、−、重置、全屏）
- *   - 双击放大/重置
- *   - 全屏 overlay（带独立缩放、Escape 关闭、自适应暗色背景）
- *   - 响应 astro:page-load（Swup）页面切换
- */
+
 (() => {
 	if (window._diagramPanZoomInit) return;
 	window._diagramPanZoomInit = true;
@@ -17,7 +8,6 @@
 	const SCALE_STEP = 1.2;
 	const overlays = new Set();
 
-	/** 根据当前主题选择可见的 SVG/img 目标 */
 	function selectTarget(container) {
 		var isDark = document.documentElement.classList.contains("dark");
 		var lightEl = container.querySelector(".mermaid-svg-light svg");
@@ -30,7 +20,6 @@
 		if (container.dataset.pzInit === "true") return;
 		container.dataset.pzInit = "true";
 
-		// 收集所有可操作的目标元素（Mermaid 有 light+dark 两个 SVG）
 		var targets = Array.from(
 			container.querySelectorAll(
 				".mermaid-svg-light svg, .mermaid-svg-dark svg",
@@ -335,7 +324,7 @@
 
 	// 暴露 re-init 入口，供 PlantUML 重试等场景调用
 	window._diagramPanZoomReinit = (container) => {
-		// 清理旧的控制栏，避免重复（类名与 utils/diagramConstants.js 保持同步）
+
 		const oldControls = container.querySelector(".diagram-controls");
 		if (oldControls) oldControls.remove();
 		container.dataset.pzInit = "false";

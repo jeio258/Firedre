@@ -5,9 +5,6 @@ import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
 
-/**
- * 动态 sitemap：静态页面（按 siteConfig.pages 开关过滤）+ 全部已发布文章 + 相册
- */
 export const GET: APIRoute = async () => {
 	const base = siteConfig.site_url.replace(/\/+$/, "");
 	const urls: string[] = [];

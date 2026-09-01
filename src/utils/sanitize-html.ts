@@ -1,15 +1,4 @@
-/**
- * 前端 HTML 消毒器（基于浏览器 DOM）
- *
- * 用于动态 / Memos / 第三方 API 渲染出的、未经过服务端 rehype 消毒的 HTML。
- * 在注入 innerHTML 之前过滤危险内容，作为服务端消毒之外的纵深防御：
- *  - 移除 script/style/iframe/object/embed/link/meta/base/template 等非内容标签
- *  - 移除全部 on* 事件属性、srcdoc
- *  - 拦截 javascript:/data:/vbscript: 等危险 scheme（href/src/xlink:href/formaction）
- *  - 保留文本、链接、图片、列表、表格等安全内容标签
- *
- * 仅在浏览器环境调用（依赖 document）。
- */
+
 
 const REMOVED_TAGS = new Set([
 	"script",
@@ -89,14 +78,10 @@ import { safeUrlScheme } from "../../server/utils/safeUrl";
 
 function isSafeUrl(raw: string | null | undefined): boolean {
 	if (!raw) return true;
-	// 相对地址与协议相对地址安全；拦截明确/经过空白混淆的 javascript: 等（含 ftp）
+
 	return safeUrlScheme(raw, { schemes: ["http", "https", "mailto", "tel", "ftp"] }) !== null;
 }
 
-/**
- * 消毒一段 HTML 字符串，返回可在 innerHTML 安全使用的干净 HTML。
- * 在无 document（SSR / 非浏览器）环境返回空串。
- */
 export function sanitizeDynamicHtml(input: string): string {
 	if (!input) return "";
 	if (typeof document === "undefined") return "";
@@ -133,7 +118,7 @@ export function sanitizeDynamicHtml(input: string): string {
 				}
 				allowedAttrs[name] = attr.value;
 			}
-			// 重建允许的属性（避免 style/class 注入脚本）
+
 			for (const name of Object.keys(el.attributes)) el.removeAttribute(name);
 			for (const [name, value] of Object.entries(allowedAttrs)) {
 				if (name === "style") continue; // 丢弃内联 style，避免 CSS 注入
@@ -147,10 +132,6 @@ export function sanitizeDynamicHtml(input: string): string {
 	return template.innerHTML;
 }
 
-/**
- * 从 HTML 提取纯文本摘要（不触发事件处理器）。
- * 内部先经消毒器移除 script/iframe/事件属性后再读取 textContent。
- */
 export function dynamicHtmlToText(html: string): string {
 	if (typeof document === "undefined") return "";
 	const sanitized = sanitizeDynamicHtml(html);

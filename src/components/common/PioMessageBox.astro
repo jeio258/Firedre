@@ -1,6 +1,5 @@
 ---
-// 消息框公共组件
-// 用于Live2D和Spine模型的消息显示
+
 ---
 
 <script>
@@ -15,7 +14,6 @@
       return;
     }
 
-    // 立即清除之前的消息
     if (currentMessageContainer) {
       if (hideMessageTimer !== null) {
         clearTimeout(hideMessageTimer);
@@ -126,17 +124,15 @@
       // 消息框居中显示在模型上方
       const containerCenterX = rect.left + rect.width / 2;
 
-      // 使用估算的消息框尺寸进行初步定位
-      const estimatedMessageWidth = 240; // 使用maxWidth作为估算
-      const estimatedMessageHeight = 60; // 估算高度
-      const screenPadding = 10; // 距离屏幕边缘的最小距离
+      const estimatedMessageWidth = 240;                  
+      const estimatedMessageHeight = 60;        
+      const screenPadding = 10;               
 
       // 计算消息框的实际位置（考虑translateX(-50%)的影响）
       let messageX = containerCenterX;
       let messageY = rect.top - estimatedMessageHeight - 25; // 距离模型顶部25px
 
-      // 屏幕边界检查 - 水平方向
-      const minX = screenPadding + estimatedMessageWidth / 2; // 考虑translateX(-50%)
+      const minX = screenPadding + estimatedMessageWidth / 2;                      
       const maxX =
         window.innerWidth - screenPadding - estimatedMessageWidth / 2;
 
@@ -153,7 +149,7 @@
       if (messageY < minY) {
         // 如果上方空间不够，显示在模型下方
         messageY = rect.bottom + 25;
-        // 调整箭头方向（显示在下方）
+
         arrowEl.style.top = "0";
         arrowEl.style.bottom = "auto";
         arrowEl.style.borderTop = "none";
@@ -168,7 +164,6 @@
       messageContainer.style.left = messageX + "px";
       messageContainer.style.top = messageY + "px";
 
-      // 在消息框渲染后，进行精确的边界调整
       setTimeout(() => {
         const actualMessageRect = messageContainer.getBoundingClientRect();
         const actualWidth = actualMessageRect.width;
@@ -200,17 +195,15 @@
 
         // 计算箭头应该指向的位置（模型中心）
         const modelCenterX = rect.left + rect.width / 2;
-        const messageCenterX = adjustedX; // 消息框中心位置
-        const arrowOffsetX = modelCenterX - messageCenterX; // 箭头相对于消息框中心的偏移
+        const messageCenterX = adjustedX;           
+        const arrowOffsetX = modelCenterX - messageCenterX;                 
 
-        // 限制箭头偏移范围，避免超出消息框边界
-        const maxOffset = actualWidth / 2 - 20; // 留出20px边距
+        const maxOffset = actualWidth / 2 - 20;            
         const clampedOffsetX = Math.max(
           -maxOffset,
           Math.min(maxOffset, arrowOffsetX)
         );
 
-        // 根据最终位置调整箭头方向和位置
         if (isAboveModel) {
           // 消息框在模型上方，箭头向下
           Object.assign(arrowEl.style, {
@@ -249,7 +242,6 @@
           });
         }
 
-        // 应用调整后的位置
         messageContainer.style.left = adjustedX + "px";
         messageContainer.style.top = adjustedY + "px";
       }, 50); // 增加延迟确保消息框完全渲染
@@ -260,7 +252,7 @@
       messageContainer.style.opacity = "1";
       messageContainer.style.transform =
         "translateY(0) translateX(-50%) scale(1)";
-    }, 100); // 延迟到边界调整完成后
+    }, 100);              
 
     // 自动隐藏
     const displayTime = options.displayTime || 3000;

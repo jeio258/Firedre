@@ -12,7 +12,7 @@ async function load() {
 	try {
 		const data = await apiJson("/api/notice/");
 		title = data.title || "公告栏";
-		// 公告内容：取第一个非空区块的第一行文本（兼容多区块旧数据，仅展示首个）
+
 		if (Array.isArray(data.sections)) {
 			for (const section of data.sections) {
 				if (section?.lines?.length) {

@@ -33,7 +33,6 @@ const {
 	nsfw = "off",
 }: Props = $props();
 
-// NSFW 拦截：mode === "hide" 时过滤掉命中条目
 const safeItems = $derived(filterNsfw(items, nsfw, isMalNsfw));
 
 // 状态胶囊：全部 + 各观看/阅读状态（只显示有条目的）

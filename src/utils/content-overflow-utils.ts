@@ -1,7 +1,4 @@
-/**
- * 内容溢出增强：KaTeX 显示公式滚动条、宽表格横向滚动容器。
- * 由 Layout.astro 与 Swup 内容替换时调用。
- */
+
 
 function initCustomScrollbar(): void {
 	// 只处理katex元素的滚动条，使用浏览器原生滚动条
@@ -51,7 +48,6 @@ function initContentOverflowEnhancements(): void {
 	initHorizontalOverflowContainers();
 }
 
-/** rAF + 100ms 后各执行一次内容溢出增强（新内容注入后需多次扫；不做同步立即执行，避免切页换入时主线程卡顿） */
 export function scheduleContentOverflowEnhancements(): void {
 	requestAnimationFrame(() => {
 		initContentOverflowEnhancements();
@@ -61,7 +57,6 @@ export function scheduleContentOverflowEnhancements(): void {
 	}, 100);
 }
 
-/** 注册页面加载 / 密码解密后的重新扫描监听（从 Layout.astro 迁出） */
 export function registerContentOverflowListeners(): void {
 	document.addEventListener(
 		"astro:page-load",

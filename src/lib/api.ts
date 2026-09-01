@@ -1,10 +1,6 @@
 import { env } from "cloudflare:workers";
 import { UserError } from "../../server/utils/userError";
 
-/**
- * Cloudflare 运行时绑定（D1/R2/环境变量）。
- * 类型由 server 层（tsconfig.server.json + workers-types）校验，此处运行时透传。
- */
 // biome-ignore lint/suspicious/noExplicitAny: 见上方注释
 export const cfEnv = env as any;
 
@@ -50,7 +46,7 @@ export function badRequest(message: string) {
 export { UserError };
 
 export function serverError(error: unknown) {
-	// 仅回显 UserError 的安全消息；其余错误统一回显通用消息，避免泄露内部细节。
+
 	const message =
 		error instanceof UserError
 			? error.message
@@ -58,14 +54,6 @@ export function serverError(error: unknown) {
 	return json({ message }, 500);
 }
 
-/**
- * 统一的 service 错误处理：
- * - UserError（可预期的校验/业务失败）→ 400 并回显安全消息（客户端请求错误）
- * - 其余异常 → 500 通用消息（服务器内部错误，隐藏细节）
- *
- * service 层用 UserError 表达“输入/校验/业务不合法”（如 JSON 解析失败、slug 格式错误、
- * frontmatter 缺字段），API 层用本函数映射为 4xx，而非 500，符合 REST 错误语义。
- */
 export function fromServiceError(error: unknown) {
 	if (error instanceof UserError) return badRequest(error.message);
 	return serverError(error);

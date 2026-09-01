@@ -31,7 +31,6 @@ declare global {
 	}
 }
 
-/** 数值限定在 [min, max] 区间 */
 function clampNumber(value: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, value));
 }
@@ -39,16 +38,12 @@ function clampNumber(value: number, min: number, max: number): number {
 interface BooleanSettingOpts {
 	key: string;
 	getDefault: () => boolean;
-	/** set 时：若提供且返回 false，则跳过 localStorage 写入（apply 仍执行）。 */
+
 	shouldStore?: () => boolean;
-	/** set 时：写入 localStorage 后执行（通常是 apply 逻辑）。 */
+
 	afterStore?: (value: boolean) => void;
 }
 
-/**
- * 生成 boolean 设置的 getStored/set 样板（localStorage 环境检查 + 空值回退）。
- * 各设置的默认值来源 getDefault 与写入后副作用 afterStore 由调用方显式提供。
- */
 function createStoredBoolean({ key, getDefault, shouldStore, afterStore }: BooleanSettingOpts) {
 	return {
 		getStored(): boolean {
@@ -78,7 +73,7 @@ interface NumberSettingOpts {
 	getDefault: () => number;
 	min: number;
 	max: number;
-	/** set 时：写入 localStorage 后执行（apply 逻辑）。 */
+
 	afterStore?: (value: number) => void;
 }
 
@@ -118,7 +113,6 @@ export function getDefaultHue(): number {
 	const configCarrier = document.getElementById("config-carrier");
 	return Number.parseInt(configCarrier?.dataset.hue || fallback, 10);
 }
-
 
 function getDefaultTheme(): LIGHT_DARK_MODE {
 	// 统一从后台 settings 读取默认主题，静态 config 仅兑底
@@ -182,8 +176,7 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 	const currentIsDark = document.documentElement.classList.contains("dark");
 	const currentTheme = document.documentElement.getAttribute("data-theme");
 
-	// 计算目标主题状态
-	let targetIsDark = false; // 初始化默认值
+	let targetIsDark = false;          
 	switch (resolvedTheme) {
 		case LIGHT_MODE:
 			targetIsDark = false;
@@ -197,9 +190,6 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 			break;
 	}
 
-	// 检测是否真的需要主题切换：
-	// 1. dark类状态是否改变
-	// 2. expressiveCode主题是否需要更新
 	const needsThemeChange = currentIsDark !== targetIsDark;
 	const expectedTheme = targetIsDark
 		? expressiveCodeConfig.darkTheme
@@ -213,10 +203,7 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 
 	// 批量 DOM 操作，减少重绘
 	if (needsThemeChange) {
-		// 添加过渡保护类（但会导致大量重绘，所以使用更轻量的方式）
-		// document.documentElement.classList.add("is-theme-transitioning");
 
-		// 直接切换主题，利用 CSS 变量的特性让浏览器优化过渡
 		if (targetIsDark) {
 			document.documentElement.classList.add("dark");
 		} else {
@@ -224,7 +211,6 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 		}
 	}
 
-	// Set the theme for Expressive Code based on current mode
 	if (needsCodeThemeUpdate) {
 		document.documentElement.setAttribute("data-theme", expectedTheme);
 	}
@@ -247,7 +233,6 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 	// 先应用主题
 	applyThemeToDocument(theme);
 
-	// 保存到localStorage
 	localStorage.setItem("theme", theme);
 
 	// 如果切换到 system 模式，需要监听系统主题变化
@@ -262,7 +247,7 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 // 设置系统主题监听器
 
 function setupSystemThemeListener(): void {
-	// 先清理之前的监听器
+
 	cleanupSystemThemeListener();
 
 	if (typeof window === "undefined") {
@@ -288,7 +273,6 @@ function setupSystemThemeListener(): void {
 			document.documentElement.classList.remove("dark");
 		}
 
-		// Set the theme for Expressive Code
 		const expressiveTheme = isDark
 			? expressiveCodeConfig.darkTheme
 			: expressiveCodeConfig.lightTheme;
@@ -305,7 +289,7 @@ function setupSystemThemeListener(): void {
 	if (mediaQuery.addEventListener) {
 		mediaQuery.addEventListener("change", handleSystemThemeChange);
 	} else {
-		// 兼容旧浏览器
+
 		mediaQuery.addListener(handleSystemThemeChange);
 	}
 
@@ -323,7 +307,7 @@ function cleanupSystemThemeListener() {
 	if (mediaQuery.removeEventListener) {
 		mediaQuery.removeEventListener("change", systemThemeListener);
 	} else {
-		// 兼容旧浏览器
+
 		mediaQuery.removeListener(systemThemeListener);
 	}
 
@@ -362,12 +346,6 @@ export function initThemeListener(): void {
 
 // Wallpaper mode functions
 
-/**
- * 同步首页标题显示（hidden 类）：首页 + banner/fullscreen 模式显示标题，其余情况隐藏。
- * SSR 按 config 默认模式渲染 hidden（默认 overlay/none 时带 hidden），而模式可运行时切换、
- * 页面也会经 Swup 切换（body.is-home 变化），因此需要按当前 mode + 是否首页重新计算。
- * 标题开关（user-hidden 类）独立控制，不受影响。
- */
 export function syncBannerHomeTextVisibility(): void {
 	const overlay = document.querySelector(
 		".banner-home-text-overlay",
@@ -380,7 +358,6 @@ export function syncBannerHomeTextVisibility(): void {
 	overlay.classList.toggle("hidden", !show);
 }
 
-
 function applyWallpaperModeToDocument(
 	mode: WALLPAPER_MODE,
 	animate = true,
@@ -388,7 +365,6 @@ function applyWallpaperModeToDocument(
 	const html = document.documentElement;
 	const prevMode = html.getAttribute("data-wallpaper-mode");
 
-	// 先启用过渡类再设置模式：确保 --content-top 变化时 top 过渡已激活（否则位置瞬间到位不动画）
 	if (animate) {
 		html.classList.add("is-wallpaper-transitioning");
 		window.setTimeout(
@@ -399,16 +375,12 @@ function applyWallpaperModeToDocument(
 
 	html.setAttribute("data-wallpaper-mode", mode);
 
-	// 首页标题显示：按当前模式 + 是否首页同步 hidden 类（SSR 按 config 默认模式渲染 hidden，
-	// 模式运行时切换后需同步）。放在标题动画之前，让下方动画的 !contains("hidden") 判断拿到最新状态。
 	syncBannerHomeTextVisibility();
 
 	// 卡片透明类：唯一运行时写入者（解析期由 body 起始脚本写入）
 	const transparent = mode === "overlay" || mode === "fullscreen";
 	document.body.classList.toggle("wallpaper-transparent", transparent);
 
-	// 标题上下移动动画：banner ↔ fullscreen 切换时 wrapper 高度瞬时变化，
-	// 用 transform 补偿后滑到居中位置（首页标题可见时才动画）
 	if (
 		(mode === WALLPAPER_FULLSCREEN && prevMode === WALLPAPER_BANNER) ||
 		(mode === WALLPAPER_BANNER && prevMode === WALLPAPER_FULLSCREEN)
@@ -450,9 +422,7 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 		transparentMode = "none";
 		blurAmount = 0;
 	} else if (mode === WALLPAPER_FULLSCREEN) {
-		// 全屏壁纸模式：脱离 banner 导航栏配置，导航栏默认完全透明
-		// （透明度由卡片透明度 cardOpacity 经 wallpaper-transparent 控制）；
-		// 若开启 fullscreen.navbar.dynamicTransparent，首页顶部透明、下滑后变不透明（semifull）
+
 		const isHomePage = checkIsHomePage(window.location.pathname);
 		const dynamicTransparent =
 			backgroundWallpaper.fullscreen?.navbar?.dynamicTransparent ?? false;
@@ -519,7 +489,7 @@ export function initWallpaperMode(): void {
 }
 
 export function getStoredWallpaperMode(): WALLPAPER_MODE {
-	// 统一从后台 settings（window.__FIREFLY_SETTINGS__）读取真实壁纸模式，静态 config 仅兜底
+
 	const runtimeMode = getWallpaperConfigFromWindow().mode;
 	// 检查是否在浏览器环境中
 	if (
@@ -548,14 +518,10 @@ export function getDefaultOverlayBlur(): number {
 }
 
 export function getDefaultOverlayCardOpacity(): number {
-	// 优先读后台配置（runtime 已归一化 theme.overlayCardOpacity → overlay.cardOpacity），静态 config 兑底
+
 	return getWallpaperConfigFromWindow().overlay?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
 }
 
-/**
- * 通用 overlay 样式应用：将数值 clamp 后写入 CSS 变量。
- * target："wallpaper-wrapper" 或 "html"（documentElement）；unit 为空则取 String(value)。
- */
 function applyOverlayCssVar(
 	target: string,
 	cssVar: string,
@@ -616,8 +582,6 @@ export function getStoredOverlayCardOpacity(): number {
 	return overlayCardOpacitySetting.getStored();
 }
 
-
-
 export function setOverlayOpacity(opacity: number): void {
 	overlayOpacitySetting.set(opacity);
 }
@@ -630,16 +594,12 @@ export function setOverlayCardOpacity(cardOpacity: number): void {
 	overlayCardOpacitySetting.set(cardOpacity);
 }
 
-
 function applyStoredOverlaySettingsToDocument(): void {
 	applyOverlayOpacityToDocument(getStoredOverlayOpacity());
 	applyOverlayBlurToDocument(getStoredOverlayBlur());
 	applyOverlayCardOpacityToDocument(getStoredOverlayCardOpacity());
 }
 
-// Waves animation functions
-// 通用分设备布尔默认值：优先 runtime 配置，其次静态配置（支持分设备），否则兜底。
-// waves 与 gradient 的 getDefault 逻辑相同，仅取值来源/默认值不同。
 function createDeviceBooleanDefault(
 	getRuntime: () => boolean | undefined,
 	config: boolean | { mobile?: boolean; desktop?: boolean } | undefined,
@@ -666,10 +626,6 @@ export const getDefaultWavesEnabled = createDeviceBooleanDefault(
 	false,
 );
 
-/**
- * 通用效果开关应用：设置 html 的 data-* 属性，并切换目标元素的显示/禁用类。
- * waves 与 gradient 的 apply 逻辑相同，仅属性名/元素 id/禁用类名不同。
- */
 function createElementToggle(
 	attr: string,
 	elId: string,
@@ -679,7 +635,7 @@ function createElementToggle(
 		if (typeof document === "undefined") return;
 		// 更新 html 属性，CSS 会立即生效
 		document.documentElement.setAttribute(attr, String(enabled));
-		// 同时更新元素样式（兼容性）
+
 		const el = document.getElementById(elId);
 		if (el) {
 			if (enabled) {
@@ -727,7 +683,6 @@ export function getStoredGradientEnabled(): boolean {
 export function setGradientEnabled(enabled: boolean): void {
 	gradientSetting.set(enabled);
 }
-
 
 // Sakura effect functions
 export function getDefaultSakuraEnabled(): boolean {
@@ -812,7 +767,6 @@ export function setBannerCarouselEnabled(enabled: boolean): void {
 	}
 }
 
-
 function applyBannerTitleEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {
 		return;
@@ -822,7 +776,7 @@ function applyBannerTitleEnabledToDocument(enabled: boolean): void {
 		"data-banner-title-enabled",
 		String(enabled),
 	);
-	// 同时更新元素样式（兼容性）
+
 	const bannerTextOverlay = document.querySelector(
 		".banner-home-text-overlay",
 	) as HTMLElement;
@@ -834,7 +788,6 @@ function applyBannerTitleEnabledToDocument(enabled: boolean): void {
 		}
 	}
 }
-
 
 function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 	if (typeof document === "undefined") {

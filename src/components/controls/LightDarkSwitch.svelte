@@ -13,7 +13,6 @@ import {
 	setTheme,
 } from "@/utils/setting-utils";
 
-// Define Swup type for window object
 interface SwupHooks {
 	on(event: string, callback: () => void): void;
 }
@@ -94,8 +93,7 @@ onMount(() => {
 
 	// 监听主题变化事件
 	const handleThemeChange = () => {
-		// 只有当mode不是system模式时才更新mode
-		// system模式下，mode应该保持为SYSTEM_MODE，displayedMode会自动更新
+
 		if (mode !== SYSTEM_MODE) {
 			const newTheme = getStoredTheme();
 			mode = newTheme;

@@ -23,18 +23,6 @@ await initMerman({
 	},
 });
 
-/**
- * 在构建时将 Mermaid 源码渲染为浅色和深色两套静态 SVG
- *
- * @param {string} mermaidCode - Mermaid 图表源码
- * @param {object} themeConfig - { lightTheme, darkTheme } 主题名
- * @param {number} diagramIndex - 当前文档中的图表序号
- * @returns {{ lightSvg: string, darkSvg: string }}
- */
-/**
- * 移除 SVG 内联 style 中的 max-width 限制，
- * 使图表能根据容器宽度自适应缩放
- */
 function removeSvgMaxWidth(svg) {
 	return svg.replace(/(<svg[^>]*style="[^"]*?)max-width:\s*[^;]+;?/, "$1");
 }
@@ -64,11 +52,6 @@ function buildMermaidSvgs(mermaidCode, themeConfig, diagramIndex) {
 	};
 }
 
-/**
- * @param {object} [options] - 配置选项
- * @param {string} [options.lightTheme] - 亮色主题名
- * @param {string} [options.darkTheme] - 暗色主题名
- */
 export function rehypeMermaid(options = {}) {
 	const themeConfig = {
 		lightTheme: options.lightTheme || "editor-light",
@@ -86,7 +69,6 @@ export function rehypeMermaid(options = {}) {
 				return;
 			}
 
-			// 优先使用 data-mermaid-code 属性，为空时从子节点文本提取（MDX 兼容）
 			let mermaidCode = node.properties["data-mermaid-code"] || "";
 			if (!mermaidCode) {
 				mermaidCode = extractText(node).trim();

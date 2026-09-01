@@ -3,8 +3,6 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import { commentConfig } from "@/config";
 
-
-
 const commentSettings = (settings.comment ?? {}) as Record<string, unknown>;
 
 const giscusConfig = {
@@ -30,10 +28,6 @@ const lightTheme = "light";
 const darkTheme = "dark";
 ---
 
-<!-- 
-  Giscus 官方Web Component用法，兼容Astro静态输出，无需import包，无需NPM依赖！
-  参考：https://giscus.app/ 详情配置说明
--->
 <giscus-widget
   id="comments"
   repo={giscus.repo}
@@ -74,12 +68,10 @@ const darkTheme = "dark";
   // Initial update
   updateGiscusTheme();
 
-  // Clean up previous observer if exists
   if (window.giscusThemeObserver) {
     window.giscusThemeObserver.disconnect();
   }
 
-  // Create new observer
   window.giscusThemeObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {

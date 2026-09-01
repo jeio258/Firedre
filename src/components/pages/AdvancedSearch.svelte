@@ -6,11 +6,9 @@ import Icon from "@/components/common/Icon.svelte";
 import type { SearchResult } from "@/global";
 import { searchPostsApi } from "@/utils/search-api";
 
-// --- Props ---
 export let title = i18n(I18nKey.search);
 export let description = "";
 
-// --- State ---
 let keyword = "";
 let results: SearchResult[] = [];
 let isSearching = false;
@@ -25,7 +23,6 @@ const getInitialKeyword = (): string => {
 	return "";
 };
 
-// --- Core Search Logic（D1 FTS5 API） ---
 const search = async () => {
 	if (!keyword.trim()) {
 		results = [];
@@ -43,7 +40,6 @@ const search = async () => {
 	}
 };
 
-// --- Initialization onMount ---
 onMount(() => {
 	const initialKeyword = getInitialKeyword();
 	if (initialKeyword) {
@@ -63,9 +59,8 @@ const handleInput = () => {
 };
 </script>
 
-
 <div class="card-base px-6 py-6 md:px-9 md:py-6 mb-4 rounded-(--radius-large)">
-    <!-- Title Section -->
+
     <div class="mb-4">
         <div class="flex items-center gap-3 mb-3">
             <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
@@ -82,7 +77,6 @@ const handleInput = () => {
         {/if}
     </div>
 
-    <!-- Search Bar -->
     <div class="relative flex">
         <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -100,7 +94,7 @@ const handleInput = () => {
 </div>
 
 <div class="grid grid-cols-1 gap-4">
-    <!-- Results Area -->
+
     <div>
         {#if isSearching}
             <div class="flex justify-center py-10">
@@ -134,7 +128,7 @@ const handleInput = () => {
 </div>
 
 <style>
-    /* 关键字高亮效果 - 主题色 */
+
     :global(mark) {
         background: transparent;
         color: var(--primary);

@@ -1,8 +1,5 @@
 <script lang="ts">
-/**
- * 公共下拉面板选项组件 (Svelte 5 版本)
- * 用于下拉面板中的选项项
- */
+
 import type { Snippet } from "svelte";
 
 interface Props {

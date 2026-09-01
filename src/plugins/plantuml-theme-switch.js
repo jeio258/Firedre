@@ -1,13 +1,4 @@
-/*
- * PlantUML 主题切换脚本
- *
- * 仅负责：
- *   - 根据 <html> 的 dark class 切换 .plantuml-image 的 src
- *   - 加载失败时显示错误提示 + 重试
- *   - 响应 astro:page-load（Swup）与主题切换事件
- *
- * pan-zoom / 全屏功能由共享的 rehype-diagram-panzoom 插件提供。
- */
+
 (() => {
 	if (window.plantumlThemeInit) return;
 	window.plantumlThemeInit = true;

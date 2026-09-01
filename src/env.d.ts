@@ -1,10 +1,9 @@
-/// <reference types="astro/client" />
-/// <reference path="../.astro/types.d.ts" />
+
 
 declare global {
 	interface ImportMetaEnv {
 		readonly MEILI_MASTER_KEY: string;
-		// 视图设置面板总开关，可在部署平台配置（true / 1 / on / yes 开启）
+
 		readonly PUBLIC_DISPLAY_SETTINGS?: string;
 	}
 
@@ -27,11 +26,11 @@ declare global {
 		};
 		toggleFloatingTOC: () => void;
 		tocInternalNavigation: boolean;
-		// swup is defined in global.d.ts
+
 		// biome-ignore lint/suspicious/noExplicitAny: External library without types
 		spine: any;
 		closeAnnouncement: () => void;
-		// __fireflyMusic type is defined in global.d.ts
+
 		semifullScrollHandler?: (() => void) | undefined;
 		initSemifullScrollDetection?: () => void;
 	}

@@ -9,7 +9,6 @@ import { getAnnouncementConfig } from "@/config/runtime";
 import { getNotice } from "../../../server/notice/service";
 import type { NoticeSection } from "../../../types/notice";
 
-
 interface Props {
 	class?: string;
 	style?: string;
@@ -38,7 +37,6 @@ const link = fallback.link;
 const closable = fallback.closable !== false;
 ---
 
-<!-- 组件显示现在由sidebarLayoutConfig统一控制，无需检查config.enable -->
 <WidgetLayout
   name={title}
   showTitle={showTitle}
@@ -47,7 +45,7 @@ const closable = fallback.closable !== false;
   style={style}
 >
   <div>
-    <!-- 公告栏内容（D1 notice_board 驱动，后台可编辑） -->
+
     <div class="text-neutral-600 dark:text-neutral-300 leading-relaxed mb-3 space-y-2">
       {
         sections.map((section) => (
@@ -80,7 +78,6 @@ const closable = fallback.closable !== false;
       }
     </div>
 
-    <!-- 可选链接和关闭按钮 -->
     <div class="flex items-center justify-between gap-3">
       <div>
         {

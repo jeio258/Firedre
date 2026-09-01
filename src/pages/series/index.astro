@@ -11,7 +11,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
 ---
 
 <MainGridLayout title={i18n(I18nKey.series)} description={i18n(I18nKey.allSeries)}>
-    <!-- 页面标题 -->
+
     <div class="card-base px-8 py-6 mb-4">
         <div class="text-2xl font-bold text-(--primary) mb-2">
             {i18n(I18nKey.series)}
@@ -21,7 +21,6 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
         </p>
     </div>
 
-    <!-- 系列列表：手风琴卡片（默认收起） -->
     {
         seriesList.length > 0 ? (
             <div class="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] items-start gap-4 mb-4">
@@ -124,7 +123,6 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
             content.style.maxHeight = next ? content.scrollHeight + 'px' : '0px';
         }
 
-        // 事件委托，Swup 切页后新内容也能工作；避免重复注册（@swup/scripts-plugin 会重跑内联脚本）
         if (!window.__seriesAccordionInit) {
             window.__seriesAccordionInit = true;
             document.addEventListener('click', onSeriesAccordion);

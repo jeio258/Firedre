@@ -1,10 +1,4 @@
-/**
- * Content Utilities（Firedre 动态版）
- *
- * 全部数据来自 /api/*（D1 + R2），不再依赖 Content Collections。
- * 函数签名与返回形状保持与 Firefly 原版兼容（PostForList / Tag / Category / Series）。
- * SSR 与客户端通用；同页多个组件共享请求（fetchWithDedup）。
- */
+
 
 import { fetchWithDedup } from "./fetch-dedup";
 import {
@@ -44,7 +38,6 @@ async function fetchPostsList(
 	return data.posts || [];
 }
 
-/** 置顶优先，然后按发布日期降序 */
 function sortPosts(posts: ApiPostListItem[]): ApiPostListItem[] {
 	return [...posts].sort((a, b) => {
 		const pinA = a.pinned || (a.pin_order ?? 0) > 0 ? 1 : 0;
@@ -54,7 +47,6 @@ function sortPosts(posts: ApiPostListItem[]): ApiPostListItem[] {
 	});
 }
 
-/** 设置前后文章（按排序结果） */
 function setPrevNext(posts: PostForList[]): PostForList[] {
 	for (let i = 1; i < posts.length; i++) {
 		posts[i].data.prevSlug = posts[i - 1].id;
@@ -67,17 +59,11 @@ function setPrevNext(posts: PostForList[]): PostForList[] {
 	return posts;
 }
 
-/**
- * 获取全部文章（含 prev/next），按置顶 + 日期排序。
- */
 export async function getSortedPosts(): Promise<PostForList[]> {
 	const items = sortPosts(await fetchPostsList({ pageSize: 200 }));
 	return setPrevNext(items.map(apiPostToPostForList));
 }
 
-/**
- * 获取全部文章（不含 prev/next）。
- */
 export async function getSortedPostsList(): Promise<PostForList[]> {
 	const items = sortPosts(await fetchPostsList({ pageSize: 200 }));
 	return items.map(apiPostToPostForList);
@@ -114,7 +100,6 @@ export async function getCategoryList(): Promise<Category[]> {
 
 export type Series = { name: string; count: number; posts: PostForList[] };
 
-/** 系列内排序：seriesOrder 升序 → 日期降序 */
 function sortBySeriesOrder(a: PostForList, b: PostForList): number {
 	const ao = a.data.seriesOrder;
 	const bo = b.data.seriesOrder;
@@ -167,7 +152,6 @@ export async function getSeriesPosts(
 	return { seriesName, posts, currentIndex };
 }
 
-/** 标题分词（Jaccard 相似度用） */
 function tokenizeTitle(title: string): Set<string> {
 	const tokens = new Set<string>();
 	const segmenter = new Intl.Segmenter("zh", { granularity: "word" });
@@ -188,9 +172,6 @@ function jaccardSimilarity(a: Set<string>, b: Set<string>): number {
 	return union === 0 ? 0 : intersection / union;
 }
 
-/**
- * 相关文章推荐（与 Firefly 原版评分公式一致）
- */
 export async function getRelatedPosts(
 	currentPost: PostForList,
 	maxCount = 5,
@@ -256,7 +237,6 @@ export async function getRelatedPosts(
 	return result;
 }
 
-/** 站点统计用（id + 日期 + 描述） */
 export async function fetchPostsForStats(): Promise<
 	Array<{
 		id: string;

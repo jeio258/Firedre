@@ -68,7 +68,6 @@ type OverlaySliderItem = {
 
 type TabKey = "appearance" | "wallpaper" | "effects";
 
-// 运行时站点设置：优先 SSR 传入的 prop（SSR 无 window），客户端兜底 __FIREFLY_SETTINGS__
 let { settings: _settingsProp = {} } = $props();
 const settings =
 	_settingsProp && typeof _settingsProp === "object" && Object.keys(_settingsProp).length > 0
@@ -155,7 +154,7 @@ const overlaySwitchableObj =
 	typeof overlaySwitchableConfig === "object" && overlaySwitchableConfig !== null
 		? overlaySwitchableConfig
 		: {};
-// 遮罩滑块可调开关：优先读后台 panel 组（xxxSwitchable），静态 config 兑底
+
 const isOverlaySettingsSwitchable =
 	panelBool("overlayOpacitySwitchable", overlaySwitchableObj.opacity ?? overlaySwitchableConfig === true);
 const isOverlayOpacitySwitchable =
@@ -169,7 +168,7 @@ const hasOverlaySettings =
 	(isOverlayOpacitySwitchable ||
 		isOverlayBlurSwitchable ||
 		isOverlayCardOpacitySwitchable);
-// 全屏壁纸模式的模糊渐变是否启用（按当前设备读取 fullscreen.blurRamp 配置，未配置默认开启）
+
 const isFullscreenBlurRampEnabled = $derived.by(() => {
 	const enable = ((((settings as any)?.["theme"]) as any)?.["fullscreen"] ?? backgroundWallpaper.fullscreen)?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;
@@ -206,7 +205,6 @@ const hasAnyContent =
 		hasOverlaySettings ||
 		isSakuraSwitchable);
 
-// --- Tab visibility ---
 const hasAppearanceTab = $derived(
 	showThemeColor ||
 		allowLayoutSwitch ||
@@ -250,7 +248,6 @@ let visibleTabs = $derived.by(() => {
 let showTabBar = $derived(visibleTabs.length > 1);
 let activeTab = $state<TabKey>("appearance");
 
-// Auto-switch active tab if it becomes invisible
 $effect(() => {
 	if (!visibleTabs.find((t) => t.key === activeTab) && visibleTabs.length > 0) {
 		activeTab = visibleTabs[0].key;
@@ -317,7 +314,7 @@ let overlaySliderItems = $derived<OverlaySliderItem[]>([
 		},
 	},
 ]);
-// 当前模式下是否有任何 overlay 滑块实际可见（模糊滑块可能因关闭模糊渐变而隐藏）
+
 let hasVisibleOverlaySlider = $derived(
 	overlaySliderItems.some((item) => item.enabled),
 );
@@ -521,34 +518,25 @@ onMount(() => {
 	mounted = true;
 	checkScreenSize();
 
-	// 从localStorage读取保存的壁纸模式
 	wallpaperMode = getStoredWallpaperMode();
 
-	// 从localStorage读取水波纹动画状态
 	wavesEnabled = getStoredWavesEnabled();
 
-	// 从localStorage读取渐变过渡状态
 	gradientEnabled = getStoredGradientEnabled();
 
-	// 从localStorage读取横幅标题状态
 	bannerTitleEnabled = getStoredBannerTitleEnabled();
 
-	// 从localStorage读取横幅轮播状态
 	bannerCarouselEnabled = getStoredBannerCarouselEnabled();
 
-	// 从localStorage读取樱花特效状态
 	sakuraEnabled = getStoredSakuraEnabled();
 
-	// 从localStorage读取卡片样式状态
 	cardBorderEnabled = getStoredCardBorderEnabled();
 	cardFollowThemeEnabled = getStoredCardFollowThemeEnabled();
 
-	// 从localStorage读取全屏透明设置状态
 	overlayOpacity = getStoredOverlayOpacity();
 	overlayBlur = getStoredOverlayBlur();
 	overlayCardOpacity = getStoredOverlayCardOpacity();
 
-	// 从localStorage读取用户偏好布局
 	const savedLayout = localStorage.getItem("postListLayout");
 	if (savedLayout && (savedLayout === "list" || savedLayout === "grid")) {
 		currentLayout = savedLayout;
@@ -644,7 +632,7 @@ $effect(() => {
 
 // Tab 切换后刷新滑块进度（overlay 滑块在 DOM 中才生效）
 $effect(() => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+
 	activeTab;
 	requestAnimationFrame(refreshAllRangeProgress);
 });
@@ -653,7 +641,7 @@ $effect(() => {
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-3 pt-0 pb-3 max-h-[80vh] overflow-y-auto {hasAnyContent ? '' : 'hidden!'}" data-floating-panel data-floating-panel-trigger="display-settings-switch" inert aria-hidden="true">
 	{#if hasAnyContent}
-	<!-- Tab Bar -->
+
 	{#if showTabBar}
 	<div class="flex border-b border-black/5 dark:border-white/10 -mx-1 mb-2">
 		{#each visibleTabs as tab (tab.key)}
@@ -797,9 +785,8 @@ $effect(() => {
 		{/if}
 	{/if}
 
-	<!-- Wallpaper Tab: Mode + Overlay + Banner Settings -->
 	{#if activeTab === "wallpaper"}
-		<!-- Wallpaper Mode Section -->
+
 		{#if isWallpaperSwitchable}
 		<div>
 			<div class="section-title">
@@ -905,7 +892,7 @@ $effect(() => {
 				</button>
 			</div>
 			<div class="space-y-1">
-				<!-- Banner Title Switch -->
+
 				{#if isBannerTitleSwitchable}
 				<button
 					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
@@ -982,7 +969,6 @@ $effect(() => {
 		{/if}
 	{/if}
 
-	<!-- Effects Tab: Sakura -->
 	{#if activeTab === "effects"}
 		{#if isSakuraSwitchable}
 		<div class="">

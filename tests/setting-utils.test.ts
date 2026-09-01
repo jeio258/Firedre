@@ -34,7 +34,7 @@ afterEach(() => {
 describe("boolean settings localStorage contract", () => {
 	it("getStored* returns default when localStorage key is absent", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
-		// 无法直接断言默认值（依赖 window config），但可断言"键缺失时不抛错且返回布尔"
+
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 		expect(typeof getStoredGradientEnabled()).toBe("boolean");
 		expect(typeof getStoredCardBorderEnabled()).toBe("boolean");
@@ -61,12 +61,12 @@ describe("boolean settings localStorage contract", () => {
 	});
 
 	it("returns default when localStorage is undefined (node)", () => {
-		// 默认 node 环境无 localStorage
+
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 	});
 
 	it("returns default when localStorage exists but getItem is missing", () => {
-		// 防御契约：getItem 非函数时不应抛错，应回退默认值
+
 		vi.stubGlobal("localStorage", { setItem: () => {} });
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 		expect(typeof getStoredOverlayOpacity()).toBe("number");

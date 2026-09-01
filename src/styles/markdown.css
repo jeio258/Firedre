@@ -52,7 +52,6 @@
   code {
     @apply bg-(--inline-code-bg) text-(--inline-code-color) px-1 py-0.5 rounded-md overflow-hidden;
 
-    /* 行内代码走 fontConfig.codeFont（--font-code 由 FontSetup.astro 输出），带等宽保底 */
     font-family: var(
       --font-code,
       ui-monospace,
@@ -109,7 +108,6 @@
       @apply content-[''] absolute -left-1 block transition bg-(--btn-regular-bg) h-full w-1 rounded-full;
     }
 
-    /* Remove the double quotes from default styles */
     p:before,
     p:after {
       @apply content-none;
@@ -131,19 +129,19 @@
 
   .image-grid {
     @apply items-stretch;
-    
+
     center {
       @apply h-full w-full;
-      
+
       figure {
         @apply flex flex-col h-full w-full m-0 p-0;
-        
+
         img {
           @apply object-cover w-full grow rounded-xl m-0;
-          /* 使图片自动填满所在网格高度（自适应裁剪居中，不拉伸变形） */
+
           height: 100%;
         }
-        
+
         figcaption {
           @apply mt-2 mb-0;
         }
@@ -151,7 +149,6 @@
     }
   }
 }
-
 
 .custom-md {
   table {

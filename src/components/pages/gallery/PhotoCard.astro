@@ -11,11 +11,9 @@ interface Props {
 
 const { src, albumId, alt = "", type, poster } = Astro.props;
 
-// 未显式标注类型时，按扩展名自动识别（与 server 端 toAlbumSummary 一致）
 const isVideo =
 	type === "video" || (!type && /\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(src));
 
-// LQIP 渐变占位：video 用封面 poster 生成占位，避免给视频本体做 LQIP
 const lqipSrc = isVideo && poster ? poster : src;
 const lqipProps = getLqipProps(lqipSrc, undefined, true);
 ---

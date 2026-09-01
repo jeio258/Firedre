@@ -1,12 +1,5 @@
-/// <reference lib="webworker" />
-/**
- * 樱花特效 Worker
- *
- * 在 Dedicated Worker 线程内运行樱花绘制循环,通过 OffscreenCanvas 绘制,
- * 完全脱离主线程,避免页面切换(Swup)时主线程阻塞导致樱花掉帧。
- *
- * 通信协议见 src/types/sakura-worker.ts
- */
+
+
 import type { SakuraConfig } from "@/types/effectsConfig";
 import type { SakuraWorkerInboundMessage } from "@/types/sakura-worker";
 
@@ -22,7 +15,6 @@ let windowHeight = 0;
 let isRunning = false;
 let isHidden = false; // 页面可见性,隐藏时暂停动画
 
-// 工具:getRandom(逻辑与原 SakuraEffect.astro 完全一致)
 function getRandom(
 	option: "x" | "y" | "s" | "r" | "a",
 	cfg: SakuraConfig,
@@ -123,11 +115,11 @@ class Sakura {
 
 	update() {
 		this.x = this.fn.x(this.x, this.y);
-		// 修复原实现笔误:第二参数应为 this.x(原 fuwari 写法)
+
 		this.y = this.fn.y(this.x, this.y);
 		this.r = this.fn.r(this.r);
 		this.a = this.fn.a(this.a);
-		// 越界则重新调整位置
+
 		if (
 			this.x > windowWidth ||
 			this.x < 0 ||
@@ -259,14 +251,6 @@ function clearCanvas() {
 	}
 }
 
-/**
- * 清理 worker 持有的所有资源。
- *
- * 注意:主线程 stop() 会 worker.terminate(),本函数主要服务于:
- *  - init 失败时回滚已分配资源(避免残留状态干扰后续消息)
- *  - 收到 stop 消息时的显式清理(防御性,即使 terminate 抢先也不泄漏)
- * ImageBitmap 持有位图/GPU 资源,需显式 close() 释放,不能仅靠 GC。
- */
 function cleanup() {
 	cancelAnimation();
 	clearCanvas();
@@ -318,8 +302,7 @@ async function handleMessage(msg: SakuraWorkerInboundMessage) {
 				self.postMessage({ type: "ready" });
 			} catch (err) {
 				reportError("init", err);
-				// 清理已分配的资源(尤其是 ImageBitmap),避免失败后残留;
-				// 主线程收到 error 后会调用 stop() terminate worker,但此处先自清理
+
 				cleanup();
 			}
 			break;

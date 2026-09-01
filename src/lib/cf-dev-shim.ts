@@ -1,12 +1,4 @@
-/**
- * 本地开发（纯 astro dev，非 workerd）的 Cloudflare 绑定模拟垫片。
- * 使本地 `pnpm dev` 能实时读取/写入 D1（站点设置等）、R2（文章/相册等）、后台登录。
- *
- * - D1：.wrangler/local-state/local-d1.sqlite（自动从 migrations/*.sql 建表，无需手动迁移）
- * - R2：.wrangler/local-state/local-r2/ 文件系统
- * - 会话：HMAC + Cookie（无需 KV）
- * - .dev.vars：缺失时自动生成默认值（与生产 secrets 一致）
- */
+
 
 import {
 	existsSync,
@@ -22,7 +14,6 @@ import { DatabaseSync } from "node:sqlite";
 const root = process.cwd();
 const stateDir = join(root, ".wrangler", "local-state");
 
-// ── 自动生成 .dev.vars（后台登录凭据等） ──
 try {
 	const devVarsPath = join(root, ".dev.vars");
 	if (!existsSync(devVarsPath)) {
@@ -38,7 +29,6 @@ try {
 	// 生成失败不阻塞
 }
 
-// ── D1：本地 SQLite + 自动迁移 ──
 let db: DatabaseSync | null = null;
 try {
 	mkdirSync(stateDir, { recursive: true });
@@ -141,7 +131,6 @@ const DB = db
 	? { prepare: (sql: string) => new D1Stmt(db as DatabaseSync, sql) }
 	: undefined;
 
-// ── R2：本地文件系统 ──
 const r2Dir = join(stateDir, "local-r2");
 const r2Path = (key: string) => {
 	const safe = key

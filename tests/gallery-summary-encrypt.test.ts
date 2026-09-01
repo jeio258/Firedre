@@ -2,15 +2,6 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { getGalleryHub } from "../server/gallery/service";
 import { GALLERY_HUB_R2_KEY, galleryAlbumR2Key } from "../server/gallery/constants";
 
-/**
- * 相册加密判定单一来源回归测试。
- *
- * 背景：密码存 D1（album_passwords），R2 frontmatter 里的 encrypted 只是冗余标记，
- * 二者可能不同步（如 firefly-2026：R2 encrypted=false 但 D1 有密码）。相册列表却按
- * R2 判定加密 → 加密相册仍显示封面 → 封面文件被 gallery-files 上锁 → 401 破图。
- * 重构后：loadAlbumSummary 一切以 D1 密码为准，R2 说未加密但仍算出加密 → 隐藏封面与数量。
- */
-
 function makeD1Mock() {
 	const store = new Map<string, string>();
 	const db: Record<string, unknown> = {
@@ -36,7 +27,6 @@ function makeD1Mock() {
 	return { db, store };
 }
 
-/** in-memory R2：key -> markdown 内容 */
 function makeR2Mock(objects: Record<string, string>) {
 	return {
 		async get(key: string): Promise<{ text(): Promise<string> } | null> {
@@ -46,7 +36,6 @@ function makeR2Mock(objects: Record<string, string>) {
 	};
 }
 
-// R2 相册 index.md：encrypted 显式为 false（模拟 D1/R2 不同步的历史数据）
 const albumMd =
 	"---\nlayout: gallery-album\ntitle: 流萤\nsource: local\nencrypted: false\ncover: /api/gallery-files/firefly/files/cover.avif/\nphotos:\n  - url: /api/gallery-files/firefly/files/1.jpg\n  - url: /api/gallery-files/firefly/files/2.jpg\n---\n\n";
 const hubMd = "---\nlayout: gallery\nalbums:\n  - firefly\n---\n";
@@ -70,8 +59,8 @@ describe("getGalleryHub：加密判定以 D1 密码为准（消除 R2 封面破�
 		const hub = await getGalleryHub(env as never);
 		const summary = hub?.albums?.[0];
 		expect(summary?.encrypted).toBe(true);
-		expect(summary?.cover).toBeUndefined(); // 封面被上锁，不再返回破图 URL
-		expect(summary?.count).toBeUndefined(); // 数量不泄露
+		expect(summary?.cover).toBeUndefined();                    
+		expect(summary?.count).toBeUndefined();         
 		expect(summary?.slug).toBe("firefly");
 	});
 

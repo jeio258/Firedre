@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { setAlbumPhotos } from "../server/gallery/service";
 
-/**
- * setAlbumPhotos 测试：图床拉取的直链列表写入相册 frontmatter.photos。
- * 仅依赖 R2（BUCKET.get/put），验证只改 photos、保留其他字段、source 保持 local。
- */
-
 interface R2Like {
 	store: Map<string, string>;
 	get(key: string): Promise<{ text(): Promise<string> } | null>;

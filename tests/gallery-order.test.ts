@@ -4,13 +4,6 @@ import {
 	upsertGalleryAlbum,
 } from "../server/gallery/service";
 
-/**
- * 方案A测试：
- * 1. upsertGalleryAlbum 创建相册时应自动把 slug 加入 hub albums（前端/后台可见）
- * 2. updateGalleryAlbumOrder 应按给定顺序更新 albums，并过滤不存在的相册、去重
- * 仅依赖 R2（BUCKET.get/put），不触碰 D1（创建时 frontmatter 不含 password）。
- */
-
 const HUB_KEY = "gallery/index.md";
 
 interface R2Like {
@@ -34,7 +27,6 @@ function makeR2(initial: Record<string, string>): R2Like {
 	};
 }
 
-// 空 D1 桩：相册不带加密密码，getAlbumPassword 返回空串即可，不触碰真实 DB。
 const dbStub = {
 	prepare() {
 		return {
@@ -116,7 +108,6 @@ describe("updateGalleryAlbumOrder 排序", () => {
 		});
 		const env = envFor(r2);
 
-		// 传入：other, existing-album, 不存在的 ghost, other(重复)
 		const result = await updateGalleryAlbumOrder(env, [
 			"other",
 			"existing-album",

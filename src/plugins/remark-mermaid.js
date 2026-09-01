@@ -13,7 +13,7 @@ export function remarkMermaid() {
 						className: ["mermaid-container"],
 						"data-mermaid-code": code,
 					},
-					// MDX 兼容：将代码存为子节点，防止 MDX 编译器丢失 hProperties
+
 					hChildren: [{ type: "text", value: code }],
 				};
 				// 清除 value，避免 remark-rehype 将其当作纯文本处理

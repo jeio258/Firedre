@@ -11,7 +11,6 @@ import {
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
 	getBooknavDomain,
 	getBooknavLetter,
 	getEnabledBooknavGroups,
@@ -55,7 +54,7 @@ const description =
     class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32"
   >
     <div class="card-base z-10 px-9 py-6 relative w-full">
-      <!-- 页面标题和描述 -->
+
       <div class="mb-4">
         <div class="flex items-center gap-3 mb-3">
           <div
@@ -79,7 +78,7 @@ const description =
       {
         totalCount > 0 ? (
           <booknav-list>
-            {/* 搜索框 */}
+            {         }
             <div class="relative mb-3">
               <Icon
                 name="material-symbols:search"
@@ -93,7 +92,7 @@ const description =
               />
             </div>
 
-            {/* 分类锚点导航 */}
+            {            }
             <div class="flex flex-wrap gap-2 mb-6">
               {resolvedGroups.map((group) => (
                 <button
@@ -109,7 +108,7 @@ const description =
               ))}
             </div>
 
-            {/* 分组区块 */}
+            {          }
             <div class="booknav-groups">
               {resolvedGroups.map((group) => (
                 <section
@@ -117,7 +116,7 @@ const description =
                   class="booknav-group mb-8 last:mb-2"
                   data-group-id={group.id}
                 >
-                  {/* 分组标题 */}
+                  {          }
                   <div class="booknav-group-heading flex items-center gap-2 mb-3 pb-2 border-b border-(--line-divider)">
                     {group.icon && (
                       <Icon
@@ -137,7 +136,7 @@ const description =
                     </div>
                   </div>
 
-                  {/* 书签卡片网格 */}
+                  {            }
                   <div class="booknav-grid">
                     {group.items.map((item) => (
                       <a
@@ -150,10 +149,10 @@ const description =
                         data-domain={item.domain.toLowerCase()}
                         class="booknav-card group flex items-center gap-3 p-3 rounded-xl border border-(--line-divider) hover:border-(--primary) hover:bg-(--card-bg) transition-all duration-300 hover:shadow-lg relative overflow-hidden"
                       >
-                        {/* 背景装饰 - 仅悬停显示 */}
+                        {                  }
                         <div class="absolute inset-0 bg-(--primary) opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none" />
 
-                        {/* 图标 */}
+                        {        }
                         <div
                           class="booknav-icon relative w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300"
                           data-letter={item.letter}
@@ -179,13 +178,13 @@ const description =
                           )}
                         </div>
 
-                        {/* 外部链接图标 - 固定在卡片右上角 */}
+                        {                       }
                         <Icon
                           name="material-symbols:arrow-outward-rounded"
                           class="absolute top-3 right-3 text-(--primary) text-lg opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
                         />
 
-                        {/* 内容 */}
+                        {        }
                         <div class="grow min-w-0 flex flex-col justify-center">
                           <div class="font-bold text-base text-neutral-900 dark:text-neutral-100 group-hover:text-(--primary) transition-colors truncate pr-4">
                             {item.title}
@@ -201,7 +200,7 @@ const description =
               ))}
             </div>
 
-            {/* 搜索无结果提示 */}
+            {             }
             <div class="booknav-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
               <Icon name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
               <div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
@@ -230,8 +229,6 @@ const description =
         connectedCallback() {
           this.addEventListener("click", this.handleClick);
 
-          // 首屏时自定义元素会在子节点解析完成前升级，此刻 querySelector 取不到输入框，
-          // 因此用事件委托监听冒泡上来的 input 事件
           this.addEventListener("input", this.handleInput);
 
           // error 事件不冒泡，必须用捕获阶段监听图标加载失败
@@ -250,7 +247,6 @@ const description =
           this.applyFilters();
         }
 
-        // 图标加载失败时降级为首字母块
         handleIconError(e) {
           const img = e.target;
           if (!img || img.tagName !== "IMG") return;
@@ -319,7 +315,7 @@ const description =
   </script>
 
   <style is:global>
-    /* 自定义元素默认是 inline，需要撑成块级容器 */
+
     booknav-list {
       display: block;
     }
@@ -330,12 +326,10 @@ const description =
       gap: 0.75rem;
     }
 
-    /* 避让固定导航栏，与主题其他锚点保持一致 */
     .booknav-group {
       scroll-margin-top: 5.5rem;
     }
 
-    /* 图标缺失时的首字母兜底样式 */
     .booknav-letter {
       font-size: 1.25rem;
       font-weight: 700;

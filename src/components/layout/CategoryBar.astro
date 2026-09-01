@@ -16,9 +16,6 @@ const totalPosts = (await getSortedPostsList()).length;
 const homeUrl = url("/");
 const archiveUrl = url("/archive/");
 
-// 服务端计算初始高亮 pill（首屏无需等 JS）。
-// 查询串筛选（?category=/?tag=/?uncategorized）在静态页构建期不可知，
-// 交由客户端脚本在加载/导航时同步；此处只处理路径可确定的情况。
 const pathname = Astro.url.pathname.replace(/\/$/, "");
 const homePath = homeUrl.replace(/\/$/, "");
 const archivePath = archiveUrl.replace(/\/$/, "");
@@ -27,7 +24,6 @@ const isCategories = pathname === "/categories";
 const isArchive = pathname === archivePath;
 const postCategory = (currentPostCategory || "").trim();
 
-// 返回某个 pill 的初始高亮属性：active（强）或 soft-active（弱，文章页所属分类）
 function initialActive(categoryName: string): {
 	active?: boolean;
 	soft?: boolean;
@@ -400,7 +396,7 @@ function initialActive(categoryName: string): {
     });
     document.addEventListener("swup:contentReplaced", () => {
       updateCategoryBar();
-      // 某些 swup 生命周期下 URL/DOM 状态同步稍晚，下一帧再校正一次避免状态残留
+
       requestAnimationFrame(() => {
         updateCategoryBar();
       });

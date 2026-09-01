@@ -1,17 +1,4 @@
-/**
- * remark-wiki-link（运行时版）— Obsidian 风格 Wiki Link 插件
- *
- * 与构建期 src/plugins/remark-wiki-link.js 行为对齐：
- * - `[[slug]]` 独立成段 → 链接卡片（标题/描述/日期/分类/标签/封面）
- * - 行内 `[[slug]]` → 普通链接（文本为文章标题或别名）
- * - `[[slug#heading]]` → 普通锚点链接
- * - 别名与目标重复视为噪声，回退文章标题
- * - 跳过已有链接子树内的转换
- *
- * 与构建期差异：
- * 1. 不读本地文件系统，注入异步 resolver（服务端查 D1）
- * 2. 封面仅支持远程 URL 与 "api" 随机图；本地相对路径封面跳过
- */
+
 
 import { slug } from "github-slugger";
 import { getApiUrlList, processCoverImageSync } from "../utils/image-utils";
@@ -276,11 +263,6 @@ function createWikiLink(value: string, meta: WikiLinkPostMeta | null) {
 	};
 }
 
-/**
- * 运行时 Wiki Link 插件工厂。
- * resolve: 根据 contentPath（如 "guide/index"、"firefly"、"guide/firefly-layout-system"）
- * 返回文章元数据；未找到返回 null。
- */
 export function remarkWikiLinkRuntime(options: RemarkWikiLinkRuntimeOptions) {
 	const { resolve } = options;
 

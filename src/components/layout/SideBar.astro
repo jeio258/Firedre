@@ -39,8 +39,7 @@ const COMPONENT_POSITION = {
 	STICKY: "sticky",
 } as const;
 
-// 动画延迟配置
-const ANIMATION_DELAY_UNIT = 50; // ms
+const ANIMATION_DELAY_UNIT = 50;      
 
 // 组件映射表
 const componentMap = {
@@ -139,8 +138,6 @@ const getComponentProps = (
 		widgetConfig: config,
 	};
 
-	// 添加 showOnPostPage 和 hideOnNonPostPage 标记class（仅WidgetComponentConfig有这些属性）
-	// 同时根据当前页面类型在服务端渲染时设置初始 hidden 状态，避免页面加载时闪烁
 	if ("showOnPostPage" in config && config.showOnPostPage === false) {
 		baseProps.class = `${baseProps.class} widget-hide-on-post`;
 		if (isPostPage) {
@@ -185,7 +182,7 @@ const musicConfigRuntime = getMusicConfig(Astro.locals);
 const filteredComponents = filterAndSortComponents(allComponents).filter(
 	(comp) => {
 		if (comp.type === "music" && musicConfigRuntime.enable === false) return false;
-		// 页面配置组 enabled=false 时同步隐藏对应侧边栏 widget（动态等）
+
 		const pageGroupEnabled =
 			(comp.type as string) === "dynamic"
 				? ((Astro.locals as { settings?: { dynamic?: { enabled?: unknown } } }).settings?.dynamic?.enabled === false)
@@ -212,7 +209,7 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 {
 	(topComponents.length > 0 || stickyComponents.length > 0 || bottomComponents.length > 0) && (
 		<div id={`${side}-sidebar`} class:list={[className, "flex flex-col w-full pt-0"]}>
-			{/* Mobile bottom components - 直接渲染所有组件，不分组 */}
+			{                                             }
 			{isMobileBottom ? (
 				<div class="flex flex-col w-full gap-4">
 					{bottomComponents.map((comp, index) => {
@@ -224,7 +221,7 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 				</div>
 			) : (
 				<>
-					{/* Top components */}
+					{                    }
 					{topComponents.length > 0 && (
 						<div
 							class:list={[
@@ -241,7 +238,7 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 						</div>
 					)}
 
-					{/* Sticky components */}
+					{                       }
 					{stickyComponents.length > 0 && (
 						<div
 							id={`${side}-sidebar-sticky`}

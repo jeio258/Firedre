@@ -79,7 +79,6 @@ function getFilterLabel(type: "collect" | "doing" | "wish"): string {
 	}
 }
 
-// NSFW 拦截：mode === "hide" 时过滤掉命中条目
 const safeItems = $derived(filterNsfw(items, nsfw, isBangumiNsfw));
 
 const statusCounts = $derived(() => {

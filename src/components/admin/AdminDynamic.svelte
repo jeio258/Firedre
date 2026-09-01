@@ -94,7 +94,7 @@ async function submit() {
 			body: JSON.stringify({
 				id: editingId || undefined,
 				content: formContent,
-				// 编辑时保留原发布时间，避免“编辑即置顶”；新增时省略（后端用当前时间）
+
 				published: formPublished || undefined,
 				pinned: formPinned,
 				location: formLocation || undefined,

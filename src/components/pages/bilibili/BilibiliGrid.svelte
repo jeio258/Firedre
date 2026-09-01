@@ -139,9 +139,9 @@ function closeDetail() {
 </script>
 
 <div class="media-list">
-	<!-- 工具栏 -->
+
 	<div class="mb-6 flex flex-col gap-3">
-		<!-- 搜索和排序 -->
+
 		<div class="flex gap-2">
 			<div class="relative flex-1">
 				<svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +167,6 @@ function closeDetail() {
 			</select>
 		</div>
 
-		<!-- 类型筛选 -->
 		<TabNav
 			tabs={filterOptions().map(opt => ({ id: opt.value, name: opt.label, count: opt.count }))}
 			activeTab={activeFilter}
@@ -175,7 +174,6 @@ function closeDetail() {
 		/>
 	</div>
 
-	<!-- 卡片网格 -->
 	{#if pagedItems().length > 0}
 		<div class="media-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
 			{#each pagedItems() as anime (anime.id)}
@@ -200,6 +198,5 @@ function closeDetail() {
 	/>
 </div>
 
-<!-- 详情弹窗 -->
 <BilibiliDetailModal anime={selectedAnime} onclose={closeDetail} />
 

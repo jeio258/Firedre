@@ -758,7 +758,6 @@ dynamic-feed {
 	color: rgb(255 255 255 / 90%);
 }
 
-/* 透明模式适配 */
 body.wallpaper-transparent .dynamic-search input {
 	background: transparent;
 }

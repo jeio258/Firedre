@@ -126,7 +126,6 @@ export function initializeFloatingPanels(root: ParentNode = document): void {
 	}
 }
 
-/** 点击指定面板及其忽略元素之外时，将其关闭（从 Layout.astro 迁出） */
 export function setClickOutsideToClose(panel: string, ignores: string[]): void {
 	document.addEventListener("click", (event) => {
 		const panelDom = document.getElementById(panel);

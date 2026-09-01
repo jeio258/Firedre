@@ -2,7 +2,6 @@ import { backgroundWallpaper, displaySettingsConfig } from "@/config";
 import { getImageQuality } from "@/utils/image-utils";
 import { getBackgroundImages } from "@/utils/layout-utils";
 
-/** 文章横幅元信息（从 MainGridLayout 的 Props 提取，供组件复用） */
 export interface BannerPostMeta {
 	title: string;
 	description?: string;
@@ -52,7 +51,6 @@ export interface BannerVisibilityState {
 	mobileQuality: number;
 }
 
-/** 随机选择副标题（当打字机关闭且为数组时）；运行时内联脚本会再选一次，此处为 SSR 初始值 */
 function getRandomSubtitle(): string | undefined {
 	const subtitle = backgroundWallpaper.common?.homeText?.subtitle;
 	if (Array.isArray(subtitle)) {
@@ -62,7 +60,6 @@ function getRandomSubtitle(): string | undefined {
 	return subtitle;
 }
 
-/** 按字符宽度估算描述所需行数，返回合适的 em 宽度（纯文本测量，从 MainGridLayout 迁出） */
 export function getBannerDescriptionWidth(
 	description?: string,
 ): string | undefined {
@@ -82,10 +79,6 @@ export function getBannerDescriptionWidth(
 	return `${Math.max(28, targetLineUnits).toFixed(1)}em`;
 }
 
-/**
- * 计算横幅 / 渐变 / 水波纹的启用状态与各类 show-* 标志（SSR，纯配置读）。
- * 从 MainGridLayout.astro 的 frontmatter 迁出，逐字保留原逻辑。
- */
 export function getBannerVisibilityState(
 	ctx: BannerVisibilityContext,
 	settings?: Record<string, unknown> | undefined,
@@ -97,8 +90,6 @@ export function getBannerVisibilityState(
 		bannerPostMeta,
 	} = ctx;
 
-	// 运行时设置优先（后台可编辑），静态 config 为兜底。
-	// 读 theme 组 mode/carousel/dimOpacity/homeText/overlay、effects 组 waves/gradient、panel 组开关
 	const themeS = (settings?.["theme"] ?? {}) as Record<string, unknown>;
 	const effectsS = (settings?.["effects"] ?? {}) as Record<string, unknown>;
 	const panelS = (settings?.["panel"] ?? {}) as Record<string, unknown>;
@@ -116,7 +107,6 @@ export function getBannerVisibilityState(
 	const isBackgroundEnabled =
 		wallpaperMode !== "none" || isWallpaperSwitchable;
 
-	// 波浪：effects.waves 为布尔（桌面+移动统一）；静态配置为 {desktop,mobile} 或布尔。
 	const effectsWaves = effectsS["waves"];
 	const wavesConfig =
 		typeof effectsWaves === "boolean"
@@ -130,7 +120,6 @@ export function getBannerVisibilityState(
 	const shouldRenderWaves =
 		wavesEnabledOnDesktop || wavesEnabledOnMobile || wavesSwitchable;
 
-	// 渐变：effects.gradient 为布尔；静态配置为 {desktop,mobile} 或布尔。
 	const effectsGradient = effectsS["gradient"];
 	const gradientConfig =
 		typeof effectsGradient === "boolean"
@@ -190,7 +179,7 @@ export function getBannerVisibilityState(
 	const backgroundImages = getBackgroundImages();
 	const configQuality = getImageQuality();
 	const mobileQuality = Math.round(configQuality * 0.9);
-	// 轮播：theme.carousel/carouselInterval/carouselTransition 为准，静态配置兜底。
+
 	const bannerCarouselEnabledDefault =
 		(typeof themeS["carousel"] === "boolean"
 			? themeS["carousel"]

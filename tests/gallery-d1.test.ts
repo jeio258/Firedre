@@ -8,11 +8,6 @@ import {
 	deleteAlbumFromD1,
 } from "../server/gallery/d1";
 
-/**
- * 相册 D1 数据层测试：应用 0007_albums.sql 迁移到内存 SQLite，
- * 验证相册元数据 + 照片列表的读写、排序、级联删除。
- */
-
 interface D1Like {
 	prepare(sql: string): D1StmtLike;
 }

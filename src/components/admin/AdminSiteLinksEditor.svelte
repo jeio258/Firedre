@@ -101,7 +101,7 @@
 	identify={(item) => String(item.name ?? "")}
 >
 	{#snippet extraBlock()}
-		<!-- 站点主域名（全站根域名，驱动 RSS/Sitemap/canonical） -->
+
 		<div class="site-url-block">
 			<div class="site-url-head">
 				<span>站点主域名</span>

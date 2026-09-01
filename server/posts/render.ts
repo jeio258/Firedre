@@ -1,14 +1,4 @@
-/**
- * Firedre 运行时 Markdown 渲染管线（纯 unified，无 Astro markdown 依赖）
- *
- * 对齐 Firefly 构建期 astro.config.mjs 的插件集，但：
- * - 不依赖 @astrojs/markdown-remark（避免把 shiki/oniguruma WASM 打进 Worker）
- * - mermaid 代码块以 <div class="mermaid-container" data-mermaid-code> 透传，
- *   由客户端 MermaidClient 渲染
- * - 代码高亮由客户端 highlight.js 承担（服务端 syntaxHighlight: false）
- * - wiki-link 使用运行时 D1 resolver（remarkWikiLinkRuntime）
- * - remarkExcerpt / remarkReadingTime 写入 vfile.data.frontmatter，供元数据使用
- */
+
 
 import katex from "katex";
 import { toString } from "mdast-util-to-string";
@@ -69,7 +59,7 @@ export interface RenderedMarkdown {
 
 export interface RenderMarkdownOptions {
 	frontmatter?: Record<string, unknown>;
-	/** 用于 wiki-link 解析的文章元数据 resolver */
+
 	resolveWikiLink?: WikiLinkResolver;
 }
 
@@ -109,7 +99,6 @@ function countTextWords(text: string): number {
 	return cjk + words;
 }
 
-/** 收集标题（rehype-slug 赋 id 之后） */
 function rehypeCollectHeadings() {
 	return (tree: unknown, file: { data?: Record<string, unknown> }) => {
 		const headings: MarkdownHeading[] = [];
@@ -133,16 +122,10 @@ function rehypeCollectHeadings() {
 	};
 }
 
-/** unified 处理器类型声明 */
 interface UnifiedProcessor extends ReturnType<typeof unified> {
 	use(...args: unknown[]): UnifiedProcessor;
 }
 
-/**
- * 按请求构建 unified 处理器。
- * wiki-link resolver 通过闭包注入，避免模块级可变状态在并发请求间交叉污染
- * （Cloudflare Workers 同一 isolate 内请求会交错执行）。
- */
 function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 	return (unified() as unknown as UnifiedProcessor)
 		.use(remarkParse)

@@ -16,7 +16,6 @@ export interface BilibiliItem {
 const BILIBILI_API = "https://api.bilibili.com/x/space/bangumi/follow/list";
 const PAGE_SIZE = 30;
 
-/** 获取指定类型的全部追番数据 */
 async function fetchBilibiliByType(
 	uid: string,
 	type: number,
@@ -53,7 +52,6 @@ async function fetchBilibiliByType(
 	return items;
 }
 
-/** 获取 Bilibili 追番（type=1）+ 追剧（type=2）并标准化 */
 export async function fetchBilibiliList(
 	uid: string,
 ): Promise<StandardizedAnime[]> {
@@ -70,7 +68,7 @@ export async function fetchBilibiliList(
 		title: item.title,
 		originalTitle: item.title,
 		poster: item.cover ? item.cover.replace("http://", "https://") : null,
-		// season_type: 1=番剧, 2=电影, 3=纪录片, 4=国创, 5=电视剧
+
 		type: item.season_type === 2 ? ("movie" as const) : ("tv" as const),
 		season_type: item.season_type || 1,
 		rating: item.rating?.score || 0,

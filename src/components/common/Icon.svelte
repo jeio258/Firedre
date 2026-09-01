@@ -1,11 +1,4 @@
 <script lang="ts">
-/**
- * 统一的图标组件 - 使用 @iconify/svelte 离线模式
- * 用于 Svelte 组件
- *
- * 从本地精简图标数据加载，仅包含项目实际使用的图标
- * 无需网络请求，无闪烁，体积小
- */
 
 import Iconify, { addCollection } from "@iconify/svelte/offline";
 

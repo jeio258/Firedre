@@ -1,7 +1,4 @@
-/**
- * remark-wiki-link — Obsidian 风格 Wiki Link 插件
- * @author CuteLeaf <xiaye@msn.com>
- */
+
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -58,9 +55,6 @@ function createPostUrl(contentPath) {
 	return `/posts/${encodedPath ? `${encodedPath}/` : ""}`;
 }
 
-/**
- * 由文章文件的绝对路径反推 content path。
- */
 function toContentPath(filePath) {
 	return path
 		.relative(POSTS_DIR, filePath)
@@ -68,12 +62,6 @@ function toContentPath(filePath) {
 		.replace(MARKDOWN_EXTENSION, "");
 }
 
-/**
- * 还原 Astro glob loader 生成的 entry.id——也就是文章 URL 的唯一来源。
- * loader 在 schema 校验前先读原始 frontmatter，`slug` 存在时直接作为 id，
- * 否则回退到文件路径。注意 `slug` 不在 posts 的 zod schema 里，
- * 所以它只在这里（直接读 frontmatter）可见，`entry.data` 上取不到。
- */
 function toPostId(meta) {
 	const declaredSlug =
 		typeof meta.data.slug === "string" ? meta.data.slug.trim() : "";
@@ -119,8 +107,7 @@ function collectPostMetas() {
 		try {
 			entries = readdirSync(dir, { withFileTypes: true });
 		} catch {
-			// 目录读不到就跳过；注意这里只包住 readdirSync，
-			// 避免把下面的逻辑错误一起吞掉
+
 			continue;
 		}
 
@@ -152,10 +139,6 @@ function findMetaBySlug(metas, target) {
 	);
 }
 
-/**
- * 按裸文件名匹配，兼容 Obsidian「尽可能简短的形式」链接格式。
- * 只在全站唯一时接受，重名时要求写出更长的路径。
- */
 function findMetaByBaseName(metas, target) {
 	if (target.includes("/")) {
 		return null;
@@ -183,7 +166,6 @@ function findMetaByBaseName(metas, target) {
 function readPostMeta(contentPath) {
 	const metas = collectPostMetas();
 
-	// 1. frontmatter slug —— 它就是 Astro 的 entry.id，优先级最高
 	const bySlug = findMetaBySlug(metas, contentPath);
 	if (bySlug) {
 		return bySlug;
@@ -244,8 +226,6 @@ function createCoverNode(meta, resolvedPath, context) {
 		return null;
 	}
 
-	// 随机封面图 API：复用 CoverImage 的 data-api-urls 客户端重试机制
-	// seed 与 PostCard / 文章页保持一致（Astro 的 entry.id 会去掉末尾的 /index）
 	if (image === "api") {
 		const seed = resolvedPath.replace(/\/index$/i, "");
 		const firstUrl = processCoverImageSync(image, seed);
@@ -332,11 +312,6 @@ function parseWikiLinkValue(value) {
 	return { destination, alias, contentPath, heading };
 }
 
-/**
- * Obsidian 在「基于仓库根目录的绝对路径」模式下会自动把文件名填进别名位，
- * 写出 `[[guide/foo|foo]]`——这不是作者指定的标题，只是让笔记里别显示整条路径。
- * 因此别名与链接目标本身重合时视为噪声，回退到文章的 frontmatter title。
- */
 function resolveAlias(parsed, meta) {
 	if (!parsed.alias) {
 		return "";
@@ -571,26 +546,6 @@ function transformNode(node, context) {
 	}
 }
 
-/**
- * Convert Obsidian-style Wiki Links into Markdown links and post link cards.
- *
- * - `[[slug]]` alone in a paragraph becomes a link card with the post's
- *   title, description, published date, category, tags and cover image.
- * - `[[slug|alias]]` alone in a paragraph also becomes a link card, with
- *   the alias replacing the post title.
- * - Inline `[[slug]]` becomes a normal link whose text is the post title.
- * - `[[slug#heading]]` always renders as a normal link.
- *
- * An alias that merely repeats the link target (`[[guide/foo|foo]]`, which is
- * what Obsidian inserts on its own) is treated as noise and ignored, so the
- * post's real title still wins.
- *
- * Targets resolve in three steps: `frontmatter.slug`, then exact file path,
- * then bare file name (for Obsidian's "shortest path when possible" format,
- * accepted only when unique). URLs are always derived from the resolved
- * post's `entry.id` rather than from the link text, so a bare file name
- * still produces the post's real URL.
- */
 export function remarkWikiLink() {
 	return (tree, file) => {
 		const context = {

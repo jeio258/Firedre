@@ -5,15 +5,11 @@ import { siteConfig } from "@/config/siteConfig";
 import { defaultFavicons } from "@/constants/icon";
 import { url } from "./url-utils";
 
-// 构建期一次性收集 src 下的图片资源，用于把 src 相对路径解析成 Astro 构建后的真实 URL。
-// 本模块只被服务端 .astro 组件导入（构建期），不要被客户端 .svelte 引用，
-// 否则会把 import.meta.glob（Vite 构建期特性）连带进客户端 bundle。
 const projectImages = import.meta.glob<ImageMetadata>(
 	"/src/**/*.{png,jpg,jpeg,webp,avif,gif,svg}",
 	{ import: "default" },
 );
 
-// 查找 src 内相对路径对应的 ImageMetadata；找不到返回 null。
 async function loadLocalImage(
 	src: string,
 	basePath: string,
@@ -33,12 +29,6 @@ async function loadLocalImage(
 	return loader();
 }
 
-/**
- * 把文章封面 / 头像等图片源解析为绝对 URL + 宽高（用于 Article image / Person.image 的 ImageObject）。
- * - public(/...)、远程、data: 直接返回（无宽高信息）；
- * - src 内相对路径：用源图 img.src（Astro 已复制的源资产真实 URL），不再额外 getImage 生成优化图，
- *   避免多产出未使用的源副产物/优化变体。
- */
 export async function toAbsoluteImageInfo(
 	src: string | undefined | null,
 	basePath: string,
@@ -59,11 +49,6 @@ export async function toAbsoluteImageInfo(
 	return getLocalImageInfo(src, basePath, base);
 }
 
-/**
- * 把文章封面 / 头像等图片源解析为绝对 URL。
- * - public(/...)、远程、data: 直接按原样解析（与主题渲染一致，无需优化）；
- * - src 内相对路径：用源图 img.src 的真实 URL。
- */
 export async function toAbsoluteImageUrl(
 	src: string | undefined | null,
 	basePath: string,
@@ -72,7 +57,6 @@ export async function toAbsoluteImageUrl(
 	return (await toAbsoluteImageInfo(src, basePath, base))?.url ?? null;
 }
 
-// 返回本地图片 src 的绝对 URL + 元数据宽高（源图 img.src 指向 Astro 复制的真实源资产）
 async function getLocalImageInfo(
 	src: string,
 	basePath: string,
@@ -87,10 +71,6 @@ async function getLocalImageInfo(
 	};
 }
 
-/**
- * 作者头像绝对 URL（Person.image / ProfilePage 用）。
- * 固定用 profileConfig.avatar + basePath=""（相对 src/）。
- */
 export async function getAuthorAvatarUrl(): Promise<string | null> {
 	return toAbsoluteImageUrl(profileConfig.avatar, "", siteConfig.site_url);
 }
@@ -102,7 +82,6 @@ function parseSizes(sizes?: string): { width: number; height: number } | null {
 	return m ? { width: Number(m[1]), height: Number(m[2]) } : null;
 }
 
-// 用站点 favicon 作为 publisher logo 兜底（Google org logo 偏好 raster：png/jpg/gif）
 async function getFaviconAsLogo(): Promise<{
 	url: string;
 	width?: number;
@@ -111,7 +90,6 @@ async function getFaviconAsLogo(): Promise<{
 	const candidates = [...(siteConfig.favicon || []), ...defaultFavicons];
 	if (candidates.length === 0) return null;
 
-	// 解析每个 favicon 的尺寸并挑最大的 raster（png/jpg/gif）作为 publisher logo
 	const areas = candidates.map((f) => {
 		const d = parseSizes(f.sizes);
 		return {
@@ -123,7 +101,7 @@ async function getFaviconAsLogo(): Promise<{
 	});
 	const rasters = areas.filter((c) => c.raster);
 	rasters.sort((a, b) => b.w * b.h - a.w * a.h);
-	// 优先取最大 raster；若无 raster（纯 .ico/.svg），则取面积最大的那个
+
 	const favicon =
 		rasters[0]?.f ||
 		[...areas].sort((a, b) => b.w * b.h - a.w * a.h)[0]?.f ||
@@ -156,11 +134,6 @@ let _siteLogoPromise:
 	  } | null>
 	| undefined;
 
-/**
- * 站点 publisher 的 logo（Organization.logo）。
- * 优先用 siteConfig.navbar.logo（主题真实 logo，image / url 类型）；
- * 若 navbar 用图标库 icon（无图片 URL）或未配置，则回退到站点 favicon。
- */
 export function getSiteLogo(): Promise<{
 	url: string;
 	width?: number;

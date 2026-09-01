@@ -1,14 +1,5 @@
 ---
-// MDX 时间线容器组件（配合 TimelineItem 使用）
-//
-// 用法（.mdx）：
-//   import { Timeline, TimelineItem } from "@/components/firefly-mdx";
-//   <Timeline><TimelineItem date="2024-03-10" title="v6.0 发布">内容</TimelineItem></Timeline>
-//
-// 用 .astro 而非 .svelte：Astro MDX 不允许框架组件嵌套为另一个框架组件的
-// children（渲染报 NoMatchingRenderer）；.astro 经 <slot /> 传递内容，
-// 不经框架 renderer，嵌套和 Markdown 都正常。
-// 布局为左侧竖线对齐：竖线画在本组件，条目由 TimelineItem 渲染圆点节点。
+
 ---
 
 <ol class="timeline">
@@ -17,7 +8,7 @@
 
 <style>
 	.timeline {
-		/* 标记列宽度，竖线与子项圆点/图标圆共用同一坐标 */
+
 		--timeline-marker-size: 1.25rem;
 
 		position: relative;
@@ -26,7 +17,6 @@
 		padding: 0;
 	}
 
-	/* 贯穿竖线，位于标记列中心 */
 	.timeline::before {
 		content: "";
 		position: absolute;

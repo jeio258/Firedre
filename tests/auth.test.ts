@@ -27,7 +27,7 @@ describe("isBcryptHash", () => {
 	});
 
 	it("should return false for truncated or malformed hashes", () => {
-		// Valid prefix but wrong length (60 chars for bcrypt)
+
 		expect(isBcryptHash("$2b$10$abcdefghijklmnopqrstuv")).toBe(false);
 		expect(isBcryptHash("$2b$10$x")).toBe(false);
 	});

@@ -73,16 +73,16 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
           <p>{i18n(I18nKey.tocEmpty)}</p>
         </div>
       )}
-      {/* 加密文章：留空，客户端解密后由 TOCManager 填充 */}
+      {                                   }
     </div>
   </div>
 </WidgetLayout>
 
 <style lang="stylus">
-/* SidebarTOC 特定样式 */
+
 .toc-scroll-container
 	max-height: calc(100vh - 25rem)
-	/* 滚动条与内容之间的小间隙（从共享样式挪入，避免影响浮动目录的对称内边距） */
+
 	padding-right: 0.125rem
 </style>
 
@@ -95,9 +95,6 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
     };
   }
 
-  // 侧栏目录在 #right-sidebar-static 内，不是 swup 容器：站内导航后其 DOM 不被替换。
-  // attach() 内部会校验现有锚点是否属于当前正文——新鲜则直接附着（首屏 SSR），
-  // 过时或缺失（导航后/加密解密后）则自动回退 DOM 遍历重建，无需在此区分场景。
   function initSidebarTOC() {
     const tocContent = document.getElementById("sidebar-toc-content");
     if (!tocContent) return;
@@ -122,12 +119,9 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
     }
   }
 
-  // 防止 Swup 切页重跑脚本时重复注册监听器（initSidebarTOC 由下方一次性监听器在切页时触发）
   if (!window.__sidebarTOCInit) {
     window.__sidebarTOCInit = true;
 
-    // 初始化
-    // 确保 DOM 准备好后再执行
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initSidebarTOC);
     } else {

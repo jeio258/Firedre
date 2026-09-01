@@ -21,7 +21,6 @@ interface Props {
 
 const { state, backgroundImages, title, bannerPostMeta } = Astro.props;
 
-// 背景壁纸设置（后台可覆盖，统一经 runtime.getWallpaperConfig）：播放按钮/地址/模式/遮罩
 const wallpaperConfig = getWallpaperConfig(Astro.locals);
 const bgPlayerEnable = wallpaperConfig.playerEnable;
 const bgPlayerUrl = String(
@@ -30,24 +29,23 @@ const bgPlayerUrl = String(
 		: ""),
 );
 const bgPlayerMode = (wallpaperConfig.common?.playerMode || "order") as "order" | "random";
-// 遮罩不透明度/模糊：后台可覆盖（theme.overlayOpacity/overlayBlur），静态配置为兜底
+
 const bgOverlayOpacity = wallpaperConfig.overlay?.opacity ?? 0.8;
 const bgOverlayBlur = wallpaperConfig.overlay?.blur ?? 0;
 const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
 
-<!-- Wallpaper - 如果允许切换则始终渲染，否则只渲染当前模式 -->
 {(state.isWallpaperSwitchable || state.isBannerMode || state.isFullscreenMode || state.isOverlayMode) && (
 <div id="wallpaper-wrapper" class="absolute z-10 w-full overflow-hidden" style={`--overlay-opacity: ${bgOverlayOpacity}; --overlay-z-index: ${bgOverlayZIndex}; --overlay-blur: ${bgOverlayBlur}px;`}>
-<!-- 背景图片显示 -->
+
     {state.hasMultipleImages ? (
-    /* 轮播模式：渲染所有图片为 slide-item */
+
     <div class:list={["relative h-full w-full bg-(--page-bg)", `effect-${state.bannerCarouselEffect}`]} id="banner-images-container"
          style={`z-index: 5; --carousel-interval: ${state.bannerCarouselInterval}ms`}
          data-carousel-enabled={state.bannerCarouselEnabledDefault}
          data-carousel-switchable={state.bannerCarouselSwitchable}
          data-carousel-interval={state.bannerCarouselInterval}
          data-carousel-effect={state.bannerCarouselEffect}>
-        {/* 图片放在 <template> 里，浏览器不会发起请求；由轮播脚本挑中随机那张后克隆进 DOM */}
+        {                                                     }
         {backgroundImages.mobile.map((src, index) => (
             <div class:list={["slide-item block lg:hidden", index === 0 && "active"]} data-index={index}>
                 <template>
@@ -120,10 +118,9 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         </noscript>
     </div>
     ) : (
-    /* 单图模式 */
+
     <div class="relative h-full w-full" id="banner-images-container">
-        {/* 两侧都放在 <template> 里，由下面的脚本按 matchMedia 只实例化匹配的那一侧，
-            避免桌面端白下一张手机图（display:none 挡不住 loading="eager"） */}
+        {                                                                                                                  }
         {backgroundImages.mobile.length > 0 && (
             <div class="banner-image-slot absolute inset-0 block lg:hidden">
                 <template>
@@ -197,7 +194,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
     </div>
     )}
 
-    <!-- 壁纸轮播脚本（基于 CSS transition） -->
     {state.hasMultipleImages && (
     <script is:inline data-swup-ignore-script>
         (function initBannerCarousel() {
@@ -223,8 +219,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 return mode === WALLPAPER_BANNER || mode === 'fullscreen';
             }
 
-            // 图片淡入：Layout 里的全局 initImageLoadFadeIn 只在解析期扫一次，
-            // 之后克隆进来的图片得自己接管，否则会一直停在 opacity-0
             function fadeInWhenLoaded(root) {
                 var ph = root.querySelector('.lqip-placeholder');
                 var img = root.querySelector('img');
@@ -254,13 +248,11 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                     // 必须在插入前写，插入即发起请求
                     if (img) {
                         img.setAttribute('fetchpriority', 'high');
-                        // 这张是 LCP 元素，不做淡入：图片没下完时 <img> 本来就不画东西，
-                        // 那 500ms 过渡只是把已经能看的画面又藏半秒，Chrome 会把 LCP 往后记。
+
                         img.classList.remove('opacity-0', 'transition-opacity', 'duration-500', 'ease-out');
                         img.style.opacity = '1';
                     }
-                    // LQIP 占位层是 absolute + z-index:0，盖在 img 上面，
-                    // 它那 0.5s 淡出同样会挡住 LCP
+
                     var ph = frag.querySelector('.lqip-placeholder');
                     if (ph) ph.style.transition = 'none';
                 }
@@ -424,8 +416,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             var slides = getVisibleSlides();
             var startIdx = slides.length > 1 ? Math.floor(Math.random() * slides.length) : 0;
             var firstSlide = slides[startIdx];
-            // .slide-item 自带 1000ms 的 opacity 过渡，首张不该吃它（它是 LCP 元素）。
-            // 必须在下面加 active 之前就关掉，否则过渡已经启动了。
+
             if (firstSlide) firstSlide.style.transition = 'none';
             for (var k = 0; k < slides.length; k++) {
                 if (k === startIdx) slides[k].classList.add('active');
@@ -433,8 +424,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             }
             materialize(firstSlide, true);
             if (firstSlide) {
-                // 下一帧再放开，后续轮播切换的交叉淡入照旧。双 rAF 是为了确保
-                // opacity:1 已经 flush 成新的 before-change style，恢复时不会倒着跑一遍
+
                 requestAnimationFrame(function () {
                     requestAnimationFrame(function () { firstSlide.style.transition = ''; });
                 });
@@ -477,7 +467,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
     </script>
     )}
 
-    <!-- 单图模式：只实例化当前断点匹配的那一侧 -->
     {!state.hasMultipleImages && (
     <script is:inline data-swup-ignore-script>
         (function initBannerSingle() {
@@ -492,11 +481,10 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 var phFrag = frag.querySelector('.lqip-placeholder');
                 if (img && high) {
                     img.setAttribute('fetchpriority', 'high');
-                    // 这张是 LCP 元素，不做淡入：图片没下完时 <img> 本来就不画东西，
-                    // 那 500ms 过渡只是把已经能看的画面又藏半秒，Chrome 会把 LCP 往后记。
+
                     img.classList.remove('opacity-0', 'transition-opacity', 'duration-500', 'ease-out');
                     img.style.opacity = '1';
-                    // LQIP 占位层盖在 img 上面（z-index:0），它那 0.5s 淡出同样会挡住 LCP
+
                     if (phFrag) phFrag.style.transition = 'none';
                 }
                 slot.appendChild(frag);
@@ -538,7 +526,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         })();
     </script>
     )}
-    
+
     {bgPlayerEnable && bgPlayerUrl && (
         <BackgroundPlayer playerUrl={bgPlayerUrl} playerMode={bgPlayerMode} />
     )}
@@ -547,10 +535,9 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         {state.showBannerDim && <div class="banner-dim-overlay absolute inset-0" style={`background: rgba(0, 0, 0, ${state.dimOpacity})`}></div>}
     </div>
 
-    <div id="banner-overlay-container" class="absolute inset-0 z-20 pointer-events-none transition-swup-fade">    <!-- Home page text overlay - 始终渲染以便切换模式时控制显示 -->
+    <div id="banner-overlay-container" class="absolute inset-0 z-20 pointer-events-none transition-swup-fade">                                                     
     <BannerHomeTextOverlay showHomeText={state.showHomeText} initialRandomSubtitle={state.initialRandomSubtitle} />
 
-    <!-- Non-home non-post page title overlay (desktop only) -->
     {state.showBannerPageTitle && (
         <div class="banner-page-title-overlay absolute inset-0 z-20 hidden lg:flex items-center justify-center pointer-events-none">
             <div class="w-4/5 lg:w-3/4 text-center mb-0">
@@ -561,23 +548,18 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         </div>
     )}
 
-    <!-- Non-home post banner meta overlay (desktop only) -->
     <BannerPostMetaOverlay showBannerPostMeta={state.showBannerPostMeta} bannerPostInfoMode={state.bannerPostInfoMode} bannerDescriptionWidth={state.bannerDescriptionWidth} bannerPostMeta={bannerPostMeta} />
 
     </div>
 
-    <!-- Fullscreen 模式下显示向下滚动指示器（仅首页显示；放在 overlay 容器外，避免被标题视差 transform 带离）。
-         始终渲染：壁纸区在 Swup 容器外、切页不重渲染，若首开非首页则指示器不会出现。
-         是否显示交给 CSS（body.is-home + fullscreen 模式才 display:flex） -->
     {(state.isFullscreenMode || state.isWallpaperSwitchable) && <ScrollDownIndicator />}
 
-    <!-- Water waves effect - 如果允许切换或任一设备启用则渲染 -->
     {state.shouldRenderWaves ? (
     <div class={`waves absolute -bottom-px h-[10vh] max-h-37.5 min-h-12.5 w-full md:h-[15vh]
         ${!state.wavesEnabledOnMobile ? 'hidden' : ''} ${!state.wavesEnabledOnDesktop ? 'md:hidden' : ''} ${state.wavesEnabledOnDesktop ? 'md:block' : ''}`}
         id="header-waves"
         style="transform: translateZ(0);">
-        <!-- 静态占位波浪:随 HTML 首帧渲染,先于壁纸出现避免闪烁;由 WavesEffect.astro 动画 canvas 无缝接管后隐藏 -->
+
         <svg
             class="waves-svg"
             xmlns="http://www.w3.org/2000/svg"
@@ -594,7 +576,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 ></path>
             </defs>
             <g>
-                <!-- x 偏移 = 四层均匀铺开的起始相位(0/0.25/0.5/0.75)在 t=0 的偏移,首帧即交错,与动画首帧逐像素一致 -->
+
                 <use
                     xlink:href="#gentle-wave"
                     x="-42.000"
@@ -624,7 +606,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
     </div>
     ) : null}
 
-    <!-- Gradient transition - 当水波纹关闭时显示，提供壁纸底部到背景色的平滑过渡 -->
     {state.shouldRenderGradient ? (
     <div class={`wallpaper-gradient absolute bottom-0 left-0 w-full pointer-events-none
         ${!state.gradientEnabledOnMobile ? 'hidden' : ''} ${!state.gradientEnabledOnDesktop ? 'md:hidden' : ''} ${state.gradientEnabledOnDesktop ? 'md:block' : ''}`}
@@ -635,7 +616,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
 </div>
 )}
 
-{/* 当壁纸未渲染时，添加空的 Swup 占位容器，避免 Swup 找不到容器而回退为整页加载 */}
+{                                                  }
 {!(state.isWallpaperSwitchable || state.isBannerMode || state.isFullscreenMode || state.isOverlayMode) && (
 <>
     <div id="banner-overlay-container" class="hidden"></div>

@@ -46,7 +46,7 @@ function goToPage(page: number) {
 
 {#if totalPages > 1}
   <div class="responsive-pagination flex justify-center items-center mt-8">
-    <!-- 移动端简化版分页 -->
+
     <div class="mobile-pagination items-center gap-3">
       <button
         type="button"
@@ -75,7 +75,6 @@ function goToPage(page: number) {
       </button>
     </div>
 
-    <!-- 桌面端完整版分页 -->
     <div class="desktop-pagination items-center gap-3">
       <button
         type="button"

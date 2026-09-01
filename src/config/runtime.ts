@@ -1,17 +1,4 @@
-/**
- * 运行时配置统一入口（Firedre 动态化核心）
- *
- * 设计：与静态 config（src/config/*.ts）**同构**的运行时对象。
- * 组件通过 getXxxConfig(locals) 获取配置——静态值为默认，后台站点设置（D1）
- * 经 middleware 合并进 locals.settings 后实时覆盖。
- *
- * 使用方式（Astro 组件内）：
- *   import { getSiteConfig } from "@/config/runtime";
- *   const siteConfig = getSiteConfig(Astro.locals);
- *   // siteConfig.title 已是运行时值（后台可改、实时生效）
- *
- * 客户端 Svelte 组件用 getXxxConfigFromWindow()（读 window.__FIREFLY_SETTINGS__）。
- */
+
 import { siteConfig as staticSiteConfig } from "./siteConfig";
 import { profileConfig as staticProfileConfig } from "./profileConfig";
 import { commentConfig as staticCommentConfig } from "./commentConfig";
@@ -33,7 +20,6 @@ import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
 import { normalizeSiteUrl } from "@/utils/url-utils";
 
-/** middleware 注入的 settings 形状 */
 export type SettingsLike = Record<string, unknown>;
 
 function settingsOf(locals: unknown): SettingsLike {
@@ -41,7 +27,6 @@ function settingsOf(locals: unknown): SettingsLike {
 	return s ?? {};
 }
 
-/** 后台设置读到的嵌套组（settings.footer / settings.music / …） */
 function groupOf(s: SettingsLike, key: string): SettingsLike {
 	const g = s[key];
 	return (g && typeof g === "object" ? g : {}) as SettingsLike;
@@ -50,12 +35,6 @@ function groupOf(s: SettingsLike, key: string): SettingsLike {
 function str(v: unknown, fallback: string): string {
 	return typeof v === "string" && v !== "" ? v : fallback;
 }
-
-/**
- * 站点 origin 归一化：后台 site_url 可能填裸域名（www.example.com，无协议），
- * 直接交给 new URL() 会抛 Invalid URL 导致 SSR 渲染崩溃（生产白屏）。
- * 这里为无协议的字符串补全 https://，保证返回合法 origin；已是 http(s) 的保持不变。
- */
 
 function num(v: unknown, fallback: number): number {
 	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
@@ -69,14 +48,11 @@ function arr(v: unknown, fallback: unknown[]): unknown[] {
 		try {
 			const p = JSON.parse(v);
 			if (Array.isArray(p)) return p;
-		} catch { /* ignore */ }
+		} catch {              }
 	}
 	return fallback;
 }
 
-// ─────────────────────────────────────────────
-// siteConfig（站点基础）
-// ─────────────────────────────────────────────
 export function getSiteConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const basic = groupOf(s, "basic");
@@ -137,9 +113,6 @@ export function getSiteConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// profileConfig（个人资料）
-// ─────────────────────────────────────────────
 export function getProfileConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const pr = groupOf(s, "profile");
@@ -154,9 +127,6 @@ export function getProfileConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// commentConfig（评论系统）
-// ─────────────────────────────────────────────
 export function getCommentConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const c = groupOf(s, "comment");
@@ -194,9 +164,6 @@ export function getCommentConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// musicConfig（音乐播放器）
-// ─────────────────────────────────────────────
 export function getMusicConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const m = groupOf(s, "music");
@@ -225,9 +192,6 @@ export function getMusicConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// backgroundWallpaper（背景壁纸）
-// ─────────────────────────────────────────────
 export function getWallpaperConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const t = groupOf(s, "theme");
@@ -251,8 +215,7 @@ export function getWallpaperConfig(locals: unknown) {
 				title: str(t.homeTitle, staticWallpaper.common?.homeText?.title ?? ""),
 				titleSize: str(t.homeTitleSize, staticWallpaper.common?.homeText?.titleSize ?? "4.5rem"),
 				subtitle: (() => {
-					// 后台 homeSubtitles 是 JSON 字符串（如 ["a","b"]），middleware 已解析为数组；
-					// 两者都需支持，解析失败/缺失则回退静态
+
 					if (Array.isArray(t.homeSubtitles)) {
 						return t.homeSubtitles.map(String);
 					}
@@ -263,7 +226,7 @@ export function getWallpaperConfig(locals: unknown) {
 								return parsed.map(String);
 							}
 						} catch {
-							// 忽略，回退静态
+
 						}
 					}
 					return (
@@ -321,9 +284,6 @@ export function getWallpaperConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// 其余配置（通用模式：扁平标量 + 组对象）
-// ─────────────────────────────────────────────
 export function getFooterConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const f = groupOf(s, "footer");
@@ -344,7 +304,7 @@ export function getEffectsConfig(locals: unknown) {
 		enable: bool(e.sakura, staticEffectsConfig.enable),
 		sakuraNum: num(e.sakuraNum, staticEffectsConfig.sakuraNum),
 		limitTimes: num(e.limitTimes, staticEffectsConfig.limitTimes),
-		// Firedre：后台 effects 组新增的波浪/渐变/轮播开关（settings-defaults 有默认，SSR 经 getBannerVisibilityState 读取）
+
 		waves: bool(e.waves, true),
 		gradient: bool(e.gradient, true),
 		bannerCarousel: bool(e.bannerCarousel, false),
@@ -516,9 +476,6 @@ export function getAnalyticsConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// panel（首页设置面板开关）
-// ─────────────────────────────────────────────
 export function getPanelConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const pn = groupOf(s, "panel");
@@ -541,9 +498,6 @@ export function getPanelConfig(locals: unknown) {
 	};
 }
 
-// ─────────────────────────────────────────────
-// 客户端（Svelte）读取：window.__FIREFLY_SETTINGS__（SSR 注入）
-// ─────────────────────────────────────────────
 function windowSettings(): SettingsLike {
 	if (typeof window === "undefined") return {};
 	return ((window as unknown as { __FIREFLY_SETTINGS__?: SettingsLike }).__FIREFLY_SETTINGS__ ?? {}) as SettingsLike;

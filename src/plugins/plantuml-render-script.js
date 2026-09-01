@@ -1,14 +1,4 @@
-/*
- * plantuml 图表客户端渲染与交互脚本
- *
- * 职责：
- *   - 根据 <html> 的 `dark` class，动态切换 .plantuml-image 的 data-light-src / data-dark-src
- *   - 加载失败时替换容器内容为错误提示 + 重试按钮
- *   - 为每个容器提供 pan-zoom（CSS transform）与全屏查看能力
- *   - 响应 astro:page-load（Swup）与主题切换事件
- *
- * 通过 IIFE + window.plantumlInitialized 防止在 Swup 场景下重复初始化。
- */
+
 (() => {
 	if (window.plantumlInitialized) {
 		return;
@@ -19,13 +9,8 @@
 	const MAX_SCALE = 5;
 	const SCALE_STEP = 1.2;
 
-	/** @type {Set<HTMLElement>} 当前已打开的全屏 overlay 集合（跨页面清理用） */
 	const fullscreenOverlays = new Set();
 
-	/**
-	 * 按当前主题为所有图片选择正确的 src。
-	 * @returns {void}
-	 */
 	function applyTheme() {
 		const isDark = document.documentElement.classList.contains("dark");
 		const images = document.querySelectorAll(".plantuml-image");
@@ -39,11 +24,6 @@
 		});
 	}
 
-	/**
-	 * 为单个图片绑定加载失败的降级 UI。
-	 * @param {HTMLImageElement} img 图片元素
-	 * @param {HTMLElement} container .plantuml-diagram-container
-	 */
 	function bindErrorHandler(img, container) {
 		if (img.dataset.errorBound === "true") return;
 		img.dataset.errorBound = "true";
@@ -89,11 +69,6 @@
 		});
 	}
 
-	/**
-	 * 为单个图片绑定 load 回调，在加载成功后初始化 pan-zoom 与控制栏。
-	 * @param {HTMLImageElement} img 图片元素
-	 * @param {HTMLElement} container .plantuml-diagram-container
-	 */
 	function bindLoadHandler(img, container) {
 		if (img.dataset.loadBound === "true") return;
 		img.dataset.loadBound = "true";
@@ -105,12 +80,6 @@
 		}
 	}
 
-	/**
-	 * 初始化指定容器上的缩放、平移、控制栏与双击行为。
-	 * 重入安全：同一容器多次调用不会重复绑定。
-	 *
-	 * @param {HTMLElement} container .plantuml-diagram-container
-	 */
 	function initInteraction(container) {
 		if (container.dataset.interactionInit === "true") return;
 		const img = container.querySelector(".plantuml-image");
@@ -236,10 +205,6 @@
 		applyTransform();
 	}
 
-	/**
-	 * 打开全屏 overlay 展示指定容器中的图片。
-	 * @param {HTMLElement} container .plantuml-diagram-container
-	 */
 	function openFullscreen(container) {
 		const sourceImg = container.querySelector(".plantuml-image");
 		if (!sourceImg) return;
@@ -378,9 +343,6 @@
 		document.addEventListener("keydown", onKeyDown);
 	}
 
-	/**
-	 * 清理全部已打开的全屏 overlay；用于 Swup 页面切换前。
-	 */
 	function closeAllOverlays() {
 		fullscreenOverlays.forEach((overlay) => {
 			overlay.remove();
@@ -388,9 +350,6 @@
 		fullscreenOverlays.clear();
 	}
 
-	/**
-	 * 扫描当前文档中的所有 .plantuml-diagram-container，初始化交互与降级。
-	 */
 	function initAll() {
 		const containers = document.querySelectorAll(".plantuml-diagram-container");
 		containers.forEach((container) => {

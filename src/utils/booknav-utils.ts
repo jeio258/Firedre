@@ -7,9 +7,9 @@ import type {
 
 // 书签图标解析结果
 export type ResolvedBooknavIcon =
-	| { kind: "icon"; value: string } // astro-icon 图标名
-	| { kind: "image"; value: string } // 图片地址
-	| { kind: "letter"; value: string }; // 首字母兜底
+	| { kind: "icon"; value: string }                  
+	| { kind: "image"; value: string }        
+	| { kind: "letter"; value: string };         
 
 // astro-icon 图标名格式：namespace:name
 const ICON_NAME_PATTERN = /^[\w-]+:[\w-]+$/;
@@ -23,7 +23,6 @@ export function getBooknavDomain(url: string): string {
 	}
 }
 
-// 用域名替换 favicon 接口地址中的 {domain} 占位符
 export function buildFaviconUrl(api: string, domain: string): string {
 	if (!api || !domain) return "";
 	return api.replaceAll("{domain}", encodeURIComponent(domain));

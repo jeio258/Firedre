@@ -1,6 +1,5 @@
 import type { CloudflareEnv } from "../../types/env";
 
-/** 配置分组（对应 Firefly src/config/*.ts 与后台站点设置菜单） */
 export const SETTING_GROUPS = [
 	"basic",
 	"panel",
@@ -41,7 +40,6 @@ const LEGACY_KEYS: Record<string, SettingGroup> = {
 	"": "basic",
 };
 
-// ── KV 缓存（用户要求配置存 KV）：读写全量配置快照 ──
 async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 	const rows = await env.DB.prepare(
 		"SELECT key, value FROM site_settings",
@@ -53,14 +51,12 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 		try {
 			out[group] = { ...(out[group] ?? {}), ...JSON.parse(row.value) };
 		} catch {
-			/* ignore */
+
 		}
 	}
 	return out;
 }
 
-// 配置版本号（D1 强一致）：HTML 缓存 key 依赖它 → 配置变更即时使旧缓存失效。
-// 不能用 KV 存版本号（KV 最终一致性：写后立即读可能旧值 → 缓存不失效 → 配置"不生效"）。
 const VERSION_KEY = "__firedre_settings_version";
 
 export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
@@ -72,15 +68,14 @@ export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
 			.first<{ value: string }>();
 		return row?.value || "0";
 	} catch {
-		/* ignore */
+
 	}
 	return "0";
 }
 
 async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 	try {
-		// 原子自增：单条 UPSERT 内用 CAST(value)+1，避免并发保存时先读后写丢版本号
-		// （若两次并发保存读到同一 cur，原实现会只 +1，导致 HTML 缓存 key 不随第二次失效）。
+
 		await env.DB.prepare(`
 			INSERT INTO site_settings (key, value, updated_at)
 			VALUES (?, '1', datetime('now'))
@@ -91,7 +86,7 @@ async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 			.bind(VERSION_KEY)
 			.run();
 	} catch {
-		/* ignore */
+
 	}
 }
 
@@ -104,17 +99,10 @@ function groupOfKey(key: string): SettingGroup {
 	);
 }
 
-/**
- * 读取全部配置组。
- * 读以 D1 为准（SQLite 强一致 → 配置修改即时生效）；
- * KV 作为镜像存储（保存时同步写入），不参与读路径，
- * 避免 KV 最终一致性导致边缘节点返回旧快照（"保存不生效"）。
- */
 export async function getAllSettings(env: CloudflareEnv): Promise<SettingsMap> {
 	return readAllFromD1(env);
 }
 
-/** 读取单组 */
 export async function getSettingsGroup(
 	env: CloudflareEnv,
 	group: SettingGroup,
@@ -132,13 +120,6 @@ export async function getSettingsGroup(
 	}
 }
 
-/**
- * 批量保存多组（D1 持久化 + KV 缓存同步 + 版本 bump）。
- *
- * 相比逐组调用 saveSettingsGroup，此处把 N 组保存聚合为：
- *   1 次 D1 批量写入 + 1 次版本 bump，避免逐组全量重读重写导致耗时随组数恶化。
- * 读路径一律以 D1 为准（强一致），无 KV 镜像（原镜像只写不读，属死代码已移除）。
- */
 export async function saveSettingsGroups(
 	env: CloudflareEnv,
 	groups: Partial<Record<SettingGroup, Record<string, unknown>>>,
@@ -154,7 +135,6 @@ export async function saveSettingsGroups(
 			updated_at = datetime('now')
 	`;
 
-	// D1 batch（生产）：1 次原子写入全部组。本地 dev 垫片无 batch() 时逐组 run()。
 	const db = env.DB as unknown as {
 		batch?: (stmts: { run(): Promise<unknown> }[]) => Promise<unknown>;
 		prepare(sql: string): {
@@ -174,11 +154,9 @@ export async function saveSettingsGroups(
 		}
 	}
 
-	// 版本 bump（一次）：配置版本号变更使 HTML 缓存 key 失效，配置即时生效
 	await bumpSettingsVersion(env);
 }
 
-/** 保存整组（D1 持久化 + KV 缓存同步） */
 export async function saveSettingsGroup(
 	env: CloudflareEnv,
 	group: SettingGroup,
@@ -187,7 +165,6 @@ export async function saveSettingsGroup(
 	await saveSettingsGroups(env, { [group]: data });
 }
 
-/** 兼容旧接口：读扁平 SiteSettings（basic 组），仅供 middleware 类型标注 */
 export interface SiteSettings {
 	title?: string;
 	description?: string;
@@ -203,7 +180,6 @@ export interface SiteSettings {
 	social?: Array<{ label: string; url: string }>;
 }
 
-/** 前台覆盖用的扁平设置形状 */
 export interface SettingsShape {
 	title?: string;
 	description?: string;

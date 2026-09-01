@@ -9,10 +9,6 @@ import { getPostUrlBySlug, url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
-// 归档列表：全量按年分组，服务端渲染。筛选（?tag=/?category=/?uncategorized）
-// 与年份折叠由客户端脚本处理——数据本身在构建期已全部就绪。
 const sortedPostsList = await getSortedPostsList();
 
 // 严格按发布时间倒序（不受置顶影响），镜像原 Svelte 版行为
@@ -31,7 +27,6 @@ const groups = Array.from(grouped.entries())
 	.map(([year, yearPosts]) => ({ year, posts: yearPosts }))
 	.sort((a, b) => b.year - a.year);
 
-// 初始折叠规则：foldArticle 非 false 且多于一年时，除首年外全部折叠
 const foldArticle = ((settings as any)?.["foldArticle"] ?? siteConfig.foldArticle) !== false;
 const collapseAllButFirst = foldArticle && groups.length > 1;
 
@@ -62,7 +57,7 @@ const foldOnFilter = collapseAllButFirst;
   class="card-base px-8 py-6"
   data-fold={foldOnFilter ? "true" : "false"}
 >
-  {/* 筛选头部：默认隐藏，客户端在有筛选时填充并显示 */}
+  {                             }
   <div id="archive-filter-header" class="mb-5 hidden">
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
       <div class="min-w-0 text-sm text-75">
@@ -117,12 +112,12 @@ const foldOnFilter = collapseAllButFirst;
               data-category={post.data.category || ""}
             >
               <div class="flex flex-row justify-start items-center h-full">
-                {/* date */}
+                {          }
                 <div class="w-[15%] md:w-[10%] transition text-sm text-right text-50">
                   {formatDate(post.data.published)}
                 </div>
 
-                {/* dot and line */}
+                {                  }
                 <div class="w-[15%] md:w-[10%] relative dash-line h-full flex items-center">
                   <div class="transition-all mx-auto w-1 h-1 rounded-sm group-hover:h-5
                               bg-[oklch(0.5_0.05_var(--hue))] group-hover:bg-(--primary)
@@ -131,7 +126,7 @@ const foldOnFilter = collapseAllButFirst;
                               group-active:outline-(--btn-plain-bg-active)"></div>
                 </div>
 
-                {/* post title */}
+                {                }
                 <div class="w-[70%] md:max-w-[65%] md:w-[65%] text-left font-bold
                             group-hover:translate-x-1 transition-all group-hover:text-(--primary)
                             text-75 pr-8 whitespace-nowrap text-ellipsis overflow-hidden flex items-center gap-2">
@@ -146,7 +141,7 @@ const foldOnFilter = collapseAllButFirst;
                   <span class="truncate">{post.data.title}</span>
                 </div>
 
-                {/* tag list */}
+                {              }
                 <div class="hidden md:block md:w-[15%] text-left text-sm transition
                             whitespace-nowrap text-ellipsis overflow-hidden text-30">
                   {formatTag(post.data.tags || [])}
@@ -353,7 +348,6 @@ const foldOnFilter = collapseAllButFirst;
           content.hidden = willCollapse;
           toggle.setAttribute("aria-expanded", willCollapse ? "false" : "true");
 
-          // 用 Web Animations API 做旋转动画，绕开 Swup 对 CSS transition 的干扰
           if (arrow) {
             requestAnimationFrame(() => {
               arrow.animate(

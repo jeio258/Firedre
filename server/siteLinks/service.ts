@@ -25,7 +25,6 @@ function toView(row: SiteLinkRecord): SiteLinkView {
 	};
 }
 
-/** normalizeInput 的规范化产物（键序与 columns 一致） */
 interface SiteLinkNormalized {
 	name: string;
 	url: string;
@@ -53,7 +52,7 @@ function normalizeInput(raw: SiteLinkInput): SiteLinkNormalized {
 
 	if (!name) throw new UserError("链接名称不能为空");
 	if (!url) throw new UserError("链接地址不能为空");
-	// 放行 http/https/mailto/tel 及相对路径（RSS/站内/二维码），仍拦截 javascript:/data: 等危险 scheme
+
 	if (!safeUrlScheme(url)) throw new UserError("链接地址包含不支持的协议");
 
 	return { name, url, icon, location, kind, sortOrder, enabled };
@@ -73,10 +72,8 @@ const service = createCrudService<SiteLinkRecord, SiteLinkInput, SiteLinkNormali
 	notFoundMessage: "链接不存在",
 });
 
-/** 后台管理：全部链接，按 location、sort_order 升序 */
 export const listSiteLinks = service.list;
 
-/** 前台展示：仅启用、按 sort_order 升序（可按 location 过滤） */
 export const listEnabledSiteLinks = service.listEnabled;
 
 export const getSiteLink = service.get;

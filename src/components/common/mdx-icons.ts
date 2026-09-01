@@ -1,8 +1,4 @@
-// MDX 展示组件（TimelineItem / StepItem）共用的内置图标集
-//
-// 内联 SVG（Feather/Lucide 风格，MIT 许可），key 即 `icon` 属性可用的名字。
-// 用 `{@html}`/`set:html` 注入，随父元素 `currentColor` 着色。
-// 从 TimelineItem.astro 抽出，避免在多个组件里复制同一份 SVG。
+
 
 export const ICONS = {
 	star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,

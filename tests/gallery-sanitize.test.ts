@@ -39,8 +39,7 @@ describe("sanitizeGalleryAlbumForPublic（相册密码不泄漏）", () => {
 	});
 
 	it("R2 encrypted=false 但 D1 有密码：仍隐藏照片（R1 判锁统一回归）", () => {
-		// 关键回归：即使 frontmatter.encrypted 与 D1 不同步（写入失败等），
-		// 只要 D1 有密码就不得向公开 GET 返回照片，防止“看似加密实则公开”。
+
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: false }),
 			true,
@@ -59,7 +58,7 @@ describe("sanitizeGalleryAlbumForPublic（相册密码不泄漏）", () => {
 	});
 
 	it("加密相册即使 frontmatter 带 password 也不会泄漏", () => {
-		// 防御性：即使未来又往 frontmatter 写了 password，公开响应也不得返回
+
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: true, password: "should-not-leak" }),
 			true,

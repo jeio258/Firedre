@@ -1,4 +1,4 @@
-// LQIP 方案来源: https://blog.cosine.ren/post/astro-lqip-implementation
+
 
 import lqipData from "@constants/lqips.json";
 
@@ -11,10 +11,6 @@ function normalizePath(p: string): string {
 	return p.replace(/\/\.\//g, "/").replace(/\/+/g, "/");
 }
 
-/**
- * 将 LQIP 紧凑格式（18 字符 hex）解码为 CSS 线性渐变
- * 格式：6e3b38ae7472af7574 → linear-gradient(135deg, #6e3b38 0%, #ae7472 50%, #af7574 100%)
- */
 export function getLqipGradient(
 	src: string,
 	basePath?: string,
@@ -46,7 +42,6 @@ export function getLqipGradient(
 	return `linear-gradient(135deg, ${c1} 0%, ${c2} 50%, ${c3} 100%)`;
 }
 
-/** 判断是否为外部图片 */
 export function isExternalImage(src: string): boolean {
 	return (
 		src.startsWith("http://") ||
@@ -55,7 +50,6 @@ export function isExternalImage(src: string): boolean {
 	);
 }
 
-/** 获取 LQIP 内联样式 */
 export function getLqipStyle(
 	src: string,
 	basePath?: string,
@@ -66,7 +60,6 @@ export function getLqipStyle(
 	return gradient ? `background: ${gradient}` : undefined;
 }
 
-/** 获取 LQIP props（用于 Astro 组件），外部图片自动降级 */
 export function getLqipProps(
 	src: string,
 	basePath?: string,
@@ -77,11 +70,6 @@ export function getLqipProps(
 	return { style: style || `background: ${DEFAULT_GRADIENT}` };
 }
 
-/**
- * LQIP fade-in：图片加载完成后淡出占位渐变。
- * 纯函数（本模块被 frontmatter 导入，顶层不能有 DOM 副作用），
- * 监听器由 layout-init.ts 注册。
- */
 export function initImageLoadFadeIn(): void {
 	const placeholders =
 		document.querySelectorAll<HTMLElement>(".lqip-placeholder");

@@ -13,11 +13,6 @@ export function getWebDavPassword(env?: CloudflareEnv) {
 	return env?.WEBDAV_PASSWORD || process.env[WEBDAV_PASSWORD_ENV];
 }
 
-/**
- * 解析相册 WebDAV 配置：
- * - url/username 来自 R2 中相册 index.md 的 webdav frontmatter
- * - password 来自环境变量 WEBDAV_PASSWORD
- */
 export async function resolveWebDavConfig(
 	slug: string,
 	options?: AlbumWebDavRuntimeOptions,
@@ -60,8 +55,6 @@ export function assertTargetInWebDavScope(targetUrl: string, baseUrl: string) {
 
 	if (target.origin !== base.origin) throw new UserError("媒体地址不在相册范围内");
 
-	// 路径段边界判断：basePath 后必须紧跟 `/`、查询串或结束，
-	// 防止 `/album/` 误放行 `/album-evil/` 这类同前缀不同段的目标。
 	const basePath = base.pathname.replace(/\/$/, "") || "/";
 	const targetPath = target.pathname;
 	if (targetPath !== basePath && !targetPath.startsWith(`${basePath}/`))

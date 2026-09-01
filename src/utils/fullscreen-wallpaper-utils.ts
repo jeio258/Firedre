@@ -1,19 +1,18 @@
 import { backgroundWallpaper } from "@/config";
 import { pathsEqual, url } from "@/utils/url-utils";
 
-// 全屏壁纸模式：首页标题随滚动平滑上移并渐变消失（首屏完整显示，下滑淡出；壁纸保持 fixed）
-const TITLE_FADE_RATIO = 0.5; // 滚动到半个视口高度后标题完全淡出
-const BLUR_RAMP_SCROLL = 300; // px，首页下滑该距离后壁纸模糊达到配置的最大值（期间从 0 连续渐变）
-const BLUR_QUANTIZE_STEP = 2; // px，模糊值量化步长，避免每帧都触发全屏 blur 重栅格化
+const TITLE_FADE_RATIO = 0.5;                    
+const BLUR_RAMP_SCROLL = 300;                                       
+const BLUR_QUANTIZE_STEP = 2;                                  
 let parallaxTicking = false;
-let cachedMaxBlur: number | null = null; // 缓存的 --overlay-blur 解析值（仅在加载/滑块变化时刷新）
-let lastWrittenBlur = ""; // 上次实际写入的 --fullscreen-blur，值未变则跳过写入
+let cachedMaxBlur: number | null = null;                                        
+let lastWrittenBlur = "";                                      
 
 export function updateFullscreenTitleParallax(): void {
 	const html = document.documentElement;
 	const overlay = document.getElementById("banner-overlay-container");
 	if (!overlay) return;
-	// 非全屏或页面过渡中：复位（让 transition-swup-fade 的 CSS 生效）
+
 	if (
 		html.getAttribute("data-wallpaper-mode") !== "fullscreen" ||
 		html.classList.contains("is-animating") ||
@@ -48,8 +47,6 @@ function requestFullscreenTitleParallax(): void {
 	}
 }
 
-// 非首页全屏壁纸模式：强制隐藏标题覆盖层（与 overlay 一致），
-// 处理运行时切换 / Swup 导航后 banner 渲染的覆盖层残留（内联 !important，不依赖 CSS 是否已刷新）
 export function syncFullscreenOverlays(): void {
 	const mode = document.documentElement.getAttribute("data-wallpaper-mode");
 	const isHome = pathsEqual(window.location.pathname, url("/"));
@@ -66,9 +63,6 @@ export function syncFullscreenOverlays(): void {
 	});
 }
 
-// 全屏壁纸模糊：首页从 0 随滚动连续渐变到配置的最大值，非首页固定为最大值（与 overlay 一致）
-// 通过 --fullscreen-blur 驱动（复用 overlay 的 blur 配置），图片 CSS 恒为 blur(var(--fullscreen-blur))
-// 性能：maxBlur 缓存（避免每帧 getComputedStyle）+ 2px 量化（值未变跳过写入），避免全屏 blur 逐帧重栅格化
 export function syncFullscreenBlur(): void {
 	const html = document.documentElement;
 	const wrapper = document.getElementById("wallpaper-wrapper");
@@ -82,7 +76,7 @@ export function syncFullscreenBlur(): void {
 		setBlurIfChanged(wrapper, "0px");
 		return;
 	}
-	// 读取当前生效的模糊配置（跟随设置面板滑块 / overlay.blur），已缓存，仅加载/滑块变化时重读
+
 	const safeMax = cachedMaxBlur ?? readMaxBlur(wrapper);
 	const isHome = pathsEqual(window.location.pathname, url("/"));
 	if (!isHome) {
@@ -94,7 +88,6 @@ export function syncFullscreenBlur(): void {
 	setBlurIfChanged(wrapper, `${quantizeBlur(ratio * safeMax)}px`);
 }
 
-// 全屏壁纸模糊渐变是否启用：按视口设备读 fullscreen.blurRamp（布尔或 {desktop,mobile}，缺省开启）
 function isBlurRampEnabled(): boolean {
 	const enable = backgroundWallpaper.fullscreen?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;
@@ -121,7 +114,6 @@ function setBlurIfChanged(wrapper: HTMLElement, value: string): void {
 	wrapper.style.setProperty("--fullscreen-blur", value);
 }
 
-/** 注册监听并做初始同步（从 Layout.astro 迁出） */
 export function initFullscreenWallpaper(): void {
 	window.addEventListener("scroll", requestFullscreenTitleParallax, {
 		passive: true,
@@ -131,12 +123,10 @@ export function initFullscreenWallpaper(): void {
 		syncFullscreenBlur();
 	});
 	window.addEventListener("wallpaperModeChange", syncFullscreenOverlays);
-	updateFullscreenTitleParallax(); // 初始加载（浏览器可能恢复滚动位置）
-	syncFullscreenOverlays(); // 初始加载时同步非首页覆盖层状态
-	syncFullscreenBlur(); // 初始加载时同步壁纸模糊状态
+	updateFullscreenTitleParallax();                     
+	syncFullscreenOverlays();                   
+	syncFullscreenBlur();                 
 
-	// 设置面板调整模糊滑块（--overlay-blur 变化）时，同步全屏壁纸的 --fullscreen-blur，
-	// 否则非首页的模糊只在滚动/切页时才更新，滑块会表现为失效
 	const wrapper = document.getElementById("wallpaper-wrapper");
 	if (!wrapper) return;
 	let lastOverlayBlur = wrapper.style.getPropertyValue("--overlay-blur");
@@ -151,7 +141,6 @@ export function initFullscreenWallpaper(): void {
 	observer.observe(wrapper, { attributes: true, attributeFilter: ["style"] });
 }
 
-/** 模式初始化后同步（此时 data-wallpaper-mode 才是运行时模式） */
 export function syncFullscreenStateAfterInit(): void {
 	syncFullscreenBlur();
 	syncFullscreenOverlays();

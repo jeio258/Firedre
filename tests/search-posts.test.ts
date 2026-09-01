@@ -1,11 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { searchPosts } from "../server/posts/service";
 
-/**
- * 回归保护：P2-3 —— searchPosts 的关键词必须转义后 bind 到 FTS MATCH，
- * 否则 `"`、`*`、`NEAR` 等 FTS 操作符会让 D1 抛错（接口返回 500 而非 400）。
- */
-
 function makeDbMock(capture: { query?: string }) {
 	return {
 		prepare(sql: string) {

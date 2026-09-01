@@ -21,8 +21,8 @@ export let avatarSelector: string | null = null;
 let showModal = false;
 let posterImage: string | null = null;
 let generating = false;
-let themeColor = "#558e88"; // Default blue
-const headerTextColor = "#1f2937"; // 站点名称与 Logo 颜色
+let themeColor = "#558e88";                
+const headerTextColor = "#1f2937";                 
 
 onMount(() => {
 	// Get theme color from CSS variable
@@ -70,7 +70,6 @@ function resolveImageSource(
 	return image?.currentSrc || image?.src || src;
 }
 
-// 站点 Logo：图标优先复用导航栏已渲染的 SVG（astro-icon 覆盖完整图标库），图片复用导航栏已优化的地址
 function serializeNavbarIcon(color: string, size: number): string | null {
 	const svg = document.querySelector<SVGSVGElement>("#navbar svg.navbar-logo");
 	if (!svg) return null;
@@ -117,14 +116,12 @@ function resolveSiteLogoSource(color: string, size: number): string | null {
 	if (!logo?.value) return null;
 
 	if (logo.type === "icon") {
-		// icons-data.json 只含 Svelte 组件用到的图标子集，因此优先取导航栏的 SVG
+
 		return (
 			serializeNavbarIcon(color, size) ?? buildIconDataUrl(logo.value, color)
 		);
 	}
 
-	// src 目录下的图片经 Astro 优化后只有导航栏能拿到最终地址
-	// 海报背景是白色，因此固定取亮色版本的 Logo
 	const navbarLogo =
 		document.querySelector<HTMLImageElement>(
 			'#navbar img.navbar-logo[data-logo-theme="light"]',
@@ -133,7 +130,7 @@ function resolveSiteLogoSource(color: string, size: number): string | null {
 	if (navbarLogoSrc) return navbarLogoSrc;
 
 	if (logo.type === "url") return logo.value;
-	// public 目录下的图片可直接拼接 base 路径，src 目录下的则无法在客户端还原
+
 	return logo.value.startsWith("/") || logo.value.startsWith("http")
 		? withBase(logo.value)
 		: null;
@@ -240,13 +237,12 @@ async function generatePoster() {
 			resolvedSiteLogo ? loadImage(resolvedSiteLogo) : Promise.resolve(null),
 		]);
 
-		// 2. Setup Canvas for measuring
 		const canvas = document.createElement("canvas");
 		const ctx = canvas.getContext("2d");
 		if (!ctx) throw new Error("Canvas context not available");
 
 		canvas.width = width;
-		// Initial height estimation, will be adjusted
+
 		canvas.height = 1000 * scale;
 
 		// 3. Layout Calculation
@@ -270,20 +266,18 @@ async function generatePoster() {
 		let descHeight = 0;
 		if (description) {
 			ctx.font = `${14 * scale}px 'Roboto', sans-serif`;
-			const descLines = getLines(ctx, description, contentWidth - 16 * scale); // minus border width and gap
-			// Limit to 6 lines
+			const descLines = getLines(ctx, description, contentWidth - 16 * scale);                              
+
 			const maxDescLines = 6;
 			const displayDescLines = descLines.slice(0, maxDescLines);
 			const descLineHeight = 25 * scale; // 1.8 line-height approx
 			descHeight = displayDescLines.length * descLineHeight;
 			currentY += descHeight;
-			// currentY += 24 * scale; // Gap to footer (Removed to reduce whitespace)
+
 		} else {
-			currentY += 8 * scale; // Smaller gap if no desc
+			currentY += 8 * scale;                          
 		}
 
-		// Footer (Author + QR)
-		// Divider spacing before and after the line
 		currentY += 16 * scale;
 		const footerHeight = 80 * scale; // Avatar/QR plus QR caption
 		currentY += footerHeight;
@@ -292,8 +286,6 @@ async function generatePoster() {
 		// 4. Resize Canvas to fit content
 		canvas.height = currentY;
 
-		// 5. Draw Content
-		// Fill Background
 		ctx.fillStyle = "#ffffff";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -302,17 +294,10 @@ async function generatePoster() {
 		ctx.globalAlpha = 0.1;
 		ctx.fillStyle = themeColor;
 
-		// Top Right Circle
-		// CSS: top: -50px, right: -50px, width: 150px, height: 150px
-		// Radius = 75px
-		// Center X = width + 50 - 75 = width - 25
-		// Center Y = -50 + 75 = 25
 		ctx.beginPath();
 		ctx.arc(width - 25 * scale, 25 * scale, 75 * scale, 0, Math.PI * 2);
 		ctx.fill();
 
-		// Bottom Left Circle
-		// Adjusted to cover the avatar
 		ctx.beginPath();
 		ctx.arc(10 * scale, canvas.height - 10 * scale, 50 * scale, 0, Math.PI * 2);
 		ctx.fill();
@@ -428,7 +413,6 @@ async function generatePoster() {
 
 		ctx.fillText(siteTitleText, siteTitleX, headerCenterY);
 
-		// Reset Y for drawing
 		let drawY = coverHeight + padding;
 
 		// Draw Title
@@ -440,14 +424,14 @@ async function generatePoster() {
 			ctx.fillText(line, padding, drawY);
 			drawY += titleLineHeight;
 		});
-		drawY += 16 * scale - (titleLineHeight - 24 * scale); // Adjust for line-height diff
+		drawY += 16 * scale - (titleLineHeight - 24 * scale);                               
 
 		// Draw Description
 		if (description) {
 			// Draw vertical line
 			ctx.fillStyle = "#e5e7eb";
-			const descLineH = descHeight; // Approximate
-			// Extend the line slightly above and below the text
+			const descLineH = descHeight;               
+
 			drawRoundedRect(
 				ctx,
 				padding,
@@ -467,13 +451,12 @@ async function generatePoster() {
 				ctx.fillText(line, padding + 16 * scale, drawY);
 				drawY += 25 * scale; // line height
 			});
-			// drawY += 24 * scale; // Removed to reduce whitespace
+
 		} else {
 			drawY += 8 * scale;
 		}
 
-		// Draw Footer Divider
-		drawY += 8 * scale; // Spacing before line
+		drawY += 8 * scale;                       
 		ctx.beginPath();
 		ctx.strokeStyle = "#f3f4f6";
 		ctx.lineWidth = 1 * scale;
@@ -509,7 +492,6 @@ async function generatePoster() {
 			ctx.drawImage(avatarImg, avatarX, authorY, avatarSize, avatarSize);
 			ctx.restore();
 
-			// Border for avatar
 			ctx.beginPath();
 			ctx.arc(
 				avatarX + (64 * scale) / 2,
@@ -542,8 +524,6 @@ async function generatePoster() {
 			textCenterY + 4 * scale,
 		);
 
-		// Right: QR Code
-		// QR Background/Shadow effect (simplified as border)
 		ctx.fillStyle = "#ffffff";
 		// Shadow simulation
 		ctx.shadowColor = "rgba(0, 0, 0, 0.05)";
@@ -622,7 +602,6 @@ function portal(node: HTMLElement) {
 const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
 </script>
 
-<!-- Trigger Button -->
 <button 
   class="btn-regular rounded-lg h-12 px-6 gap-2 hover:scale-105 active:scale-95 whitespace-nowrap"
   on:click={generatePoster}
@@ -632,15 +611,11 @@ const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETT
   <span>{i18n(I18nKey.shareArticle)}</span>
 </button>
 
-
-
-<!-- Modal -->
 {#if showModal}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
+
   <div use:portal class="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 transition-opacity" on:click={closeModal}>
     <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-[440px] w-full max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl transform transition-all" on:click={(e) => e.stopPropagation()}>
-      
+
       <div class="p-6 flex justify-center bg-gray-50 dark:bg-gray-900 min-h-[200px] items-center">
         {#if posterImage}
           <img src={posterImage} alt="Poster" class="max-w-full h-auto shadow-lg rounded-lg" />
@@ -651,7 +626,7 @@ const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETT
            </div>
         {/if}
       </div>
-      
+
       <div class="p-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-3">
         <button 
           class="py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 active:scale-[0.98] transition-all flex items-center justify-center gap-2"

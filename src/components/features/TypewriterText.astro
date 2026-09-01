@@ -88,7 +88,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       const segments = this.segmentText(currentText);
 
       if (this.isDeleting) {
-        // 删除字符
+
         if (this.currentIndex > 0) {
           this.currentIndex--;
           this.element.textContent = segments
@@ -100,7 +100,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
             this.deleteSpeed
           );
         } else {
-          // 删除完成，切换到下一条文本
+
           this.isDeleting = false;
           this.currentTextIndex =
             (this.currentTextIndex + 1) % this.texts.length;
@@ -115,7 +115,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
 
           this.timeoutId = window.setTimeout(() => this.type(), this.speed);
         } else {
-          // 打字完成，暂停后开始删除（如果有多条文本）
+
           if (this.texts.length > 1) {
             this.isDeleting = true;
             this.timeoutId = window.setTimeout(
@@ -123,7 +123,7 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
               this.pauseTime
             );
           }
-          // 如果只有一条文本，保持显示不删除
+
         }
       }
     }
@@ -156,11 +156,10 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
   // 初始化所有打字机效果
   function runInitWithDelay() {
     initTypewriterElements();
-    // 兼容 banner 显隐晚于内容替换的场景
+
     setTimeout(initTypewriterElements, 220);
   }
 
-  // 防止 Swup 切页重跑脚本时重复注册监听器/hooks（runInitWithDelay 由下方一次性监听器在切页时触发）
   if (!window.__typewriterTextInit) {
     window.__typewriterTextInit = true;
     if (document.readyState === "loading") {
@@ -169,7 +168,6 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       runInitWithDelay();
     }
 
-    // 支持页面切换时重新初始化（兼容不同 swup 事件名）
     document.addEventListener("swup:contentReplaced", runInitWithDelay);
     document.addEventListener("swup:content:replace", runInitWithDelay);
     document.addEventListener("swup:page:view", runInitWithDelay);

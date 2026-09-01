@@ -242,7 +242,7 @@ onMount(async () => {
 		font-size: 0.85rem;
 		margin: 0.25rem 0 0.5rem;
 	}
-	/* 移动端：改密行纵向堆叠，输入框全宽 */
+
 	@media (max-width: 767px) {
 		.pwd-row {
 			flex-direction: column;
