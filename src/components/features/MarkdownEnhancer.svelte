@@ -19,10 +19,18 @@ function loadHighlightJs(): Promise<void> {
 		};
 		script.onerror = () => resolve();
 		document.head.appendChild(script);
+		// 与脚本同时注入高亮样式（仅按需时加载，避免无代码块页面白耗）
+		if (!document.querySelector('link[href="/assets/css/highlight-github-dark.min.css"]')) {
+			const link = document.createElement("link");
+			link.rel = "stylesheet";
+			link.href = "/assets/css/highlight-github-dark.min.css";
+			document.head.appendChild(link);
+		}
 	});
 }
 
 async function highlight(root: ParentNode) {
+	if (!root.querySelector("pre code")) return;
 	try {
 		await loadHighlightJs();
 	} catch {
@@ -105,7 +113,3 @@ onMount(() => {
 	};
 });
 </script>
-
-<svelte:head>
-	<link rel="stylesheet" href="/assets/css/highlight-github-dark.min.css" />
-</svelte:head>

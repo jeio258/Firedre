@@ -1,10 +1,8 @@
 import * as path from "node:path";
-import { getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
 import { profileConfig } from "@/config/profileConfig";
 import { siteConfig } from "@/config/siteConfig";
 import { defaultFavicons } from "@/constants/icon";
-import { getImageQuality } from "./image-utils";
 import { url } from "./url-utils";
 
 const projectImages = import.meta.glob<ImageMetadata>(
@@ -77,22 +75,14 @@ export async function getAuthorAvatarUrl(): Promise<string | null> {
 	return toAbsoluteImageUrl(profileConfig.avatar, "", siteConfig.site_url);
 }
 
-// 头像 _image 优化 URL（与 Profile 头像一致），用于 head preload 提前加载 LCP 图
-export async function getAuthorAvatarOptimized(
-	width = 350,
+// 本地资源静态 hashed URL（不经 _image 按需优化，用于 LCP 首图直接走 CDN 静态文件）
+export async function getRawImageUrl(
+	src: string,
+	basePath = "",
 ): Promise<string | null> {
-	const src = profileConfig.avatar;
-	if (!src || src.startsWith("http") || src.startsWith("/")) return null;
-	const img = await loadLocalImage(src, "");
-	if (!img) return null;
-	const optimized = await getImage({
-		src: img,
-		width,
-		quality: getImageQuality(),
-		fit: "cover",
-		position: "center",
-	});
-	return optimized.src;
+	if (!src || src.startsWith("http") || src.startsWith("/") || src.startsWith("data:")) return null;
+	const img = await loadLocalImage(src, basePath);
+	return img ? img.src : null;
 }
 
 // 解析 favicon 的 sizes（如 "192x192"）为宽高
