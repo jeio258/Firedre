@@ -48,6 +48,7 @@ interface Props {
 	postSlug?: string;
 	postCoverImage?: string;
 	hasWallpaper?: boolean;
+	wallpaperPreloadUrl?: string | null;
 }
 
 let {
@@ -58,6 +59,7 @@ let {
 	postSlug,
 	postCoverImage,
 	hasWallpaper = false,
+	wallpaperPreloadUrl,
 } = Astro.props;
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
@@ -189,6 +191,7 @@ const siteLogo = await getSiteLogo();
 
     <link rel="canonical" href={Astro.url} />
     {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
+    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} fetchpriority="high" />}
     <meta property="og:site_name" content={effectiveTitle} />
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={pageTitle} />

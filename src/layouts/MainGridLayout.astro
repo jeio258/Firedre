@@ -100,6 +100,11 @@ const banner = getBannerVisibilityState(
 const sidebar = getEffectiveSidebarState({ isPostPage });
 
 const { hasWallpaper } = banner;
+// 壁纸 preload URL：仅外部 http 图片（本地图片走 _image 按需优化，URL 不可预测，不预取）
+const wallpaperPreloadUrl =
+	hasWallpaper && backgroundImages.desktop[0]?.startsWith("http")
+		? backgroundImages.desktop[0]
+		: null;
 const {
 	hideSidebarOnPostPage,
 	effectiveIsBothSidebars,
@@ -114,7 +119,7 @@ const {
 } = sidebar;
 ---
 
-<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} hasWallpaper={hasWallpaper}>
+<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl}>
 
 <slot slot="head" name="head" />
 <HeaderTopRow stickyNavbar={stickyNavbar} navbarWidthFull={navbarWidthFull} />
