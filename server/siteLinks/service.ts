@@ -1,6 +1,7 @@
 import { safeUrlScheme } from "../utils/safeUrl";
 import { UserError } from "../utils/userError";
 import { createCrudService } from "../utils/crud";
+import type { CloudflareEnv } from "../../types/env";
 import type { SiteLinkInput, SiteLinkKind, SiteLinkLocation, SiteLinkRecord, SiteLinkView } from "./types";
 
 export type { SiteLinkInput, SiteLinkKind, SiteLinkLocation, SiteLinkRecord, SiteLinkView } from "./types";
@@ -74,7 +75,28 @@ const service = createCrudService<SiteLinkRecord, SiteLinkInput, SiteLinkNormali
 
 export const listSiteLinks = service.list;
 
-export const listEnabledSiteLinks = service.listEnabled;
+// 每请求记忆化：同一请求内多次按 location 查询只查一次全量（按请求对象缓存）
+const linkCache = new WeakMap<object, Record<string, SiteLinkView[]>>();
+export async function listEnabledSiteLinks(
+	env: CloudflareEnv,
+	location?: SiteLinkLocation,
+	requestCache?: object,
+): Promise<SiteLinkView[]> {
+	if (requestCache) {
+		let store = linkCache.get(requestCache);
+		if (!store) {
+			store = {};
+			linkCache.set(requestCache, store);
+		}
+		const key = location ?? "__all";
+		if (store[key]) return store[key];
+		const all = await service.listEnabled(env);
+		for (const l of all) (store[l.location] ??= []).push(l);
+		store.__all = all;
+		return store[key] ?? [];
+	}
+	return service.listEnabled(env, location);
+}
 
 export const getSiteLink = service.get;
 

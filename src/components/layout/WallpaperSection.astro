@@ -195,7 +195,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
     )}
 
     {state.hasMultipleImages && (
-    <script is:inline data-swup-ignore-script>
+    <script>
+        // @ts-nocheck
         (function initBannerCarousel() {
             var container = document.getElementById('banner-images-container');
             if (!container) return;
@@ -468,7 +469,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
     )}
 
     {!state.hasMultipleImages && (
-    <script is:inline data-swup-ignore-script>
+    <script>
+        // @ts-nocheck
         (function initBannerSingle() {
             var container = document.getElementById('banner-images-container');
             if (!container) return;

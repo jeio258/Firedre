@@ -46,9 +46,13 @@ const viewConfigStr = JSON.stringify({
 </div>
 </template>
 
-<script define:vars={{ viewConfigStr }} is:inline>
+<script is:inline define:vars={{ viewConfigStr }}>
+window.__fireflyMusicViewConfig = viewConfigStr;
+</script>
+<script>
+// @ts-nocheck
 (function () {
-    var cfg = JSON.parse(viewConfigStr);
+    var cfg = JSON.parse(window.__fireflyMusicViewConfig);
 
     var mgr = window.__fireflyMusic;
     if (!mgr) return;

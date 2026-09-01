@@ -120,7 +120,19 @@ const postUrlPrefix = url("/posts/");
 </WidgetLayout>
 
 <script is:inline data-swup-ignore-script define:vars={{ monthNames, weekDays, yearText, currentLang, calendarDataUrl, postUrlPrefix, heatmapWeekTemplate }}>
+window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, calendarDataUrl, postUrlPrefix, heatmapWeekTemplate };
+</script>
+<script>
+  // @ts-nocheck
   // State variables
+  const __cfg = window.__fireflyCalendarConfig;
+  const monthNames = __cfg.monthNames;
+  const weekDays = __cfg.weekDays;
+  const yearText = __cfg.yearText;
+  const currentLang = __cfg.currentLang;
+  const calendarDataUrl = __cfg.calendarDataUrl;
+  const postUrlPrefix = __cfg.postUrlPrefix;
+  const heatmapWeekTemplate = __cfg.heatmapWeekTemplate;
   let displayYear = new Date().getFullYear();
   let displayMonth = new Date().getMonth();
   let currentView = 'day'; // 'day' | 'month' | 'year'

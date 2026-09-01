@@ -25,7 +25,7 @@ const navbarConfig = getNavbarConfig(Astro.locals);
 const siteConfigRuntime = getSiteConfig(Astro.locals);
 const panelConfig = getPanelConfig(Astro.locals);
 
-const navbarLinks = await listEnabledSiteLinks(cfEnv, "navbar");
+const navbarLinks = await listEnabledSiteLinks(cfEnv, "navbar", Astro.locals);
 const navbarLinkChildren: NavBarLink[] = navbarLinks.map((l: SiteLinkView) => ({
 	name: l.name,
 	url: l.url,

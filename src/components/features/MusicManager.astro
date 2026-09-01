@@ -113,11 +113,15 @@ const managerConfigStr = JSON.stringify({
 ---
 
 <script is:inline data-swup-ignore-script define:vars={{ managerConfigStr }}>
+window.__fireflyMusicConfig = managerConfigStr;
+</script>
+<script>
+// @ts-nocheck
 (function () {
     // Singleton guard – only create once
     if (window.__fireflyMusic) return;
 
-    var config = JSON.parse(managerConfigStr);
+    var config = JSON.parse(window.__fireflyMusicConfig);
 
     function formatTime(seconds) {
         if (!seconds || isNaN(seconds)) return '0:00';

@@ -32,7 +32,7 @@ import {
 import { defaultFavicons } from "@/constants/icon";
 import type { Favicon } from "@/types/config";
 import { isHomePage } from "@/utils/layout-utils";
-import { getAuthorAvatarUrl, getSiteLogo } from "@/utils/schema-image";
+import { getAuthorAvatarOptimized, getAuthorAvatarUrl, getSiteLogo } from "@/utils/schema-image";
 import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
 import { url } from "@/utils/url-utils";
 
@@ -126,6 +126,11 @@ if (!lang) {
 const siteLang = lang.replace("_", "-");
 
 const avatarUrl = await getAuthorAvatarUrl();
+// 头像 preload：默认头像（未被后台替换）时预取 _image，提前加载 LCP
+const avatarPreloadUrl =
+	!((settings as any)?.["avatar"]) || ((settings as any)?.["avatar"] === profileConfig.avatar)
+		? await getAuthorAvatarOptimized().catch(() => null)
+		: null;
 // 作者个人页（/about/）绝对 URL，作为 Person.url
 const effectiveSiteUrl = settings.siteUrl || ((settings as any)?.["site_url"] ?? siteConfig.site_url);
 const aboutUrl = toAbsoluteUrl("/about/", effectiveSiteUrl) ?? effectiveSiteUrl;
@@ -182,6 +187,7 @@ const siteLogo = await getSiteLogo();
     <meta name="author" content={((settings as any)?.["profile"]?.["name"] as string | undefined) ?? ((settings as any)?.["name"] ?? profileConfig.name)} />
 
     <link rel="canonical" href={Astro.url} />
+    {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
     <meta property="og:site_name" content={effectiveTitle} />
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={pageTitle} />

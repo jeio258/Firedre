@@ -10,7 +10,7 @@ import { url } from "@/utils/url-utils";
 const footerConfigRuntime = getFooterConfig(Astro.locals);
 const profileConfigRuntime = getProfileConfig(Astro.locals);
 
-const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(cfEnv, "footer");
+const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(cfEnv, "footer", Astro.locals);
 
 const currentYear = new Date().getFullYear();
 

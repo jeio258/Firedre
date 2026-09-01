@@ -34,7 +34,7 @@ const effectiveEmail =
 	((settings as any)?.["profile"]?.["email"] as string | undefined) || "";
 // 社交链接（后台可配置；统一数组处理）
 const profileLinks = (
-	await listEnabledSiteLinks(cfEnv, "profile")
+	await listEnabledSiteLinks(cfEnv, "profile", Astro.locals)
 ).map((l: SiteLinkView) => ({
 	name: l.name,
 	url: l.url,
