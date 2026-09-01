@@ -81,7 +81,7 @@ export function generateSidebarClasses(
 ): string {
 	const classes = [
 		"mb-4",
-		"hidden",
+		"block",
 		"md:col-span-1",
 		"md:max-w-70",
 		"md:row-start-1",

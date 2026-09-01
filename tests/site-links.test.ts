@@ -64,14 +64,14 @@ beforeAll(() => {
 });
 
 describe("site_links 数据层", () => {
-	it("seed：0020 迁移已写入 9 条外链 + 4 条打赏", async () => {
+	it("seed：0020 迁移已写入 10 条外链 + 4 条打赏", async () => {
 		const all = await listSiteLinks(env as never);
 		const navbar = all.filter((l) => l.location === "navbar");
 		const footer = all.filter((l) => l.location === "footer");
 		const profile = all.filter((l) => l.location === "profile");
 		const sponsor = all.filter((l) => l.location === "sponsor");
 		expect(navbar.length).toBe(4);
-		expect(footer.length).toBe(1);
+		expect(footer.length).toBe(2);
 		expect(profile.length).toBe(4);
 		expect(sponsor.length).toBe(4);
 		expect(sponsor.filter((l) => l.kind === "qr").length).toBe(2);
@@ -144,7 +144,7 @@ describe("site_links 数据层", () => {
 	});
 
 	it("listEnabledSiteLinks 按 location 过滤且排除停用项", async () => {
-		// 0019/0020 seed 已含 1 条启用的 footer（Firefly）
+		// 0019/0020 seed 已含 2 条启用的 footer（Firefly + Firedre）
 		await createSiteLink(env as never, { name: "FooterA", url: "https://a.com", location: "footer" });
 		const disabled = await createSiteLink(env as never, {
 			name: "FooterB",
@@ -153,7 +153,7 @@ describe("site_links 数据层", () => {
 			enabled: false,
 		});
 		const footer = await listEnabledSiteLinks(env as never, "footer");
-		expect(footer.length).toBe(2);
+		expect(footer.length).toBe(3);
 		expect(footer.some((l) => l.name === "FooterA")).toBe(true);
 		expect(footer.some((l) => l.name === "Firefly")).toBe(true);
 		expect(footer.some((l) => l.name === "FooterB")).toBe(false);

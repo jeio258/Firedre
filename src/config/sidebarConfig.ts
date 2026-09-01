@@ -169,12 +169,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 
 	mobileBottomComponents: [
 		{
-			// 用户资料组件
-			type: "profile",
-			enable: true,
-			showOnPostPage: true,
-		},
-		{
 			// 公告组件
 			type: "announcement",
 			enable: true,

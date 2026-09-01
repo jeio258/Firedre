@@ -59,7 +59,7 @@ const { style } = Astro.props;
 const className = Astro.props.class;
 ---
 
-<div class:list={["card-base", "p-3", className]} style={style}>
+<div class:list={["card-base", "p-3", "profile-card", className]} style={style}>
   <a
     aria-label="Go to About Page"
     href={url("/about/")}

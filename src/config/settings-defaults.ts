@@ -48,7 +48,7 @@ export const settingsDefaults = {
 		avatar: "assets/images/avatar.avif",
 		bio: "Hello, I'm Firefly.",
 		links:
-			'[{"name":"qq","icon":"fa7-brands:qq","url":"https://qm.qq.com/q/ZGsFa8qX2G","showName":false},{"name":"GitHub","icon":"fa7-brands:github","url":"https://github.com/CuteLeaf","showName":false},{"name":"Email","icon":"fa7-solid:envelope","url":"mailto:xiaye@msn.com","showName":false},{"name":"RSS","icon":"fa7-solid:rss","url":"/rss/","showName":false}]',
+			'[{"name":"qq","icon":"fa7-brands:qq","url":"https://qm.qq.com/q/ZGsFa8qX2G","showName":false},{"name":"GitHub","icon":"fa7-brands:github","url":"https://github.com/jeio258","showName":false},{"name":"Email","icon":"fa7-solid:envelope","url":"mailto:xiaye@msn.com","showName":false},{"name":"RSS","icon":"fa7-solid:rss","url":"/rss/","showName":false}]',
 	},
 	theme: {
 		mode: "banner",
@@ -94,7 +94,7 @@ export const settingsDefaults = {
 	},
 	comment: {
 		type: "none",
-		giscusRepo: "CuteLeaf/Firefly",
+		giscusRepo: "jeio258/Firedre",
 		giscusRepoId: "R_kgD2gfdFGd",
 		giscusCategory: "General",
 		giscusCategoryId: "DIC_kwDOKy9HOc4CegmW",

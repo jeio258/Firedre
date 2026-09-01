@@ -139,3 +139,10 @@
     opacity 0.35s ease-in-out,
     transform 0.35s ease-in-out;
 }
+
+/* 移动端：左侧栏仅显示资料卡（单实例响应式，其余 widget 移到移动底部栏） */
+@media (max-width: 767px) {
+  #left-sidebar .card-base:not(.profile-card) {
+    display: none !important;
+  }
+}
