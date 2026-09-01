@@ -49,6 +49,28 @@ function startProgressBar(): void {
 	);
 }
 
+/**
+ * Swup 默认只替换 <body>，<head> 里的 <title> 不会随客户端转场更新。
+ * 这里从新页面响应 HTML 解析 <title> 并写入 document.title，
+ * 使文章页（及所有页面）的标签栏标题在 SPA 切页后也正确生效。
+ * 用 DOMParser 解析以正确解码 &amp; / &lt; 等 HTML 实体。
+ */
+function syncDocumentTitle(visit: { to?: { html?: string } }): void {
+	const html = visit?.to?.html;
+	if (!html) return;
+	const match = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+	if (!match) return;
+	const raw = match[1].trim();
+	if (!raw || raw === document.title) return;
+	let decoded = raw;
+	try {
+		decoded = new DOMParser().parseFromString(`<title>${raw}</title>`, "text/html").title || raw;
+	} catch {
+		decoded = raw;
+	}
+	document.title = decoded.trim();
+}
+
 function finishProgressBar(): void {
 	const bar = document.getElementById("progress-bar");
 	if (!bar) return;
@@ -112,7 +134,10 @@ function registerSwupHooks(): void {
 			}
 		},
 	);
-	window.swup.hooks.on("content:replace", () => {
+	window.swup.hooks.on("content:replace", (visit: { to?: { html?: string } }) => {
+		// 客户端转场后同步标签栏标题（SSR 已正确输出，此处补齐 SPA 切页缺失的 title 更新）
+		syncDocumentTitle(visit);
+
 		initializeFloatingPanels();
 
 		// 侧边栏组件可见性由 page:view 统一更新（含 refreshSidebarStickyState 的

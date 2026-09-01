@@ -58,8 +58,8 @@ beforeAll(() => {
 	db = new DatabaseSync(":memory:");
 	db.exec("PRAGMA foreign_keys = ON");
 	const migDir = join(process.cwd(), "migrations");
-	db.exec(readFileSync(join(migDir, "0019_site_links.sql"), "utf8"));
-	db.exec(readFileSync(join(migDir, "0020_site_links_extend.sql"), "utf8"));
+  db.exec(readFileSync(join(migDir, "0008_site_links.sql"), "utf8"));
+  db.exec(readFileSync(join(migDir, "0009_site_links_extend.sql"), "utf8"));
 	env = { DB: makeD1(db) };
 });
 
