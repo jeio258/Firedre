@@ -126,7 +126,7 @@ onMount(() => {
 	}
 	.sub {
 		font-size: 0.85rem;
-		color: var(--muted-text, #666);
+		color: var(--text-muted, #666);
 		text-align: center;
 		margin: 0 0 1.5rem;
 	}
@@ -140,7 +140,7 @@ onMount(() => {
 		flex-direction: column;
 		gap: 0.35rem;
 		font-size: 0.85rem;
-		color: var(--muted-text, #666);
+		color: var(--text-muted, #666);
 	}
 	input {
 		padding: 0.6rem 0.8rem;

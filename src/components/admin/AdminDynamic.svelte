@@ -257,7 +257,7 @@ onMount(load);
 		gap: 0.3rem;
 		margin-bottom: 0.8rem;
 		font-size: 0.85rem;
-		color: var(--muted-text, #555);
+		color: var(--text-muted, #555);
 	}
 	.field.check {
 		flex-direction: row;
