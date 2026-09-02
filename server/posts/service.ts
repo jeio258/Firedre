@@ -396,7 +396,7 @@ export async function upsertPost(
     INSERT INTO posts (
       slug, title, excerpt, description, date, updated, categories, tags, cover,
       pin_order, published, password, fm_json, words, minutes, r2_key, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(slug) DO UPDATE SET
       title = excluded.title,
       excerpt = excluded.excerpt,

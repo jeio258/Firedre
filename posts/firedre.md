@@ -74,44 +74,58 @@ pnpm install
 pnpm dev            # http://localhost:4321
 ```
 
-本地开发开箱即用：首次启动自动创建本地 D1（`.wrangler/local-state/local-d1.sqlite`）并应用全部迁移，自动生成 `.dev.vars`（含本地会话密钥）。之后访问 `/admin/` 按引导创建自己的管理员账号即可。
+本地开发开箱即用：首次启动自动创建本地 D1（`.wrangler/local-state/local-d1.sqlite`）并按序应用全部迁移（`cf-dev-shim`），本地 R2 模拟为文件系统。**不自动创建管理员**——访问 `/admin/` 按引导创建自己的管理员账号即可。
 
 ### 部署到 Cloudflare Pages
 
-前置：安装 wrangler 并登录（`npx wrangler login`）。
+**0. 云端资源（一次性）**
 
-**1. 创建云端资源（一次性）**
+| 资源 | 用途 | 绑定名 |
+|---|---|---|
+| D1 `firedre-blog` | 数据库 | `DB` |
+| R2 `firedre-blog` | 文件存储 | `BUCKET` |
 
 ```bash
-npx wrangler d1 create firedre-blog     # 记录 database_id → 填入 wrangler.toml
+npx wrangler d1 create firedre-blog     # 记录 database_id → 替换 wrangler.toml 的占位符
 npx wrangler r2 bucket create firedre-blog
 ```
 
-`wrangler.toml` 中已声明两个绑定（D1 与 R2），把上一步输出的 `database_id` 填入对应位置即可。
+`wrangler.toml` 已声明两个绑定；其中 `database_id` 为占位符 `YOUR_D1_DATABASE_ID`，创建 D1 后替换即可。本项目**无需 KV**（页面缓存用 `caches.default`，会话为自有 Cookie）。
 
-**2. 应用数据库迁移**
+另需在 Pages 项目配置 Secrets（**至少**设置 `SESSION_SECRET`，≥32 位随机串，否则后台无法登录）：
+
+```bash
+npx wrangler pages secret put SESSION_SECRET --project-name firedre
+# 可选：ADMIN_USERNAME / ADMIN_PASSWORD（bcrypt）/ ADMIN_API_TOKEN / WEBDAV_PASSWORD
+```
+
+并应用数据库迁移：
 
 ```bash
 pnpm d1:migrate
 ```
 
-**3. 设置会话密钥（必填）**
+**方式一：Git 集成部署（连接仓库，push 自动部署）**
 
-```bash
-# 至少 32 位的随机字符串；未设置时后台无法登录（安全硬性要求）
-npx wrangler pages secret put SESSION_SECRET --project-name firedre
-```
+在 Cloudflare Dashboard **Workers & Pages → Create → Connect to Git** 选择仓库，项目 **Settings → Build configurations** 配置：
 
-**4. 构建并部署**
+| 项 | 值 |
+|---|---|
+| Build command | `pnpm install && pnpm build` |
+| Build output directory | `dist` |
+
+> ⚠️ 构建命令是 **Dashboard/项目级配置**，`wrangler.toml` 无法承载；漏配会报 `No build command specified` / `Output directory "dist" not found`。随后在 **Settings → Bindings** 绑定 D1（`DB`）与 R2（`BUCKET`），在 Environment variables 加 Secrets。
+
+**方式二：Wrangler 直传**
 
 ```bash
 pnpm build
-npx wrangler pages deploy dist --project-name firedre --commit-dirty=true
+pnpm deploy    # wrangler pages deploy dist --project-name firedre
 ```
 
-**5. 初始化管理员**
+**初始化管理员**
 
-部署完成后访问 `https://你的域名/admin/`，按引导设置管理员用户名与密码，登录后即可开始使用。
+部署完成后访问 `https://你的域名/admin/`，若提示尚无管理员则进入 `/admin/setup/` 创建；或首次用 Secrets 凭据登录自动落库为 D1 管理员。
 
 ## 📌 说明
 
