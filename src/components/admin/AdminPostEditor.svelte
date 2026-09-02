@@ -282,16 +282,16 @@ onMount(load);
 		border-radius: 0.4rem;
 		text-decoration: none;
 		font-size: 0.9rem;
-		border: 1px solid var(--line-color, #d1d5db);
-		color: var(--deep-text, #374151);
-		background: var(--card-bg, #fff);
+		border: 1px solid var(--line-color);
+		color: var(--deep-text);
+		background: var(--card-bg);
 		cursor: pointer;
 	}
 	.btn-primary {
 		composes: btn;
-		background: var(--primary, #5b8cff);
-		color: var(--on-accent, #fff);
-		border-color: var(--primary, #5b8cff);
+		background: var(--primary);
+		color: var(--on-accent);
+		border-color: var(--primary);
 	}
 	.form-grid {
 		display: grid;
@@ -304,7 +304,7 @@ onMount(load);
 		flex-direction: column;
 		gap: 0.3rem;
 		font-size: 0.85rem;
-		color: var(--text-muted, #555);
+		color: var(--text-muted);
 	}
 	.form-grid .span2 {
 
@@ -313,18 +313,18 @@ onMount(load);
 	input,
 	textarea {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	.checks {
 		display: flex;
 		gap: 1.5rem;
 		margin-bottom: 1rem;
 		font-size: 0.9rem;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 
 	@media (max-width: 767px) {

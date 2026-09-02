@@ -274,7 +274,7 @@ onMount(() => {
 	.admin-shell {
 		display: flex;
 		min-height: 100vh;
-		background: var(--page-bg, #f6f7fb);
+		background: var(--page-bg);
 	}
 	.admin-sidebar {
 		width: 220px;
@@ -282,8 +282,8 @@ onMount(() => {
 		/* 侧边栏取主题深色态（codeblock-bg 是 --hue 派生的深色），跟随主题色相 */
 		background: linear-gradient(
 			180deg,
-			var(--codeblock-topbar-bg, #1e2233) 0%,
-			var(--codeblock-bg, #161a2b) 100%
+			var(--codeblock-topbar-bg) 0%,
+			var(--codeblock-bg) 100%
 		);
 		color: #e5e7eb;
 		display: flex;
@@ -305,7 +305,7 @@ onMount(() => {
 		letter-spacing: 0.02em;
 	}
 	.admin-brand > span {
-		background: linear-gradient(135deg, var(--primary, #8ab4ff), #c084fc);
+		background: linear-gradient(135deg, var(--primary), #c084fc);
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
@@ -330,8 +330,8 @@ onMount(() => {
 		transform: translateX(2px);
 	}
 	.admin-sidebar nav a.active {
-		color: var(--on-accent, #fff);
-		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
+		color: var(--on-accent);
+		background: linear-gradient(135deg, var(--primary), var(--title-active));
 		box-shadow: 0 2px 10px rgb(91 140 255 / 0.4);
 		font-weight: 600;
 	}
@@ -387,10 +387,10 @@ onMount(() => {
 			font-size: 1.05rem;
 			line-height: 1;
 			flex-shrink: 0;
-			background: var(--card-bg, #fff);
-			border: 1px solid var(--line-divider, #e5e7eb);
+			background: var(--card-bg);
+			border: 1px solid var(--line-divider);
 			border-radius: 0.5rem;
-			color: var(--deep-text, inherit);
+			color: var(--deep-text);
 			cursor: pointer;
 		}
 		.admin-menu-open {
@@ -433,7 +433,7 @@ onMount(() => {
 	.admin-loading {
 		text-align: center;
 		padding: 4rem;
-		color: var(--text-muted, #666);
+		color: var(--text-muted);
 	}
 
 	.admin-checking {
@@ -441,7 +441,7 @@ onMount(() => {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--text-muted, #666);
+		color: var(--text-muted);
 	}
 	.admin-login-wrap {
 		min-height: 90vh;
@@ -452,19 +452,19 @@ onMount(() => {
 		gap: 0.5rem;
 	}
 	.login-hint {
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 		font-size: 0.85rem;
 		margin: 0;
 	}
 	.admin-error {
 		padding: 2rem;
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 	}
 	.btn {
 		display: inline-block;
 		padding: 0.5rem 1rem;
-		background: var(--primary, #5b8cff);
-		color: var(--on-accent, #fff);
+		background: var(--primary);
+		color: var(--on-accent);
 		border-radius: 0.5rem;
 		text-decoration: none;
 	}

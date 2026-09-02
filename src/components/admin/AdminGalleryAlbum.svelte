@@ -418,22 +418,22 @@ onMount(load);
 		flex-wrap: wrap;
 	}
 	.msg {
-		color: var(--success, #16a34a);
+		color: var(--success);
 		font-size: 0.85rem;
 	}
 	.btn {
 		padding: 0.5rem 0.9rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		text-decoration: none;
 		font-size: 0.9rem;
-		color: var(--deep-text, #374151);
-		background: var(--card-bg, #fff);
+		color: var(--deep-text);
+		background: var(--card-bg);
 	}
 	.btn-danger {
 		padding: 0.5rem 0.9rem;
-		background: var(--danger, #dc2626);
-		color: var(--on-accent, #fff);
+		background: var(--danger);
+		color: var(--on-accent);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -454,16 +454,16 @@ onMount(load);
 	}
 	.field-label {
 		font-size: 0.82rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 	.field-input {
 		width: 100%;
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, #374151);
+		background: var(--card-bg);
+		color: var(--deep-text);
 		box-sizing: border-box;
 	}
 	textarea.field-input {
@@ -475,13 +475,13 @@ onMount(load);
 	.password-box {
 		margin-bottom: 1rem;
 		padding: 0.75rem 1rem;
-		border: 1px dashed var(--line-divider, #d1d5db);
-		border-radius: var(--radius-large, 0.75rem);
+		border: 1px dashed var(--line-divider);
+		border-radius: var(--radius-large);
 	}
 	.password-label {
 		display: block;
 		font-size: 0.85rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		margin-bottom: 0.5rem;
 	}
 	.password-row {
@@ -501,7 +501,7 @@ onMount(load);
 	.dir-divider {
 		width: 1px;
 		height: 1.4rem;
-		background: var(--line-divider, #e5e7eb);
+		background: var(--line-divider);
 		margin: 0 0.2rem;
 	}
 	.thumb-grid {
@@ -515,8 +515,8 @@ onMount(load);
 		aspect-ratio: 1;
 		border-radius: 0.3rem;
 		overflow: hidden;
-		background: var(--btn-regular-bg, #f3f4f6);
-		border: 1px solid var(--line-color, #e5e7eb);
+		background: var(--btn-regular-bg);
+		border: 1px solid var(--line-color);
 	}
 	.thumb img {
 		width: 100%;
@@ -535,18 +535,18 @@ onMount(load);
 		border-radius: 3px;
 	}
 	.imgbed-info {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		font-size: 0.85rem;
 	}
 	.link {
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 		text-decoration: underline;
 	}
 	.password-msg {
 		display: block;
 		margin-top: 0.5rem;
 		font-size: 0.82rem;
-		color: var(--success, #16a34a);
+		color: var(--success);
 	}
 
 	@media (max-width: 767px) {

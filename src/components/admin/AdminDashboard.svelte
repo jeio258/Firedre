@@ -139,15 +139,15 @@ onMount(async () => {
 
 <style>
 	.admin-card {
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
-		border-radius: var(--radius-large, 0.75rem);
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: var(--radius-large);
 		padding: 1.5rem;
 	}
 	h2 {
 		font-size: 1.15rem;
 		margin: 0 0 1.25rem;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 	.stats {
 		display: grid;
@@ -156,7 +156,7 @@ onMount(async () => {
 		margin-bottom: 1.5rem;
 	}
 	.stat {
-		background: var(--btn-regular-bg, #f9fafb);
+		background: var(--btn-regular-bg);
 		border-radius: 0.6rem;
 		padding: 1.25rem;
 		text-align: center;
@@ -164,11 +164,11 @@ onMount(async () => {
 	.num {
 		font-size: 1.75rem;
 		font-weight: 700;
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 	}
 	.label {
 		font-size: 0.85rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		margin-top: 0.3rem;
 	}
 	.links {
@@ -178,33 +178,33 @@ onMount(async () => {
 	}
 	.links a {
 		padding: 0.5rem 1rem;
-		background: var(--btn-regular-bg, #f9fafb);
-		border: 1px solid var(--line-divider, #e5e7eb);
+		background: var(--btn-regular-bg);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.5rem;
 		text-decoration: none;
-		color: var(--deep-text, #374151);
+		color: var(--deep-text);
 		font-size: 0.9rem;
 	}
 	.links a:hover {
-		border-color: var(--primary, #5b8cff);
-		color: var(--primary, #5b8cff);
+		border-color: var(--primary);
+		color: var(--primary);
 	}
 	.hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 	.account-block {
 		margin-top: 2rem;
-		border-top: 1px solid var(--line-divider, #e5e7eb);
+		border-top: 1px solid var(--line-divider);
 		padding-top: 1.25rem;
 	}
 	.account-block h3 {
 		font-size: 1rem;
 		margin: 0 0 0.5rem;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 	.account-name {
 		font-size: 0.9rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		margin: 0 0 0.75rem;
 	}
 	.pwd-row {
@@ -214,17 +214,17 @@ onMount(async () => {
 	}
 	.pwd-row input {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-divider, #e5e7eb);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.4rem;
 		background: transparent;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 		font-size: 0.9rem;
 		width: 220px;
 	}
 	.pwd-row button {
 		padding: 0.5rem 0.9rem;
-		background: var(--primary, #5b8cff);
-		color: var(--on-accent, #fff);
+		background: var(--primary);
+		color: var(--on-accent);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -233,12 +233,12 @@ onMount(async () => {
 		opacity: 0.6;
 	}
 	.ok {
-		color: var(--success, #16a34a);
+		color: var(--success);
 		font-size: 0.85rem;
 		margin: 0.25rem 0 0.5rem;
 	}
 	.err {
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 		font-size: 0.85rem;
 		margin: 0.25rem 0 0.5rem;
 	}

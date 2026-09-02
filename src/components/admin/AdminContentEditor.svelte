@@ -107,7 +107,7 @@ onMount(load);
 		margin-bottom: 0.5rem;
 	}
 	.hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		font-size: 0.82rem;
 		margin: 0 0 1rem;
 	}

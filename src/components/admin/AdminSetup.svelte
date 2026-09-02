@@ -113,8 +113,8 @@ onMount(() => {
 	.setup-card {
 		width: 100%;
 		max-width: 360px;
-		background: var(--card-bg, #fff);
-		border: 1px solid var(--line-divider, #e5e7eb);
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
 		border-radius: 1rem;
 		padding: 2rem;
 		box-shadow: 0 10px 30px rgb(0 0 0 / 0.06);
@@ -126,7 +126,7 @@ onMount(() => {
 	}
 	.sub {
 		font-size: 0.85rem;
-		color: var(--text-muted, #666);
+		color: var(--text-muted);
 		text-align: center;
 		margin: 0 0 1.5rem;
 	}
@@ -140,20 +140,20 @@ onMount(() => {
 		flex-direction: column;
 		gap: 0.35rem;
 		font-size: 0.85rem;
-		color: var(--text-muted, #666);
+		color: var(--text-muted);
 	}
 	input {
 		padding: 0.6rem 0.8rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.5rem;
 		font-size: 0.95rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	button {
 		padding: 0.7rem;
-		background: var(--primary, #5b8cff);
-		color: var(--on-accent, #fff);
+		background: var(--primary);
+		color: var(--on-accent);
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;
@@ -164,7 +164,7 @@ onMount(() => {
 	}
 	.error {
 		background: rgb(239 68 68 / 0.08);
-		color: var(--danger, #b91c1c);
+		color: var(--danger);
 		border: 1px solid rgb(239 68 68 / 0.3);
 		border-radius: 0.5rem;
 		padding: 0.6rem;
@@ -172,10 +172,10 @@ onMount(() => {
 		margin-bottom: 1rem;
 	}
 	.hint {
-		color: var(--text-muted, #666);
+		color: var(--text-muted);
 		text-align: center;
 	}
 	.hint a {
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 	}
 </style>

@@ -36,11 +36,11 @@ const defaultMode =
 	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
 	<style define:vars={{ configHue }}>
 		html{--hue:var(--configHue)}
-		html,body{margin:0;padding:0;background:var(--page-bg,#f6f7fb);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text,#1f2937);-webkit-text-size-adjust:100%}
+		html,body{margin:0;padding:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text);-webkit-text-size-adjust:100%}
 		*{box-sizing:border-box}
 	</style>
 </head>
-<body style="margin:0;background:var(--page-bg,#f3f4f6);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+<body style="margin:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
 	<AdminSetup client:load />
 </body>
 </html>

@@ -101,7 +101,7 @@
 	}
 	.friend-desc {
 		font-size: 0.85rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -109,7 +109,7 @@
 	}
 	.friend-url {
 		font-size: 0.75rem;
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -124,8 +124,8 @@
 	.tag {
 		font-size: 0.7rem;
 		padding: 0.1rem 0.5rem;
-		background: var(--btn-regular-bg, rgba(128, 128, 128, 0.15));
+		background: var(--btn-regular-bg);
 		border-radius: 0.3rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 </style>

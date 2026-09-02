@@ -214,32 +214,32 @@ onMount(load);
 
 <style>
 	.hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		font-size: 0.85rem;
 	}
 	.btn-ghost {
-		background: var(--btn-regular-bg, #f9fafb);
-		border: 1px solid var(--line-divider, #e5e7eb);
+		background: var(--btn-regular-bg);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.4rem;
 		padding: 0.4rem 0.8rem;
 		font-size: 0.85rem;
 		cursor: pointer;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 	.danger {
 		background: none;
 		border: none;
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 		cursor: pointer;
 		font-size: 0.85rem;
 		padding: 0.2rem 0.4rem;
 	}
 	.form {
-		border: 1px solid var(--line-divider, #e5e7eb);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.5rem;
 		padding: 1rem;
 		margin-bottom: 1.25rem;
-		background: var(--btn-regular-bg, #fafbfc);
+		background: var(--btn-regular-bg);
 	}
 	.form-head {
 		display: flex;
@@ -257,7 +257,7 @@ onMount(load);
 		gap: 0.3rem;
 		margin-bottom: 0.8rem;
 		font-size: 0.85rem;
-		color: var(--text-muted, #555);
+		color: var(--text-muted);
 	}
 	.field.check {
 		flex-direction: row;
@@ -267,13 +267,13 @@ onMount(load);
 	.field textarea,
 	.field input {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
 		font-family: inherit;
 		resize: vertical;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	.form-actions {
 		display: flex;
@@ -292,7 +292,7 @@ onMount(load);
 		align-items: center;
 		justify-content: space-between;
 		gap: 0.8rem;
-		border: 1px solid var(--line-divider, #e5e7eb);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.5rem;
 		padding: 0.7rem 0.9rem;
 	}
@@ -304,24 +304,24 @@ onMount(load);
 		margin: 0 0 0.3rem;
 		font-size: 0.9rem;
 		word-break: break-word;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 	.meta {
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
 		font-size: 0.78rem;
-		color: var(--text-muted, #9ca3af);
+		color: var(--text-muted);
 	}
 	.badge {
 		background: rgb(250 204 21 / 0.15);
-		color: var(--warning, #92400e);
+		color: var(--warning);
 		border-radius: 0.3rem;
 		padding: 0.05rem 0.4rem;
 		font-size: 0.72rem;
 	}
 	.loc {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 	.row-actions {
 		display: flex;

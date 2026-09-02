@@ -173,7 +173,7 @@ onMount(load);
 		gap: 0.5rem;
 	}
 	.sort-hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		font-size: 0.82rem;
 		margin: 0.2rem 0 0.4rem;
 	}
@@ -192,11 +192,11 @@ onMount(load);
 	}
 	input {
 		padding: 0.45rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	.btn-primary {
 		padding: 0.45rem 0.9rem;
@@ -210,21 +210,21 @@ onMount(load);
 	td {
 		text-align: left;
 		padding: 0.5rem 0.6rem;
-		border-bottom: 1px solid var(--line-divider, #f3f4f6);
+		border-bottom: 1px solid var(--line-divider);
 	}
 	.drag-col {
 		width: 2rem;
 	}
 	.drag-handle {
 		cursor: grab;
-		color: var(--muted, #9ca3af);
+		color: var(--muted);
 		font-size: 1.1rem;
 		user-select: none;
 		display: inline-block;
 	}
 	tr.dragging {
 		opacity: 0.6;
-		background: var(--line-divider, #f9fafb);
+		background: var(--line-divider);
 	}
 	img {
 		border-radius: 0.35rem;
@@ -237,11 +237,11 @@ onMount(load);
 		font-size: 0.82rem;
 	}
 	.tag {
-		background: var(--btn-regular-bg, #f3f4f6);
+		background: var(--btn-regular-bg);
 		border-radius: 0.3rem;
 		padding: 0.1rem 0.4rem;
 		font-size: 0.72rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		margin-right: 0.3rem;
 	}
 	.ops {
@@ -249,19 +249,19 @@ onMount(load);
 		gap: 0.6rem;
 	}
 	.ops a {
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 		text-decoration: none;
 	}
 	.danger {
 		background: none;
 		border: none;
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0;
 	}
 	.hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		padding: 1rem 0;
 	}
 </style>

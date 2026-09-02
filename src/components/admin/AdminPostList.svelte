@@ -130,11 +130,11 @@ $: filtered = posts.filter(
 	}
 	input {
 		padding: 0.45rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	.btn {
 		padding: 0.45rem 0.8rem;
@@ -143,8 +143,8 @@ $: filtered = posts.filter(
 		font-size: 0.9rem;
 	}
 	.btn-primary {
-		background: var(--primary, #5b8cff);
-		color: var(--on-accent, #fff);
+		background: var(--primary);
+		color: var(--on-accent);
 	}
 	table {
 		width: 100%;
@@ -155,49 +155,49 @@ $: filtered = posts.filter(
 	td {
 		text-align: left;
 		padding: 0.55rem 0.6rem;
-		border-bottom: 1px solid var(--line-divider, #f3f4f6);
+		border-bottom: 1px solid var(--line-divider);
 	}
 	th {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		font-weight: 600;
 		font-size: 0.8rem;
 	}
 	td {
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 	}
 	.mono {
 		font-family: ui-monospace, monospace;
 		font-size: 0.82rem;
 	}
 	.tag {
-		background: var(--btn-regular-bg, #f3f4f6);
+		background: var(--btn-regular-bg);
 		border-radius: 0.3rem;
 		padding: 0.1rem 0.4rem;
 		font-size: 0.72rem;
 		margin-left: 0.35rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 	.ops {
 		display: flex;
 		gap: 0.6rem;
 	}
 	.ops a {
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 		text-decoration: none;
 	}
 	.danger {
 		background: none;
 		border: none;
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0;
 	}
 	.hint {
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		padding: 1rem 0;
 	}
 	.hint.error {
-		color: var(--danger, #dc2626);
+		color: var(--danger);
 	}
 </style>

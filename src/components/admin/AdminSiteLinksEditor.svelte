@@ -142,9 +142,9 @@
 		gap: 0.4rem;
 		padding: 0.8rem;
 		margin-bottom: 1rem;
-		border: 1px solid var(--line-divider, #e5e7eb);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.5rem;
-		background: var(--btn-regular-bg, rgba(128, 128, 128, 0.04));
+		background: var(--btn-regular-bg);
 	}
 	.site-url-head {
 		display: flex;
@@ -155,15 +155,15 @@
 	}
 	.site-url-block input {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-divider, #e5e7eb);
+		border: 1px solid var(--line-divider);
 		border-radius: 0.35rem;
 		background: transparent;
-		color: var(--deep-text, inherit);
+		color: var(--deep-text);
 		font-size: 0.9rem;
 	}
 	.url-msg {
 		font-size: 0.8rem;
-		color: var(--success, #16a34a);
+		color: var(--success);
 	}
 	.link-info {
 		min-width: 0;
@@ -176,11 +176,11 @@
 	}
 	.link-loc {
 		font-size: 0.78rem;
-		color: var(--primary, #5b8cff);
+		color: var(--primary);
 	}
 	.link-url {
 		font-size: 0.75rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -188,6 +188,6 @@
 	}
 	.link-icon {
 		font-size: 0.72rem;
-		color: var(--muted, #6b7280);
+		color: var(--muted);
 	}
 </style>

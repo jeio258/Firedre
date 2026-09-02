@@ -89,16 +89,16 @@ onMount(load);
 		gap: 0.3rem;
 		margin-bottom: 1rem;
 		font-size: 0.85rem;
-		color: var(--text-muted, #555);
+		color: var(--text-muted);
 	}
 	input,
 	textarea {
 		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color, #d1d5db);
+		border: 1px solid var(--line-color);
 		border-radius: 0.4rem;
 		font-size: 0.9rem;
-		background: var(--card-bg, #fff);
-		color: var(--deep-text, inherit);
+		background: var(--card-bg);
+		color: var(--deep-text);
 	}
 	textarea {
 		min-height: 160px;

@@ -1,20 +1,20 @@
 
 
 .admin-shell {
-	--muted: var(--text-muted, #6b7280);
+	--muted: var(--text-muted);
 }
 
 .admin-card {
-	background: var(--card-bg, #fff);
-	border: 1px solid var(--line-divider, #e5e7eb);
-	border-radius: var(--radius-large, 0.75rem);
+	background: var(--card-bg);
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large);
 	padding: 1.25rem;
 }
 
 .admin-shell h2 {
 	font-size: 1.1rem;
 	margin: 0;
-	color: var(--deep-text, inherit);
+	color: var(--deep-text);
 }
 .admin-shell .toolbar {
 	display: flex;
@@ -43,13 +43,13 @@
 	}
 }
 .admin-shell .msg {
-	color: var(--success, #16a34a);
+	color: var(--success);
 	font-size: 0.85rem;
 }
 .admin-shell .btn-primary {
 	padding: 0.5rem 0.9rem;
-	background: var(--primary, #5b8cff);
-	color: var(--on-accent, #fff);
+	background: var(--primary);
+	color: var(--on-accent);
 	border: none;
 	border-radius: 0.4rem;
 	cursor: pointer;
@@ -59,28 +59,28 @@
 }
 
 .admin-shell .hint {
-	color: var(--muted, #6b7280);
+	color: var(--muted);
 	font-size: 0.85rem;
 }
 .admin-shell .btn-ghost {
 	padding: 0.4rem 0.7rem;
 	background: transparent;
-	border: 1px solid var(--line-divider, #e5e7eb);
+	border: 1px solid var(--line-divider);
 	border-radius: 0.35rem;
 	cursor: pointer;
-	color: var(--deep-text, inherit);
+	color: var(--deep-text);
 }
 .admin-shell .danger {
 	padding: 0.4rem 0.7rem;
 	background: transparent;
-	border: 1px solid var(--danger, #ef4444);
-	color: var(--danger, #ef4444);
+	border: 1px solid var(--danger);
+	color: var(--danger);
 	border-radius: 0.35rem;
 	cursor: pointer;
 }
 .admin-shell .danger:hover {
-	background: var(--danger, #ef4444);
-	color: var(--on-accent, #fff);
+	background: var(--danger);
+	color: var(--on-accent);
 }
 .admin-shell .form {
 	display: flex;
@@ -103,16 +103,16 @@
 	flex-direction: column;
 	gap: 0.3rem;
 	font-size: 0.85rem;
-	color: var(--muted, #6b7280);
+	color: var(--muted);
 }
 .admin-shell .field input[type="text"],
 .admin-shell .field input[type="number"],
 .admin-shell .field select {
 	padding: 0.5rem 0.7rem;
-	border: 1px solid var(--line-divider, #e5e7eb);
+	border: 1px solid var(--line-divider);
 	border-radius: 0.35rem;
 	background: transparent;
-	color: var(--deep-text, inherit);
+	color: var(--deep-text);
 	font-size: 0.9rem;
 }
 .admin-shell .field.check {
@@ -139,7 +139,7 @@
 	justify-content: space-between;
 	gap: 0.8rem;
 	padding: 0.8rem;
-	border: 1px solid var(--line-divider, #e5e7eb);
+	border: 1px solid var(--line-divider);
 	border-radius: 0.5rem;
 }
 .admin-shell .row-main {
@@ -149,12 +149,12 @@
 	font-size: 0.7rem;
 	padding: 0.1rem 0.4rem;
 	border-radius: 0.3rem;
-	background: var(--success, #16a34a);
-	color: var(--on-accent, #fff);
+	background: var(--success);
+	color: var(--on-accent);
 }
 .admin-shell .badge.muted {
-	background: var(--btn-regular-bg, rgba(128, 128, 128, 0.25));
-	color: var(--muted, #6b7280);
+	background: var(--btn-regular-bg);
+	color: var(--muted);
 }
 .admin-shell .row-actions {
 	display: flex;
