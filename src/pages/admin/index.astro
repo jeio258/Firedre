@@ -8,11 +8,29 @@ import "@/styles/variables.styl";
 const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
 	?.settings ?? {};
 const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
+const defaultMode =
+	((settings as unknown as Record<string, unknown>)?.defaultMode as string) ??
+	"light";
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
+	<script is:inline define:vars={{ configHue, defaultMode }}>
+		// 主题初始化：复用前端深浅模式（localStorage["theme"] / 系统偏好）
+		(function () {
+			try {
+				const theme = localStorage.getItem("theme") || defaultMode;
+				const isDark =
+					theme === "dark" ||
+					(theme === "system" &&
+						window.matchMedia("(prefers-color-scheme: dark)").matches);
+				document.documentElement.classList.toggle("dark", isDark);
+				const hue = localStorage.getItem("hue") || configHue;
+				document.documentElement.style.setProperty("--hue", hue);
+			} catch (e) {}
+		})();
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
 
@@ -29,7 +47,7 @@ const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
 		.admin-sidebar nav a{display:block;color:#cbd5e1;text-decoration:none;padding:0.5rem 0.75rem;border-radius:0.375rem}
 		.admin-main{flex:1;padding:1.5rem;min-width:0}
 		.admin-card{background:var(--card-bg,#fff);border:1px solid var(--line-divider,#e5e7eb);border-radius:var(--radius-large,0.75rem);padding:1.25rem}
-		.admin-loading,.admin-error{padding:2rem;text-align:center;color:#6b7280}
+		.admin-loading,.admin-error{padding:2rem;text-align:center;color:var(--content-meta,#6b7280)}
 	</style>
 </head>
 <body style="margin:0;background:var(--page-bg,#f3f4f6);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">

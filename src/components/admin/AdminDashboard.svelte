@@ -224,7 +224,7 @@ onMount(async () => {
 	.pwd-row button {
 		padding: 0.5rem 0.9rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -233,12 +233,12 @@ onMount(async () => {
 		opacity: 0.6;
 	}
 	.ok {
-		color: #16a34a;
+		color: var(--success, #16a34a);
 		font-size: 0.85rem;
 		margin: 0.25rem 0 0.5rem;
 	}
 	.err {
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		font-size: 0.85rem;
 		margin: 0.25rem 0 0.5rem;
 	}

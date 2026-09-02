@@ -229,7 +229,7 @@ onMount(load);
 	.danger {
 		background: none;
 		border: none;
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		cursor: pointer;
 		font-size: 0.85rem;
 		padding: 0.2rem 0.4rem;
@@ -311,11 +311,11 @@ onMount(load);
 		align-items: center;
 		gap: 0.6rem;
 		font-size: 0.78rem;
-		color: #9ca3af;
+		color: var(--text-muted, #9ca3af);
 	}
 	.badge {
-		background: #fef3c7;
-		color: #92400e;
+		background: rgb(250 204 21 / 0.15);
+		color: var(--warning, #92400e);
 		border-radius: 0.3rem;
 		padding: 0.05rem 0.4rem;
 		font-size: 0.72rem;

@@ -144,7 +144,7 @@ $: filtered = posts.filter(
 	}
 	.btn-primary {
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 	}
 	table {
 		width: 100%;
@@ -188,7 +188,7 @@ $: filtered = posts.filter(
 	.danger {
 		background: none;
 		border: none;
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0;
@@ -198,6 +198,6 @@ $: filtered = posts.filter(
 		padding: 1rem 0;
 	}
 	.hint.error {
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 	}
 </style>

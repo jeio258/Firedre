@@ -8,11 +8,29 @@ import "@/styles/variables.styl";
 const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
 	?.settings ?? {};
 const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
+const defaultMode =
+	((settings as unknown as Record<string, unknown>)?.defaultMode) as string ??
+	"light";
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
+	<script is:inline define:vars={{ configHue, defaultMode }}>
+		// 主题初始化：复用前端深浅模式（localStorage["theme"] / 系统偏好）
+		(function () {
+			try {
+				const theme = localStorage.getItem("theme") || defaultMode;
+				const isDark =
+					theme === "dark" ||
+					(theme === "system" &&
+						window.matchMedia("(prefers-color-scheme: dark)").matches);
+				document.documentElement.classList.toggle("dark", isDark);
+				const hue = localStorage.getItem("hue") || configHue;
+				document.documentElement.style.setProperty("--hue", hue);
+			} catch (e) {}
+		})();
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Firedre 后台</title>
 

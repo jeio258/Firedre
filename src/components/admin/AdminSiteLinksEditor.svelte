@@ -144,7 +144,7 @@
 		margin-bottom: 1rem;
 		border: 1px solid var(--line-divider, #e5e7eb);
 		border-radius: 0.5rem;
-		background: rgba(128, 128, 128, 0.04);
+		background: var(--btn-regular-bg, rgba(128, 128, 128, 0.04));
 	}
 	.site-url-head {
 		display: flex;
@@ -163,7 +163,7 @@
 	}
 	.url-msg {
 		font-size: 0.8rem;
-		color: #16a34a;
+		color: var(--success, #16a34a);
 	}
 	.link-info {
 		min-width: 0;

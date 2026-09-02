@@ -831,13 +831,10 @@ function applyHueToAdmin(hue: unknown) {
 	if (hue == null || hue === "") return;
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
-	const root = document.documentElement;
-	root.style.setProperty("--hue", String(h));
-	root.style.setProperty("--primary", `oklch(0.70 0.14 ${h})`);
-	root.style.setProperty("--page-bg", `oklch(0.95 0.01 ${h})`);
-	root.style.setProperty("--deep-text", `oklch(0.25 0.02 ${h})`);
-	root.style.setProperty("--text-1", `oklch(0.25 0.02 ${h})`);
-	document.body.style.background = `oklch(0.95 0.01 ${h})`;
+	// 仅设 --hue，其余派生色（primary/page-bg/deep-text 等）由 CSS 变量按明暗自动取值
+	document.documentElement.style.setProperty("--hue", String(h));
+	document.body.style.background =
+		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
 }
 
 onMount(load);
@@ -1008,7 +1005,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	}
 	.nav-item.active {
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 		font-weight: 600;
 	}
 	.settings-main {
@@ -1046,7 +1043,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.btn-save {
 		padding: 0.55rem 1.1rem;
 		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
-		color: #fff;
+		color: var(--on-accent, #fff);
 		border: none;
 		border-radius: 0.55rem;
 		font-size: 0.9rem;
@@ -1071,9 +1068,9 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.load-error {
 		padding: 2rem;
 		text-align: center;
-		color: #dc2626;
-		background: #fef2f2;
-		border: 1px solid #fecaca;
+		color: var(--danger, #dc2626);
+		background: rgb(239 68 68 / 0.08);
+		border: 1px solid rgb(239 68 68 / 0.3);
 		border-radius: 0.75rem;
 	}
 	.card {
@@ -1183,7 +1180,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 	.btn-del {
 		background: none;
 		border: none;
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		cursor: pointer;
 		font-size: 1.05rem;
 		padding: 0 0.4rem;

@@ -290,7 +290,7 @@ onMount(load);
 	.btn-primary {
 		composes: btn;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 		border-color: var(--primary, #5b8cff);
 	}
 	.form-grid {

@@ -153,7 +153,7 @@ onMount(() => {
 	button {
 		padding: 0.7rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 		border: none;
 		border-radius: 0.5rem;
 		font-size: 1rem;
@@ -163,16 +163,16 @@ onMount(() => {
 		opacity: 0.6;
 	}
 	.error {
-		background: #fef2f2;
-		color: #b91c1c;
-		border: 1px solid #fecaca;
+		background: rgb(239 68 68 / 0.08);
+		color: var(--danger, #b91c1c);
+		border: 1px solid rgb(239 68 68 / 0.3);
 		border-radius: 0.5rem;
 		padding: 0.6rem;
 		font-size: 0.85rem;
 		margin-bottom: 1rem;
 	}
 	.hint {
-		color: var(--muted-text, #666);
+		color: var(--text-muted, #666);
 		text-align: center;
 	}
 	.hint a {

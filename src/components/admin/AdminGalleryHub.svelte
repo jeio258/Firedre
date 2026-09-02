@@ -255,7 +255,7 @@ onMount(load);
 	.danger {
 		background: none;
 		border: none;
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		cursor: pointer;
 		font-size: 0.9rem;
 		padding: 0;

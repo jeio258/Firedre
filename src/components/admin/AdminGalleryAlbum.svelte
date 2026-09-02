@@ -418,7 +418,7 @@ onMount(load);
 		flex-wrap: wrap;
 	}
 	.msg {
-		color: #16a34a;
+		color: var(--success, #16a34a);
 		font-size: 0.85rem;
 	}
 	.btn {
@@ -432,8 +432,8 @@ onMount(load);
 	}
 	.btn-danger {
 		padding: 0.5rem 0.9rem;
-		background: #dc2626;
-		color: #fff;
+		background: var(--danger, #dc2626);
+		color: var(--on-accent, #fff);
 		border: none;
 		border-radius: 0.4rem;
 		cursor: pointer;
@@ -515,7 +515,7 @@ onMount(load);
 		aspect-ratio: 1;
 		border-radius: 0.3rem;
 		overflow: hidden;
-		background: #f3f4f6;
+		background: var(--btn-regular-bg, #f3f4f6);
 		border: 1px solid var(--line-color, #e5e7eb);
 	}
 	.thumb img {
@@ -546,7 +546,7 @@ onMount(load);
 		display: block;
 		margin-top: 0.5rem;
 		font-size: 0.82rem;
-		color: #16a34a;
+		color: var(--success, #16a34a);
 	}
 
 	@media (max-width: 767px) {

@@ -1,7 +1,7 @@
 
 
 .admin-shell {
-	--muted: oklch(0.5 0.025 var(--hue));
+	--muted: var(--text-muted, #6b7280);
 }
 
 .admin-card {
@@ -43,13 +43,13 @@
 	}
 }
 .admin-shell .msg {
-	color: #16a34a;
+	color: var(--success, #16a34a);
 	font-size: 0.85rem;
 }
 .admin-shell .btn-primary {
 	padding: 0.5rem 0.9rem;
 	background: var(--primary, #5b8cff);
-	color: #fff;
+	color: var(--on-accent, #fff);
 	border: none;
 	border-radius: 0.4rem;
 	cursor: pointer;
@@ -73,14 +73,14 @@
 .admin-shell .danger {
 	padding: 0.4rem 0.7rem;
 	background: transparent;
-	border: 1px solid #ef4444;
-	color: #ef4444;
+	border: 1px solid var(--danger, #ef4444);
+	color: var(--danger, #ef4444);
 	border-radius: 0.35rem;
 	cursor: pointer;
 }
 .admin-shell .danger:hover {
-	background: #ef4444;
-	color: #fff;
+	background: var(--danger, #ef4444);
+	color: var(--on-accent, #fff);
 }
 .admin-shell .form {
 	display: flex;
@@ -149,11 +149,11 @@
 	font-size: 0.7rem;
 	padding: 0.1rem 0.4rem;
 	border-radius: 0.3rem;
-	background: #16a34a;
-	color: #fff;
+	background: var(--success, #16a34a);
+	color: var(--on-accent, #fff);
 }
 .admin-shell .badge.muted {
-	background: rgba(128, 128, 128, 0.25);
+	background: var(--btn-regular-bg, rgba(128, 128, 128, 0.25));
 	color: var(--muted, #6b7280);
 }
 .admin-shell .row-actions {

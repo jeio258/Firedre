@@ -124,8 +124,7 @@
 	.tag {
 		font-size: 0.7rem;
 		padding: 0.1rem 0.5rem;
-		background: var(--muted, #6b7280);
-		background: rgba(128, 128, 128, 0.15);
+		background: var(--btn-regular-bg, rgba(128, 128, 128, 0.15));
 		border-radius: 0.3rem;
 		color: var(--muted, #6b7280);
 	}

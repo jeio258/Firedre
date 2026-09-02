@@ -330,7 +330,7 @@ onMount(() => {
 		transform: translateX(2px);
 	}
 	.admin-sidebar nav a.active {
-		color: #fff;
+		color: var(--on-accent, #fff);
 		background: linear-gradient(135deg, var(--primary, #5b8cff), var(--title-active, #8b5cf6));
 		box-shadow: 0 2px 10px rgb(91 140 255 / 0.4);
 		font-weight: 600;
@@ -433,7 +433,7 @@ onMount(() => {
 	.admin-loading {
 		text-align: center;
 		padding: 4rem;
-		color: var(--muted-text, #666);
+		color: var(--text-muted, #666);
 	}
 
 	.admin-checking {
@@ -441,7 +441,7 @@ onMount(() => {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--muted-text, #666);
+		color: var(--text-muted, #666);
 	}
 	.admin-login-wrap {
 		min-height: 90vh;
@@ -452,19 +452,19 @@ onMount(() => {
 		gap: 0.5rem;
 	}
 	.login-hint {
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 		font-size: 0.85rem;
 		margin: 0;
 	}
 	.admin-error {
 		padding: 2rem;
-		color: #dc2626;
+		color: var(--danger, #dc2626);
 	}
 	.btn {
 		display: inline-block;
 		padding: 0.5rem 1rem;
 		background: var(--primary, #5b8cff);
-		color: #fff;
+		color: var(--on-accent, #fff);
 		border-radius: 0.5rem;
 		text-decoration: none;
 	}
