@@ -48,10 +48,23 @@ export function getCategoryUrl(category: string | null): string {
 	if (
 		!category ||
 		category.trim() === "" ||
+		category.trim().toLowerCase() === "uncategorized" ||
 		category.trim().toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
 	)
 		return url("/archive/?uncategorized=true");
 	return url(`/archive/?category=${encodeURIComponent(category.trim())}`);
+}
+
+// 分类显示名：存储值 "Uncategorized" 本地化为站点语言
+export function getCategoryDisplayName(name: string): string {
+	const t = name.trim();
+	if (
+		!t ||
+		t.toLowerCase() === "uncategorized" ||
+		t.toLowerCase() === i18n(I18nKey.uncategorized).toLowerCase()
+	)
+		return i18n(I18nKey.uncategorized);
+	return t;
 }
 
 export function getSearchUrl(query: string): string {

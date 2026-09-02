@@ -4,6 +4,7 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getCategoryList } from "@/utils/content-utils";
+import { getCategoryDisplayName } from "@/utils/url-utils";
 
 const categories = await getCategoryList();
 const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
@@ -35,8 +36,8 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
                         />
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h2 class="text-lg font-bold text-90 truncate group-hover:text-(--primary) transition-colors" title={category.name}>
-                            {category.name}
+                        <h2 class="text-lg font-bold text-90 truncate group-hover:text-(--primary) transition-colors" title={getCategoryDisplayName(category.name)}>
+                            {getCategoryDisplayName(category.name)}
                         </h2>
                         <p class="text-sm text-30 mt-1 group-hover:text-(--primary)/60 transition-colors">
                             {category.count} {i18n(I18nKey.postsCount)}

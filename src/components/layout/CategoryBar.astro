@@ -3,7 +3,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { Icon } from "astro-icon/components";
 import { getCategoryList, getSortedPostsList } from "@/utils/content-utils";
-import { url } from "@/utils/url-utils";
+import { getCategoryDisplayName, url } from "@/utils/url-utils";
 
 interface Props {
 	currentPostCategory?: string;
@@ -81,7 +81,7 @@ function initialActive(categoryName: string): {
               data-active={active.active ? "" : undefined}
               data-soft-active={active.soft ? "" : undefined}
             >
-              {cat.name}
+              {getCategoryDisplayName(cat.name)}
               <span class="pill-count">{cat.count}</span>
             </a>
             );
@@ -211,6 +211,15 @@ function initialActive(categoryName: string): {
     if (activeCategory) {
       pills.forEach((pill) => {
         if (pill.getAttribute("data-category-name") === activeCategory) {
+          pill.setAttribute("data-active", "");
+        }
+      });
+      return;
+    }
+
+    if (hasUncategorized) {
+      pills.forEach((pill) => {
+        if (pill.getAttribute("data-category-name") === "Uncategorized") {
           pill.setAttribute("data-active", "");
         }
       });
