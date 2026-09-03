@@ -859,16 +859,13 @@ onMount(load);
 						<span>导航栏</span>
 					</div>
 					<div class="settings-ctrl">
-						<div class="switch-wrap">
-							<span class="switch-state">{data["nav"]?.enabled === true ? "显示" : "隐藏"}</span>
-							<button class="switch" class:on={data["nav"]?.enabled === true} title="显示 / 隐藏"
-								on:click={() => {
-									data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
-									markDirty();
-								}}>
-								<span class="knob"></span>
-							</button>
-						</div>
+						<button class="switch" class:on={data["nav"]?.enabled === true} title="显示 / 隐藏"
+							on:click={() => {
+								data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
+								markDirty();
+							}}>
+							<span class="knob"></span>
+						</button>
 					</div>
 				</div>
 
@@ -913,13 +910,10 @@ onMount(load);
 									</div>
 									<div class="settings-ctrl">
 										{#if field.type === "boolean"}
-											<div class="switch-wrap">
-												<span class="switch-state">{data[group.key]?.[field.name] === true ? "开" : "关"}</span>
-												<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
-													on:click={() => cycleBool(group.key, field.name)}>
-													<span class="knob"></span>
-												</button>
-											</div>
+											<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
+												on:click={() => cycleBool(group.key, field.name)}>
+												<span class="knob"></span>
+											</button>
 										{:else if field.type === "textarea" || field.type === "json"}
 											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
 											{#if field.type === "json"}
