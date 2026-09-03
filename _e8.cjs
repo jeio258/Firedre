@@ -1,0 +1,21 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch({ headless: true });
+  const base = 'https://feature-cms-admin-ui.firedre.pages.dev';
+  const c = await b.newContext({ viewport: { width: 1440, height: 1000 } });
+  await c.request.post(base + '/api/admin/login/', { data: { username: 'admin', password: '12345678' } });
+  const p = await c.newPage();
+  await p.goto(base + '/admin/posts/new/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await p.waitForSelector('.vditor', { timeout: 60000 }).catch(() => {});
+  await p.waitForTimeout(3000);
+  const light = await p.evaluate(() => { const r = document.querySelector('.vditor'); return { m: !!r, dark: r ? r.classList.contains('vditor--dark') : null, htmlDark: document.documentElement.classList.contains('dark') }; });
+  console.log('LIGHT', JSON.stringify(light));
+  await p.evaluate(() => localStorage.setItem('theme', 'dark'));
+  await p.reload({ waitUntil: 'domcontentloaded', timeout: 60000 });
+  await p.waitForSelector('.vditor', { timeout: 60000 }).catch(() => {});
+  await p.waitForTimeout(3000);
+  const dark = await p.evaluate(() => { const r = document.querySelector('.vditor'); return { m: !!r, dark: r ? r.classList.contains('vditor--dark') : null, htmlDark: document.documentElement.classList.contains('dark') }; });
+  console.log('DARK', JSON.stringify(dark));
+  await p.screenshot({ path: '/tmp/admin-audit/editor-dark-check.png' });
+  await b.close();
+})();
