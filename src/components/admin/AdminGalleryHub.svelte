@@ -110,7 +110,7 @@
 		<div class="crud-empty">暂无相册，点击「创建相册」开始。</div>
 	{:else}
 		<p class="sort-hint">拖动左侧手柄调整相册显示顺序，松开即保存。</p>
-		<div class="crud-card no-pad">
+		<div class="crud-card no-pad hub-desktop">
 			<div class="table-wrap">
 				<table class="hub-table">
 					<colgroup>
@@ -180,10 +180,92 @@
 				</table>
 			</div>
 		</div>
+
+		<div class="crud-list hub-mobile">
+			{#each albums as album}
+				<div class="crud-row">
+					{#if album.cover}
+						<img class="m-cover" src={album.cover} alt="" />
+					{:else}
+						<span class="m-cover ph"></span>
+					{/if}
+					<div class="crud-row-main">
+						<div class="m-title">
+							{album.title}
+							{#if album.encrypted}
+								<span class="u-chip on">加密</span>
+							{/if}
+							{#if album.source === "webdav"}
+								<span class="u-chip on">WebDAV</span>
+							{/if}
+						</div>
+						<div class="m-meta">
+							<span class="mono">{album.slug}</span>
+							<span>{album.date || "-"}</span>
+							<span>{album.count ?? "-"} 张</span>
+						</div>
+					</div>
+					<div class="crud-row-actions">
+						<a class="btn-ghost" href={`/admin/gallery/${encodeURIComponent(album.slug)}/`}>编辑</a>
+						<button class="btn-danger-text" on:click={() => remove(album.slug)}>删除</button>
+					</div>
+				</div>
+			{/each}
+		</div>
 	{/if}
 </div>
 
 <style>
+	@media (max-width: 767px) {
+		.hub-desktop {
+			display: none;
+		}
+	}
+	@media (min-width: 768px) {
+		.hub-mobile {
+			display: none;
+		}
+	}
+	.hub-mobile .crud-row {
+		align-items: center;
+		gap: 0.75rem;
+	}
+	.m-cover {
+		width: 40px;
+		height: 40px;
+		border-radius: 0.5rem;
+		object-fit: cover;
+		flex-shrink: 0;
+		background: var(--btn-regular-bg);
+	}
+	.m-cover.ph {
+		display: block;
+	}
+	.m-title {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+		flex-wrap: wrap;
+		font-weight: 600;
+		color: var(--deep-text);
+		font-size: 0.92rem;
+	}
+	.m-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 0.3rem;
+		font-size: 0.78rem;
+		color: var(--text-muted);
+		flex-wrap: wrap;
+		min-width: 0;
+	}
+	.m-meta .mono {
+		max-width: 46vw;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 	.sort-hint {
 		color: var(--text-muted);
 		font-size: 0.82rem;
