@@ -1,33 +1,428 @@
-
+/* 后台 cms-admin 结构样式；颜色一律用项目主题变量(var(--primary)/--card-bg 等)并随明暗切换 */
 
 .admin-shell {
-	--muted: var(--text-muted);
+	--radius-large: 0.75rem;
+	--radius-medium: 0.5rem;
+	--shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+		"Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
-.admin-card {
+/* 卡片容器 */
+.admin-shell .card,
+.admin-shell .admin-card,
+.admin-shell .crud-card {
 	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
+	box-shadow: var(--shadow-card);
 	padding: 1.25rem;
 }
 
-.admin-shell h2 {
-	font-size: 1.1rem;
+.admin-shell .crud-page {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.admin-shell .crud-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
+	padding: 1rem 1.25rem;
+	background: var(--card-bg);
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large);
+	box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04);
+}
+.admin-shell .crud-head h2 {
 	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
 	color: var(--deep-text);
+}
+.admin-shell .crud-sub {
+	margin: 0.2rem 0 0;
+	font-size: 0.82rem;
+	color: var(--text-muted);
+}
+.admin-shell .crud-head-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+.admin-shell .crud-msg {
+	font-size: 0.82rem;
+	color: var(--success);
+}
+.admin-shell .crud-empty {
+	background: var(--card-bg);
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large);
+	padding: 3rem 1.5rem;
+	text-align: center;
+	color: var(--text-muted);
+	font-size: 0.88rem;
+}
+.admin-shell .crud-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+.admin-shell .crud-row {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.9rem 1.1rem;
+	background: var(--card-bg);
+	border: 1px solid var(--line-divider);
+	border-radius: var(--radius-large);
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.admin-shell .crud-row:hover {
+	border-color: var(--primary);
+	box-shadow: 0 1px 4px 0 rgb(16 24 40 / 0.06);
+}
+.admin-shell .crud-row-main {
+	flex: 1;
+	min-width: 0;
+}
+.admin-shell .crud-row-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-shrink: 0;
+}
+.admin-shell .crud-form-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid var(--line-divider);
+	margin-bottom: 1rem;
+}
+.admin-shell .crud-form-head h3 {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--deep-text);
+}
+.admin-shell .crud-form {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.9rem 1rem;
+}
+@media (min-width: 640px) {
+	.admin-shell .crud-form {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+.admin-shell .crud-form-actions {
+	margin-top: 1rem;
+	display: flex;
+	gap: 0.6rem;
+	justify-content: flex-end;
+}
+.admin-shell .crud-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	font-size: 0.85rem;
+	color: var(--text-muted);
+}
+.admin-shell .crud-field input,
+.admin-shell .crud-field select,
+.admin-shell .crud-field textarea,
+.admin-shell input.ctrl,
+.admin-shell textarea.ctrl,
+.admin-shell .field-input {
+	padding: 0.55rem 0.75rem;
+	border: 1px solid var(--line-color);
+	border-radius: var(--radius-medium);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	font-size: 0.9rem;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: inherit;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.admin-shell .crud-field input:focus,
+.admin-shell .crud-field select:focus,
+.admin-shell .crud-field textarea:focus,
+.admin-shell input.ctrl:focus,
+.admin-shell textarea.ctrl:focus {
+	outline: none;
+	border-color: var(--primary);
+	box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
+}
+.admin-shell .crud-field textarea,
+.admin-shell textarea.ctrl {
+	min-height: 96px;
+	resize: vertical;
+	line-height: 1.6;
+}
+
+/* 主按钮（实心，项目主色） */
+.admin-shell .btn-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	border-radius: var(--radius-medium);
+	border: 1px solid transparent;
+	background: var(--primary);
+	color: var(--on-accent);
+	cursor: pointer;
+	transition: filter 0.15s, background 0.15s;
+}
+.admin-shell .btn-primary:hover:not(:disabled) {
+	filter: brightness(0.94);
+}
+.admin-shell .btn-primary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.admin-shell .btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	border-radius: var(--radius-medium);
+	border: 1px solid var(--line-color);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	cursor: pointer;
+	transition: background 0.15s;
+}
+.admin-shell .btn-secondary:hover {
+	background: var(--btn-regular-bg);
+}
+
+.admin-shell .btn-danger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	border-radius: var(--radius-medium);
+	border: 1px solid transparent;
+	background: var(--danger);
+	color: var(--on-accent);
+	cursor: pointer;
+}
+.admin-shell .btn-danger:hover {
+	filter: brightness(0.94);
+}
+
+.admin-shell .btn-ghost {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4rem;
+	padding: 0.4rem 0.75rem;
+	font-size: 0.85rem;
+	font-weight: 500;
+	border-radius: var(--radius-medium);
+	border: 1px solid var(--line-color);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	cursor: pointer;
+	transition: background 0.15s, border-color 0.15s;
+}
+.admin-shell .btn-ghost:hover {
+	background: var(--btn-regular-bg);
+	border-color: var(--primary);
+	color: var(--primary);
+}
+
+.admin-shell .btn-text {
+	background: none;
+	border: none;
+	color: var(--text-muted);
+	font-size: 0.875rem;
+	cursor: pointer;
+	padding: 0.4rem 0.6rem;
+}
+.admin-shell .btn-text:hover {
+	color: var(--danger);
+}
+
+.admin-shell .btn-danger-text {
+	background: none;
+	border: none;
+	color: var(--danger);
+	font-size: 0.85rem;
+	cursor: pointer;
+	padding: 0.4rem 0.5rem;
+}
+.admin-shell .btn-danger-text:hover {
+	color: var(--danger);
+	text-decoration: underline;
+}
+
+/* 徽标 */
+.admin-shell .u-chip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0.15rem 0.55rem;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 500;
+	line-height: 1.4;
+}
+
+/* ====================== 共享 Switch + ToggleGrid ====================== */
+.admin-shell .switch {
+	width: 44px;
+	height: 24px;
+	border-radius: 999px;
+	border: none;
+	background: #cbd5e1;
+	position: relative;
+	cursor: pointer;
+	transition: background 0.2s;
+	flex-shrink: 0;
+	padding: 0;
+}
+.admin-shell .switch.on {
+	background: var(--primary);
+}
+.admin-shell .switch:active {
+	transform: scale(0.95);
+}
+.admin-shell .switch .knob,
+.admin-shell .knob {
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: #ffffff;
+	box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+	transition: left 0.2s;
+}
+.admin-shell .switch.on .knob,
+.admin-shell .switch.on .switch .knob {
+	left: 23px;
+}
+
+.admin-shell .toggle-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 0.75rem;
+}
+@media (min-width: 720px) {
+	.admin-shell .toggle-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+@media (min-width: 1024px) {
+	.admin-shell .toggle-grid {
+		grid-template-columns: repeat(5, 1fr);
+	}
+}
+.admin-shell .toggle-item {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0.5rem;
+	min-width: 0;
+	min-height: 2.75rem;
+	box-sizing: border-box;
+	padding: 0.5rem 0.75rem;
+	background: color-mix(in oklch, var(--btn-regular-bg) 70%, transparent);
+	border: 1px solid var(--line-divider);
+	border-radius: 0.5rem;
+	font-size: 0.825rem;
+	color: var(--deep-text);
+	cursor: pointer;
+	transition: border-color 0.15s, background 0.15s;
+}
+.admin-shell .toggle-item:hover {
+	border-color: var(--line-color);
+	background: var(--btn-regular-bg);
+}
+.admin-shell .toggle-item .switch {
+	flex-shrink: 0;
+	width: 44px;
+	height: 24px;
+	flex: 0 0 44px;
+}
+.admin-shell .toggle-label {
+	min-width: 0;
+	white-space: normal;
+	overflow-wrap: anywhere;
+	font-size: 0.825rem;
+	line-height: 1.35;
+	color: var(--deep-text);
+}
+.admin-shell .u-chip.on {
+	background: color-mix(in oklch, var(--primary) 15%, transparent);
+	color: var(--primary);
+}
+.admin-shell .u-chip.off {
+	background: var(--btn-regular-bg);
+	color: var(--text-muted);
+}
+.admin-shell .u-chip.success {
+	background: color-mix(in oklch, var(--success) 15%, transparent);
+	color: var(--success);
+}
+.admin-shell .u-chip.danger {
+	background: color-mix(in oklch, var(--danger) 15%, transparent);
+	color: var(--danger);
+}
+
+.admin-shell .check-line {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: var(--deep-text);
+	font-size: 0.9rem;
+}
+.admin-shell .check-line input {
+	width: auto;
+	accent-color: var(--primary);
+}
+.admin-shell .check-text {
+	font-size: 0.9rem;
+}
+
+.admin-shell .hint,
+.admin-shell .msg {
+	color: var(--text-muted);
+	font-size: 0.85rem;
 }
 .admin-shell .toolbar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	gap: 1rem;
+	flex-wrap: wrap;
 	margin-bottom: 1rem;
 }
 .admin-shell .actions {
 	display: flex;
 	align-items: center;
 	gap: 0.6rem;
+	flex-wrap: wrap;
 }
-
 @media (max-width: 640px) {
 	.admin-shell .toolbar {
 		flex-direction: column;
@@ -36,128 +431,162 @@
 	.admin-shell .actions {
 		flex-wrap: wrap;
 	}
-	.admin-shell .actions input {
-		flex: 1 1 10rem;
-		width: 100%;
-		min-width: 0;
-	}
-}
-.admin-shell .msg {
-	color: var(--success);
-	font-size: 0.85rem;
-}
-.admin-shell .btn-primary {
-	padding: 0.5rem 0.9rem;
-	background: var(--primary);
-	color: var(--on-accent);
-	border: none;
-	border-radius: 0.4rem;
-	cursor: pointer;
-}
-.admin-shell .btn-primary:disabled {
-	opacity: 0.6;
 }
 
-.admin-shell .hint {
-	color: var(--muted);
-	font-size: 0.85rem;
+/* 外壳：侧栏 / 顶栏 / 菜单（结构按 cms-admin，颜色用项目主题） */
+.admin-shell .admin-sidebar {
+	background: var(--card-bg) !important;
+	border-right: 1px solid var(--line-divider);
 }
-.admin-shell .btn-ghost {
-	padding: 0.4rem 0.7rem;
-	background: transparent;
-	border: 1px solid var(--line-divider);
-	border-radius: 0.35rem;
-	cursor: pointer;
-	color: var(--deep-text);
+.admin-shell .brand-logo,
+.admin-shell .brand-text {
+	color: var(--primary) !important;
 }
-.admin-shell .danger {
-	padding: 0.4rem 0.7rem;
-	background: transparent;
-	border: 1px solid var(--danger);
-	color: var(--danger);
-	border-radius: 0.35rem;
-	cursor: pointer;
+.admin-shell .brand-text {
+	font-weight: 700;
 }
-.admin-shell .danger:hover {
-	background: var(--danger);
+.admin-shell .admin-nav-title {
+	color: var(--text-muted) !important;
+	font-size: 0.72rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.08em;
+	padding: 0.85rem 0.75rem 0.35rem !important;
+	text-transform: uppercase;
+}
+.admin-shell .admin-nav-item {
+	opacity: 1 !important;
+	color: var(--deep-text) !important;
+	font-size: 0.88rem !important;
+	font-weight: 400 !important;
+	padding: 0.5rem 0.75rem !important;
+	margin: 0 !important;
+	border-radius: 0.5rem !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 0.65rem !important;
+	text-decoration: none !important;
+	transition: background 0.15s, color 0.15s !important;
+}
+.admin-shell .admin-nav-item:hover {
+	background: var(--btn-regular-bg) !important;
+	color: var(--deep-text) !important;
+}
+.admin-shell .admin-nav-item.active {
+	background: color-mix(in oklch, var(--primary) 14%, transparent) !important;
+	color: var(--primary) !important;
+	font-weight: 600 !important;
+}
+.admin-shell .admin-nav-icon :global(svg) {
+	width: 18px !important;
+	height: 18px !important;
+	stroke-width: 1.75;
+}
+
+.admin-shell .admin-user {
+	border-top: 1px solid var(--line-divider);
+	padding: 0.85rem 0.75rem 0.5rem;
+	margin-top: 0.5rem;
+}
+.admin-shell .admin-user-avatar {
+	background: var(--primary) !important;
+	background-image: none !important;
 	color: var(--on-accent);
+	font-weight: 600;
 }
-.admin-shell .form {
-	display: flex;
-	flex-direction: column;
-	gap: 0.8rem;
-	padding: 1rem 0;
-}
-.admin-shell .form-head {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 0.5rem;
-}
-.admin-shell .form-head h3 {
-	margin: 0;
-	font-size: 1rem;
-}
-.admin-shell .field {
-	display: flex;
-	flex-direction: column;
-	gap: 0.3rem;
-	font-size: 0.85rem;
-	color: var(--muted);
-}
-.admin-shell .field input[type="text"],
-.admin-shell .field input[type="number"],
-.admin-shell .field select {
-	padding: 0.5rem 0.7rem;
-	border: 1px solid var(--line-divider);
-	border-radius: 0.35rem;
-	background: transparent;
+.admin-shell .admin-user-name {
 	color: var(--deep-text);
 	font-size: 0.9rem;
 }
-.admin-shell .field.check {
-	flex-direction: row;
+
+.admin-shell .admin-topbar {
+	background: var(--card-bg) !important;
+	border-bottom: 1px solid var(--line-divider);
+}
+.admin-shell .admin-body {
+	overflow-x: hidden;
+}
+.admin-shell .admin-topbar-title h1 {
+	color: var(--deep-text);
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+.admin-shell .admin-menu-toggle {
+	color: var(--text-muted);
+}
+
+.admin-shell .admin-btn-primary {
+	display: inline-flex !important;
 	align-items: center;
 	gap: 0.4rem;
+	padding: 0.5rem 1rem !important;
+	font-size: 0.875rem !important;
+	font-weight: 500 !important;
+	border-radius: 0.5rem !important;
+	background: var(--primary) !important;
+	background-image: none !important;
+	color: var(--on-accent) !important;
+	border: 1px solid transparent !important;
+	text-decoration: none !important;
+	transition: filter 0.15s !important;
 }
-.admin-shell .form-actions {
-	display: flex;
-	gap: 0.6rem;
-	margin-top: 0.5rem;
+.admin-shell .admin-btn-primary:hover {
+	filter: brightness(0.94);
 }
-.admin-shell .list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 0.6rem;
-}
-.admin-shell .row {
+
+.admin-shell .admin-user-trigger {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 0.8rem;
-	padding: 0.8rem;
+	gap: 0.5rem;
+	padding: 0.4rem 0.6rem;
+	border-radius: 0.5rem;
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--deep-text);
+	cursor: pointer;
+	font-size: 0.88rem;
+	transition: background 0.15s;
+}
+.admin-shell .admin-user-trigger:hover {
+	background: var(--btn-regular-bg);
+}
+.admin-shell .admin-caret {
+	color: var(--text-muted);
+	font-size: 0.7rem;
+}
+
+.admin-shell .admin-dropdown {
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: 0.5rem;
+	box-shadow: 0 10px 30px rgb(16 24 40 / 0.12);
+	padding: 0.4rem;
+	min-width: 200px;
 }
-.admin-shell .row-main {
-	min-width: 0;
-}
-.admin-shell .badge {
-	font-size: 0.7rem;
-	padding: 0.1rem 0.4rem;
-	border-radius: 0.3rem;
-	background: var(--success);
-	color: var(--on-accent);
-}
-.admin-shell .badge.muted {
-	background: var(--btn-regular-bg);
-	color: var(--muted);
-}
-.admin-shell .row-actions {
+.admin-shell .admin-dropdown-item {
 	display: flex;
+	align-items: center;
 	gap: 0.5rem;
-	flex-shrink: 0;
+	width: 100%;
+	padding: 0.5rem 0.7rem;
+	background: transparent;
+	border: none;
+	color: var(--deep-text);
+	font-size: 0.88rem;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	text-align: left;
+}
+.admin-shell .admin-dropdown-item:hover {
+	background: var(--btn-regular-bg);
+}
+.admin-shell .admin-dropdown-item.danger {
+	color: var(--danger);
+}
+.admin-shell .admin-dropdown-item.danger:hover {
+	background: color-mix(in oklch, var(--danger) 12%, transparent);
+	color: var(--danger);
+}
+
+.admin-shell .admin-overlay {
+	background: rgba(15, 23, 42, 0.45) !important;
 }

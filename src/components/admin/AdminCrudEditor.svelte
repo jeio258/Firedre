@@ -17,17 +17,13 @@
 	}
 
 	interface Props {
-
 		apiPath: string;
 		title: string;
 		addLabel: string;
 		entityName: string;
 		fields: CrudField[];
-
 		identify: (item: Record<string, unknown>) => string;
-
 		extraBlock?: Snippet;
-
 		children: Snippet;
 	}
 
@@ -130,7 +126,7 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存 ✓";
+			message = "已保存";
 			showForm = false;
 			editingId = null;
 			await load();
@@ -151,7 +147,7 @@
 				return;
 			}
 			if (editingId === item.id) cancelForm();
-			message = "已删除 ✓";
+			message = "已删除";
 			await load();
 		} catch {
 			message = "网络错误";
@@ -161,12 +157,15 @@
 	onMount(load);
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>{title}</h2>
-		<div class="actions">
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>{title}</h2>
+			<p class="crud-sub">共 {items.length} 条</p>
+		</div>
+		<div class="crud-head-actions">
 			{#if message}
-				<span class="msg">{message}</span>
+				<span class="crud-msg">{message}</span>
 			{/if}
 			{#if !showForm}
 				<button class="btn-primary" on:click={openCreate}>{addLabel}</button>
@@ -175,67 +174,126 @@
 	</div>
 
 	{#if extraBlock}
-		{@render extraBlock()}
+		<div class="crud-extra">
+			{@render extraBlock()}
+		</div>
 	{/if}
 
 	{#if error}
-		<p class="hint">{error}</p>
+		<div class="crud-empty">{error}</div>
 	{:else if loading}
-		<p class="hint">加载中…</p>
+		<div class="crud-empty">加载中…</div>
 	{:else if showForm}
-		<div class="form">
-			<div class="form-head">
+		<div class="crud-card">
+			<div class="crud-form-head">
 				<h3>{editingId ? `编辑${entityName}` : `添加${entityName}`}</h3>
-				<button class="danger" on:click={cancelForm}>取消</button>
+				<button class="btn-text" on:click={cancelForm}>取消</button>
 			</div>
-			{#each fields as f}
-				{#if f.type === "checkbox"}
-					<label class="field check">
-						<input type="checkbox" bind:checked={formValues[f.key]} />
-						<span>{f.label}</span>
+			<div class="crud-form">
+				{#each fields as f}
+					<label class="crud-field">
+						{#if f.type !== "checkbox"}
+							<span>{f.label}</span>
+						{/if}
+						{#if f.type === "checkbox"}
+							<div class="check-line">
+								<input type="checkbox" bind:checked={formValues[f.key]} />
+								<span class="check-text">{f.label}</span>
+							</div>
+						{:else if f.type === "select"}
+							<select bind:value={formValues[f.key]}>
+								{#each f.options ?? [] as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</select>
+						{:else if f.type === "number"}
+							<input type="number" min="0" bind:value={formValues[f.key]} />
+						{:else}
+							<input type="text" placeholder={f.placeholder} bind:value={formValues[f.key]} />
+						{/if}
 					</label>
-				{:else if f.type === "select"}
-					<label class="field">
-						<span>{f.label}</span>
-						<select bind:value={formValues[f.key]}>
-							{#each f.options ?? [] as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-					</label>
-				{:else if f.type === "number"}
-					<label class="field">
-						<span>{f.label}</span>
-						<input type="number" min="0" bind:value={formValues[f.key]} />
-					</label>
-				{:else}
-					<label class="field">
-						<span>{f.label}</span>
-						<input type="text" placeholder={f.placeholder} bind:value={formValues[f.key]} />
-					</label>
-				{/if}
-			{/each}
-			<div class="form-actions">
+				{/each}
+			</div>
+			<div class="crud-form-actions">
 				<button class="btn-primary" on:click={submit} disabled={saving}>
 					{saving ? "保存中…" : "保存"}
 				</button>
 			</div>
 		</div>
 	{:else if items.length === 0}
-		<p class="hint">暂无{entityName}，点击"{addLabel}"创建第一条。</p>
+		<div class="crud-empty">
+			暂无{entityName}，点击「{addLabel}」创建第一条。
+		</div>
 	{:else}
-		<ul class="list">
+		<div class="crud-list">
 			{#each items as item}
-				<li class="row">
-					<div class="row-main">
+				<div class="crud-row">
+					<div class="crud-row-main">
 						{@render children({ item, onEdit: () => openEdit(item), onRemove: () => remove(item) })}
 					</div>
-					<div class="row-actions">
+					<div class="crud-row-actions">
 						<button class="btn-ghost" on:click={() => openEdit(item)}>编辑</button>
-						<button class="danger" on:click={() => remove(item)}>删除</button>
+						<button class="btn-danger-text" on:click={() => remove(item)}>删除</button>
 					</div>
-				</li>
+				</div>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 </div>
+
+<style>
+
+	.crud-head h2 {
+		margin: 0;
+		font-size: 1.12rem;
+		font-weight: 700;
+		color: var(--deep-text);
+	}
+
+
+
+
+
+
+
+
+
+
+	.crud-extra {
+		display: contents;
+	}
+
+
+	.crud-form-head h3 {
+		margin: 0;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--deep-text);
+	}
+
+
+	.crud-field input,
+	.crud-field select {
+		padding: 0.48rem 0.65rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--deep-text);
+		font-size: 0.88rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.check-line input {
+		width: auto;
+		accent-color: var(--primary);
+	}
+
+
+
+
+
+
+
+
+	</style>

@@ -120,12 +120,14 @@
 			<div class="link-name">
 				{item.name}
 				{#if !item.enabled}
-					<span class="badge muted">未启用</span>
+					<span class="u-chip off">未启用</span>
 				{/if}
 			</div>
 			<div class="link-loc">
 				{LOCATION_LABELS[item.location]}
-				{item.location === "sponsor" && (item.kind === "qr" ? " · 二维码" : " · 跳转")}
+				{#if item.location === "sponsor"}
+					{item.kind === "qr" ? " · 二维码" : " · 跳转"}
+				{/if}
 			</div>
 			<div class="link-url">{item.url}</div>
 			{#if item.icon}
@@ -139,48 +141,73 @@
 	.site-url-block {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4rem;
-		padding: 0.8rem;
-		margin-bottom: 1rem;
+		gap: 0.5rem;
+		padding: 0.9rem 1rem 1rem;
+		margin-bottom: 0.5rem;
+		background: var(--card-bg);
 		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: var(--btn-regular-bg);
+		border-radius: 0.8rem;
 	}
 	.site-url-head {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 0.5rem;
 		font-weight: 600;
 		font-size: 0.9rem;
+		color: var(--deep-text);
 	}
 	.site-url-block input {
-		padding: 0.5rem 0.7rem;
+		padding: 0.48rem 0.65rem;
 		border: 1px solid var(--line-divider);
-		border-radius: 0.35rem;
+		border-radius: 0.5rem;
 		background: transparent;
 		color: var(--deep-text);
-		font-size: 0.9rem;
+		font-size: 0.88rem;
+	}
+	.site-url-head button {
+		padding: 0.34rem 0.8rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--deep-text);
+		font-size: 0.82rem;
+		cursor: pointer;
+	}
+	.site-url-head button:hover {
+		border-color: var(--primary);
+		color: var(--primary);
+	}
+	.site-url-head button:disabled {
+		opacity: 0.6;
 	}
 	.url-msg {
 		font-size: 0.8rem;
 		color: var(--success);
+	}
+
+	.u-chip.off {
+		background: var(--btn-regular-bg);
+		color: var(--text-muted);
 	}
 	.link-info {
 		min-width: 0;
 	}
 	.link-name {
 		font-weight: 600;
+		font-size: 0.95rem;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		color: var(--deep-text);
 	}
 	.link-loc {
 		font-size: 0.78rem;
 		color: var(--primary);
 	}
 	.link-url {
-		font-size: 0.75rem;
-		color: var(--muted);
+		font-size: 0.78rem;
+		color: var(--text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -188,6 +215,6 @@
 	}
 	.link-icon {
 		font-size: 0.72rem;
-		color: var(--muted);
+		color: var(--text-muted);
 	}
 </style>

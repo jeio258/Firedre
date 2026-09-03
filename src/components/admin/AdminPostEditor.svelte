@@ -1,8 +1,9 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
+import { onDestroy, onMount, tick } from "svelte";
 import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
+import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -43,8 +44,10 @@ let comment = true;
 let rawContent = "";
 
 let editor: Vditor | null = null;
+let vditorThemeObserver: MutationObserver | null = null;
 let saving = false;
 let message = "";
+let messageKind: "ok" | "err" = "ok";
 let loaded = false;
 let slugManuallyEdited = false;
 
@@ -82,6 +85,7 @@ async function load() {
 		initEditor();
 	} catch (e) {
 		message = e instanceof Error ? e.message : "加载失败";
+		messageKind = "err";
 	}
 }
 
@@ -93,8 +97,9 @@ async function initEditor() {
 
 	const { default: Vditor } = await import("vditor");
 	editor = new Vditor("vditor-editor", {
-		height: 480,
-		mode: "ir",
+		height: 560,
+		// 富文本（所见即所得）为默认编辑模式；可在编辑器内切换到 IR/分屏 Markdown
+		mode: "wysiwyg",
 		value: rawContent,
 
 		cdn: "/vditor",
@@ -105,7 +110,11 @@ async function initEditor() {
 			headers: {},
 		},
 		after: () => {
-			// 焦点初始化
+			const root = document.querySelector<HTMLElement>(".vditor");
+			if (root) {
+				syncVditorTheme(root);
+				vditorThemeObserver = observeVditorTheme(root);
+			}
 		},
 	});
 }
@@ -142,6 +151,7 @@ async function save() {
 	const content = editor ? editor.getValue() : rawContent;
 	if (!title.trim() || !content.trim()) {
 		message = "标题与正文不能为空";
+		messageKind = "err";
 		saving = false;
 		return;
 	}
@@ -163,172 +173,274 @@ async function save() {
 		const data = await resp.json();
 		if (!resp.ok || !data.ok) {
 			message = data.message || "保存失败";
+			messageKind = "err";
 			return;
 		}
-		message = "已保存 ✓";
+		message = "已保存";
+		messageKind = "ok";
 		// 更新 slug（若为新文章则跳转到编辑页）
 		if (isNew && data.slug && data.slug !== slug) {
-			window.location.href = `/admin/posts/edit/${encodeURIComponent(data.slug)}/`;
+			history.replaceState({}, "", `/admin/posts/edit/${encodeURIComponent(data.slug)}/`);
+			slug = data.slug;
+			isNew = false;
 		}
+		setTimeout(() => (message = ""), 2200);
 	} catch {
 		message = "网络错误";
+		messageKind = "err";
 	} finally {
 		saving = false;
 	}
 }
 
 onMount(load);
+onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>{isNew ? "新建文章" : `编辑文章：${slug}`}</h2>
-		<div class="actions">
+<div class="pe-page">
+	<div class="pe-head">
+		<div class="pe-head-info">
+			<h2>{isNew ? "新建文章" : `编辑文章`}</h2>
+			<p class="pe-sub">{isNew ? "填写标题与正文即可发布" : `slug：${slug}`}</p>
+		</div>
+		<div class="pe-actions">
 			{#if message}
-				<span class="msg">{message}</span>
+				<span class="pe-msg {messageKind}">{message}</span>
 			{/if}
+			<a class="btn-secondary" href="/admin/posts/">返回列表</a>
 			<button class="btn-primary" on:click={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
-			<a class="btn" href="/admin/posts/">返回列表</a>
 		</div>
 	</div>
 
 	{#if loaded}
-		<div class="form-grid">
-			<label>
-				<span>标题 *</span>
-				<input
-					type="text"
-					bind:value={title}
-					on:input={() => {
-						// 新文章且用户未手动改过 slug 时，自动根据标题拼音填充
-						if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
-					}}
-				/>
-			</label>
-			<label>
-				<span>Slug（URL 标识）</span>
-				<input
-					type="text"
-					bind:value={slug}
-					disabled={!isNew}
-					placeholder="english-slug"
-					on:input={() => {
-						slugManuallyEdited = true;
-					}}
-				/>
-			</label>
-			<label>
-				<span>发布日期 *</span>
-				<input type="date" bind:value={published} />
-			</label>
-			<label>
-				<span>更新日期</span>
-				<input type="date" bind:value={updated} />
-			</label>
-			<label>
-				<span>分类</span>
-				<input type="text" bind:value={category} />
-			</label>
-			<label>
-				<span>标签（逗号分隔）</span>
-				<input type="text" bind:value={tagsText} />
-			</label>
-			<label class="span2">
-				<span>摘要 / 描述</span>
-				<textarea rows="2" bind:value={description}></textarea>
-			</label>
-			<label class="span2">
-				<span>封面图 URL（留空用默认）</span>
-				<input type="text" bind:value={image} placeholder="https://… 或 /path" />
-			</label>
-			<label>
-				<span>系列</span>
-				<input type="text" bind:value={series} />
-			</label>
-			<label>
-				<span>系列序号</span>
-				<input type="number" bind:value={seriesOrder} />
-			</label>
-			<label>
-				<span>访问密码（加密文章）</span>
-				<input type="text" bind:value={password} />
-			</label>
-			<label>
-				<span>密码提示</span>
-				<input type="text" bind:value={passwordHint} />
-			</label>
-		</div>
+		<div class="pe-grid">
+			<div class="pe-main">
+				<div class="pe-card editor-card">
+					<div id="vditor-editor"></div>
+				</div>
+			</div>
 
-		<div class="checks">
-			<label><input type="checkbox" bind:checked={pinned} /> 置顶</label>
-			<label><input type="checkbox" bind:checked={draft} /> 草稿（不发布）</label>
-			<label><input type="checkbox" bind:checked={comment} /> 允许评论</label>
-		</div>
+			<div class="pe-side">
+				<div class="pe-card">
+					<h3 class="card-title">内容属性</h3>
+					<label>
+						<span>标题 *</span>
+						<input
+							type="text"
+							bind:value={title}
+							placeholder="文章标题"
+							on:input={() => {
+								if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
+							}}
+						/>
+					</label>
+					<label>
+						<span>Slug（URL 标识）</span>
+						<input
+							type="text"
+							bind:value={slug}
+							disabled={!isNew}
+							placeholder="english-slug"
+							on:input={() => {
+								slugManuallyEdited = true;
+							}}
+						/>
+					</label>
+					<div class="row2">
+						<label>
+							<span>发布日期 *</span>
+							<input type="date" bind:value={published} />
+						</label>
+						<label>
+							<span>更新日期</span>
+							<input type="date" bind:value={updated} />
+						</label>
+					</div>
+					<label>
+						<span>分类</span>
+						<input type="text" bind:value={category} placeholder="如 技术" />
+					</label>
+					<label>
+						<span>标签（逗号分隔）</span>
+						<input type="text" bind:value={tagsText} placeholder="Astro, Cloudflare" />
+					</label>
+					<label>
+						<span>封面图 URL</span>
+						<input type="text" bind:value={image} placeholder="https://… 或 /path" />
+					</label>
+				</div>
 
-		<div id="vditor-editor"></div>
+				<div class="pe-card">
+					<h3 class="card-title">发布状态</h3>
+					<label class="switch-line">
+						<input type="checkbox" bind:checked={draft} />
+						草稿（不发布）
+					</label>
+					<label class="switch-line">
+						<input type="checkbox" bind:checked={pinned} />
+						置顶
+					</label>
+					<label class="switch-line">
+						<input type="checkbox" bind:checked={comment} />
+						允许评论
+					</label>
+				</div>
+
+				<div class="pe-card">
+					<h3 class="card-title">扩展设置</h3>
+					<div class="row2">
+						<label>
+							<span>系列</span>
+							<input type="text" bind:value={series} />
+						</label>
+						<label>
+							<span>序号</span>
+							<input type="number" bind:value={seriesOrder} />
+						</label>
+					</div>
+					<label>
+						<span>访问密码（加密文章）</span>
+						<input type="text" bind:value={password} />
+					</label>
+					<label>
+						<span>密码提示</span>
+						<input type="text" bind:value={passwordHint} />
+					</label>
+				</div>
+			</div>
+		</div>
 	{:else}
-		<p>{message || "加载中…"}</p>
+		<div class="pe-loading">{message || "加载中…"}</div>
 	{/if}
 </div>
 
 <style>
-	.toolbar {
+	.pe-page {
+		display: flex;
+		flex-direction: column;
 		gap: 1rem;
+		max-width: 1280px;
+		margin: 0 auto;
 	}
-	.btn {
-		padding: 0.5rem 0.9rem;
-		border-radius: 0.4rem;
-		text-decoration: none;
-		font-size: 0.9rem;
-		border: 1px solid var(--line-color);
+	.pe-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.pe-head h2 {
+		margin: 0;
+		font-size: 1.12rem;
+		font-weight: 700;
 		color: var(--deep-text);
-		background: var(--card-bg);
-		cursor: pointer;
 	}
-	.btn-primary {
-		composes: btn;
-		background: var(--primary);
-		color: var(--on-accent);
-		border-color: var(--primary);
+	.pe-sub {
+		margin: 0.2rem 0 0;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 60vw;
 	}
-	.form-grid {
+	.pe-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.55rem;
+		flex-wrap: wrap;
+	}
+	.pe-msg {
+		font-size: 0.82rem;
+	}
+	.pe-msg.ok {
+		color: var(--success);
+	}
+	.pe-msg.err {
+		color: var(--danger);
+	}
+
+
+
+
+	.pe-grid {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.9rem;
-		margin-bottom: 1rem;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+		align-items: start;
 	}
-	.form-grid label {
+	.pe-card {
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.9rem;
+		padding: 1.1rem 1.15rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+	}
+	.card-title {
+		margin: 0;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--deep-text);
+		padding-bottom: 0.55rem;
+		border-bottom: 1px solid var(--line-divider);
+	}
+	.editor-card {
+		padding: 1rem 1rem 0.8rem;
+	}
+	.pe-card label {
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
-		font-size: 0.85rem;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		min-width: 0;
+	}
+	.pe-card input {
+		padding: 0.48rem 0.65rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--deep-text);
+		font-size: 0.88rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.pe-card input:disabled {
+		opacity: 0.55;
+	}
+	.row2 {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.7rem;
+	}
+	.switch-line {
+		flex-direction: row !important;
+		align-items: center;
+		gap: 0.5rem !important;
+		cursor: pointer;
+		font-size: 0.88rem !important;
+		color: var(--deep-text) !important;
+	}
+	.switch-line input {
+		width: auto;
+	}
+	.pe-loading {
+		padding: 3rem;
+		text-align: center;
 		color: var(--text-muted);
 	}
-	.form-grid .span2 {
 
-		grid-column: 1 / -1;
+	@media (min-width: 1024px) {
+		.pe-grid {
+			grid-template-columns: minmax(0, 1fr) 330px;
+		}
 	}
-	input,
-	textarea {
-		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.4rem;
-		font-size: 0.9rem;
-		background: var(--card-bg);
-		color: var(--deep-text);
-	}
-	.checks {
-		display: flex;
-		gap: 1.5rem;
-		margin-bottom: 1rem;
-		font-size: 0.9rem;
-		color: var(--deep-text);
-	}
-
 	@media (max-width: 767px) {
-		.form-grid {
+		.row2 {
 			grid-template-columns: 1fr;
 		}
 	}
