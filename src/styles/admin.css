@@ -1,9 +1,4 @@
-/* Firedre 后台 cms-admin 化（结构套用 cms-admin React 参考；颜色复用项目主题）
- * - 颜色一律使用项目主题变量（var(--primary)/--card-bg/--btn-regular-bg 等），
- *   跟随前台 light/dark，不在此覆盖色板
- * - 结构：白卡 + 圆角 0.75rem + 柔和阴影 / 实心主按钮 / 网格 toggle
- * - 字体 PingFang SC / Microsoft YaHei 等中文优先
- */
+/* 后台 cms-admin 结构样式；颜色一律用项目主题变量(var(--primary)/--card-bg 等)并随明暗切换 */
 
 .admin-shell {
 	--radius-large: 0.75rem;
@@ -438,10 +433,7 @@
 	}
 }
 
-/* ============================================================
- * 外壳：侧栏 / 顶栏 / 菜单（结构按 cms-admin，颜色用项目主题）
- * ============================================================ */
-
+/* 外壳：侧栏 / 顶栏 / 菜单（结构按 cms-admin，颜色用项目主题） */
 .admin-shell .admin-sidebar {
 	background: var(--card-bg) !important;
 	border-right: 1px solid var(--line-divider);
