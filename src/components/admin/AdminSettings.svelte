@@ -676,13 +676,7 @@ let loading = true;
 let loadError = "";
 let saving = false;
 let message = "";
-let activeGroup = "basic";
-let activeCategory = "站点配置";
 let loaded = false;
-
-function currentGroup() {
-	return GROUPS.find((g) => g.key === activeGroup) ?? GROUPS[0];
-}
 
 function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
@@ -695,10 +689,6 @@ function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 		}
 	}
 	return [];
-}
-
-function selectGroup(key: string) {
-	activeGroup = key;
 }
 
 async function load() {
@@ -838,58 +828,40 @@ function applyHueToAdmin(hue: unknown) {
 }
 
 onMount(load);
-
-const groupOf = (key: string) => GROUPS.find((g) => g.key === key);
-const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 </script>
 
-<div class="settings-app">
-	<aside class="settings-nav">
-		{#each CATEGORIES as cat}
-			<div class="cat-name">{cat}</div>
-			{#each GROUPS.filter((g) => g.category === cat) as group}
-				<button
-					class="nav-item"
-					class:active={activeGroup === group.key}
-					on:click={() => selectGroup(group.key)}
-				>
-					{group.title}
-				</button>
-			{/each}
-		{/each}
-	</aside>
-
-	<main class="settings-main">
-		<div class="settings-header">
-			<div>
-				<h2>{currentGroup().title}</h2>
-				<p class="sub">{currentGroup().key}</p>
-			</div>
-			<div class="header-actions">
-				{#if message}
-					<span class="crud-msg">{message}</span>
-				{/if}
-				<button class="btn-primary" on:click={save} disabled={saving}>
-					{saving ? "保存中…" : "保存全部"}
-				</button>
-			</div>
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>站点设置</h2>
+			<p class="crud-sub">站点基础 / 外观 / 功能 / 页面开关配置</p>
 		</div>
+		<div class="crud-head-actions">
+			{#if message}
+				<span class="crud-msg">{message}</span>
+			{/if}
+			<button class="btn-primary" on:click={save} disabled={saving}>
+				{saving ? "保存中…" : "保存全部"}
+			</button>
+		</div>
+	</div>
 
-		{#if loading}
-			<div class="crud-empty">加载中…</div>
-		{:else if loadError}
-			<div class="crud-empty danger">{loadError}</div>
-		{:else if !data[currentGroup().key]}
-			<div class="crud-empty danger">当前配置组数据缺失，请刷新重试</div>
-		{:else}
-			{#if activeGroup === "nav"}
-				<div class="card">
-					<div class="field">
-						<label class="field-label">隐藏整个导航栏</label>
+	{#if loading}
+		<div class="crud-empty">加载中…</div>
+	{:else if loadError}
+		<div class="crud-empty danger">{loadError}</div>
+	{:else}
+		<section class="settings-section">
+			<h3 class="settings-cat">导航与社交</h3>
+			<div class="crud-card">
+				<div class="settings-row">
+					<div class="settings-label">
+						<span>导航栏</span>
+					</div>
+					<div class="settings-ctrl">
 						<div class="switch-wrap">
 							<span class="switch-state">{data["nav"]?.enabled === true ? "显示" : "隐藏"}</span>
-							<button class="switch" class:on={data["nav"]?.enabled === true}
-								title="显示 / 隐藏"
+							<button class="switch" class:on={data["nav"]?.enabled === true} title="显示 / 隐藏"
 								on:click={() => {
 									data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
 									markDirty();
@@ -898,254 +870,250 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 							</button>
 						</div>
 					</div>
-					<h3>导航栏项目</h3>
+				</div>
+
+				<div class="settings-sub">
+					<h4>导航栏项目</h4>
 					{#each navItems as item, i}
-						<div class="row">
+						<div class="pair-row">
 							<input type="text" placeholder="名称" value={item.label} on:input={(e) => (item.label = e.currentTarget.value)} />
 							<input type="text" placeholder="URL（如 /posts/）" value={item.url} on:input={(e) => (item.url = e.currentTarget.value)} />
-							<button class="btn-del" on:click={() => removeNav(i)}>×</button>
+							<button class="btn-del" on:click={() => removeNav(i)} aria-label="删除导航项">×</button>
 						</div>
 					{/each}
-					<button class="btn-add" on:click={addNav}>+ 添加导航项</button>
-					<h3 style="margin-top:1.25rem">社交链接</h3>
+					<button class="btn-secondary" on:click={addNav}>+ 添加导航项</button>
+
+					<h4 class="sub-gap">社交链接</h4>
 					{#each social as item, i}
-						<div class="row">
+						<div class="pair-row">
 							<input type="text" placeholder="名称（如 GitHub）" value={item.label} on:input={(e) => (item.label = e.currentTarget.value)} />
 							<input type="text" placeholder="URL" value={item.url} on:input={(e) => (item.url = e.currentTarget.value)} />
-							<button class="btn-del" on:click={() => removeSocial(i)}>×</button>
+							<button class="btn-del" on:click={() => removeSocial(i)} aria-label="删除社交链接">×</button>
 						</div>
 					{/each}
-					<button class="btn-add" on:click={addSocial}>+ 添加社交链接</button>
+					<button class="btn-secondary" on:click={addSocial}>+ 添加社交链接</button>
 				</div>
-			{:else}
-				<div class="card">
-					{#each currentGroup().fields as field}
-						<div class="field">
-							<label class="field-label">
-								{field.label}
-								{#if field.hint}
-									<small>{field.hint}</small>
-								{/if}
-							</label>
-							{#if field.type === "boolean"}
-								<div class="switch-wrap">
-									<span class="switch-state">{data[currentGroup().key][field.name] ? "开" : "关"}</span>
-									<button
-										class="switch"
-										class:on={data[currentGroup().key][field.name] === true}
-										title="开 / 关"
-										on:click={() => cycleBool(currentGroup().key, field.name)}
-									>
-										<span class="knob"></span>
-									</button>
+			</div>
+		</section>
+
+		{#each CATEGORIES as cat}
+			{@const groups = GROUPS.filter((g) => g.category === cat)}
+			{#if groups.length}
+				<section class="settings-section">
+					<h3 class="settings-cat">{cat}</h3>
+					<div class="crud-card">
+						{#each groups as group}
+							{#each group.fields as field}
+								<div class="settings-row">
+									<div class="settings-label">
+										<span>{field.label}</span>
+										{#if field.hint}
+											<small>{field.hint}</small>
+										{/if}
+									</div>
+									<div class="settings-ctrl">
+										{#if field.type === "boolean"}
+											<div class="switch-wrap">
+												<span class="switch-state">{data[group.key]?.[field.name] === true ? "开" : "关"}</span>
+												<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
+													on:click={() => cycleBool(group.key, field.name)}>
+													<span class="knob"></span>
+												</button>
+											</div>
+										{:else if field.type === "textarea" || field.type === "json"}
+											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+											{#if field.type === "json"}
+												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
+											{/if}
+										{:else if field.type === "password"}
+											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+										{:else if field.type === "number"}
+											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+										{:else}
+											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+										{/if}
+									</div>
 								</div>
-							{:else if field.type === "textarea" || field.type === "json"}
-								<textarea rows={field.type === "json" ? 5 : 3} value={data[currentGroup().key][field.name] as string ?? ""} placeholder={field.placeholder} on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-								{#if field.type === "json"}
-									<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
-								{/if}
-							{:else if field.type === "password"}
-								<input type="password" value={data[currentGroup().key][field.name] as string ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.value; markDirty(); }} />
-							{:else if field.type === "number"}
-								<input type="number" value={data[currentGroup().key][field.name] as number} on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
-							{:else}
-								<input type="text" value={data[currentGroup().key][field.name] as string ?? ""} placeholder={field.placeholder} on:input={(e) => { data[currentGroup().key][field.name] = e.currentTarget.value; markDirty(); }} />
-							{/if}
-						</div>
-					{/each}
-				</div>
+							{/each}
+						{/each}
+					</div>
+				</section>
 			{/if}
-		{/if}
-	</main>
+		{/each}
+	{/if}
 </div>
+
 
 <style>
 	.btn-primary {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.35rem;
-		padding: 0.46rem 0.95rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
+		justify-content: center;
+		gap: 0.4rem;
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border-radius: 0.5rem;
 		border: 1px solid transparent;
-		background: linear-gradient(135deg, var(--primary), var(--title-active));
+		background: var(--primary);
 		color: var(--on-accent);
 		cursor: pointer;
 	}
 	.btn-primary:disabled {
-		opacity: 0.6;
-		cursor: default;
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
-	.crud-msg {
-		font-size: 0.82rem;
-		color: var(--success);
-	}
-	.crud-empty {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.9rem;
-		padding: 2.5rem;
-		text-align: center;
-		color: var(--text-muted);
-		font-size: 0.88rem;
-	}
-	.crud-empty.danger {
-		color: var(--danger);
-		border-color: color-mix(in oklch, var(--danger) 35%, transparent);
-	}
-	.settings-app {
-		display: flex;
-		gap: 1.25rem;
-		align-items: flex-start;
-	}
-	.settings-nav {
-		width: 210px;
-		flex-shrink: 0;
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: var(--radius-large);
-		padding: 0.9rem 0.6rem;
-		position: sticky;
-		top: 1.25rem;
-		max-height: calc(100vh - 2.5rem);
-		overflow-y: auto;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.04);
-	}
-	.cat-name {
-		font-size: 0.7rem;
-		font-weight: 700;
-		color: var(--muted);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		padding: 0.9rem 0.75rem 0.35rem;
-	}
-	.nav-item {
-		display: block;
-		width: 100%;
-		text-align: left;
-		background: none;
-		border: none;
-		padding: 0.5rem 0.75rem;
+	.btn-secondary {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.4rem;
+		padding: 0.4rem 0.85rem;
+		font-size: 0.85rem;
+		font-weight: 500;
 		border-radius: 0.5rem;
-		font-size: 0.88rem;
+		border: 1px solid var(--line-color);
+		background: #ffffff;
 		color: var(--deep-text);
 		cursor: pointer;
-		transition: background 0.15s, color 0.15s;
 	}
-	.nav-item:hover {
+	.btn-secondary:hover {
 		background: var(--btn-regular-bg);
-		color: var(--deep-text);
 	}
-	.nav-item.active {
-		background: var(--primary);
-		color: var(--on-accent);
-		font-weight: 600;
+	.btn-del {
+		background: none;
+		border: none;
+		color: var(--danger);
+		cursor: pointer;
+		font-size: 1.05rem;
+		padding: 0 0.4rem;
+		flex-shrink: 0;
 	}
-	.settings-main {
-		flex: 1;
-		min-width: 0;
+	.btn-del:hover {
+		color: #dc2626;
 	}
-	.settings-header {
+
+	.settings-section {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		margin-bottom: 1rem;
-		position: sticky;
-		top: 0.5rem;
-		z-index: 20;
-		background: var(--page-bg);
-		padding: 0.75rem 0.25rem;
-		border-radius: 0.75rem;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
-	.settings-header h2 {
+	.settings-cat {
 		margin: 0;
-		font-size: 1.15rem;
-		color: var(--deep-text);
-	}
-	.sub {
-		margin: 0.15rem 0 0;
-		font-size: 0.75rem;
-		color: var(--muted);
-		font-family: ui-monospace, monospace;
-	}
-	.header-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
-	}
-	.btn-save,
-	.msg,
-	.loading,
-	.load-error {
-		/* 已迁至 .btn-primary / .crud-msg / .crud-empty */
-		display: none;
-	}
-	.card {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: var(--radius-large);
-		padding: 1.75rem;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.04);
-	}
-	.card h3 {
-		margin: 0 0 0.75rem;
 		font-size: 0.95rem;
+		font-weight: 700;
 		color: var(--deep-text);
+		letter-spacing: 0.02em;
 	}
-	.field {
-		padding: 0.85rem 0;
+	.settings-row {
+		display: grid;
+		grid-template-columns: 240px 1fr;
+		gap: 1rem;
+		align-items: start;
+		padding: 0.9rem 0;
 		border-bottom: 1px solid var(--line-divider);
 	}
-	.field:last-child {
+	.settings-row:last-child {
 		border-bottom: none;
 	}
-	.field-label {
+	.settings-label {
 		display: flex;
-		align-items: baseline;
-		gap: 0.5rem;
+		flex-direction: column;
+		gap: 0.2rem;
 		font-size: 0.88rem;
-		color: var(--deep-text);
-		margin-bottom: 0.45rem;
 		font-weight: 500;
+		color: var(--deep-text);
+		padding-top: 0.5rem;
 	}
-	.field-label small {
-		color: var(--muted);
+	.settings-label small {
+		color: var(--text-muted);
 		font-weight: 400;
 		font-size: 0.75rem;
+		line-height: 1.4;
 	}
-	input[type="text"],
-	input[type="password"],
-	input[type="number"],
-	textarea {
+	.settings-ctrl {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		min-width: 0;
+	}
+	.settings-ctrl input[type="text"],
+	.settings-ctrl input[type="password"],
+	.settings-ctrl input[type="number"],
+	.settings-ctrl textarea {
 		width: 100%;
 		box-sizing: border-box;
 		padding: 0.55rem 0.8rem;
 		border: 1px solid var(--line-color);
 		border-radius: 0.5rem;
 		font-size: 0.9rem;
-		transition: border-color 0.15s, box-shadow 0.15s;
-		background: var(--btn-regular-bg);
+		font-family: inherit;
+		background: #ffffff;
 		color: var(--deep-text);
+		transition: border-color 0.15s, box-shadow 0.15s;
 	}
-	input:focus, textarea:focus {
+	.settings-ctrl input:focus,
+	.settings-ctrl textarea:focus {
 		outline: none;
 		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgb(91 140 255 / 0.15);
-		background: var(--card-bg);
+		box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
 	}
+	.settings-ctrl textarea {
+		min-height: 96px;
+		resize: vertical;
+		line-height: 1.6;
+	}
+
+	.settings-sub {
+		margin-top: 0.6rem;
+		padding: 0.8rem 0 0;
+		border-top: 1px solid var(--line-divider);
+	}
+	.settings-sub h4 {
+		margin: 0 0 0.5rem;
+		font-size: 0.9rem;
+		font-weight: 600;
+		color: var(--deep-text);
+	}
+	.settings-sub .sub-gap {
+		margin-top: 1rem;
+	}
+	.pair-row {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+	.pair-row input {
+		flex: 1;
+		min-width: 0;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--line-color);
+		border-radius: 0.5rem;
+		font-size: 0.88rem;
+		background: #ffffff;
+		color: var(--deep-text);
+		box-sizing: border-box;
+	}
+	.pair-row input:first-child {
+		flex: 0 0 220px;
+	}
+	.pair-row input:focus {
+		outline: none;
+		border-color: var(--primary);
+		box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
+	}
+
 	.switch-wrap {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		color: var(--muted);
-		font-size: 0.85rem;
+		gap: 0.6rem;
+		padding-top: 0.35rem;
 	}
-	.switch-state { font-size: 0.8rem; font-weight: 600; }
-	.switch-state.unset { color: var(--muted); font-weight: 400; }
-	.switch.unset {
-		background: var(--line-divider);
-		opacity: 0.55;
+	.switch-state {
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: var(--deep-text);
 	}
 	.switch {
 		width: 44px;
@@ -1156,6 +1124,7 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		position: relative;
 		cursor: pointer;
 		transition: background 0.2s;
+		flex-shrink: 0;
 	}
 	.switch.on {
 		background: var(--primary);
@@ -1167,94 +1136,35 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: var(--card-bg);
+		background: #ffffff;
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
 		transition: left 0.2s;
 	}
 	.switch.on .knob {
 		left: 23px;
 	}
-	.row {
-		display: flex;
-		gap: 0.6rem;
-		margin-bottom: 0.5rem;
-	}
-	.row input:first-child {
-		width: 32%;
-	}
-	.row input {
-		flex: 1;
-	}
-	.btn-del {
-		background: none;
-		border: none;
-		color: var(--danger);
-		cursor: pointer;
-		font-size: 1.05rem;
-		padding: 0 0.4rem;
-	}
-	.btn-add {
-		background: var(--btn-regular-bg);
-		border: 1px dashed var(--line-color);
-		border-radius: 0.5rem;
-		padding: 0.45rem 0.9rem;
-		font-size: 0.85rem;
-		color: var(--deep-text);
-		cursor: pointer;
-	}
-	.btn-add:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
 	.json-hint {
-		color: var(--muted);
+		color: var(--text-muted);
 		font-size: 0.72rem;
 		font-family: ui-monospace, monospace;
 	}
 
-	@media (max-width: 767px) {
-		.settings-app {
-			flex-direction: column;
-			gap: 0.5rem;
-		}
-		.settings-nav {
-			width: 100%;
-			flex-shrink: 0;
-			position: static;
-			max-height: none;
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.25rem;
-			padding: 0.6rem;
-			overflow: visible;
-		}
-		.settings-nav .cat-name {
-			width: 100%;
-			padding: 0.2rem 0.25rem 0.1rem;
-		}
-		.settings-nav .nav-item {
-			width: auto;
-			padding: 0.35rem 0.7rem;
-			font-size: 0.82rem;
-			border: 1px solid var(--line-divider);
-		}
-		.settings-nav .nav-item.active {
-			border-color: transparent;
-		}
-		.settings-main {
-			flex: 1;
-			min-width: 0;
-		}
-		.settings-header {
-			flex-wrap: wrap;
+	@media (max-width: 720px) {
+		.settings-row {
+			grid-template-columns: 1fr;
 			gap: 0.4rem;
 		}
-
-		.row {
+		.settings-label {
+			padding-top: 0;
+		}
+		.pair-row {
 			flex-direction: column;
 			align-items: stretch;
 		}
-		.row .btn-del {
+		.pair-row input:first-child {
+			flex: 1;
+		}
+		.pair-row .btn-del {
 			align-self: flex-end;
 		}
 	}
