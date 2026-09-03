@@ -158,17 +158,21 @@
 								<td class="mono slug-cell" title={album.slug}>{album.slug}</td>
 								<td class="cell-nowrap">{album.date || "-"}</td>
 								<td class="cell-nowrap">{album.count ?? "-"}</td>
-								<td class="chips">
-									{#if album.encrypted}
-										<span class="u-chip on">加密</span>
-									{/if}
-									{#if album.source === "webdav"}
-										<span class="u-chip on">WebDAV</span>
-									{/if}
+								<td>
+									<div class="chips">
+										{#if album.encrypted}
+											<span class="u-chip on">加密</span>
+										{/if}
+										{#if album.source === "webdav"}
+											<span class="u-chip on">WebDAV</span>
+										{/if}
+									</div>
 								</td>
-								<td class="crud-row-actions">
-									<a class="btn-ghost" href={`/admin/gallery/${encodeURIComponent(album.slug)}/`}>编辑</a>
-									<button class="btn-danger-text" on:click={() => remove(album.slug)}>删除</button>
+								<td class="ops-col">
+									<div class="crud-row-actions">
+										<a class="btn-ghost" href={`/admin/gallery/${encodeURIComponent(album.slug)}/`}>编辑</a>
+										<button class="btn-danger-text" on:click={() => remove(album.slug)}>删除</button>
+									</div>
 								</td>
 							</tr>
 						{/each}
