@@ -329,8 +329,18 @@
 
 .admin-shell .toggle-grid {
 	display: grid;
-	grid-template-columns: repeat(5, 1fr);
+	grid-template-columns: repeat(2, 1fr);
 	gap: 0.75rem;
+}
+@media (min-width: 720px) {
+	.admin-shell .toggle-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+@media (min-width: 1024px) {
+	.admin-shell .toggle-grid {
+		grid-template-columns: repeat(5, 1fr);
+	}
 }
 .admin-shell .toggle-item {
 	display: flex;
