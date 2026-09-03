@@ -895,26 +895,27 @@ onMount(load);
 
 		{#each CATEGORIES as cat}
 			{@const groups = GROUPS.filter((g) => g.category === cat)}
+			{@const catBools = groups.flatMap((g) => g.fields.filter((f) => f.type === "boolean"))}
 			{#if groups.length}
 				<section class="settings-section">
 					<h3 class="settings-cat">{cat}</h3>
 					<div class="crud-card">
+						{#if catBools.length}
+							<div class="toggle-grid">
+								{#each catBools as field}
+									{@const owner = groups.find((g) => g.fields.includes(field))}
+									<label class="toggle-item">
+										<button class="switch" class:on={data[owner.key]?.[field.name] === true} title="开 / 关"
+											on:click={() => cycleBool(owner.key, field.name)}>
+											<span class="knob"></span>
+										</button>
+										<span class="toggle-label">{field.label.replace(/^页面开关[：:]/, "")}</span>
+									</label>
+								{/each}
+							</div>
+						{/if}
 						{#each groups as group}
-							{@const bools = group.fields.filter((f) => f.type === "boolean")}
 							{@const others = group.fields.filter((f) => f.type !== "boolean")}
-							{#if bools.length}
-								<div class="toggle-grid">
-									{#each bools as field}
-										<label class="toggle-item">
-											<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
-												on:click={() => cycleBool(group.key, field.name)}>
-												<span class="knob"></span>
-											</button>
-											<span class="toggle-label">{field.label}</span>
-										</label>
-									{/each}
-								</div>
-							{/if}
 							{#each others as field}
 								<div class="settings-row">
 									<div class="settings-label">
@@ -977,7 +978,7 @@ onMount(load);
 		font-weight: 500;
 		border-radius: 0.5rem;
 		border: 1px solid var(--line-color);
-		background: #ffffff;
+		background: var(--card-bg);
 		color: var(--deep-text);
 		cursor: pointer;
 	}
@@ -994,7 +995,7 @@ onMount(load);
 		flex-shrink: 0;
 	}
 	.btn-del:hover {
-		color: #dc2626;
+		color: var(--danger);
 	}
 
 	.settings-section {
@@ -1098,9 +1099,14 @@ onMount(load);
 		border-radius: 0.5rem;
 		font-size: 0.9rem;
 		font-family: inherit;
-		background: #ffffff;
+		background: var(--card-bg);
 		color: var(--deep-text);
 		transition: border-color 0.15s, box-shadow 0.15s;
+	}
+	.settings-ctrl input::placeholder,
+	.settings-ctrl textarea::placeholder {
+		color: var(--text-muted);
+		opacity: 1;
 	}
 	.settings-ctrl input:focus,
 	.settings-ctrl textarea:focus {
@@ -1141,9 +1147,13 @@ onMount(load);
 		border: 1px solid var(--line-color);
 		border-radius: 0.5rem;
 		font-size: 0.88rem;
-		background: #ffffff;
+		background: var(--card-bg);
 		color: var(--deep-text);
 		box-sizing: border-box;
+	}
+	.pair-row input::placeholder {
+		color: var(--text-muted);
+		opacity: 1;
 	}
 	.pair-row input:first-child {
 		flex: 0 0 220px;
