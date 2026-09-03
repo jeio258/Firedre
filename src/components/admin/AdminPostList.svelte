@@ -211,19 +211,7 @@ $: draftCount = posts.length - publishedCount;
 		font-size: 0.82rem;
 		color: var(--text-muted);
 	}
-	.btn-primary {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.46rem 0.95rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
-		border: 1px solid transparent;
-		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
-		text-decoration: none;
-	}
+
 	.pl-filters {
 		display: flex;
 		align-items: center;
@@ -259,20 +247,8 @@ $: draftCount = posts.length - publishedCount;
 		color: var(--deep-text);
 		font-size: 0.86rem;
 	}
-	.btn-danger {
-		padding: 0.42rem 0.8rem;
-		border: 1px solid color-mix(in oklch, var(--danger) 40%, transparent);
-		border-radius: 0.5rem;
-		background: color-mix(in oklch, var(--danger) 10%, transparent);
-		color: var(--danger);
-		font-size: 0.82rem;
-		font-weight: 600;
-		cursor: pointer;
-	}
-	.btn-danger:disabled {
-		opacity: 0.6;
-		cursor: default;
-	}
+
+
 	.pl-empty {
 		text-align: center;
 		padding: 3rem;

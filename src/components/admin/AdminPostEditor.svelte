@@ -354,39 +354,9 @@ onMount(load);
 	.pe-msg.err {
 		color: var(--danger);
 	}
-	.btn-primary {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.46rem 0.95rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
-		border: 1px solid transparent;
-		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
-		cursor: pointer;
-	}
-	.btn-primary:disabled {
-		opacity: 0.6;
-		cursor: default;
-	}
-	.btn-secondary {
-		display: inline-flex;
-		align-items: center;
-		padding: 0.46rem 0.9rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
-		border: 1px solid var(--line-divider);
-		background: var(--card-bg);
-		color: var(--deep-text);
-		text-decoration: none;
-	}
-	.btn-secondary:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
+
+
+
 
 	.pe-grid {
 		display: grid;

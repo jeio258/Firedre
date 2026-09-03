@@ -950,41 +950,9 @@ onMount(load);
 
 
 <style>
-	.btn-primary {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.4rem;
-		padding: 0.5rem 1rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		border-radius: 0.5rem;
-		border: 1px solid transparent;
-		background: var(--primary);
-		color: var(--on-accent);
-		cursor: pointer;
-	}
-	.btn-primary:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-	.btn-secondary {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.4rem;
-		padding: 0.4rem 0.85rem;
-		font-size: 0.85rem;
-		font-weight: 500;
-		border-radius: 0.5rem;
-		border: 1px solid var(--line-color);
-		background: var(--card-bg);
-		color: var(--deep-text);
-		cursor: pointer;
-	}
-	.btn-secondary:hover {
-		background: var(--btn-regular-bg);
-	}
+
+
+
 	.btn-del {
 		background: none;
 		border: none;

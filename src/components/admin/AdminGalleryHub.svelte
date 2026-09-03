@@ -239,13 +239,7 @@
 		display: flex;
 		gap: 0.3rem;
 	}
-	.u-chip {
-		display: inline-block;
-		padding: 0.1rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.7rem;
-		font-weight: 600;
-	}
+
 	.u-chip.on {
 		background: color-mix(in oklch, var(--primary) 18%, transparent);
 		color: var(--primary);
@@ -260,20 +254,8 @@
 		opacity: 0.6;
 		background: var(--btn-regular-bg);
 	}
-	.btn-ghost {
-		padding: 0.34rem 0.75rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.82rem;
-		cursor: pointer;
-		text-decoration: none;
-	}
-	.btn-ghost:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
+
+
 	@media (max-width: 767px) {
 		.hub-table {
 			min-width: 560px;

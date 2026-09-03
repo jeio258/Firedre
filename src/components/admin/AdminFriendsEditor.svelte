@@ -91,14 +91,7 @@
 		flex-shrink: 0;
 		background: var(--btn-regular-bg);
 	}
-	.u-chip {
-		display: inline-block;
-		padding: 0.1rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.7rem;
-		font-weight: 600;
-		vertical-align: middle;
-	}
+
 	.u-chip.off {
 		background: var(--btn-regular-bg);
 		color: var(--text-muted);

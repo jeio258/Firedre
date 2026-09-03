@@ -262,43 +262,12 @@
 	.dyn-loc {
 		color: var(--primary);
 	}
-	.btn-ghost {
-		padding: 0.34rem 0.75rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.82rem;
-		cursor: pointer;
-	}
-	.btn-ghost:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
-	.btn-danger-text {
-		background: none;
-		border: none;
-		color: var(--danger);
-		font-size: 0.82rem;
-		cursor: pointer;
-		padding: 0 0.3rem;
-	}
-	.btn-text {
-		background: none;
-		border: none;
-		color: var(--text-muted);
-		font-size: 0.85rem;
-		cursor: pointer;
-	}
-	.btn-text:hover {
-		color: var(--danger);
-	}
-	.check-line {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		color: var(--deep-text);
-	}
+
+
+
+
+
+
 	.check-line input {
 		accent-color: var(--primary);
 	}

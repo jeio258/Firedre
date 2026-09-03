@@ -242,124 +242,36 @@
 </div>
 
 <style>
-	.crud-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 1080px;
-		margin: 0 auto;
-	}
-	.crud-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
+
 	.crud-head h2 {
 		margin: 0;
 		font-size: 1.12rem;
 		font-weight: 700;
 		color: var(--deep-text);
 	}
-	.crud-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-	}
-	.crud-head-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-	}
-	.crud-msg {
-		font-size: 0.82rem;
-		color: var(--success);
-	}
-	.btn-primary {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		padding: 0.46rem 0.95rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
-		border: 1px solid transparent;
-		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
-		cursor: pointer;
-	}
-	.btn-primary:disabled {
-		opacity: 0.6;
-		cursor: default;
-	}
-	.btn-text {
-		background: none;
-		border: none;
-		color: var(--text-muted);
-		font-size: 0.85rem;
-		cursor: pointer;
-	}
-	.btn-text:hover {
-		color: var(--danger);
-	}
-	.btn-ghost {
-		padding: 0.34rem 0.75rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.82rem;
-		cursor: pointer;
-	}
-	.btn-ghost:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
-	.btn-danger-text {
-		background: none;
-		border: none;
-		color: var(--danger);
-		font-size: 0.82rem;
-		cursor: pointer;
-	}
+
+
+
+
+
+
+
+
+
 
 	.crud-extra {
 		display: contents;
 	}
 
-	.crud-card {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.9rem;
-		padding: 1.1rem 1.15rem;
-	}
-	.crud-form-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding-bottom: 0.6rem;
-		border-bottom: 1px solid var(--line-divider);
-		margin-bottom: 1rem;
-	}
+
 	.crud-form-head h3 {
 		margin: 0;
 		font-size: 0.95rem;
 		font-weight: 600;
 		color: var(--deep-text);
 	}
-	.crud-form {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 0.9rem 1rem;
-	}
-	.crud-field {
-		display: flex;
-		flex-direction: column;
-		gap: 0.3rem;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-	}
+
+
 	.crud-field input,
 	.crud-field select {
 		padding: 0.48rem 0.65rem;
@@ -371,64 +283,17 @@
 		width: 100%;
 		box-sizing: border-box;
 	}
-	.check-line {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.3rem 0;
-		color: var(--deep-text);
-	}
+
 	.check-line input {
 		width: auto;
 		accent-color: var(--primary);
 	}
-	.check-text {
-		font-size: 0.9rem;
-	}
-	.crud-form-actions {
-		margin-top: 1rem;
-	}
-	.crud-empty {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.9rem;
-		padding: 2.5rem;
-		text-align: center;
-		color: var(--text-muted);
-		font-size: 0.88rem;
-	}
-	.crud-list {
-		display: flex;
-		flex-direction: column;
-		gap: 0.6rem;
-	}
-	.crud-row {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		padding: 0.85rem 1.1rem;
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.8rem;
-		transition: border-color 0.14s;
-	}
-	.crud-row:hover {
-		border-color: color-mix(in oklch, var(--primary) 40%, transparent);
-	}
-	.crud-row-main {
-		flex: 1;
-		min-width: 0;
-	}
-	.crud-row-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-shrink: 0;
-	}
 
-	@media (min-width: 640px) {
-		.crud-form {
-			grid-template-columns: 1fr 1fr;
-		}
-	}
-</style>
+
+
+
+
+
+
+
+	</style>
