@@ -867,20 +867,20 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 			</div>
 			<div class="header-actions">
 				{#if message}
-					<span class="msg">{message}</span>
+					<span class="crud-msg">{message}</span>
 				{/if}
-				<button class="btn-save" on:click={save} disabled={saving}>
+				<button class="btn-primary" on:click={save} disabled={saving}>
 					{saving ? "保存中…" : "保存全部"}
 				</button>
 			</div>
 		</div>
 
 		{#if loading}
-			<div class="loading">加载中…</div>
+			<div class="crud-empty">加载中…</div>
 		{:else if loadError}
-			<div class="load-error">{loadError}</div>
+			<div class="crud-empty danger">{loadError}</div>
 		{:else if !data[currentGroup().key]}
-			<div class="load-error">当前配置组数据缺失，请刷新重试</div>
+			<div class="crud-empty danger">当前配置组数据缺失，请刷新重试</div>
 		{:else}
 			{#if activeGroup === "nav"}
 				<div class="card">
@@ -960,6 +960,40 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 </div>
 
 <style>
+	.btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.46rem 0.95rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		border-radius: 0.55rem;
+		border: 1px solid transparent;
+		background: linear-gradient(135deg, var(--primary), var(--title-active));
+		color: var(--on-accent);
+		cursor: pointer;
+	}
+	.btn-primary:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+	.crud-msg {
+		font-size: 0.82rem;
+		color: var(--success);
+	}
+	.crud-empty {
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.9rem;
+		padding: 2.5rem;
+		text-align: center;
+		color: var(--text-muted);
+		font-size: 0.88rem;
+	}
+	.crud-empty.danger {
+		color: var(--danger);
+		border-color: color-mix(in oklch, var(--danger) 35%, transparent);
+	}
 	.settings-app {
 		display: flex;
 		gap: 1.25rem;
@@ -1040,38 +1074,12 @@ const catOf = (key: string) => groupOf(key)?.category ?? "站点配置";
 		align-items: center;
 		gap: 0.75rem;
 	}
-	.btn-save {
-		padding: 0.55rem 1.1rem;
-		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
-		border: none;
-		border-radius: 0.55rem;
-		font-size: 0.9rem;
-		font-weight: 600;
-		cursor: pointer;
-		box-shadow: 0 2px 8px rgb(91 140 255 / 0.35);
-		transition: transform 0.15s, box-shadow 0.15s;
-	}
-	.btn-save:hover:not(:disabled) {
-		transform: translateY(-1px);
-		box-shadow: 0 4px 14px rgb(91 140 255 / 0.45);
-	}
-	.btn-save:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
-	.loading {
-		padding: 3rem;
-		text-align: center;
-		color: var(--muted);
-	}
+	.btn-save,
+	.msg,
+	.loading,
 	.load-error {
-		padding: 2rem;
-		text-align: center;
-		color: var(--danger);
-		background: rgb(239 68 68 / 0.08);
-		border: 1px solid rgb(239 68 68 / 0.3);
-		border-radius: 0.75rem;
+		/* 已迁至 .btn-primary / .crud-msg / .crud-empty */
+		display: none;
 	}
 	.card {
 		background: var(--card-bg);
