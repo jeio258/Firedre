@@ -1033,14 +1033,17 @@ onMount(load);
 	}
 	.toggle-grid {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 0.75rem;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 1rem;
 	}
 	.toggle-item {
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 0.5rem;
+		min-width: 0;
 		min-height: 2.75rem;
+		box-sizing: border-box;
 		padding: 0.5rem 0.75rem;
 		background: color-mix(in oklch, var(--btn-regular-bg) 70%, transparent);
 		border: 1px solid var(--line-divider);
@@ -1048,7 +1051,6 @@ onMount(load);
 		font-size: 0.875rem;
 		color: var(--deep-text);
 		cursor: pointer;
-		min-width: 0;
 		transition: border-color 0.15s, background 0.15s;
 	}
 	.toggle-item:hover {
@@ -1064,15 +1066,10 @@ onMount(load);
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
-	@media (min-width: 640px) {
-		.toggle-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media (min-width: 1024px) {
-		.toggle-grid {
-			grid-template-columns: repeat(5, 1fr);
-		}
+	.toggle-item .switch {
+		width: 44px;
+		height: 24px;
+		flex: 0 0 44px;
 	}
 	.settings-row {
 		display: grid;
