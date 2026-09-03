@@ -901,37 +901,63 @@ onMount(load);
 					<div class="crud-card">
 						{#each groups as group}
 							{#each group.fields as field}
-								<div class="settings-row">
-									<div class="settings-label">
-										<span>{field.label}</span>
-										{#if field.hint}
-											<small>{field.hint}</small>
-										{/if}
-									</div>
-									<div class="settings-ctrl">
-										{#if field.type === "boolean"}
-											<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
-												on:click={() => cycleBool(group.key, field.name)}>
-												<span class="knob"></span>
-											</button>
-										{:else if field.type === "textarea" || field.type === "json"}
-											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-											{#if field.type === "json"}
-												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
+								{#if !(field.type === "boolean" && field.label?.startsWith("页面开关"))}
+									<div class="settings-row">
+										<div class="settings-label">
+											<span>{field.label}</span>
+											{#if field.hint}
+												<small>{field.hint}</small>
 											{/if}
-										{:else if field.type === "password"}
-											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-										{:else if field.type === "number"}
-											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
-										{:else}
-											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-										{/if}
+										</div>
+										<div class="settings-ctrl">
+											{#if field.type === "boolean"}
+												<button class="switch" class:on={data[group.key]?.[field.name] === true} title="开 / 关"
+													on:click={() => cycleBool(group.key, field.name)}>
+													<span class="knob"></span>
+												</button>
+											{:else if field.type === "textarea" || field.type === "json"}
+												<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+												{#if field.type === "json"}
+													<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
+												{/if}
+											{:else if field.type === "password"}
+												<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											{:else if field.type === "number"}
+												<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+											{:else}
+												<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											{/if}
+										</div>
 									</div>
-								</div>
+								{/if}
 							{/each}
 						{/each}
 					</div>
 				</section>
+
+				{#if cat === "站点配置"}
+					{@const toggles = GROUPS.filter((g) => g.category === cat).flatMap((g) => g.fields).filter((f) => f.type === "boolean" && f.label?.startsWith("页面开关"))}
+					{#if toggles.length}
+						<section class="settings-section">
+							<h3 class="settings-cat">页面开关</h3>
+							<p class="settings-cat-desc">控制前台各功能页是否启用</p>
+							<div class="crud-card">
+								<div class="toggle-grid">
+									{#each toggles as field}
+										{@const originalGroup = GROUPS.find((g) => g.fields.includes(field))}
+										<label class="toggle-item">
+											<button class="switch" class:on={data[originalGroup?.key ?? ""]?.[field.name] === true} title="开 / 关"
+												on:click={() => cycleBool(originalGroup!.key, field.name)}>
+												<span class="knob"></span>
+											</button>
+											<span class="toggle-label">{field.label.startsWith("页面开关：") ? field.label.slice(5) : field.label}</span>
+										</label>
+									{/each}
+								</div>
+							</div>
+						</section>
+					{/if}
+				{/if}
 			{/if}
 		{/each}
 	{/if}
@@ -998,6 +1024,42 @@ onMount(load);
 		font-weight: 700;
 		color: var(--deep-text);
 		letter-spacing: 0.02em;
+	}
+	.settings-cat-desc {
+		margin: 0;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		font-weight: 400;
+	}
+	.toggle-grid {
+		display: grid;
+		grid-template-columns: repeat(5, 1fr);
+		gap: 0.6rem;
+	}
+	.toggle-item {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+		padding: 0.55rem 0.85rem;
+		background: #f8fafc;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.55rem;
+		font-size: 0.88rem;
+		color: var(--deep-text);
+		cursor: pointer;
+		min-width: 0;
+	}
+	.toggle-item:hover {
+		border-color: var(--primary);
+	}
+	.toggle-item .switch {
+		flex-shrink: 0;
+	}
+	.toggle-label {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 	.settings-row {
 		display: grid;
@@ -1160,6 +1222,14 @@ onMount(load);
 		}
 		.pair-row .btn-del {
 			align-self: flex-end;
+		}
+		.toggle-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+	@media (max-width: 480px) {
+		.toggle-grid {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>
