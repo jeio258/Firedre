@@ -1016,46 +1016,6 @@ onMount(load);
 		color: var(--text-muted);
 		font-weight: 400;
 	}
-	.toggle-grid {
-		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		gap: 1rem;
-	}
-	.toggle-item {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		min-width: 0;
-		min-height: 2.75rem;
-		box-sizing: border-box;
-		padding: 0.5rem 0.75rem;
-		background: color-mix(in oklch, var(--btn-regular-bg) 70%, transparent);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		font-size: 0.875rem;
-		color: var(--deep-text);
-		cursor: pointer;
-		transition: border-color 0.15s, background 0.15s;
-	}
-	.toggle-item:hover {
-		border-color: var(--line-color);
-		background: var(--btn-regular-bg);
-	}
-	.toggle-item .switch {
-		flex-shrink: 0;
-	}
-	.toggle-label {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.toggle-item .switch {
-		width: 44px;
-		height: 24px;
-		flex: 0 0 44px;
-	}
 	.settings-row {
 		display: grid;
 		grid-template-columns: 240px 1fr;
@@ -1174,38 +1134,6 @@ onMount(load);
 		font-size: 0.8rem;
 		font-weight: 600;
 		color: var(--deep-text);
-	}
-	.switch {
-		width: 44px;
-		height: 24px;
-		border-radius: 999px;
-		border: none;
-		background: #cbd5e1; /* off 轨道灰（cms-admin slate-300） */
-		position: relative;
-		cursor: pointer;
-		transition: background 0.2s;
-		flex-shrink: 0;
-		padding: 0;
-	}
-	.switch.on {
-		background: var(--primary);
-	}
-	.switch:active {
-		transform: scale(0.95);
-	}
-	.knob {
-		position: absolute;
-		top: 3px;
-		left: 3px;
-		width: 18px;
-		height: 18px;
-		border-radius: 50%;
-		background: #ffffff;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
-		transition: left 0.2s;
-	}
-	.switch.on .knob {
-		left: 23px;
 	}
 	.json-hint {
 		color: var(--text-muted);
