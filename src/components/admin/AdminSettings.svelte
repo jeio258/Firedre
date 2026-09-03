@@ -1033,24 +1033,27 @@ onMount(load);
 	}
 	.toggle-grid {
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		gap: 0.6rem;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.75rem;
 	}
 	.toggle-item {
 		display: flex;
 		align-items: center;
-		gap: 0.6rem;
-		padding: 0.55rem 0.85rem;
-		background: var(--btn-regular-bg);
+		gap: 0.5rem;
+		min-height: 2.75rem;
+		padding: 0.5rem 0.75rem;
+		background: color-mix(in oklch, var(--btn-regular-bg) 70%, transparent);
 		border: 1px solid var(--line-divider);
-		border-radius: 0.55rem;
-		font-size: 0.88rem;
+		border-radius: 0.5rem;
+		font-size: 0.875rem;
 		color: var(--deep-text);
 		cursor: pointer;
 		min-width: 0;
+		transition: border-color 0.15s, background 0.15s;
 	}
 	.toggle-item:hover {
-		border-color: var(--primary);
+		border-color: var(--line-color);
+		background: var(--btn-regular-bg);
 	}
 	.toggle-item .switch {
 		flex-shrink: 0;
@@ -1060,6 +1063,16 @@ onMount(load);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+	@media (min-width: 640px) {
+		.toggle-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media (min-width: 1024px) {
+		.toggle-grid {
+			grid-template-columns: repeat(5, 1fr);
+		}
 	}
 	.settings-row {
 		display: grid;
@@ -1174,16 +1187,20 @@ onMount(load);
 	.switch {
 		width: 44px;
 		height: 24px;
-		border-radius: 12px;
+		border-radius: 999px;
 		border: none;
-		background: var(--line-divider);
+		background: #cbd5e1; /* off 轨道灰（cms-admin slate-300） */
 		position: relative;
 		cursor: pointer;
 		transition: background 0.2s;
 		flex-shrink: 0;
+		padding: 0;
 	}
 	.switch.on {
 		background: var(--primary);
+	}
+	.switch:active {
+		transform: scale(0.95);
 	}
 	.knob {
 		position: absolute;
@@ -1193,7 +1210,7 @@ onMount(load);
 		height: 18px;
 		border-radius: 50%;
 		background: #ffffff;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
 		transition: left 0.2s;
 	}
 	.switch.on .knob {
@@ -1222,14 +1239,6 @@ onMount(load);
 		}
 		.pair-row .btn-del {
 			align-self: flex-end;
-		}
-		.toggle-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
-	@media (max-width: 480px) {
-		.toggle-grid {
-			grid-template-columns: 1fr;
 		}
 	}
 </style>
