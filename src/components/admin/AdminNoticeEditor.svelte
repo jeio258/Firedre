@@ -22,7 +22,6 @@
 				}
 			}
 		} catch {
-			// 忽略
 		}
 		loading = false;
 	}

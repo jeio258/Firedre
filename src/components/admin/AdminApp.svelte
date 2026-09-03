@@ -190,7 +190,7 @@
 		}
 	}
 
-	// 登录成功（AdminLogin 回调）：SPA 内直接进入后台，无需整页刷新
+	// 登录成功后 SPA 直接进入后台
 	function handleLoginSuccess() {
 		authed = true;
 		checking = false;
@@ -276,7 +276,7 @@
 		window.location.replace("/admin/");
 	}
 
-	// 修改密码（从仪表盘迁移至顶栏用户区）
+	// 修改密码
 	function togglePwdPanel() {
 		pwdPanelOpen = !pwdPanelOpen;
 		if (pwdPanelOpen) {

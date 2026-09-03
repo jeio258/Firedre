@@ -63,7 +63,6 @@
 				imgbedDir = data.imgbedDir ?? "";
 			}
 		} catch {
-			// 忽略
 		}
 	}
 
@@ -130,7 +129,6 @@
 				hasPassword = !!data.hasPassword;
 			}
 		} catch {
-			// 忽略
 		}
 	}
 
