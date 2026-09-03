@@ -60,7 +60,7 @@
 				<div class="friend-name">
 					{item.title}
 					{#if !item.enabled}
-						<span class="badge muted">未启用</span>
+						<span class="u-chip off">未启用</span>
 					{/if}
 				</div>
 				<div class="friend-desc">{item.desc || "无描述"}</div>
@@ -84,11 +84,24 @@
 		gap: 0.8rem;
 	}
 	.avatar {
-		width: 48px;
-		height: 48px;
-		border-radius: 0.5rem;
+		width: 52px;
+		height: 52px;
+		border-radius: 0.75rem;
 		object-fit: cover;
 		flex-shrink: 0;
+		background: var(--btn-regular-bg);
+	}
+	.u-chip {
+		display: inline-block;
+		padding: 0.1rem 0.5rem;
+		border-radius: 999px;
+		font-size: 0.7rem;
+		font-weight: 600;
+		vertical-align: middle;
+	}
+	.u-chip.off {
+		background: var(--btn-regular-bg);
+		color: var(--text-muted);
 	}
 	.friend-text {
 		min-width: 0;

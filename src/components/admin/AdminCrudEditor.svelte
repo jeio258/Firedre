@@ -17,17 +17,13 @@
 	}
 
 	interface Props {
-
 		apiPath: string;
 		title: string;
 		addLabel: string;
 		entityName: string;
 		fields: CrudField[];
-
 		identify: (item: Record<string, unknown>) => string;
-
 		extraBlock?: Snippet;
-
 		children: Snippet;
 	}
 
@@ -130,7 +126,7 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存 ✓";
+			message = "已保存";
 			showForm = false;
 			editingId = null;
 			await load();
@@ -151,7 +147,7 @@
 				return;
 			}
 			if (editingId === item.id) cancelForm();
-			message = "已删除 ✓";
+			message = "已删除";
 			await load();
 		} catch {
 			message = "网络错误";
@@ -161,12 +157,15 @@
 	onMount(load);
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>{title}</h2>
-		<div class="actions">
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>{title}</h2>
+			<p class="crud-sub">共 {items.length} 条</p>
+		</div>
+		<div class="crud-head-actions">
 			{#if message}
-				<span class="msg">{message}</span>
+				<span class="crud-msg">{message}</span>
 			{/if}
 			{#if !showForm}
 				<button class="btn-primary" on:click={openCreate}>{addLabel}</button>
@@ -175,67 +174,261 @@
 	</div>
 
 	{#if extraBlock}
-		{@render extraBlock()}
+		<div class="crud-extra">
+			{@render extraBlock()}
+		</div>
 	{/if}
 
 	{#if error}
-		<p class="hint">{error}</p>
+		<div class="crud-empty">{error}</div>
 	{:else if loading}
-		<p class="hint">加载中…</p>
+		<div class="crud-empty">加载中…</div>
 	{:else if showForm}
-		<div class="form">
-			<div class="form-head">
+		<div class="crud-card">
+			<div class="crud-form-head">
 				<h3>{editingId ? `编辑${entityName}` : `添加${entityName}`}</h3>
-				<button class="danger" on:click={cancelForm}>取消</button>
+				<button class="btn-text" on:click={cancelForm}>取消</button>
 			</div>
-			{#each fields as f}
-				{#if f.type === "checkbox"}
-					<label class="field check">
-						<input type="checkbox" bind:checked={formValues[f.key]} />
-						<span>{f.label}</span>
+			<div class="crud-form">
+				{#each fields as f}
+					<label class="crud-field">
+						{#if f.type !== "checkbox"}
+							<span>{f.label}</span>
+						{/if}
+						{#if f.type === "checkbox"}
+							<div class="check-line">
+								<input type="checkbox" bind:checked={formValues[f.key]} />
+								<span class="check-text">{f.label}</span>
+							</div>
+						{:else if f.type === "select"}
+							<select bind:value={formValues[f.key]}>
+								{#each f.options ?? [] as opt}
+									<option value={opt.value}>{opt.label}</option>
+								{/each}
+							</select>
+						{:else if f.type === "number"}
+							<input type="number" min="0" bind:value={formValues[f.key]} />
+						{:else}
+							<input type="text" placeholder={f.placeholder} bind:value={formValues[f.key]} />
+						{/if}
 					</label>
-				{:else if f.type === "select"}
-					<label class="field">
-						<span>{f.label}</span>
-						<select bind:value={formValues[f.key]}>
-							{#each f.options ?? [] as opt}
-								<option value={opt.value}>{opt.label}</option>
-							{/each}
-						</select>
-					</label>
-				{:else if f.type === "number"}
-					<label class="field">
-						<span>{f.label}</span>
-						<input type="number" min="0" bind:value={formValues[f.key]} />
-					</label>
-				{:else}
-					<label class="field">
-						<span>{f.label}</span>
-						<input type="text" placeholder={f.placeholder} bind:value={formValues[f.key]} />
-					</label>
-				{/if}
-			{/each}
-			<div class="form-actions">
+				{/each}
+			</div>
+			<div class="crud-form-actions">
 				<button class="btn-primary" on:click={submit} disabled={saving}>
 					{saving ? "保存中…" : "保存"}
 				</button>
 			</div>
 		</div>
 	{:else if items.length === 0}
-		<p class="hint">暂无{entityName}，点击"{addLabel}"创建第一条。</p>
+		<div class="crud-empty">
+			暂无{entityName}，点击「{addLabel}」创建第一条。
+		</div>
 	{:else}
-		<ul class="list">
+		<div class="crud-list">
 			{#each items as item}
-				<li class="row">
-					<div class="row-main">
+				<div class="crud-row">
+					<div class="crud-row-main">
 						{@render children({ item, onEdit: () => openEdit(item), onRemove: () => remove(item) })}
 					</div>
-					<div class="row-actions">
+					<div class="crud-row-actions">
 						<button class="btn-ghost" on:click={() => openEdit(item)}>编辑</button>
-						<button class="danger" on:click={() => remove(item)}>删除</button>
+						<button class="btn-danger-text" on:click={() => remove(item)}>删除</button>
 					</div>
-				</li>
+				</div>
 			{/each}
-		</ul>
+		</div>
 	{/if}
 </div>
+
+<style>
+	.crud-page {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		max-width: 1080px;
+		margin: 0 auto;
+	}
+	.crud-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+	.crud-head h2 {
+		margin: 0;
+		font-size: 1.12rem;
+		font-weight: 700;
+		color: var(--deep-text);
+	}
+	.crud-sub {
+		margin: 0.2rem 0 0;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+	}
+	.crud-head-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.6rem;
+	}
+	.crud-msg {
+		font-size: 0.82rem;
+		color: var(--success);
+	}
+	.btn-primary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.46rem 0.95rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		border-radius: 0.55rem;
+		border: 1px solid transparent;
+		background: linear-gradient(135deg, var(--primary), var(--title-active));
+		color: var(--on-accent);
+		cursor: pointer;
+	}
+	.btn-primary:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+	.btn-text {
+		background: none;
+		border: none;
+		color: var(--text-muted);
+		font-size: 0.85rem;
+		cursor: pointer;
+	}
+	.btn-text:hover {
+		color: var(--danger);
+	}
+	.btn-ghost {
+		padding: 0.34rem 0.75rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--deep-text);
+		font-size: 0.82rem;
+		cursor: pointer;
+	}
+	.btn-ghost:hover {
+		border-color: var(--primary);
+		color: var(--primary);
+	}
+	.btn-danger-text {
+		background: none;
+		border: none;
+		color: var(--danger);
+		font-size: 0.82rem;
+		cursor: pointer;
+	}
+
+	.crud-extra {
+		display: contents;
+	}
+
+	.crud-card {
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.9rem;
+		padding: 1.1rem 1.15rem;
+	}
+	.crud-form-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-bottom: 0.6rem;
+		border-bottom: 1px solid var(--line-divider);
+		margin-bottom: 1rem;
+	}
+	.crud-form-head h3 {
+		margin: 0;
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: var(--deep-text);
+	}
+	.crud-form {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 0.9rem 1rem;
+	}
+	.crud-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+	}
+	.crud-field input,
+	.crud-field select {
+		padding: 0.48rem 0.65rem;
+		border: 1px solid var(--line-divider);
+		border-radius: 0.5rem;
+		background: transparent;
+		color: var(--deep-text);
+		font-size: 0.88rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+	.check-line {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.3rem 0;
+		color: var(--deep-text);
+	}
+	.check-line input {
+		width: auto;
+		accent-color: var(--primary);
+	}
+	.check-text {
+		font-size: 0.9rem;
+	}
+	.crud-form-actions {
+		margin-top: 1rem;
+	}
+	.crud-empty {
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.9rem;
+		padding: 2.5rem;
+		text-align: center;
+		color: var(--text-muted);
+		font-size: 0.88rem;
+	}
+	.crud-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+	.crud-row {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		padding: 0.85rem 1.1rem;
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.8rem;
+		transition: border-color 0.14s;
+	}
+	.crud-row:hover {
+		border-color: color-mix(in oklch, var(--primary) 40%, transparent);
+	}
+	.crud-row-main {
+		flex: 1;
+		min-width: 0;
+	}
+	.crud-row-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-shrink: 0;
+	}
+
+	@media (min-width: 640px) {
+		.crud-form {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+</style>
