@@ -1,41 +1,26 @@
-/* Firedre 后台 cms-admin 化：套用 cms-admin(React 参考)视觉
- * - 冷色蓝紫主色 brand-600 #4f46e5
- * - 实心按钮 / 白卡 + 圆角 0.75rem + 柔和阴影
- * - 字段 border-slate-300 灰边
- * - 中文字体 PingFang SC / Microsoft YaHei
+/* Firedre 后台 cms-admin 化（结构套用 cms-admin React 参考；颜色复用项目主题）
+ * - 颜色一律使用项目主题变量（var(--primary)/--card-bg/--btn-regular-bg 等），
+ *   跟随前台 light/dark，不在此覆盖色板
+ * - 结构：白卡 + 圆角 0.75rem + 柔和阴影 / 实心主按钮 / 网格 toggle
+ * - 字体 PingFang SC / Microsoft YaHei 等中文优先
  */
 
 .admin-shell {
-	--primary: #4f46e5;
-	--primary-hover: #4338ca;
-	--primary-soft: #eef2ff;
-	--title-active: #4f46e5;
-	--card-bg: #ffffff;
-	--page-bg: #f8fafc;
-	--btn-regular-bg: #f1f5f9;
-	--btn-regular-bg-hover: #e2e8f0;
-	--text-muted: #64748b;
-	--deep-text: #0f172a;
-	--line-divider: #e2e8f0;
-	--line-color: #cbd5e1;
-	--success: #10b981;
-	--danger: #ef4444;
-	--warning: #f59e0b;
-	--on-accent: #ffffff;
-	--muted: var(--text-muted);
 	--radius-large: 0.75rem;
 	--radius-medium: 0.5rem;
+	--shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
 		"Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 }
 
+/* 卡片容器 */
 .admin-shell .card,
 .admin-shell .admin-card,
 .admin-shell .crud-card {
-	background: #ffffff;
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
-	box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
+	box-shadow: var(--shadow-card);
 	padding: 1.25rem;
 }
 
@@ -54,12 +39,11 @@
 	gap: 1rem;
 	flex-wrap: wrap;
 	padding: 1rem 1.25rem;
-	background: #ffffff;
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
 	box-shadow: 0 1px 2px 0 rgb(16 24 40 / 0.04);
 }
-
 .admin-shell .crud-head h2 {
 	margin: 0;
 	font-size: 1.1rem;
@@ -82,7 +66,7 @@
 	color: var(--success);
 }
 .admin-shell .crud-empty {
-	background: #ffffff;
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
 	padding: 3rem 1.5rem;
@@ -100,7 +84,7 @@
 	align-items: center;
 	gap: 1rem;
 	padding: 0.9rem 1.1rem;
-	background: #ffffff;
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
 	transition: border-color 0.15s, box-shadow 0.15s;
@@ -165,7 +149,7 @@
 	padding: 0.55rem 0.75rem;
 	border: 1px solid var(--line-color);
 	border-radius: var(--radius-medium);
-	background: #ffffff;
+	background: var(--card-bg);
 	color: var(--deep-text);
 	font-size: 0.9rem;
 	width: 100%;
@@ -180,7 +164,7 @@
 .admin-shell textarea.ctrl:focus {
 	outline: none;
 	border-color: var(--primary);
-	box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
+	box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
 }
 .admin-shell .crud-field textarea,
 .admin-shell textarea.ctrl {
@@ -189,6 +173,7 @@
 	line-height: 1.6;
 }
 
+/* 主按钮（实心，项目主色） */
 .admin-shell .btn-primary {
 	display: inline-flex;
 	align-items: center;
@@ -202,10 +187,10 @@
 	background: var(--primary);
 	color: var(--on-accent);
 	cursor: pointer;
-	transition: background 0.15s, box-shadow 0.15s;
+	transition: filter 0.15s, background 0.15s;
 }
 .admin-shell .btn-primary:hover:not(:disabled) {
-	background: var(--primary-hover);
+	filter: brightness(0.94);
 }
 .admin-shell .btn-primary:disabled {
 	opacity: 0.5;
@@ -222,7 +207,7 @@
 	font-weight: 500;
 	border-radius: var(--radius-medium);
 	border: 1px solid var(--line-color);
-	background: #ffffff;
+	background: var(--card-bg);
 	color: var(--deep-text);
 	cursor: pointer;
 	transition: background 0.15s;
@@ -241,12 +226,12 @@
 	font-weight: 500;
 	border-radius: var(--radius-medium);
 	border: 1px solid transparent;
-	background: #ef4444;
+	background: var(--danger);
 	color: var(--on-accent);
 	cursor: pointer;
 }
 .admin-shell .btn-danger:hover {
-	background: #dc2626;
+	filter: brightness(0.94);
 }
 
 .admin-shell .btn-ghost {
@@ -259,7 +244,7 @@
 	font-weight: 500;
 	border-radius: var(--radius-medium);
 	border: 1px solid var(--line-color);
-	background: #ffffff;
+	background: var(--card-bg);
 	color: var(--deep-text);
 	cursor: pointer;
 	transition: background 0.15s, border-color 0.15s;
@@ -291,10 +276,11 @@
 	padding: 0.4rem 0.5rem;
 }
 .admin-shell .btn-danger-text:hover {
-	color: #dc2626;
+	color: var(--danger);
 	text-decoration: underline;
 }
 
+/* 徽标 */
 .admin-shell .u-chip {
 	display: inline-flex;
 	align-items: center;
@@ -305,7 +291,7 @@
 	line-height: 1.4;
 }
 .admin-shell .u-chip.on {
-	background: var(--primary-soft);
+	background: color-mix(in oklch, var(--primary) 15%, transparent);
 	color: var(--primary);
 }
 .admin-shell .u-chip.off {
@@ -313,16 +299,12 @@
 	color: var(--text-muted);
 }
 .admin-shell .u-chip.success {
-	background: #d1fae5;
-	color: #047857;
+	background: color-mix(in oklch, var(--success) 15%, transparent);
+	color: var(--success);
 }
 .admin-shell .u-chip.danger {
-	background: #fee2e2;
-	color: #b91c1c;
-}
-.admin-shell .u-chip.warn {
-	background: #fef3c7;
-	color: #b45309;
+	background: color-mix(in oklch, var(--danger) 15%, transparent);
+	color: var(--danger);
 }
 
 .admin-shell .check-line {
@@ -345,7 +327,6 @@
 	color: var(--text-muted);
 	font-size: 0.85rem;
 }
-
 .admin-shell .toolbar {
 	display: flex;
 	align-items: center;
@@ -360,7 +341,6 @@
 	gap: 0.6rem;
 	flex-wrap: wrap;
 }
-
 @media (max-width: 640px) {
 	.admin-shell .toolbar {
 		flex-direction: column;
@@ -371,29 +351,12 @@
 	}
 }
 
-/* 滚动条（细，cms-admin 风格） */
-.admin-shell ::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-}
-.admin-shell ::-webkit-scrollbar-thumb {
-	background: rgb(203 213 225);
-	border-radius: 9999px;
-}
-.admin-shell ::-webkit-scrollbar-thumb:hover {
-	background: rgb(148 163 184);
-}
-.admin-shell ::-webkit-scrollbar-track {
-	background: transparent;
-}
-
 /* ============================================================
- * 外壳：侧栏 / 顶栏 / 卡片 / 菜单（按 cms-admin(React) 视觉）
- * 覆盖 AdminApp.svelte 的 .admin-sidebar / .admin-nav-item 等
+ * 外壳：侧栏 / 顶栏 / 菜单（结构按 cms-admin，颜色用项目主题）
  * ============================================================ */
 
 .admin-shell .admin-sidebar {
-	background: #ffffff !important;
+	background: var(--card-bg) !important;
 	border-right: 1px solid var(--line-divider);
 }
 .admin-shell .brand-logo,
@@ -404,7 +367,7 @@
 	font-weight: 700;
 }
 .admin-shell .admin-nav-title {
-	color: #94a3b8 !important;
+	color: var(--text-muted) !important;
 	font-size: 0.72rem !important;
 	font-weight: 600 !important;
 	letter-spacing: 0.08em;
@@ -413,7 +376,7 @@
 }
 .admin-shell .admin-nav-item {
 	opacity: 1 !important;
-	color: #334155 !important;
+	color: var(--deep-text) !important;
 	font-size: 0.88rem !important;
 	font-weight: 400 !important;
 	padding: 0.5rem 0.75rem !important;
@@ -426,11 +389,11 @@
 	transition: background 0.15s, color 0.15s !important;
 }
 .admin-shell .admin-nav-item:hover {
-	background: #f1f5f9 !important;
-	color: #0f172a !important;
+	background: var(--btn-regular-bg) !important;
+	color: var(--deep-text) !important;
 }
 .admin-shell .admin-nav-item.active {
-	background: #eef2ff !important;
+	background: color-mix(in oklch, var(--primary) 14%, transparent) !important;
 	color: var(--primary) !important;
 	font-weight: 600 !important;
 }
@@ -448,29 +411,27 @@
 .admin-shell .admin-user-avatar {
 	background: var(--primary) !important;
 	background-image: none !important;
-	color: #fff;
+	color: var(--on-accent);
 	font-weight: 600;
 }
 .admin-shell .admin-user-name {
-	color: #0f172a;
+	color: var(--deep-text);
 	font-size: 0.9rem;
 }
 
-/* 顶栏 */
 .admin-shell .admin-topbar {
-	background: #ffffff !important;
+	background: var(--card-bg) !important;
 	border-bottom: 1px solid var(--line-divider);
 }
 .admin-shell .admin-topbar-title h1 {
-	color: #0f172a;
+	color: var(--deep-text);
 	font-size: 1.05rem;
 	font-weight: 600;
 }
 .admin-shell .admin-menu-toggle {
-	color: #475569;
+	color: var(--text-muted);
 }
 
-/* 顶栏 admin-btn-primary（如"新建文章"） */
 .admin-shell .admin-btn-primary {
 	display: inline-flex !important;
 	align-items: center;
@@ -481,16 +442,15 @@
 	border-radius: 0.5rem !important;
 	background: var(--primary) !important;
 	background-image: none !important;
-	color: #ffffff !important;
+	color: var(--on-accent) !important;
 	border: 1px solid transparent !important;
 	text-decoration: none !important;
-	transition: background 0.15s !important;
+	transition: filter 0.15s !important;
 }
 .admin-shell .admin-btn-primary:hover {
-	background: var(--primary-hover) !important;
+	filter: brightness(0.94);
 }
 
-/* 顶栏用户菜单触发器 */
 .admin-shell .admin-user-trigger {
 	display: flex;
 	align-items: center;
@@ -499,22 +459,21 @@
 	border-radius: 0.5rem;
 	background: transparent;
 	border: 1px solid transparent;
-	color: #0f172a;
+	color: var(--deep-text);
 	cursor: pointer;
 	font-size: 0.88rem;
 	transition: background 0.15s;
 }
 .admin-shell .admin-user-trigger:hover {
-	background: #f1f5f9;
+	background: var(--btn-regular-bg);
 }
 .admin-shell .admin-caret {
-	color: #64748b;
+	color: var(--text-muted);
 	font-size: 0.7rem;
 }
 
-/* 下拉菜单 */
 .admin-shell .admin-dropdown {
-	background: #ffffff;
+	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 30px rgb(16 24 40 / 0.12);
@@ -529,25 +488,23 @@
 	padding: 0.5rem 0.7rem;
 	background: transparent;
 	border: none;
-	color: #334155;
+	color: var(--deep-text);
 	font-size: 0.88rem;
 	border-radius: 0.375rem;
 	cursor: pointer;
 	text-align: left;
 }
 .admin-shell .admin-dropdown-item:hover {
-	background: #f1f5f9;
-	color: #0f172a;
+	background: var(--btn-regular-bg);
 }
 .admin-shell .admin-dropdown-item.danger {
 	color: var(--danger);
 }
 .admin-shell .admin-dropdown-item.danger:hover {
-	background: #fef2f2;
-	color: #b91c1c;
+	background: color-mix(in oklch, var(--danger) 12%, transparent);
+	color: var(--danger);
 }
 
-/* 移动端抽屉遮罩 */
 .admin-shell .admin-overlay {
 	background: rgba(15, 23, 42, 0.45) !important;
 }

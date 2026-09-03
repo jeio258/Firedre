@@ -1041,7 +1041,7 @@ onMount(load);
 		align-items: center;
 		gap: 0.6rem;
 		padding: 0.55rem 0.85rem;
-		background: #f8fafc;
+		background: var(--btn-regular-bg);
 		border: 1px solid var(--line-divider);
 		border-radius: 0.55rem;
 		font-size: 0.88rem;
@@ -1112,7 +1112,7 @@ onMount(load);
 	.settings-ctrl textarea:focus {
 		outline: none;
 		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
+		box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
 	}
 	.settings-ctrl textarea {
 		min-height: 96px;
@@ -1157,7 +1157,7 @@ onMount(load);
 	.pair-row input:focus {
 		outline: none;
 		border-color: var(--primary);
-		box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
+		box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
 	}
 
 	.switch-wrap {
