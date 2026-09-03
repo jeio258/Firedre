@@ -386,3 +386,168 @@
 .admin-shell ::-webkit-scrollbar-track {
 	background: transparent;
 }
+
+/* ============================================================
+ * 外壳：侧栏 / 顶栏 / 卡片 / 菜单（按 cms-admin(React) 视觉）
+ * 覆盖 AdminApp.svelte 的 .admin-sidebar / .admin-nav-item 等
+ * ============================================================ */
+
+.admin-shell .admin-sidebar {
+	background: #ffffff !important;
+	border-right: 1px solid var(--line-divider);
+}
+.admin-shell .brand-logo,
+.admin-shell .brand-text {
+	color: var(--primary) !important;
+}
+.admin-shell .brand-text {
+	font-weight: 700;
+}
+.admin-shell .admin-nav-title {
+	color: #94a3b8 !important;
+	font-size: 0.72rem !important;
+	font-weight: 600 !important;
+	letter-spacing: 0.08em;
+	padding: 0.85rem 0.75rem 0.35rem !important;
+	text-transform: uppercase;
+}
+.admin-shell .admin-nav-item {
+	opacity: 1 !important;
+	color: #334155 !important;
+	font-size: 0.88rem !important;
+	font-weight: 400 !important;
+	padding: 0.5rem 0.75rem !important;
+	margin: 0 !important;
+	border-radius: 0.5rem !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 0.65rem !important;
+	text-decoration: none !important;
+	transition: background 0.15s, color 0.15s !important;
+}
+.admin-shell .admin-nav-item:hover {
+	background: #f1f5f9 !important;
+	color: #0f172a !important;
+}
+.admin-shell .admin-nav-item.active {
+	background: #eef2ff !important;
+	color: var(--primary) !important;
+	font-weight: 600 !important;
+}
+.admin-shell .admin-nav-icon :global(svg) {
+	width: 18px !important;
+	height: 18px !important;
+	stroke-width: 1.75;
+}
+
+.admin-shell .admin-user {
+	border-top: 1px solid var(--line-divider);
+	padding: 0.85rem 0.75rem 0.5rem;
+	margin-top: 0.5rem;
+}
+.admin-shell .admin-user-avatar {
+	background: var(--primary) !important;
+	background-image: none !important;
+	color: #fff;
+	font-weight: 600;
+}
+.admin-shell .admin-user-name {
+	color: #0f172a;
+	font-size: 0.9rem;
+}
+
+/* 顶栏 */
+.admin-shell .admin-topbar {
+	background: #ffffff !important;
+	border-bottom: 1px solid var(--line-divider);
+}
+.admin-shell .admin-topbar-title h1 {
+	color: #0f172a;
+	font-size: 1.05rem;
+	font-weight: 600;
+}
+.admin-shell .admin-menu-toggle {
+	color: #475569;
+}
+
+/* 顶栏 admin-btn-primary（如"新建文章"） */
+.admin-shell .admin-btn-primary {
+	display: inline-flex !important;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 1rem !important;
+	font-size: 0.875rem !important;
+	font-weight: 500 !important;
+	border-radius: 0.5rem !important;
+	background: var(--primary) !important;
+	background-image: none !important;
+	color: #ffffff !important;
+	border: 1px solid transparent !important;
+	text-decoration: none !important;
+	transition: background 0.15s !important;
+}
+.admin-shell .admin-btn-primary:hover {
+	background: var(--primary-hover) !important;
+}
+
+/* 顶栏用户菜单触发器 */
+.admin-shell .admin-user-trigger {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.6rem;
+	border-radius: 0.5rem;
+	background: transparent;
+	border: 1px solid transparent;
+	color: #0f172a;
+	cursor: pointer;
+	font-size: 0.88rem;
+	transition: background 0.15s;
+}
+.admin-shell .admin-user-trigger:hover {
+	background: #f1f5f9;
+}
+.admin-shell .admin-caret {
+	color: #64748b;
+	font-size: 0.7rem;
+}
+
+/* 下拉菜单 */
+.admin-shell .admin-dropdown {
+	background: #ffffff;
+	border: 1px solid var(--line-divider);
+	border-radius: 0.5rem;
+	box-shadow: 0 10px 30px rgb(16 24 40 / 0.12);
+	padding: 0.4rem;
+	min-width: 200px;
+}
+.admin-shell .admin-dropdown-item {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	width: 100%;
+	padding: 0.5rem 0.7rem;
+	background: transparent;
+	border: none;
+	color: #334155;
+	font-size: 0.88rem;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	text-align: left;
+}
+.admin-shell .admin-dropdown-item:hover {
+	background: #f1f5f9;
+	color: #0f172a;
+}
+.admin-shell .admin-dropdown-item.danger {
+	color: var(--danger);
+}
+.admin-shell .admin-dropdown-item.danger:hover {
+	background: #fef2f2;
+	color: #b91c1c;
+}
+
+/* 移动端抽屉遮罩 */
+.admin-shell .admin-overlay {
+	background: rgba(15, 23, 42, 0.45) !important;
+}
