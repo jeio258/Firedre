@@ -110,7 +110,7 @@ async function initEditor() {
 			headers: {},
 		},
 		after: () => {
-			const root = document.querySelector<HTMLElement>("#vditor-editor .vditor");
+			const root = document.querySelector<HTMLElement>(".vditor");
 			if (root) {
 				syncVditorTheme(root);
 				vditorThemeObserver = observeVditorTheme(root);
