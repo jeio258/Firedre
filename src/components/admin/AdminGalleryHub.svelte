@@ -113,10 +113,19 @@
 		<div class="crud-card no-pad">
 			<div class="table-wrap">
 				<table class="hub-table">
+					<colgroup>
+						<col style="width: 36px" />
+						<col />
+						<col style="width: 150px" />
+						<col style="width: 116px" />
+						<col style="width: 64px" />
+						<col style="width: 96px" />
+						<col style="width: 158px" />
+					</colgroup>
 					<thead>
 						<tr>
 							<th class="drag-col" aria-label="排序"></th>
-							<th>相册</th>
+							<th class="album-col">相册</th>
 							<th>Slug</th>
 							<th>日期</th>
 							<th>照片</th>
@@ -136,7 +145,7 @@
 								<td class="drag-col">
 									<span class="drag-handle" title="拖拽排序">⠿</span>
 								</td>
-								<td>
+								<td class="album-col">
 									<div class="album-cell">
 										{#if album.cover}
 											<img src={album.cover} alt="" width="36" height="36" class="album-cover" />
@@ -146,9 +155,9 @@
 										<span class="album-title">{album.title}</span>
 									</div>
 								</td>
-								<td class="mono">{album.slug}</td>
-								<td>{album.date || "-"}</td>
-								<td>{album.count ?? "-"}</td>
+								<td class="mono slug-cell" title={album.slug}>{album.slug}</td>
+								<td class="cell-nowrap">{album.date || "-"}</td>
+								<td class="cell-nowrap">{album.count ?? "-"}</td>
 								<td class="chips">
 									{#if album.encrypted}
 										<span class="u-chip on">加密</span>
@@ -187,14 +196,21 @@
 	.hub-table {
 		width: 100%;
 		border-collapse: collapse;
+		table-layout: fixed;
 		font-size: 0.88rem;
 	}
 	.hub-table th,
 	.hub-table td {
 		text-align: left;
-		padding: 0.6rem 0.9rem;
+		padding: 0.6rem 0.7rem;
 		border-bottom: 1px solid var(--line-divider);
 		color: var(--deep-text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.hub-table .album-col {
+		white-space: normal;
 	}
 	.hub-table thead th {
 		background: var(--btn-regular-bg);
@@ -204,6 +220,14 @@
 	}
 	.hub-table tbody tr:last-child td {
 		border-bottom: none;
+	}
+	.cell-nowrap {
+		white-space: nowrap;
+	}
+	.slug-cell {
+		font-family: ui-monospace, monospace;
+		font-size: 0.82rem;
+		color: var(--text-muted);
 	}
 	.drag-col {
 		width: 2.2rem;
@@ -215,6 +239,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.55rem;
+		min-width: 0;
 	}
 	.album-cover {
 		border-radius: 0.4rem;
@@ -229,6 +254,9 @@
 	}
 	.album-title {
 		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 	.mono {
 		font-family: ui-monospace, monospace;
@@ -238,6 +266,7 @@
 	.chips {
 		display: flex;
 		gap: 0.3rem;
+		white-space: nowrap;
 	}
 
 	.u-chip.on {

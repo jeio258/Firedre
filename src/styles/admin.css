@@ -502,6 +502,9 @@
 	background: var(--card-bg) !important;
 	border-bottom: 1px solid var(--line-divider);
 }
+.admin-shell .admin-body {
+	overflow-x: hidden;
+}
 .admin-shell .admin-topbar-title h1 {
 	color: var(--deep-text);
 	font-size: 1.05rem;

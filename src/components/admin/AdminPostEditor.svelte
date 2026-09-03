@@ -1,8 +1,9 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
+import { onDestroy, onMount, tick } from "svelte";
 import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
+import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -43,6 +44,7 @@ let comment = true;
 let rawContent = "";
 
 let editor: Vditor | null = null;
+let vditorThemeObserver: MutationObserver | null = null;
 let saving = false;
 let message = "";
 let messageKind: "ok" | "err" = "ok";
@@ -108,7 +110,11 @@ async function initEditor() {
 			headers: {},
 		},
 		after: () => {
-			// 焦点初始化
+			const root = document.querySelector<HTMLElement>("#vditor-editor .vditor");
+			if (root) {
+				syncVditorTheme(root);
+				vditorThemeObserver = observeVditorTheme(root);
+			}
 		},
 	});
 }
@@ -188,6 +194,7 @@ async function save() {
 }
 
 onMount(load);
+onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
 <div class="pe-page">

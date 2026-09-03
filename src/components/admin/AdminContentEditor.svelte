@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { onMount, tick } from "svelte";
+	import { onDestroy, onMount, tick } from "svelte";
 	import "vditor/dist/index.css";
 	import type Vditor from "vditor";
+	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 
 	let { section = "about", apiPath = "/api/about/" } = $props();
 
 	let editor: Vditor | null = null;
+	let vditorThemeObserver: MutationObserver | null = null;
 	let rawContent = $state("");
 	let saving = $state(false);
 	let message = $state("");
@@ -44,6 +46,13 @@
 			mode: "wysiwyg",
 			value: rawContent,
 			cache: { enable: false },
+			after: () => {
+				const root = document.querySelector<HTMLElement>("#vditor-editor .vditor");
+				if (root) {
+					syncVditorTheme(root);
+					vditorThemeObserver = observeVditorTheme(root);
+				}
+			},
 		});
 	}
 
@@ -76,6 +85,7 @@
 	}
 
 	onMount(load);
+	onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
 <div class="crud-page">
