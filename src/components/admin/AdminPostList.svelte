@@ -6,6 +6,7 @@ type PostItem = {
 	slug: string;
 	title: string;
 	date: string;
+	cover?: string;
 	published: number;
 	pin_order?: number;
 	password?: string;
@@ -39,15 +40,12 @@ async function remove(slug: string) {
 
 async function doDelete(slug: string): Promise<boolean> {
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`, {
+		await apiJson(`/api/posts/${encodeURIComponent(slug)}/`, {
 			method: "DELETE",
 		});
-		if (resp.ok) return true;
-		const data = await resp.json();
-		alert(data.message || "删除失败");
-		return false;
-	} catch {
-		alert("网络错误");
+		return true;
+	} catch (e) {
+		alert(e instanceof Error ? e.message : "删除失败");
 		return false;
 	}
 }
@@ -80,6 +78,11 @@ function toggleAll() {
 	selected = new Set(selected);
 }
 
+function handleCoverError(e: Event) {
+	const img = e.currentTarget as HTMLImageElement;
+	img.style.visibility = "hidden";
+}
+
 onMount(load);
 
 $: filtered = posts.filter((p) => {
@@ -100,9 +103,22 @@ $: draftCount = posts.length - publishedCount;
 		<div class="pl-toolbar-top">
 			<div>
 				<h2>文章管理</h2>
-				<p class="pl-sub">共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}</p>
+				<p class="pl-sub">
+					共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}{#if selected.size > 0}
+						· 已选 {selected.size}{/if}
+				</p>
 			</div>
-			<a class="btn-primary" href="/admin/posts/new/">+ 新建文章</a>
+			<div class="pl-toolbar-actions">
+				<label class="pl-selectall">
+					<input
+						type="checkbox"
+						checked={filtered.length > 0 && selected.size === filtered.length}
+						on:change={toggleAll}
+					/>
+					全选
+				</label>
+				<a class="btn-primary" href="/admin/posts/new/">+ 新建文章</a>
+			</div>
 		</div>
 		<div class="pl-filters">
 			<div class="chips">
@@ -126,50 +142,52 @@ $: draftCount = posts.length - publishedCount;
 	{:else if filtered.length === 0}
 		<div class="dash-card pl-empty">暂无文章</div>
 	{:else}
-		<div class="dash-card pl-table-card">
-			<div class="pl-table-wrap">
-				<table>
-					<thead>
-						<tr>
-							<th class="chk"><input type="checkbox" checked={selected.size === filtered.length && filtered.length > 0} on:change={toggleAll} /></th>
-							<th>标题</th>
-							<th>Slug</th>
-							<th>日期</th>
-							<th>状态</th>
-							<th class="ops-col">操作</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each filtered as post (post.slug)}
-							<tr class:selected={selected.has(post.slug)}>
-								<td class="chk">
-									<input type="checkbox" checked={selected.has(post.slug)} on:change={() => toggle(post.slug)} />
-								</td>
-								<td>
-									<span class="title-cell">{post.title}</span>
-									{#if post.pin_order}<span class="badge amber">置顶</span>{/if}
-									{#if post.password}<span class="badge slate">加密</span>{/if}
-								</td>
-								<td class="mono">{post.slug}</td>
-								<td>{post.date}</td>
-								<td>
-									{#if post.published === 1}
-										<span class="badge published">已发布</span>
-									{:else}
-										<span class="badge draft">草稿</span>
-									{/if}
-								</td>
-								<td class="ops-col">
-									<div class="ops">
-										<a class="op-link" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
-										<button class="op-del" on:click={() => remove(post.slug)}>删除</button>
-									</div>
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
+		<div class="pl-grid">
+			{#each filtered as post (post.slug)}
+				<div class="pl-card" class:selected={selected.has(post.slug)}>
+					<label class="pl-card-check">
+						<input
+							type="checkbox"
+							checked={selected.has(post.slug)}
+							on:change={() => toggle(post.slug)}
+						/>
+					</label>
+					<a class="pl-card-cover" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>
+						<div class="pl-card-cover-empty">无封面</div>
+						{#if post.cover}
+							<img
+								src={post.cover}
+								alt={post.title}
+								loading="lazy"
+								referrerpolicy="no-referrer"
+								on:error={handleCoverError}
+							/>
+						{/if}
+					</a>
+					<div class="pl-card-body">
+						<div class="pl-card-title-row">
+							<span class="pl-card-title">{post.title}</span>
+							{#if post.pin_order}<span class="badge amber">置顶</span>{/if}
+							{#if post.password}<span class="badge slate">加密</span>{/if}
+						</div>
+						<div class="pl-card-meta">
+							<span class="mono">{post.slug}</span>
+							<span class="pl-card-date">{post.date}</span>
+						</div>
+						<div class="pl-card-status">
+							{#if post.published === 1}
+								<span class="badge published">已发布</span>
+							{:else}
+								<span class="badge draft">草稿</span>
+							{/if}
+						</div>
+					</div>
+					<div class="pl-card-ops">
+						<a class="op-link" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
+						<button class="op-del" on:click={() => remove(post.slug)}>删除</button>
+					</div>
+				</div>
+			{/each}
 		</div>
 	{/if}
 </div>
@@ -199,6 +217,23 @@ $: draftCount = posts.length - publishedCount;
 		justify-content: space-between;
 		gap: 1rem;
 		flex-wrap: wrap;
+	}
+	.pl-toolbar-actions {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		flex-wrap: wrap;
+	}
+	.pl-selectall {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		cursor: pointer;
+	}
+	.pl-selectall input {
+		accent-color: var(--primary);
 	}
 	.pl-toolbar h2 {
 		margin: 0;
@@ -248,7 +283,6 @@ $: draftCount = posts.length - publishedCount;
 		font-size: 0.86rem;
 	}
 
-
 	.pl-empty {
 		text-align: center;
 		padding: 3rem;
@@ -257,57 +291,106 @@ $: draftCount = posts.length - publishedCount;
 	.pl-empty.error {
 		color: var(--danger);
 	}
-	.pl-table-card {
-		padding: 0;
+
+	.pl-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+		gap: 1rem;
+	}
+	.pl-card {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		background: var(--card-bg);
+		border: 1px solid var(--line-divider);
+		border-radius: 0.9rem;
+		overflow: hidden;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	.pl-card.selected {
+		border-color: var(--primary);
+		box-shadow: 0 0 0 1px var(--primary);
+	}
+	.pl-card-check {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		z-index: 2;
+		display: inline-flex;
+		padding: 0.25rem 0.35rem;
+		border-radius: 0.45rem;
+		background: color-mix(in oklch, #000 35%, transparent);
+		cursor: pointer;
+	}
+	.pl-card-check input {
+		accent-color: var(--primary);
+		width: 1rem;
+		height: 1rem;
+	}
+	.pl-card-cover {
+		position: relative;
+		display: block;
+		aspect-ratio: 16 / 9;
+		background: var(--btn-regular-bg);
 		overflow: hidden;
 	}
-	.pl-table-wrap {
-		overflow-x: auto;
-	}
-	table {
+	.pl-card-cover img {
+		position: relative;
+		z-index: 1;
 		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.88rem;
-		min-width: 640px;
+		height: 100%;
+		object-fit: cover;
+		display: block;
 	}
-	th,
-	td {
-		text-align: left;
-		padding: 0.65rem 0.9rem;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	thead th {
+	.pl-card-cover-empty {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		color: var(--text-muted);
+		font-size: 0.8rem;
+	}
+	.pl-card-body {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		padding: 0.8rem 0.9rem 0.5rem;
+		flex: 1;
+	}
+	.pl-card-title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+	.pl-card-title {
 		font-weight: 600;
-		font-size: 0.76rem;
-		background: var(--btn-regular-bg);
-	}
-	tbody tr:last-child td {
-		border-bottom: none;
-	}
-	tbody tr.selected {
-		background: color-mix(in oklch, var(--primary) 6%, transparent);
-	}
-	td {
 		color: var(--deep-text);
+		font-size: 0.95rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
-	.chk {
-		width: 2rem;
-	}
-	.chk input {
-		accent-color: var(--primary);
-	}
-	.title-cell {
-		font-weight: 500;
+	.pl-card-meta {
+		display: flex;
+		justify-content: space-between;
+		gap: 0.5rem;
+		font-size: 0.76rem;
+		color: var(--text-muted);
 	}
 	.mono {
 		font-family: ui-monospace, monospace;
-		font-size: 0.8rem;
-		color: var(--text-muted);
+		font-size: 0.74rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.pl-card-status {
+		display: flex;
+		gap: 0.4rem;
 	}
 	.badge {
 		display: inline-block;
-		margin-left: 0.4rem;
 		padding: 0.1rem 0.45rem;
 		border-radius: 999px;
 		font-size: 0.7rem;
@@ -330,13 +413,12 @@ $: draftCount = posts.length - publishedCount;
 		background: var(--btn-regular-bg);
 		color: var(--text-muted);
 	}
-	.ops {
+	.pl-card-ops {
 		display: flex;
-		gap: 0.6rem;
 		align-items: center;
-	}
-	.ops-col {
-		width: 8rem;
+		gap: 0.9rem;
+		padding: 0.6rem 0.9rem;
+		border-top: 1px solid var(--line-divider);
 	}
 	.op-link {
 		color: var(--primary);
@@ -350,5 +432,14 @@ $: draftCount = posts.length - publishedCount;
 		cursor: pointer;
 		font-size: 0.86rem;
 		padding: 0;
+	}
+
+	@media (max-width: 767px) {
+		.pl-grid {
+			grid-template-columns: 1fr;
+		}
+		.pl-toolbar-top {
+			align-items: flex-start;
+		}
 	}
 </style>

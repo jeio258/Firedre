@@ -54,13 +54,20 @@ export const POST: APIRoute = async ({ request }) => {
 
 		const safeContentType = validMimes[0] || "application/octet-stream";
 
-		await cfEnv.BUCKET.put(key, file.stream(), {
+		await cfEnv.BUCKET.put(key, await file.arrayBuffer(), {
 			httpMetadata: { contentType: safeContentType },
 		});
 
+		const url = `/api/gallery-files/_uploads/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${uuid}.${ext}/`;
 		return json({
+			code: 0,
+			msg: "",
+			data: {
+				succMap: { [file.name]: url },
+				errFiles: [],
+			},
+			url,
 			ok: true,
-			url: `/api/gallery-files/_uploads/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${uuid}.${ext}/`,
 		});
 	} catch (error) {
 		return serverError(error);
