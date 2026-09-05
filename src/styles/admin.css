@@ -618,6 +618,44 @@
 	color: var(--deep-text);
 }
 
+/* 浅色模式：--primary 在白底对比偏低（绿字/白字-on-绿 均约 2.5:1），加深相关文字与按钮背景以达 AA
+   !important 用于覆盖各组件 Svelte scoped 样式（带 hash 类）的高特异性 */
+html:not(.dark) .admin-shell {
+	--primary-deep: oklch(0.52 0.16 165);
+	--danger-deep: oklch(0.5 0.22 25);
+	--muted-deep: oklch(0.4 0.02 165);
+}
+html:not(.dark) .admin-shell .btn-primary,
+html:not(.dark) .admin-shell .admin-btn.admin-btn-primary {
+	background: var(--primary-deep) !important;
+}
+html:not(.dark) .admin-shell .op-link,
+html:not(.dark) .admin-shell .more-link,
+html:not(.dark) .admin-shell .admin-nav-item.active,
+html:not(.dark) .admin-shell .chip.active {
+	color: var(--primary-deep) !important;
+}
+html:not(.dark) .admin-shell .brand-text {
+	background: linear-gradient(135deg, var(--primary-deep), var(--title-active)) !important;
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+html:not(.dark) .admin-shell .op-del,
+html:not(.dark) .admin-shell .btn-del,
+html:not(.dark) .admin-shell .btn-danger,
+html:not(.dark) .admin-shell .btn-danger-text {
+	color: var(--danger-deep) !important;
+}
+html:not(.dark) .admin-shell .tag,
+html:not(.dark) .admin-shell .dash-sub,
+html:not(.dark) .admin-shell .pl-sub,
+html:not(.dark) .admin-shell .pl-card-date,
+html:not(.dark) .admin-shell .pe-sub,
+html:not(.dark) .admin-shell .pe-card label,
+html:not(.dark) .admin-shell .crud-sub {
+	color: var(--muted-deep) !important;
+}
+
 /* Vditor 预览内联图兜底尺寸（与前台 markdown 一致）：未加载/失败不再 0x0 */
 .admin-shell .vditor-reset img {
 	display: inline-block;

@@ -352,9 +352,7 @@
 
 		<aside class="admin-sidebar" class:open={sidebarOpen}>
 			<div class="admin-brand">
-				<span class="brand-logo">
-					{@html iconSvg("settings")}
-				</span>
+				<img class="brand-logo" src="/favicon/firefly-32.png" alt="Firedre" />
 				<span class="brand-text">Firedre</span>
 				<button
 					class="admin-menu-toggle admin-menu-close"
@@ -387,7 +385,7 @@
 
 			<div class="admin-user">
 				<div class="admin-user-row">
-					<span class="admin-user-avatar">{username ? username.slice(0, 1).toUpperCase() : "A"}</span>
+					<img class="admin-user-avatar" src="/favicon/firefly-32.png" alt="" />
 					<span class="admin-user-name">{username || "admin"}</span>
 				</div>
 			</div>
@@ -417,7 +415,7 @@
 							on:click={() => (userMenuOpen = !userMenuOpen)}
 							aria-expanded={userMenuOpen}
 						>
-							<span class="admin-user-avatar">{username ? username.slice(0, 1).toUpperCase() : "A"}</span>
+							<img class="admin-user-avatar" src="/favicon/firefly-32.png" alt="" />
 							<span class="admin-user-name">{username || "admin"}</span>
 							<span class="admin-caret">▾</span>
 						</button>
@@ -501,19 +499,14 @@
 		padding: 0.25rem 0.75rem 1.1rem;
 	}
 	.brand-logo {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		display: inline-block;
 		width: 30px;
 		height: 30px;
 		border-radius: 0.6rem;
+		object-fit: contain;
+		padding: 4px;
 		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
 		flex-shrink: 0;
-	}
-	.brand-logo :global(svg) {
-		width: 17px;
-		height: 17px;
 	}
 	.brand-text {
 		font-weight: 800;
@@ -590,16 +583,13 @@
 		padding: 0 0.75rem;
 	}
 	.admin-user-avatar {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		display: inline-block;
 		width: 30px;
 		height: 30px;
 		border-radius: 999px;
+		object-fit: contain;
+		padding: 4px;
 		background: linear-gradient(135deg, var(--primary), var(--title-active));
-		color: var(--on-accent);
-		font-size: 0.9rem;
-		font-weight: 700;
 		flex-shrink: 0;
 	}
 	.admin-user-name {
