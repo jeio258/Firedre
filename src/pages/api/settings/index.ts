@@ -8,6 +8,7 @@ import {
 	saveSettingsGroup,
 	type SettingGroup,
 } from "../../../../server/settings/service";
+import { redactSensitive } from "../../../../server/settings/sensitive";
 import {
 	badRequest,
 	cfEnv,
@@ -17,23 +18,6 @@ import {
 } from "../../../lib/api";
 
 export const prerender = false;
-
-const SENSITIVE_SETTING_KEY =
-	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey|adsense)/i;
-
-function redactSensitive(obj: unknown): unknown {
-	if (Array.isArray(obj)) return obj.map(redactSensitive);
-	if (obj && typeof obj === "object") {
-		const out: Record<string, unknown> = {};
-		for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-			out[k] = SENSITIVE_SETTING_KEY.test(k)
-				? ""
-				: redactSensitive(v);
-		}
-		return out;
-	}
-	return obj;
-}
 
 export const GET: APIRoute = async ({ url, request }) => {
 	try {
