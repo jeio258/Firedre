@@ -474,15 +474,15 @@
 	}
 	.rank-badge.rank-1 {
 		background: color-mix(in oklch, #f59e0b 22%, transparent);
-		color: #d97706;
+		color: #f59e0b;
 	}
 	.rank-badge.rank-2 {
 		background: var(--btn-regular-bg);
-		color: #475569;
+		color: var(--text-muted);
 	}
 	.rank-badge.rank-3 {
 		background: color-mix(in oklch, #ea580c 18%, transparent);
-		color: #c2410c;
+		color: #fb923c;
 	}
 	.rank-body {
 		min-width: 0;
