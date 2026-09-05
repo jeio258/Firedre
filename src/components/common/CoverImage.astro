@@ -104,7 +104,11 @@ const remoteReferrerPolicy =
 	)}
 
 	<div class="error-message absolute inset-0 items-center justify-center z-20 hidden pointer-events-none">
-		<span class="text-white text-sm px-3 py-1 rounded-sm bg-black/50">Image API Error</span>
+		<svg class="cover-fallback-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+			<rect x="3" y="4" width="18" height="16" rx="2" />
+			<circle cx="9" cy="10" r="1.6" />
+			<path d="M21 16l-5-5-4 4-2-2-4 4" />
+		</svg>
 	</div>
 
 	{isLocal && (
@@ -170,6 +174,14 @@ const remoteReferrerPolicy =
 
 	.cover-image-container[data-error="true"] .error-message {
 		display: flex;
+		color: var(--text-muted);
+		background: var(--card-bg);
+	}
+
+	.cover-fallback-icon {
+		width: 2.4rem;
+		height: 2.4rem;
+		opacity: 0.45;
 	}
 
 	.cover-image-container[data-error="true"] img[data-remote="true"] {

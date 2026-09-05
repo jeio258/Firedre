@@ -4,6 +4,7 @@ import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
 import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+import { apiJson } from "@/lib/adminApi";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -61,9 +62,16 @@ async function load() {
 		return;
 	}
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`);
-		if (!resp.ok) throw new Error("文章不存在");
-		const post = await resp.json();
+		const post = await apiJson<{
+			title: string;
+			date?: string;
+			categories?: string[];
+			tags?: string[];
+			description?: string;
+			cover?: string;
+			markdown?: string;
+			frontmatter?: Record<string, unknown>;
+		}>(`/api/posts/${encodeURIComponent(slug)}/`);
 		const fm = post.frontmatter || {};
 		title = post.title;
 		published = String(fm.published || post.date || "");
@@ -165,13 +173,15 @@ async function save() {
 		.join("\n")}\n---\n\n${content}`;
 
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`, {
-			method: "PUT",
-			headers: { "Content-Type": "text/markdown" },
-			body: source,
-		});
-		const data = await resp.json();
-		if (!resp.ok || !data.ok) {
+		const data = await apiJson<{ ok?: boolean; slug?: string; message?: string }>(
+			`/api/posts/${encodeURIComponent(slug)}/`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "text/markdown" },
+				body: source,
+			},
+		);
+		if (!data.ok) {
 			message = data.message || "保存失败";
 			messageKind = "err";
 			return;
@@ -185,8 +195,8 @@ async function save() {
 			isNew = false;
 		}
 		setTimeout(() => (message = ""), 2200);
-	} catch {
-		message = "网络错误";
+	} catch (e) {
+		message = e instanceof Error ? e.message : "网络错误";
 		messageKind = "err";
 	} finally {
 		saving = false;
@@ -390,6 +400,8 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	}
 	.editor-card {
 		padding: 1rem 1rem 0.8rem;
+		max-width: 100%;
+		overflow-x: auto;
 	}
 	.pe-card label {
 		display: flex;
@@ -440,6 +452,28 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 		}
 	}
 	@media (max-width: 767px) {
+		.pe-grid {
+			gap: 0.8rem;
+		}
+		.pe-head {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 0.6rem;
+		}
+		.pe-sub {
+			max-width: 100%;
+			white-space: normal;
+		}
+		.pe-actions {
+			width: 100%;
+			justify-content: flex-start;
+		}
+		.pe-card {
+			padding: 0.9rem 0.85rem;
+		}
+		.editor-card {
+			padding: 0.5rem;
+		}
 		.row2 {
 			grid-template-columns: 1fr;
 		}
