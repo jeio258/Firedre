@@ -10,6 +10,9 @@
 	--breakpoint-desktop: 1024px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
 		"Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+	/* 兜底文字色：未指定 color 的子元素（含 vditor 内部、孤立标签）不再继承到浏览器默认黑 */
+	color: var(--deep-text);
+	background: var(--page-bg);
 }
 
 /* 卡片容器 */
@@ -593,4 +596,24 @@
 
 .admin-shell .admin-overlay {
 	background: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Vditor 深色适配：vditor 内部很多元素未跟随 .vditor--dark 切换文字色，需显式覆盖 */
+.admin-shell .vditor--dark .vditor-toolbar,
+.admin-shell .vditor--dark .vditor-toolbar__item,
+.admin-shell .vditor--dark .vditor-toolbar__item svg,
+.admin-shell .vditor--dark .vditor-tooltip {
+	color: var(--deep-text);
+}
+.admin-shell .vditor--dark .vditor-reset,
+.admin-shell .vditor--dark .vditor-reset h1,
+.admin-shell .vditor--dark .vditor-reset h2,
+.admin-shell .vditor--dark .vditor-reset h3,
+.admin-shell .vditor--dark .vditor-reset h4,
+.admin-shell .vditor--dark .vditor-reset p,
+.admin-shell .vditor--dark .vditor-reset li,
+.admin-shell .vditor--dark .vditor-reset blockquote,
+.admin-shell .vditor--dark .vditor-reset code,
+.admin-shell .vditor--dark .vditor-reset pre {
+	color: var(--deep-text);
 }

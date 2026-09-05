@@ -107,7 +107,7 @@
 	}
 	.friend-desc {
 		font-size: 0.85rem;
-		color: var(--muted);
+		color: var(--text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -132,6 +132,6 @@
 		padding: 0.1rem 0.5rem;
 		background: var(--btn-regular-bg);
 		border-radius: 0.3rem;
-		color: var(--muted);
+		color: var(--text-muted);
 	}
 </style>
