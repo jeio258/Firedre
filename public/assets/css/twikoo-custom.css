@@ -277,3 +277,12 @@ body.wallpaper-transparent .twikoo .OwO .OwO-body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+
+/* OwO bilibili 表情选择器：表情图加载前/失败时避免 36×0 不可见空位 */
+.twikoo .OwO-items-image .OwO-item img {
+  min-height: 36px;
+  min-width: 36px;
+  background: var(--card-bg);
+  border-radius: 0.3rem;
+  object-fit: contain;
+}
