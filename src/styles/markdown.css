@@ -213,9 +213,9 @@ body.wallpaper-transparent .custom-md {
   }
 }
 
-/* 内联图（段落/列表里的表情、小图）兜底尺寸：未加载或加载失败时不再渲染为 0x0 隐形空位 */
-.custom-md p > img,
-.custom-md li > img {
+/* 内联图（段落/列表里的表情、小图）兜底尺寸：未加载或加载失败时不再渲染为 0x0 隐形空位
+   选择器覆盖所有 markdown 内 img（含 bilibili 表情等 JS 注入的、不一定在 p>img 内的图） */
+.custom-md img {
   display: inline-block;
   min-height: 5rem;
   min-width: 5rem;
