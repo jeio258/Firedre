@@ -398,10 +398,17 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 		padding-bottom: 0.55rem;
 		border-bottom: 1px solid var(--line-divider);
 	}
+	.pe-grid > .pe-main,
+	.pe-grid > .pe-side {
+		min-width: 0;
+	}
 	.editor-card {
 		padding: 1rem 1rem 0.8rem;
 		max-width: 100%;
 		overflow-x: auto;
+	}
+	.editor-card :global(.vditor) {
+		max-width: 100%;
 	}
 	.pe-card label {
 		display: flex;
@@ -467,15 +474,19 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 		.pe-actions {
 			width: 100%;
 			justify-content: flex-start;
+			flex-wrap: wrap;
 		}
 		.pe-card {
 			padding: 0.9rem 0.85rem;
 		}
 		.editor-card {
-			padding: 0.5rem;
+			padding: 0.4rem;
 		}
 		.row2 {
 			grid-template-columns: 1fr;
+		}
+		.editor-card :global(.vditor-toolbar) {
+			flex-wrap: wrap;
 		}
 	}
 </style>
