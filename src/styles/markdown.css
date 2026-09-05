@@ -213,3 +213,16 @@ body.wallpaper-transparent .custom-md {
   }
 }
 
+/* 内联图（段落/列表里的表情、小图）兜底尺寸：未加载或加载失败时不再渲染为 0x0 隐形空位 */
+.custom-md p > img,
+.custom-md li > img {
+  display: inline-block;
+  min-height: 5rem;
+  min-width: 5rem;
+  max-height: 10rem;
+  background: var(--card-bg);
+  border-radius: 0.4rem;
+  vertical-align: middle;
+  object-fit: contain;
+}
+

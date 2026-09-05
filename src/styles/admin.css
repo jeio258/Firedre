@@ -617,3 +617,16 @@
 .admin-shell .vditor--dark .vditor-reset pre {
 	color: var(--deep-text);
 }
+
+/* Vditor 预览内联图兜底尺寸（与前台 markdown 一致）：未加载/失败不再 0x0 */
+.admin-shell .vditor-reset p > img,
+.admin-shell .vditor-reset li > img {
+	display: inline-block;
+	min-height: 5rem;
+	min-width: 5rem;
+	max-height: 10rem;
+	background: var(--card-bg);
+	border-radius: 0.4rem;
+	vertical-align: middle;
+	object-fit: contain;
+}
