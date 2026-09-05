@@ -617,6 +617,19 @@
 .admin-shell .vditor--dark .vditor-reset pre {
 	color: var(--deep-text);
 }
+/* WYSIWYG 预览/编辑区代码块：hljs 默认白底在深色下文字不可见，强制暗底 + 浅字
+   + 关键：.hljs 背景必须切暗，否则 token 颜色不可读 */
+.admin-shell .vditor--dark .vditor-wysiwyg__preview pre,
+.admin-shell .vditor--dark .vditor-wysiwyg pre {
+	background-color: oklch(0.18 0.01 258) !important;
+	color: var(--deep-text);
+}
+.admin-shell .vditor--dark .hljs,
+.admin-shell .vditor--dark .vditor-wysiwyg__preview code,
+.admin-shell .vditor--dark .vditor-wysiwyg code {
+	background-color: oklch(0.18 0.01 258) !important;
+	color: #d1d5db !important;
+}
 
 /* 浅色模式：--primary 在白底对比偏低（绿字/白字-on-绿 均约 2.5:1），加深相关文字与按钮背景以达 AA
    !important 用于覆盖各组件 Svelte scoped 样式（带 hash 类）的高特异性 */
