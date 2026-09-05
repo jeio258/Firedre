@@ -598,8 +598,6 @@ function portal(node: HTMLElement) {
 		},
 	};
 }
-
-const settings = (typeof window !== "undefined" ? (window as any).__FIREFLY_SETTINGS__ : undefined) ?? {};
 </script>
 
 <button 

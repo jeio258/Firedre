@@ -31,6 +31,7 @@ import {
 } from "@/constants/constants";
 import { defaultFavicons } from "@/constants/icon";
 import type { Favicon } from "@/types/config";
+import { toClientSettings } from "@/utils/client-settings";
 import { isHomePage } from "@/utils/layout-utils";
 import { getAuthorAvatarUrl, getRawImageUrl, getSiteLogo } from "@/utils/schema-image";
 import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
@@ -506,7 +507,7 @@ const siteLogo = await getSiteLogo();
       <MusicPlayerView />
     )}
 
-    <script is:inline define:vars={{ fireflySettings: settings }}>
+    <script is:inline define:vars={{ fireflySettings: toClientSettings(settings) }}>
       // 后台站点设置注入客户端（樱花等客户端组件的开关/参数读取）
       window.__FIREFLY_SETTINGS__ = fireflySettings;
     </script>
