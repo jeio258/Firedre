@@ -155,6 +155,7 @@ export const settingsDefaults = {
 	},
 	vndb: {
 		enabled: false,
+		mode: "dynamic",
 		username: "u358128",
 	},
 	myanimelist: {
@@ -163,6 +164,7 @@ export const settingsDefaults = {
 	},
 	bangumi: {
 		enabled: false,
+		mode: "dynamic",
 		username: "1143164",
 	},
 	ads: {

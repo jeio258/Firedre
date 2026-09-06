@@ -504,24 +504,6 @@ const GROUPS: Group[] = [
 	},
 
 	{
-		key: "announcement",
-		title: "公告",
-		category: "扩展功能",
-		fields: [
-			{ name: "enabled", label: "启用公告", type: "boolean" },
-			{ name: "title", label: "公告标题", type: "text" },
-			{
-				name: "sections",
-				label: "公告内容（JSON 数组）",
-				type: "json",
-				placeholder: '[{"title":"标题","content":"内容"}]',
-			},
-			{ name: "content", label: "公告内容（纯文本）", type: "textarea" },
-			{ name: "closable", label: "可关闭", type: "boolean" },
-			{ name: "link", label: "公告链接", type: "text" },
-		],
-	},
-	{
 		key: "footer",
 		title: "页脚",
 		category: "扩展功能",
