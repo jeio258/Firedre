@@ -9,7 +9,7 @@ import {
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@/utils/image-utils";
-import { classifyImageSource, getLqipProps } from "@/utils/lqip-utils";
+import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -49,10 +49,14 @@ const {
 const configQuality = getImageQuality();
 const className = Astro.props.class;
 
-// 图片来源类型（public 站内 / external 外链 / local src 资源）
-const sourceType = classifyImageSource(src);
-const isLocal = sourceType === "local";
-const isPublic = sourceType === "public";
+// 判断图片类型
+const isLocal = !(
+	src.startsWith("/") ||
+	src.startsWith("http") ||
+	src.startsWith("https") ||
+	src.startsWith("data:")
+);
+const isPublic = src.startsWith("/");
 
 // 图片样式
 const imageClass =

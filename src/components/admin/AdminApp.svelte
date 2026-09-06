@@ -1,8 +1,7 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import "@/styles/admin.css";
-import AdminLogin from "./AdminLogin.svelte";
-import { iconSvg } from "@/lib/adminIcons";
+	import { onMount } from "svelte";
+	import "@/styles/admin.css";
+	import AdminLogin from "./AdminLogin.svelte";
 
 	type Section = string;
 
@@ -13,8 +12,6 @@ import { iconSvg } from "@/lib/adminIcons";
 	let section: Section = "dashboard";
 	// 移动端侧栏抽屉开关（≤767px 生效）
 	let sidebarOpen = false;
-	// 桌面端侧栏折叠（≥768px 生效，图标态）
-	let collapsed = false;
 	let View: unknown = null;
 	let viewProps: Record<string, unknown> = {};
 	let viewError = "";
@@ -79,32 +76,39 @@ import { iconSvg } from "@/lib/adminIcons";
 		settings: "站点设置",
 	};
 
-	function isActive(item: NavItem): boolean {
-		return item.sections.includes(section);
+	const ICONS: Record<string, string> = {
+		dashboard:
+			'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+		article:
+			'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/>',
+		link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+		sitelink: '<path d="M9 12h6"/><path d="M12 9v6"/><rect x="3" y="5" width="18" height="14" rx="2"/>',
+		notice: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+		dynamics:
+			'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>',
+		about: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+		plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
+		logout:
+			'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+		gallery:
+			'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
+		settings:
+			'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+	};
+	function icon(name: string): string {
+		return ICONS[name] || ICONS.settings;
 	}
 
-	// 当前视图所属分组名（顶栏面包屑第一级）
-	function groupTitle(): string {
-		const group = NAV_GROUPS.find((g) => g.items.some((i) => i.sections.includes(section)));
-		return group?.title || "后台";
+	function isActive(item: NavItem): boolean {
+		return item.sections.includes(section);
 	}
 
 	function title(): string {
 		return SECTION_TITLES[section] || "后台";
 	}
 
-	// 顶栏菜单按钮：桌面端折叠/展开侧栏，移动端打开抽屉
-	function toggleMenu() {
-		if (window.innerWidth > 767) {
-			collapsed = !collapsed;
-			try {
-				localStorage.setItem("admin_sidebar_collapsed", collapsed ? "1" : "0");
-			} catch {
-				/* 忽略存储异常 */
-			}
-		} else {
-			sidebarOpen = true;
-		}
+	function iconSvg(name: string): string {
+		return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true">${icon(name)}</svg>`;
 	}
 
 	// ── 视图懒加载 ──
@@ -316,12 +320,6 @@ import { iconSvg } from "@/lib/adminIcons";
 	}
 
 	onMount(() => {
-		// 恢复桌面侧栏折叠偏好
-		try {
-			if (localStorage.getItem("admin_sidebar_collapsed") === "1") collapsed = true;
-		} catch {
-			/* 忽略 */
-		}
 		checkAuth();
 		document.addEventListener("click", handleNav);
 		window.addEventListener("popstate", () => navigate(window.location.pathname));
@@ -352,7 +350,7 @@ import { iconSvg } from "@/lib/adminIcons";
 			></div>
 		{/if}
 
-		<aside class="admin-sidebar" class:open={sidebarOpen} class:collapsed>
+		<aside class="admin-sidebar" class:open={sidebarOpen}>
 			<div class="admin-brand">
 				<img class="brand-logo" src="/favicon/firefly-32.png" alt="Firedre" />
 				<span class="brand-text">Firedre</span>
@@ -372,7 +370,6 @@ import { iconSvg } from "@/lib/adminIcons";
 						{#each group.items as item (item.href)}
 							<a
 								href={item.href}
-								title={item.label}
 								class="admin-nav-item"
 								class:active={isActive(item)}
 							>
@@ -386,23 +383,10 @@ import { iconSvg } from "@/lib/adminIcons";
 				{/each}
 			</nav>
 
-			<div class="admin-side-foot">
-				<a
-					class="admin-site-link"
-					href="/"
-					target="_blank"
-					rel="noopener"
-					title="查看站点"
-				>
-					<span class="admin-site-link-icon">{@html iconSvg("external")}</span>
-					<span class="admin-site-link-label">查看站点</span>
-				</a>
-				<div class="admin-user">
+			<div class="admin-user">
+				<div class="admin-user-row">
 					<img class="admin-user-avatar" src="/favicon/firefly-32.png" alt="" />
-					<div class="admin-user-meta">
-						<span class="admin-user-name">{username || "admin"}</span>
-						<span class="admin-user-role">管理员</span>
-					</div>
+					<span class="admin-user-name">{username || "admin"}</span>
 				</div>
 			</div>
 		</aside>
@@ -411,16 +395,13 @@ import { iconSvg } from "@/lib/adminIcons";
 			<header class="admin-topbar">
 				<button
 					class="admin-menu-toggle admin-menu-open"
-					aria-label="切换菜单"
-					title={collapsed ? "展开侧栏" : "折叠侧栏"}
-					on:click={toggleMenu}
+					aria-label="打开菜单"
+					on:click={() => (sidebarOpen = true)}
 				>
-					{@html iconSvg("menu")}
+					☰
 				</button>
-				<div class="admin-crumb">
-					<span class="admin-crumb-group">{groupTitle()}</span>
-					<span class="admin-crumb-sep">/</span>
-					<h1 class="admin-crumb-page">{title()}</h1>
+				<div class="admin-topbar-title">
+					<h1>{title()}</h1>
 				</div>
 				<div class="admin-topbar-actions">
 					{#if section === "posts" || section === "dashboard"}
@@ -428,15 +409,6 @@ import { iconSvg } from "@/lib/adminIcons";
 							{@html iconSvg("plus")} 新建文章
 						</a>
 					{/if}
-					<a
-						class="admin-icon-btn"
-						href="/"
-						target="_blank"
-						rel="noopener"
-						title="查看前台站点"
-					>
-						{@html iconSvg("external")}
-					</a>
 					<div class="admin-user-menu">
 						<button
 							class="admin-user-trigger"
@@ -499,15 +471,14 @@ import { iconSvg } from "@/lib/adminIcons";
 {/if}
 
 <style>
-	/* ── 应用壳：100dvh 三栏式（侧栏独立 / 内容独立滚动） ── */
+	/* ── 外壳：浅色随项目主题令牌（明暗双态） ── */
 	.admin-shell {
 		display: flex;
-		height: 100dvh;
-		overflow: hidden;
+		min-height: 100vh;
 		background: var(--page-bg);
 	}
 
-	/* 侧栏：随明暗主题令牌，宽 232px，桌面可折叠至 68px 图标态 */
+	/* 侧栏：卡片底色 + 细分隔线（浅色模式接近 cms-admin 白底，暗色为深色卡） */
 	.admin-sidebar {
 		width: 232px;
 		flex-shrink: 0;
@@ -515,19 +486,17 @@ import { iconSvg } from "@/lib/adminIcons";
 		border-right: 1px solid var(--line-divider);
 		display: flex;
 		flex-direction: column;
-		height: 100dvh;
-		overflow: hidden;
-		transition: width 0.2s ease;
-		z-index: 50;
+		padding: 1rem 0.75rem 1rem;
+		position: sticky;
+		top: 0;
+		height: 100vh;
+		overflow-y: auto;
 	}
 	.admin-brand {
 		display: flex;
 		align-items: center;
 		gap: 0.55rem;
-		flex-shrink: 0;
-		min-height: 3.5rem;
-		padding: 0.5rem 0.9rem;
-		border-bottom: 1px solid var(--line-divider);
+		padding: 0.25rem 0.75rem 1.1rem;
 	}
 	.brand-logo {
 		display: inline-block;
@@ -543,90 +512,52 @@ import { iconSvg } from "@/lib/adminIcons";
 		font-weight: 800;
 		font-size: 1.12rem;
 		letter-spacing: 0.01em;
-		white-space: nowrap;
-		overflow: hidden;
 		background: linear-gradient(135deg, var(--primary), var(--title-active));
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
 	}
-	.admin-menu-close {
-		display: none;
-		margin-left: auto;
-	}
 	.admin-menu-toggle {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		flex-shrink: 0;
-		border-radius: 0.5rem;
-		background: transparent;
-		border: none;
-		color: var(--text-muted);
-		cursor: pointer;
-		transition: background 0.14s, color 0.14s;
-	}
-	.admin-menu-toggle:hover {
-		background: var(--btn-regular-bg);
-		color: var(--deep-text);
-	}
-	.admin-menu-toggle :global(svg) {
-		width: 17px;
-		height: 17px;
-	}
-	.admin-menu-close {
-		width: 1.9rem;
-		height: 1.9rem;
-		background: transparent;
-		border: none;
-		color: var(--text-muted);
-		cursor: pointer;
 		display: none;
-	}
-	.admin-menu-close:hover {
-		color: var(--deep-text);
 	}
 
 	.admin-nav {
 		flex: 1;
-		overflow-y: auto;
-		overflow-x: hidden;
-		padding: 0.5rem 0.65rem 0.75rem;
-		scrollbar-width: thin;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
 	}
 	.admin-nav-group {
-		margin-bottom: 0.75rem;
+		margin-bottom: 0.85rem;
 	}
 	.admin-nav-title {
-		margin: 0 0 0.2rem;
-		padding: 0.5rem 0.6rem 0.2rem;
-		font-size: 0.68rem;
+		margin: 0 0 0.25rem;
+		padding: 0 0.75rem;
+		font-size: 0.7rem;
 		font-weight: 600;
 		letter-spacing: 0.08em;
 		color: var(--text-muted);
 		text-transform: uppercase;
-		white-space: nowrap;
 	}
 	.admin-nav-item {
 		display: flex;
 		align-items: center;
 		gap: 0.65rem;
-		padding: 0.52rem 0.65rem;
+		padding: 0.5rem 0.75rem;
 		margin: 1px 0;
 		color: var(--deep-text);
+		opacity: 0.72;
 		text-decoration: none;
-		font-size: 0.88rem;
+		font-size: 0.9rem;
 		border-radius: 0.55rem;
-		white-space: nowrap;
-		position: relative;
-		transition: background 0.14s, color 0.14s;
+		transition: background 0.14s, opacity 0.14s;
 	}
 	.admin-nav-item:hover {
-		background: var(--btn-regular-bg);
+		opacity: 1;
+		background: color-mix(in oklch, var(--primary) 8%, transparent);
 	}
 	.admin-nav-item.active {
+		opacity: 1;
 		color: var(--primary);
 		font-weight: 600;
 		background: color-mix(in oklch, var(--primary) 12%, transparent);
@@ -639,51 +570,17 @@ import { iconSvg } from "@/lib/adminIcons";
 		width: 18px;
 		height: 18px;
 	}
-	.admin-nav-label {
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
 
-	/* 侧栏底部：前台入口 + 用户信息 */
-	.admin-side-foot {
-		flex-shrink: 0;
-		border-top: 1px solid var(--line-divider);
-		padding: 0.6rem 0.75rem 0.7rem;
-	}
-	.admin-site-link {
-		display: flex;
-		align-items: center;
-		gap: 0.65rem;
-		padding: 0.45rem 0.65rem;
-		border-radius: 0.55rem;
-		color: var(--text-muted);
-		text-decoration: none;
-		font-size: 0.85rem;
-		transition: background 0.14s, color 0.14s;
-	}
-	.admin-site-link:hover {
-		color: var(--primary);
-		background: var(--btn-regular-bg);
-	}
-	.admin-site-link-icon {
-		display: inline-flex;
-		flex-shrink: 0;
-	}
-	.admin-site-link-icon :global(svg) {
-		width: 17px;
-		height: 17px;
-	}
-	.admin-site-link-label {
-		min-width: 0;
-		white-space: nowrap;
-		overflow: hidden;
-	}
 	.admin-user {
+		margin-top: 0.5rem;
+		border-top: 1px solid var(--line-divider);
+		padding-top: 0.85rem;
+	}
+	.admin-user-row {
 		display: flex;
 		align-items: center;
 		gap: 0.6rem;
-		padding: 0.6rem 0.65rem 0.1rem;
+		padding: 0 0.75rem;
 	}
 	.admin-user-avatar {
 		display: inline-block;
@@ -691,14 +588,9 @@ import { iconSvg } from "@/lib/adminIcons";
 		height: 30px;
 		border-radius: 999px;
 		object-fit: contain;
-		padding: 3px;
+		padding: 4px;
 		background: linear-gradient(135deg, var(--primary), var(--title-active));
 		flex-shrink: 0;
-	}
-	.admin-user-meta {
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
 	}
 	.admin-user-name {
 		font-size: 0.85rem;
@@ -708,110 +600,37 @@ import { iconSvg } from "@/lib/adminIcons";
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
-	.admin-user-role {
-		font-size: 0.72rem;
-		color: var(--text-muted);
-	}
 
-	/* 折叠图标态（仅 ≥768px 生效） */
-	@media (min-width: 768px) {
-		.admin-sidebar.collapsed {
-			width: 68px;
-		}
-		.admin-sidebar.collapsed .admin-brand {
-			justify-content: center;
-			padding: 0.5rem 0;
-		}
-		.admin-sidebar.collapsed .brand-text,
-		.admin-sidebar.collapsed .admin-nav-title,
-		.admin-sidebar.collapsed .admin-nav-label,
-		.admin-sidebar.collapsed .admin-site-link-label,
-		.admin-sidebar.collapsed .admin-user-meta {
-			display: none;
-		}
-		.admin-sidebar.collapsed .admin-nav-item,
-		.admin-sidebar.collapsed .admin-site-link {
-			justify-content: center;
-			padding: 0.55rem 0;
-		}
-		.admin-sidebar.collapsed .admin-user {
-			justify-content: center;
-			padding: 0.6rem 0 0.1rem;
-		}
-	}
-
-	/* ── 右侧主体（顶栏 + 内容画布） ── */
+	/* ── 右侧主体（顶栏 + 内容） ── */
 	.admin-body {
 		flex: 1;
 		min-width: 0;
-		min-height: 0;
 		display: flex;
 		flex-direction: column;
 	}
 	.admin-topbar {
-		flex-shrink: 0;
 		display: flex;
 		align-items: center;
-		gap: 0.7rem;
-		height: 3.5rem;
-		padding: 0 1.2rem;
-		background: color-mix(in srgb, var(--card-bg) 82%, transparent);
-		backdrop-filter: saturate(1.4) blur(10px);
-		-webkit-backdrop-filter: saturate(1.4) blur(10px);
+		gap: 0.9rem;
+		padding: 0.85rem 1.75rem;
+		background: color-mix(in oklch, var(--page-bg) 82%, var(--card-bg));
 		border-bottom: 1px solid var(--line-divider);
+		position: sticky;
+		top: 0;
 		z-index: 40;
+		backdrop-filter: blur(8px);
 	}
-	.admin-crumb {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		min-width: 0;
-	}
-	.admin-crumb-group {
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		white-space: nowrap;
-	}
-	.admin-crumb-sep {
-		color: var(--line-color);
-		font-size: 0.8rem;
-	}
-	.admin-crumb-page {
+	.admin-topbar-title h1 {
 		margin: 0;
-		font-size: 1rem;
+		font-size: 1.08rem;
 		font-weight: 700;
 		color: var(--deep-text);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 	.admin-topbar-actions {
 		margin-left: auto;
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
-	}
-	.admin-icon-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		border-radius: 0.5rem;
-		border: none;
-		background: transparent;
-		color: var(--text-muted);
-		cursor: pointer;
-		text-decoration: none;
-		transition: background 0.14s, color 0.14s;
-	}
-	.admin-icon-btn:hover {
-		background: var(--btn-regular-bg);
-		color: var(--primary);
-	}
-	.admin-icon-btn :global(svg) {
-		width: 17px;
-		height: 17px;
+		gap: 0.6rem;
 	}
 
 	/* 按钮 */
@@ -941,20 +760,10 @@ import { iconSvg } from "@/lib/adminIcons";
 		margin: 0;
 	}
 
-	/* 内容画布：独立滚动 + 顶部主题色微光 */
 	.admin-main {
 		flex: 1;
-		min-height: 0;
-		overflow-y: auto;
-		overflow-x: hidden;
 		padding: 1.6rem 1.75rem 2.5rem;
-		background:
-			radial-gradient(
-				1200px 420px at 85% -10%,
-				color-mix(in oklch, var(--primary) 8%, transparent),
-				transparent 60%
-			),
-			var(--page-bg);
+		min-width: 0;
 	}
 
 	.admin-sidebar-backdrop {
@@ -992,17 +801,31 @@ import { iconSvg } from "@/lib/adminIcons";
 		color: var(--danger);
 	}
 
-	/* 移动端：侧栏抽屉 + 遮罩，顶栏收紧 */
+	/* 移动端 */
 	@media (max-width: 767px) {
-		.admin-menu-close {
+		.admin-shell {
+			overflow-x: hidden;
+		}
+		.admin-menu-toggle {
 			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 2rem;
+			height: 2rem;
+			font-size: 1.1rem;
+			line-height: 1;
+			flex-shrink: 0;
+			background: var(--card-bg);
+			border: 1px solid var(--line-divider);
+			border-radius: 0.5rem;
+			color: var(--deep-text);
+			cursor: pointer;
 		}
 		.admin-sidebar {
 			position: fixed;
 			top: 0;
 			left: 0;
-			height: 100dvh;
-			width: min(17rem, 84vw);
+			height: 100vh;
 			z-index: 60;
 			transform: translateX(-100%);
 			transition: transform 0.22s ease;
@@ -1018,16 +841,13 @@ import { iconSvg } from "@/lib/adminIcons";
 			background: rgb(0 0 0 / 0.4);
 		}
 		.admin-topbar {
-			padding: 0 0.8rem;
-		}
-		.admin-crumb-group {
-			display: none;
-		}
-		.admin-crumb-sep {
-			display: none;
+			padding: 0.7rem 0.9rem;
 		}
 		.admin-main {
 			padding: 1rem 0.85rem 1.6rem;
+		}
+		.admin-topbar-title h1 {
+			font-size: 1rem;
 		}
 	}
 </style>

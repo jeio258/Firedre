@@ -1,7 +1,14 @@
 
 
 import type { SearchResult } from "@/global";
-import { escapeHtml } from "./escape";
+
+function escapeHtml(text: string): string {
+	return text
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;");
+}
 
 export function highlightText(text: string, keyword: string): string {
 	const escaped = escapeHtml(text);

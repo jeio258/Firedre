@@ -355,6 +355,10 @@
 		white-space: nowrap;
 	}
 
+	.u-chip.on {
+		background: color-mix(in oklch, var(--primary) 18%, transparent);
+		color: var(--primary);
+	}
 	.drag-handle {
 		cursor: grab;
 		color: var(--text-muted);

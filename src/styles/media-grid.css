@@ -25,12 +25,3 @@
         grid-template-columns: repeat(3, 1fr) !important;
     }
 }
-
-/* 窄屏（≤767）降为单列，避免每卡过窄 */
-@media (max-width: 767px) {
-    [data-sidebar-position="left"] .media-grid,
-    [data-sidebar-position="right"] .media-grid,
-    [data-sidebar-position="both"] .media-grid {
-        grid-template-columns: 1fr !important;
-    }
-}
