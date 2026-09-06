@@ -11,6 +11,8 @@ interface Field {
 	type: FieldType;
 	placeholder?: string;
 	hint?: string;
+	wide?: boolean;
+	hidden?: boolean;
 }
 interface Group {
 	key: string;
@@ -173,12 +175,13 @@ const GROUPS: Group[] = [
 			{ name: "name", label: "昵称 / 作者", type: "text" },
 			{ name: "avatar", label: "头像 URL", type: "text" },
 			{ name: "bio", label: "个人简介", type: "textarea" },
-			{ name: "location", label: "所在地", type: "text" },
-			{ name: "email", label: "邮箱", type: "text" },
+			{ name: "location", label: "所在地", type: "text", wide: true },
+			{ name: "email", label: "邮箱", type: "text", wide: true },
 			{
 				name: "links",
 				label: "社交链接（JSON 数组）",
 				type: "json",
+				hidden: true,
 				placeholder: '[{"name":"GitHub","url":"https://github.com/x"}]',
 			},
 		],
@@ -194,6 +197,7 @@ const GROUPS: Group[] = [
 				type: "text",
 				placeholder: "banner / fullscreen / overlay / none",
 			},
+			{ name: "playerUrl", label: "背景视频播放地址 (mp4)", type: "text" },
 			{
 				name: "playerEnable",
 				label: "背景视频播放按钮（播放按钮视频开关）",
@@ -203,14 +207,13 @@ const GROUPS: Group[] = [
 			{
 				name: "bannerUrl",
 				label: "桌面壁纸图片 URL（多张用逗号分隔）",
-				type: "textarea",
+				type: "text",
 			},
 			{
 				name: "mobileImages",
 				label: "移动壁纸图片 URL（多张用逗号分隔）",
-				type: "textarea",
+				type: "text",
 			},
-			{ name: "playerUrl", label: "背景视频播放地址 (mp4)", type: "text" },
 			{
 				name: "dimOpacity",
 				label: "壁纸遮罩暗度 (0-1)",
@@ -838,11 +841,11 @@ onMount(load);
 					<section class="a2card">
 						<header>
 							<h4>{group.title}</h4>
-							<span class="cnt">{group.fields.length} 项</span>
+							<span class="cnt">{group.fields.filter((f) => !f.hidden).length} 项</span>
 						</header>
-						{#if group.fields.some((f) => f.type === "boolean")}
+						{#if group.fields.some((f) => !f.hidden && f.type === "boolean")}
 							<div class="a2sws">
-								{#each group.fields.filter((f) => f.type === "boolean") as field (field.name)}
+								{#each group.fields.filter((f) => !f.hidden && f.type === "boolean") as field (field.name)}
 									<label class="a2tr">
 										<span class="a2tx">{field.label}</span>
 										<button
@@ -855,10 +858,10 @@ onMount(load);
 								{/each}
 							</div>
 						{/if}
-						{#if group.fields.some((f) => f.type !== "boolean")}
+						{#if group.fields.some((f) => !f.hidden && f.type !== "boolean")}
 							<div class="a2fg">
-								{#each group.fields.filter((f) => f.type !== "boolean") as field (field.name)}
-									<div class="a2f">
+								{#each group.fields.filter((f) => !f.hidden && f.type !== "boolean") as field (field.name)}
+									<div class="a2f {field.wide ? 'w' : ''}">
 										<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
 										{#if field.type === "textarea" || field.type === "json"}
 											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
