@@ -445,61 +445,6 @@ const GROUPS: Group[] = [
 		fields: [{ name: "enabled", label: "启用", type: "boolean" }],
 	},
 	{
-		key: "dynamic",
-		title: "动态",
-		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用动态页", type: "boolean" },
-			{ name: "title", label: "页面标题", type: "text" },
-			{ name: "description", label: "页面描述", type: "textarea" },
-			{ name: "profileUrl", label: "头像跳转地址", type: "text" },
-			{ name: "showComment", label: "动态显示评论", type: "boolean" },
-			{ name: "itemsPerPage", label: "每页条数", type: "number" },
-			{
-				name: "apiUrl",
-				label: "数据接口",
-				type: "text",
-				placeholder: "/api/dynamic.json",
-			},
-		],
-	},
-	{
-		key: "friends",
-		title: "友链",
-		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用友链页", type: "boolean" },
-			{ name: "title", label: "页面标题", type: "text" },
-			{ name: "description", label: "页面描述", type: "textarea" },
-		],
-	},
-	{
-		key: "gallery",
-		title: "相册",
-		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用相册页", type: "boolean" },
-			{ name: "title", label: "页面标题", type: "text" },
-			{
-				name: "imgbedEnabled",
-				label: "启用图床 API（图传方式获取图片）",
-				type: "boolean",
-			},
-			{
-				name: "imgbedEndpoint",
-				label: "图床 API 端点",
-				placeholder: "如 https://cfbed.sanyue.de（可切换任意兼容图床）",
-				type: "text",
-			},
-			{
-				name: "imgbedToken",
-				label: "图床 API 密钥 (Token)",
-				placeholder: "仅服务端使用，不会下发到公开页面",
-				type: "password",
-			},
-		],
-	},
-	{
 		key: "bilibili",
 		title: "哔哩哔哩",
 		category: "页面配置",
@@ -829,6 +774,10 @@ onMount(load);
 		</div>
 	</div>
 
+	{#if message}
+		<div class="save-msg" class:err={/失败|错误/.test(message)} role="status">{message}</div>
+	{/if}
+
 	{#if loading}
 		<div class="crud-empty">加载中…</div>
 	{:else if loadError}
@@ -891,6 +840,22 @@ onMount(load);
 	.crud-empty.danger {
 		color: var(--danger);
 		border-color: color-mix(in oklch, var(--danger) 40%, var(--line-divider));
+	}
+
+	.save-msg {
+		margin: 0 0 0.8rem;
+		padding: 0.55rem 0.9rem;
+		border-radius: var(--radius-medium);
+		font-size: 0.85rem;
+		font-weight: 600;
+		background: color-mix(in oklch, var(--primary) 12%, transparent);
+		color: var(--primary);
+		border: 1px solid color-mix(in oklch, var(--primary) 30%, transparent);
+	}
+	.save-msg.err {
+		background: color-mix(in oklch, var(--danger) 12%, transparent);
+		color: var(--danger);
+		border-color: color-mix(in oklch, var(--danger) 30%, transparent);
 	}
 
 	.json-hint {

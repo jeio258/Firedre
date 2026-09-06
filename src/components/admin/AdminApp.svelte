@@ -228,7 +228,7 @@
 	}
 	function goSettings(cat: number) {
 		settingsCat = cat;
-		s3open = false;
+		s3open = true;
 		if (section === "settings") {
 			render("settings");
 		} else {
@@ -386,7 +386,7 @@
 					<div class="nav-group">
 						<p class="nav-title">{group.title}</p>
 						{#if group.settings}
-							<div class="s3wrap" class:open={s3open}>
+							<div class="s3wrap" class:open={s3open && section === "settings"}>
 								<a
 									href="/admin/settings/"
 									class="nav-item s3parent"
