@@ -4,7 +4,7 @@ import { apiJson } from "@/lib/adminApi";
 // Firefly 静态配置的默认值（后台开关初始显示真实当前状态）
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
-type FieldType = "text" | "number" | "boolean" | "textarea" | "json";
+type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password";
 interface Field {
 	name: string;
 	label: string;
@@ -25,7 +25,7 @@ const GROUPS: Group[] = [
 
 	{
 		key: "basic",
-		title: "站点配置",
+		title: "基本信息",
 		category: "站点配置",
 		fields: [
 			{ name: "title", label: "站点标题", type: "text" },
@@ -679,7 +679,7 @@ let message = "";
 let loaded = false;
 
 export let cat = 0;
-let activeCat = CATEGORIES[typeof cat === "number" ? cat : 0];
+let activeCat: string = CATEGORIES[typeof cat === "number" ? cat : 0];
 
 function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
@@ -688,7 +688,6 @@ function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 			const parsed = JSON.parse(value);
 			if (Array.isArray(parsed)) return parsed.map((n) => ({ ...n }));
 		} catch {
-
 		}
 	}
 	return [];
@@ -830,26 +829,26 @@ function applyHueToAdmin(hue: unknown) {
 		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
 }
 
+// 暴露给顶栏「保存全部」
+function onSaveAll() {
+	save();
+}
+if (typeof window !== "undefined") {
+	window.addEventListener("admin:save-all", onSaveAll);
+}
+
 onMount(load);
 </script>
 
 <div class="crud-page">
-	<div class="crud-head">
-		<div>
-			<h2>站点设置</h2>
-			<p class="crud-sub">站点基础 / 外观 / 功能 / 页面开关配置</p>
-		</div>
-		<div class="crud-head-actions">
-			{#if message}
-				<span class="crud-msg">{message}</span>
-			{/if}
-			<button class="btn-primary" on:click={save} disabled={saving}>
-				{saving ? "保存中…" : "保存全部"}
-			</button>
-		</div>
-	</div>
-
 	<div class="settings-head">
+		<div class="settings-t">
+			<h2 class="settings-title">站点设置</h2>
+			<span class="settings-count">{activeCat}</span>
+		</div>
+		<p class="settings-note">
+			在左侧「系统 → 站点设置」下选择配置大类，再点击上方分组进行编辑；修改后点右上角「保存全部」统一生效。
+		</p>
 		<div class="settings-nav">
 			{#each CATEGORIES as c}
 				<button class="sn" class:on={activeCat === c} on:click={() => (activeCat = c)}>{c}</button>
@@ -862,7 +861,8 @@ onMount(load);
 	{:else if loadError}
 		<div class="crud-empty danger">{loadError}</div>
 	{:else}
-		<div class="a2card">
+		<!-- 导航与社交：始终可编辑，置于分类之上 -->
+		<section class="a2card">
 			<header>
 				<h4>导航与社交</h4>
 				<span class="cnt">导航</span>
@@ -873,6 +873,7 @@ onMount(load);
 					<button
 						class="sw"
 						class:on={data["nav"]?.enabled === true}
+						aria-label="导航栏开关"
 						on:click={() => {
 							data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
 							markDirty();
@@ -902,51 +903,58 @@ onMount(load);
 					<button class="btn-secondary" on:click={addSocial}>+ 添加社交链接</button>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		{#each GROUPS.filter((g) => g.category === activeCat) as group}
-			<div class="a2card">
-				<header>
-					<h4>{group.title}</h4>
-					<span class="cnt">{group.fields.length} 项</span>
-				</header>
-				{#if group.fields.some((f) => f.type === "boolean")}
-					<div class="a2sws">
-						{#each group.fields.filter((f) => f.type === "boolean") as field}
-							<label class="a2tr">
-								<span class="a2tx">{field.label}</span>
-								<button
-									class="sw"
-									class:on={data[group.key]?.[field.name] === true}
-									on:click={() => cycleBool(group.key, field.name)}
-								></button>
-							</label>
-						{/each}
-					</div>
-				{/if}
-				{#if group.fields.some((f) => f.type !== "boolean")}
-					<div class="a2fg">
-						{#each group.fields.filter((f) => f.type !== "boolean") as field}
-							<div class="a2f">
-								<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
-								{#if field.type === "textarea" || field.type === "json"}
-									<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-									{#if field.type === "json"}
-										<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
-									{/if}
-								{:else if field.type === "password"}
-									<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-								{:else if field.type === "number"}
-									<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
-								{:else}
-									<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-								{/if}
-							</div>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		{/each}
+		<div class="s2-host">
+			{#each CATEGORIES as catName, ci}
+				<section class="s2pane" class:on={activeCat === catName}>
+					{#each GROUPS.filter((g) => g.category === catName) as group (group.key)}
+						<section class="a2card">
+							<header>
+								<h4>{group.title}</h4>
+								<span class="cnt">{group.fields.length} 项</span>
+							</header>
+							{#if group.fields.some((f) => f.type === "boolean")}
+								<div class="a2sws">
+									{#each group.fields.filter((f) => f.type === "boolean") as field (field.name)}
+										<label class="a2tr">
+											<span class="a2tx">{field.label}</span>
+											<button
+												class="sw"
+												class:on={data[group.key]?.[field.name] === true}
+												aria-label={field.label}
+												on:click={() => cycleBool(group.key, field.name)}
+											></button>
+										</label>
+									{/each}
+								</div>
+							{/if}
+							{#if group.fields.some((f) => f.type !== "boolean")}
+								<div class="a2fg">
+									{#each group.fields.filter((f) => f.type !== "boolean") as field (field.name)}
+										<div class="a2f">
+											<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
+											{#if field.type === "textarea" || field.type === "json"}
+												<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+												{#if field.type === "json"}
+													<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
+												{/if}
+											{:else if field.type === "password"}
+												<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											{:else if field.type === "number"}
+												<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+											{:else}
+												<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											{/if}
+										</div>
+									{/each}
+								</div>
+							{/if}
+						</section>
+					{/each}
+				</section>
+			{/each}
+		</div>
 	{/if}
 </div>
 
