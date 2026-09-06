@@ -1344,6 +1344,12 @@ body {
 	resize: vertical;
 	min-height: 96px;
 }
+
+.a2f input,
+.a2f textarea,
+.a2f select {
+	width: 100%;
+}
 .a2f textarea.mono,
 .ed-textarea {
 	font-size: 0.8rem;

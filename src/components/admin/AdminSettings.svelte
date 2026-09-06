@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
-// Firefly 静态配置的默认值（后台开关初始显示真实当前状态）
+// 设置项默认值
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
 type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password";
@@ -667,10 +667,6 @@ const GROUPS: Group[] = [
 	},
 ];
 
-// 导航数组（nav 组）
-let navItems: Array<{ label: string; url: string }> = [];
-let social: Array<{ label: string; url: string }> = [];
-
 let data: Record<string, Record<string, unknown>> = {};
 let loading = true;
 let loadError = "";
@@ -680,17 +676,19 @@ let loaded = false;
 
 export let cat = 0;
 let activeCat: string = CATEGORIES[typeof cat === "number" ? cat : 0];
+// 当前分类下的分组
+let groups: Group[] = [];
+// 当前选中的分组
+let activeGroup = "";
 
-function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
-	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
-	if (typeof value === "string") {
-		try {
-			const parsed = JSON.parse(value);
-			if (Array.isArray(parsed)) return parsed.map((n) => ({ ...n }));
-		} catch {
-		}
+$: {
+	const c = CATEGORIES[typeof cat === "number" ? cat : 0];
+	activeCat = c;
+	groups = GROUPS.filter((g) => g.category === c);
+	// 分类切换时，重置到该分类首分组
+	if (!groups.some((g) => g.key === activeGroup)) {
+		activeGroup = groups[0]?.key ?? "";
 	}
-	return [];
 }
 
 async function load() {
@@ -714,13 +712,6 @@ async function load() {
 			data[g.key] = merged;
 		}
 		data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
-		const nav = data["nav"] as {
-			navItems?: Array<{ label: string; url: string }>;
-			social?: Array<{ label: string; url: string }>;
-		};
-
-		navItems = parseNavArray(nav.navItems);
-		social = parseNavArray(nav.social);
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}
@@ -733,24 +724,7 @@ function cycleBool(key: string, field: string) {
 	markDirty();
 }
 
-function addNav() {
-	navItems = [...navItems, { label: "", url: "" }];
-	markDirty();
-}
-function removeNav(i: number) {
-	navItems = navItems.filter((_, idx) => idx !== i);
-	markDirty();
-}
-function addSocial() {
-	social = [...social, { label: "", url: "" }];
-	markDirty();
-}
-function removeSocial(i: number) {
-	social = social.filter((_, idx) => idx !== i);
-	markDirty();
-}
-
-// 手动保存模式：字段修改仅标记为「未保存」，点击「保存全部」才提交（不再自动保存）
+// 标记存在未保存修改
 function markDirty() {
 	if (!loaded) return;
 	message = "有未保存的修改，请点击「保存全部」";
@@ -760,7 +734,7 @@ async function save() {
 	saving = true;
 	message = "";
 	try {
-		const groups: Record<string, Record<string, unknown>> = {};
+		const out: Record<string, Record<string, unknown>> = {};
 
 		const jsonFields = new Set([
 			"links",
@@ -789,18 +763,14 @@ async function save() {
 					delete payload[k];
 				}
 			}
-			groups[g.key] = payload;
+			out[g.key] = payload;
 		}
-		groups["nav"] = {
-			...(data["nav"] ?? {}),
-			navItems: navItems.filter((n) => n.label.trim() && n.url.trim()),
-			social: social.filter((s) => s.label.trim() && s.url.trim()),
-		};
+		out["nav"] = { ...(data["nav"] ?? {}) };
 		const resp = await fetch("/api/settings/", {
 			method: "PUT",
 			credentials: "include",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ groups }),
+			body: JSON.stringify({ groups: out }),
 		});
 		const res = await resp.json().catch(() => null);
 		if (!resp.ok || !res?.ok) {
@@ -823,7 +793,7 @@ function applyHueToAdmin(hue: unknown) {
 	if (hue == null || hue === "") return;
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
-	// 仅设 --hue，其余派生色（primary/page-bg/deep-text 等）由 CSS 变量按明暗自动取值
+	// 仅更新主题色相
 	document.documentElement.style.setProperty("--hue", String(h));
 	document.body.style.background =
 		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
@@ -844,14 +814,14 @@ onMount(load);
 	<div class="settings-head">
 		<div class="settings-t">
 			<h2 class="settings-title">站点设置</h2>
-			<span class="settings-count">{activeCat}</span>
+			<span class="settings-count">{activeCat} · {groups.length} 个分组</span>
 		</div>
 		<p class="settings-note">
-			在左侧「系统 → 站点设置」下选择配置大类，再点击上方分组进行编辑；修改后点右上角「保存全部」统一生效。
+			在左侧「系统 → 站点设置」下选择配置大类，再点击上方分组标签进行编辑；修改后点右上角「保存全部」统一生效。
 		</p>
 		<div class="settings-nav">
-			{#each CATEGORIES as c}
-				<button class="sn" class:on={activeCat === c} on:click={() => (activeCat = c)}>{c}</button>
+			{#each groups as g (g.key)}
+				<button class="sn" class:on={activeGroup === g.key} on:click={() => (activeGroup = g.key)}>{g.title}</button>
 			{/each}
 		</div>
 	</div>
@@ -861,200 +831,68 @@ onMount(load);
 	{:else if loadError}
 		<div class="crud-empty danger">{loadError}</div>
 	{:else}
-		<!-- 导航与社交：始终可编辑，置于分类之上 -->
-		<section class="a2card">
-			<header>
-				<h4>导航与社交</h4>
-				<span class="cnt">导航</span>
-			</header>
-			<div class="nav-body">
-				<div class="settings-row-inline">
-					<span class="settings-label">导航栏</span>
-					<button
-						class="sw"
-						class:on={data["nav"]?.enabled === true}
-						aria-label="导航栏开关"
-						on:click={() => {
-							data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
-							markDirty();
-						}}
-					></button>
-				</div>
-
-				<div class="settings-sub">
-					<h4>导航栏项目</h4>
-					{#each navItems as item, i}
-						<div class="pair-row">
-							<input type="text" placeholder="名称" value={item.label} on:input={(e) => (item.label = e.currentTarget.value)} />
-							<input type="text" placeholder="URL（如 /posts/）" value={item.url} on:input={(e) => (item.url = e.currentTarget.value)} />
-							<button class="btn-del" on:click={() => removeNav(i)} aria-label="删除导航项">×</button>
-						</div>
-					{/each}
-					<button class="btn-secondary" on:click={addNav}>+ 添加导航项</button>
-
-					<h4 class="sub-gap">社交链接</h4>
-					{#each social as item, i}
-						<div class="pair-row">
-							<input type="text" placeholder="名称（如 GitHub）" value={item.label} on:input={(e) => (item.label = e.currentTarget.value)} />
-							<input type="text" placeholder="URL" value={item.url} on:input={(e) => (item.url = e.currentTarget.value)} />
-							<button class="btn-del" on:click={() => removeSocial(i)} aria-label="删除社交链接">×</button>
-						</div>
-					{/each}
-					<button class="btn-secondary" on:click={addSocial}>+ 添加社交链接</button>
-				</div>
-			</div>
-		</section>
-
+		<!-- 当前分类下，按选中的分组标签展示单张卡片 -->
 		<div class="s2-host">
-			{#each CATEGORIES as catName, ci}
-				<section class="s2pane" class:on={activeCat === catName}>
-					{#each GROUPS.filter((g) => g.category === catName) as group (group.key)}
-						<section class="a2card">
-							<header>
-								<h4>{group.title}</h4>
-								<span class="cnt">{group.fields.length} 项</span>
-							</header>
-							{#if group.fields.some((f) => f.type === "boolean")}
-								<div class="a2sws">
-									{#each group.fields.filter((f) => f.type === "boolean") as field (field.name)}
-										<label class="a2tr">
-											<span class="a2tx">{field.label}</span>
-											<button
-												class="sw"
-												class:on={data[group.key]?.[field.name] === true}
-												aria-label={field.label}
-												on:click={() => cycleBool(group.key, field.name)}
-											></button>
-										</label>
-									{/each}
-								</div>
-							{/if}
-							{#if group.fields.some((f) => f.type !== "boolean")}
-								<div class="a2fg">
-									{#each group.fields.filter((f) => f.type !== "boolean") as field (field.name)}
-										<div class="a2f">
-											<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
-											{#if field.type === "textarea" || field.type === "json"}
-												<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-												{#if field.type === "json"}
-													<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
-												{/if}
-											{:else if field.type === "password"}
-												<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-											{:else if field.type === "number"}
-												<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
-											{:else}
-												<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+			<section class="s2pane on">
+				{#each groups.filter((g) => g.key === activeGroup) as group (group.key)}
+					<section class="a2card">
+						<header>
+							<h4>{group.title}</h4>
+							<span class="cnt">{group.fields.length} 项</span>
+						</header>
+						{#if group.fields.some((f) => f.type === "boolean")}
+							<div class="a2sws">
+								{#each group.fields.filter((f) => f.type === "boolean") as field (field.name)}
+									<label class="a2tr">
+										<span class="a2tx">{field.label}</span>
+										<button
+											class="sw"
+											class:on={data[group.key]?.[field.name] === true}
+											aria-label={field.label}
+											on:click={() => cycleBool(group.key, field.name)}
+										></button>
+									</label>
+								{/each}
+							</div>
+						{/if}
+						{#if group.fields.some((f) => f.type !== "boolean")}
+							<div class="a2fg">
+								{#each group.fields.filter((f) => f.type !== "boolean") as field (field.name)}
+									<div class="a2f">
+										<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
+										{#if field.type === "textarea" || field.type === "json"}
+											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+											{#if field.type === "json"}
+												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
 											{/if}
-										</div>
-									{/each}
-								</div>
-							{/if}
-						</section>
-					{/each}
-				</section>
-			{/each}
+										{:else if field.type === "password"}
+											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+										{:else if field.type === "number"}
+											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+										{:else}
+											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+										{/if}
+									</div>
+								{/each}
+							</div>
+						{/if}
+					</section>
+				{/each}
+			</section>
 		</div>
 	{/if}
 </div>
 
 
 <style>
-	.btn-del {
-		background: none;
-		border: none;
-		color: var(--danger);
-		cursor: pointer;
-		font-size: 1.05rem;
-		padding: 0 0.4rem;
-		flex-shrink: 0;
-	}
-	.btn-del:hover {
-		color: var(--danger);
-	}
-
 	.crud-empty.danger {
 		color: var(--danger);
 		border-color: color-mix(in oklch, var(--danger) 40%, var(--line-divider));
-	}
-
-	.nav-body {
-		padding: 0.25rem 0 0.5rem;
-	}
-	.settings-row-inline {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.6rem 0;
-	}
-	.settings-label {
-		font-size: 0.9rem;
-		font-weight: 600;
-		color: var(--deep-text);
-	}
-
-	.settings-sub {
-		margin-top: 0.6rem;
-		padding: 0.8rem 0 0;
-		border-top: 1px solid var(--line-divider);
-	}
-	.settings-sub h4 {
-		margin: 0 0 0.5rem;
-		font-size: 0.9rem;
-		font-weight: 600;
-		color: var(--deep-text);
-	}
-	.settings-sub .sub-gap {
-		margin-top: 1rem;
-	}
-
-	.pair-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		margin-bottom: 0.5rem;
-	}
-	.pair-row input {
-		flex: 1;
-		min-width: 0;
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.5rem;
-		font-size: 0.88rem;
-		background: var(--card-bg);
-		color: var(--deep-text);
-		box-sizing: border-box;
-	}
-	.pair-row input::placeholder {
-		color: var(--text-muted);
-		opacity: 1;
-	}
-	.pair-row input:first-child {
-		flex: 0 0 220px;
-	}
-	.pair-row input:focus {
-		outline: none;
-		border-color: var(--primary);
-		box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
 	}
 
 	.json-hint {
 		color: var(--text-muted);
 		font-size: 0.72rem;
 		font-family: ui-monospace, monospace;
-	}
-
-	@media (max-width: 720px) {
-		.pair-row {
-			flex-direction: column;
-			align-items: stretch;
-		}
-		.pair-row input:first-child {
-			flex: 1;
-		}
-		.pair-row .btn-del {
-			align-self: flex-end;
-		}
 	}
 </style>
