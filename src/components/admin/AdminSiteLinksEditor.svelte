@@ -186,10 +186,6 @@
 		color: var(--success);
 	}
 
-	.u-chip.off {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
-	}
 	.link-info {
 		min-width: 0;
 	}

@@ -2,21 +2,25 @@
 	import { onMount } from "svelte";
 
 	// 面积/折线图：发布 vs 草稿 双序列，颜色由外部传入（运行时取主题令牌）
-	export let data: { label: string; 发布: number; 草稿: number }[] = [];
-	export let colors: { 发布: string; 草稿: string } = { 发布: "#0f766e", 草稿: "#0ea5e9" };
-	export let height = 240;
+	interface Props {
+		data?: { label: string; 发布: number; 草稿: number }[];
+		colors?: { 发布: string; 草稿: string };
+		height?: number;
+	}
+	let { data = [], colors = { 发布: "#0f766e", 草稿: "#0ea5e9" }, height = 240 }: Props = $props();
 
-	let w = 0;
-	let gridColor = "rgba(148, 163, 184, 0.35)";
-	let textColor = "#94a3b8";
+	let w = $state(0);
+	let gridColor = $state("rgba(148, 163, 184, 0.35)");
+	let textColor = $state("#94a3b8");
+	let chartColors = $state({ ...colors });
 
 	function palette() {
 		const cs = getComputedStyle(document.documentElement);
 		gridColor = "var(--line-divider)";
 		textColor = "var(--text-muted)";
-		colors = {
-			发布: cs.getPropertyValue("--primary").trim() || colors.发布,
-			草稿: colors.草稿,
+		chartColors = {
+			发布: cs.getPropertyValue("--primary").trim() || chartColors.发布,
+			草稿: chartColors.草稿,
 		};
 	}
 
@@ -39,12 +43,12 @@
 		>
 			<defs>
 				<linearGradient id="chartGradPub" x1="0" y1="0" x2="0" y2="1">
-					<stop offset="0%" stop-color={colors.发布} stop-opacity="0.3" />
-					<stop offset="100%" stop-color={colors.发布} stop-opacity="0" />
+					<stop offset="0%" stop-color={chartColors.发布} stop-opacity="0.3" />
+					<stop offset="100%" stop-color={chartColors.发布} stop-opacity="0" />
 				</linearGradient>
 				<linearGradient id="chartGradDft" x1="0" y1="0" x2="0" y2="1">
-					<stop offset="0%" stop-color={colors.草稿} stop-opacity="0.22" />
-					<stop offset="100%" stop-color={colors.草稿} stop-opacity="0" />
+					<stop offset="0%" stop-color={chartColors.草稿} stop-opacity="0.22" />
+					<stop offset="100%" stop-color={chartColors.草稿} stop-opacity="0" />
 				</linearGradient>
 			</defs>
 			<!-- 横网格线 + y 刻度 -->
@@ -63,7 +67,7 @@
 				<path
 					d={data.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.草稿).toFixed(1)}`).join("")}
 					fill="none"
-					style="stroke:{colors.草稿}"
+					style="stroke:{chartColors.草稿}"
 					stroke-width="2"
 					stroke-linejoin="round"
 					stroke-linecap="round"
@@ -76,7 +80,7 @@
 			<path
 				d={data.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.发布).toFixed(1)}`).join("")}
 				fill="none"
-				style="stroke:{colors.发布}"
+				style="stroke:{chartColors.发布}"
 				stroke-width="2"
 				stroke-linejoin="round"
 				stroke-linecap="round"

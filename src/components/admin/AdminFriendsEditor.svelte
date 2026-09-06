@@ -103,10 +103,6 @@
 		background: var(--btn-regular-bg);
 	}
 
-	.u-chip.off {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
-	}
 	.friend-text {
 		min-width: 0;
 	}

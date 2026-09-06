@@ -692,20 +692,11 @@ async function save() {
 			"sections",
 		]);
 
-		const passwordFields = new Set(
-			GROUPS.flatMap((g) =>
-				(g.fields ?? [])
-					.filter((f: { type?: string }) => f.type === "password")
-					.map((f: { name: string }) => f.name),
-			),
-		);
 		for (const g of GROUPS) {
 			const payload = { ...(data[g.key] ?? {}) };
 			for (const k of Object.keys(payload)) {
 				const v = payload[k];
-				if (passwordFields.has(k)) {
-					if (!v) delete payload[k]; // 留空不覆盖，仅保留已存值
-				} else if (jsonFields.has(k)) {
+				if (jsonFields.has(k)) {
 					if (v === "" || v == null) delete payload[k];
 				} else if (v == null) {
 					delete payload[k];

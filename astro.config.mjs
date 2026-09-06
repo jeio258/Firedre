@@ -122,9 +122,7 @@ export default defineConfig({
 	integrations: [
 		swup({
 			theme: false,
-			// 关键：禁用 swup 内存页面缓存。否则前台软导航显示缓存旧 DOM，
-			// 后台改配置后前台永远不更新（表现为"配置不生效"）
-			cache: false,
+			cache: false, // 禁用 swup 内存缓存，避免软导航显示旧 DOM 致配置不生效
 			animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
 			// the default value `transition-` cause transition delay
 			// when the Tailwind class `transition-all` is used
@@ -173,8 +171,7 @@ export default defineConfig({
 				"svg-spinners": ["ring-resize"],
 			},
 		}),
-		// expressive-code 集成已移除：代码高亮改由客户端 highlight.js 承担（大幅减小 Worker 体积）
-		
+		// 代码高亮改由客户端 highlight.js 承担，已移除 expressive-code 集成
 		svelte(),
 		mdx(),
 	],
@@ -300,22 +297,20 @@ export default defineConfig({
 		resolve: {
 			alias: {
 				"@rehype-callouts-theme": `rehype-callouts/theme/${siteConfig.post.rehypeCallouts.theme}`,
-				// prism 从不启用：stub 掉 @astrojs/prism，规避 v12 适配器 workerd loader 与 rolldown 的冲突
-				"@astrojs/prism/dist/highlighter": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
+			// stub 掉 @astrojs/prism，规避 v12 workerd loader 与 rolldown 冲突
+			"@astrojs/prism/dist/highlighter": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
 				"@astrojs/prism/dist/loadLanguages-workerd": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
 				"@astrojs/prism": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
 			},
 		},
 		optimizeDeps: {
-			// workerd dev 下 SSR 依赖预优化产物（.vite/deps_ssr/*.js）在 workerd 里访问不到，
-			// 触发「file does not exist」崩溃（上游 bug #16248/#17456）。排除 astro: 虚拟模块规避。
+			// workerd dev 下预优化产物访问不到，排除 astro: 虚拟模块规避崩溃
 			exclude: [
 				"astro:assets",
 				"astro/assets/services/noop",
 				"astro:actions",
 			],
-			// 后台文章编辑器动态加载 Vditor（AdminPostEditor 按需 import）。
-			// 显式预优化，避免 dev 下首次访问出现 Outdated Optimize Dep (504) 导致编辑器加载失败。
+			// 预优化 vditor，避免 dev 首次访问编辑器报 Outdated Optimize Dep
 			include: ["vditor"],
 		},
 		build: {

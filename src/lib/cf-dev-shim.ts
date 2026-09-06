@@ -63,7 +63,7 @@ try {
 		}
 	}
 
-	// 清理已废弃的旧表（统一后的 schema 不再需要，保证本地与远程一致）
+	// 清理统一 schema 前的废弃旧表
 	for (const t of [
 		"post_categories",
 		"post_tags",

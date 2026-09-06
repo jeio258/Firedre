@@ -25,31 +25,32 @@ function slugifyTitle(title: string): string {
 	return parts.filter(Boolean).join("-").replace(/-{2,}/g, "-");
 }
 
-export let slug = "";
-export let isNew = false;
+let { slug: initialSlug = "", isNew: initialIsNew = false }: { slug?: string; isNew?: boolean } = $props();
 
-let title = "";
-let published = "";
-let updated = "";
-let category = "";
-let tagsText = "";
-let description = "";
-let image = "";
-let password = "";
-let passwordHint = "";
-let pinned = false;
-let draft = false;
-let series = "";
-let seriesOrder = "";
-let comment = true;
-let rawContent = "";
+let title = $state("");
+let published = $state("");
+let updated = $state("");
+let category = $state("");
+let tagsText = $state("");
+let description = $state("");
+let image = $state("");
+let password = $state("");
+let passwordHint = $state("");
+let pinned = $state(false);
+let draft = $state(false);
+let series = $state("");
+let seriesOrder = $state("");
+let comment = $state(true);
+let rawContent = $state("");
+let slug = $state(initialSlug);
+let isNew = $state(initialIsNew);
 
 let editor: Vditor | null = null;
 let vditorThemeObserver: MutationObserver | null = null;
-let saving = false;
-let message = "";
-let messageKind: "ok" | "err" = "ok";
-let loaded = false;
+let saving = $state(false);
+let message = $state("");
+let messageKind = $state<"ok" | "err">("ok");
+let loaded = $state(false);
 let slugManuallyEdited = false;
 
 async function load() {
