@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { onDestroy, onMount, tick } from "svelte";
-	import "vditor/dist/index.css";
-	import type Vditor from "vditor";
-	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+import { onDestroy, onMount, tick } from "svelte";
+import "vditor/dist/index.css";
+import type Vditor from "vditor";
+import { createVditor } from "@/lib/adminVditor";
 
 	let { section = "about", apiPath = "/api/about/" } = $props();
 
@@ -38,22 +38,9 @@
 			editor.setValue(rawContent);
 			return;
 		}
-
-		const { default: Vditor } = await import("vditor");
-		editor = new Vditor("vditor-editor", {
-			cdn: "/vditor",
-			height: 520,
-			mode: "wysiwyg",
-			value: rawContent,
-			cache: { enable: false },
-			after: () => {
-				const root = document.querySelector<HTMLElement>(".vditor");
-				if (root) {
-					syncVditorTheme(root);
-					vditorThemeObserver = observeVditorTheme(root);
-				}
-			},
-		});
+		const res = await createVditor("vditor-editor", { value: rawContent, height: 520 });
+		editor = res.editor as Vditor | null;
+		vditorThemeObserver = res.observer;
 	}
 
 	async function save() {

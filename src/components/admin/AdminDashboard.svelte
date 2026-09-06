@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import AdminAreaChart from "./charts/AdminAreaChart.svelte";
-	import AdminDonutChart from "./charts/AdminDonutChart.svelte";
-	import AdminBarChart from "./charts/AdminBarChart.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { iconSvg } from "@/lib/adminIcons";
+import AdminCartesianChart from "./charts/AdminCartesianChart.svelte";
+import AdminDonutChart from "./charts/AdminDonutChart.svelte";
 
 	interface Stats {
 		siteTitle?: string;
@@ -38,26 +38,21 @@
 	let loading = true;
 	let loadError = "";
 
-	const S = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">`;
-	const iconArticle =
-		S +
-		'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
-	const iconSparkle =
-		S +
-		'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>';
-	const iconUsers =
-		S +
-		'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
-	const iconTag =
-		S +
-		'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>';
-
 	const AREA_COLORS = { 发布: "#0f766e", 草稿: "#0ea5e9" };
 	const STATUS_COLORS: Record<string, string> = {
 		已发布: "#10b981",
 		草稿: "#94a3b8",
 		未发布: "#f59e0b",
 	};
+
+	// 图表数据适配（统一传给 AdminCartesianChart）
+	$: trendX = (stats.monthlyTrend || []).map((m) => m.label);
+	$: trendSeries = [
+		(stats.monthlyTrend || []).map((m) => m.发布),
+		(stats.monthlyTrend || []).map((m) => m.草稿),
+	];
+	$: catX = (stats.categoryDist || []).map((c) => c.name);
+	$: catSeries = [(stats.categoryDist || []).map((c) => c.文章数)];
 
 	function fmtNum(n: number | undefined): string {
 		return (n ?? 0).toLocaleString("zh-CN");
@@ -105,13 +100,15 @@
 	});
 </script>
 
-<div class="dash-page">
-	<div class="dash-header">
+<div class="crud-page">
+	<div class="crud-head">
 		<div>
 			<h2>{stats.siteTitle || "站点"} · 数据看板</h2>
-			<p class="dash-sub">数据更新至 {toDate()}</p>
+			<p class="crud-sub">数据更新至 {toDate()}</p>
 		</div>
-		<a class="btn-secondary" href="/admin/posts/">管理文章</a>
+		<div class="crud-head-actions">
+			<a class="btn-ghost" href="/admin/posts/">管理文章</a>
+		</div>
 	</div>
 
 	{#if loading}
@@ -126,7 +123,7 @@
 					<p class="stat-label">文章总数</p>
 					<p class="stat-value">{fmtNum(stats.totals?.posts)}</p>
 				</div>
-				<span class="stat-icon tone-primary">{@html iconArticle}</span>
+				<span class="stat-icon tone-primary">{@html iconSvg("article", 20)}</span>
 				<p class="stat-hint">
 					已发布 {fmtNum(stats.totals?.published)} · 草稿 {fmtNum(stats.totals?.draft)}
 				</p>
@@ -136,7 +133,7 @@
 					<p class="stat-label">动态总数</p>
 					<p class="stat-value">{fmtNum(stats.totals?.dynamics)}</p>
 				</div>
-				<span class="stat-icon tone-violet">{@html iconSparkle}</span>
+				<span class="stat-icon tone-violet">{@html iconSvg("dynamics", 20)}</span>
 				<p class="stat-hint">类 memos 短内容</p>
 			</div>
 			<div class="dash-card stat-card">
@@ -144,7 +141,7 @@
 					<p class="stat-label">友链数量</p>
 					<p class="stat-value">{fmtNum(stats.totals?.friends)}</p>
 				</div>
-				<span class="stat-icon tone-emerald">{@html iconUsers}</span>
+				<span class="stat-icon tone-emerald">{@html iconSvg("users", 20)}</span>
 				<p class="stat-hint">启用 {fmtNum(stats.totals?.friendsEnabled)}</p>
 			</div>
 			<div class="dash-card stat-card">
@@ -152,7 +149,7 @@
 					<p class="stat-label">标签 / 分类</p>
 					<p class="stat-value">{fmtNum(stats.totals?.tags)} / {fmtNum(stats.totals?.categories)}</p>
 				</div>
-				<span class="stat-icon tone-amber">{@html iconTag}</span>
+				<span class="stat-icon tone-amber">{@html iconSvg("tag", 20)}</span>
 				<p class="stat-hint">内容组织维度</p>
 			</div>
 		</div>
@@ -166,7 +163,7 @@
 					<span><i style="background:{AREA_COLORS.发布}"></i>发布</span>
 					<span><i style="background:{AREA_COLORS.草稿}"></i>草稿</span>
 				</div>
-				<AdminAreaChart data={stats.monthlyTrend || []} colors={AREA_COLORS} height={240} />
+				<AdminCartesianChart xLabels={trendX} values={trendSeries} colors={[]} kind="area" height={240} />
 			</div>
 			<div class="dash-card">
 				<h3 class="chart-title">状态分布</h3>
@@ -197,13 +194,7 @@
 			<div class="dash-card span-2">
 				<h3 class="chart-title">分类分布</h3>
 				<p class="chart-sub">各分类下的文章数量</p>
-				<AdminBarChart
-					data={(stats.categoryDist || []).map((c) => ({
-						name: c.name,
-						value: c.文章数,
-					}))}
-					height={220}
-				/>
+				<AdminCartesianChart xLabels={catX} values={catSeries} colors={[]} kind="bar" height={220} />
 			</div>
 			<div class="dash-card">
 				<h3 class="chart-title">字数最多</h3>
@@ -264,31 +255,8 @@
 </div>
 
 <style>
-	.dash-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 1280px;
-		margin: 0 auto;
-	}
-	.dash-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-	.dash-header h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-	.dash-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-	}
+	/* 头部统一走 crud-head（admin.css），此处仅保留看板自身的网格/卡片样式 */
+
 	.dash-loading,
 	.dash-error {
 		padding: 3rem;
@@ -304,26 +272,6 @@
 		border: 1px solid var(--line-divider);
 		border-radius: 0.9rem;
 		padding: 1.1rem 1.15rem;
-	}
-
-	/* 按钮 */
-	.btn-secondary {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-		padding: 0.42rem 0.9rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		border-radius: 0.55rem;
-		border: 1px solid var(--line-divider);
-		background: var(--card-bg);
-		color: var(--deep-text);
-		text-decoration: none;
-		transition: border-color 0.14s, color 0.14s;
-	}
-	.btn-secondary:hover {
-		border-color: var(--primary);
-		color: var(--primary);
 	}
 
 	/* 统计卡 */
@@ -578,27 +526,6 @@
 		align-items: center;
 		gap: 0.5rem;
 		flex-shrink: 0;
-	}
-	.badge {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.2rem;
-		padding: 0.12rem 0.45rem;
-		border-radius: 999px;
-		font-size: 0.72rem;
-		font-weight: 600;
-	}
-	.badge.amber {
-		background: color-mix(in oklch, #f59e0b 16%, transparent);
-		color: #b45309;
-	}
-	.badge.published {
-		background: color-mix(in oklch, #10b981 16%, transparent);
-		color: #059669;
-	}
-	.badge.draft {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
 	}
 	.recent-time {
 		font-size: 0.75rem;

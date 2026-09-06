@@ -4,10 +4,6 @@
 	--radius-large: 0.75rem;
 	--radius-medium: 0.5rem;
 	--shadow-card: 0 1px 2px 0 rgb(16 24 40 / 0.04), 0 1px 3px 0 rgb(16 24 40 / 0.06);
-	/* 断点对齐前端方案：移动端上限 767、平板/桌面 768 起、大屏 1024 起 */
-	--breakpoint-mobile: 767px;
-	--breakpoint-tablet: 768px;
-	--breakpoint-desktop: 1024px;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
 		"Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 	/* 兜底文字色：未指定 color 的子元素（含 vditor 内部、孤立标签）不再继承到浏览器默认黑 */
@@ -66,6 +62,37 @@
 .admin-shell .crud-msg {
 	font-size: 0.82rem;
 	color: var(--success);
+}
+.admin-shell .crud-msg.ok {
+	color: var(--success);
+}
+.admin-shell .crud-msg.err {
+	color: var(--danger);
+}
+
+/* 状态徽标（Dashboard / PostList 共用） */
+.admin-shell .badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0.1rem 0.45rem;
+	border-radius: 999px;
+	font-size: 0.72rem;
+	font-weight: 600;
+	line-height: 1.5;
+}
+.admin-shell .badge.amber {
+	background: color-mix(in oklch, #f59e0b 16%, transparent);
+	color: #b45309;
+}
+.admin-shell .badge.slate,
+.admin-shell .badge.draft {
+	background: var(--btn-regular-bg);
+	color: var(--text-muted);
+}
+.admin-shell .badge.published {
+	background: color-mix(in oklch, #10b981 16%, transparent);
+	color: #059669;
 }
 .admin-shell .crud-empty {
 	background: var(--card-bg);
@@ -438,164 +465,6 @@
 	.admin-shell .actions {
 		flex-wrap: wrap;
 	}
-}
-
-/* 外壳：侧栏 / 顶栏 / 菜单（结构按 cms-admin，颜色用项目主题） */
-.admin-shell .admin-sidebar {
-	background: var(--card-bg) !important;
-	border-right: 1px solid var(--line-divider);
-}
-.admin-shell .brand-logo,
-.admin-shell .brand-text {
-	color: var(--primary) !important;
-}
-.admin-shell .brand-text {
-	font-weight: 700;
-}
-.admin-shell .admin-nav-title {
-	color: var(--text-muted) !important;
-	font-size: 0.72rem !important;
-	font-weight: 600 !important;
-	letter-spacing: 0.08em;
-	padding: 0.85rem 0.75rem 0.35rem !important;
-	text-transform: uppercase;
-}
-.admin-shell .admin-nav-item {
-	opacity: 1 !important;
-	color: var(--deep-text) !important;
-	font-size: 0.88rem !important;
-	font-weight: 400 !important;
-	padding: 0.5rem 0.75rem !important;
-	margin: 0 !important;
-	border-radius: 0.5rem !important;
-	display: flex !important;
-	align-items: center !important;
-	gap: 0.65rem !important;
-	text-decoration: none !important;
-	transition: background 0.15s, color 0.15s !important;
-}
-.admin-shell .admin-nav-item:hover {
-	background: var(--btn-regular-bg) !important;
-	color: var(--deep-text) !important;
-}
-.admin-shell .admin-nav-item.active {
-	background: color-mix(in oklch, var(--primary) 14%, transparent) !important;
-	color: var(--primary) !important;
-	font-weight: 600 !important;
-}
-.admin-shell .admin-nav-icon :global(svg) {
-	width: 18px !important;
-	height: 18px !important;
-	stroke-width: 1.75;
-}
-
-.admin-shell .admin-user {
-	border-top: 1px solid var(--line-divider);
-	padding: 0.85rem 0.75rem 0.5rem;
-	margin-top: 0.5rem;
-}
-.admin-shell .admin-user-avatar {
-	background: var(--primary) !important;
-	background-image: none !important;
-	color: var(--on-accent);
-	font-weight: 600;
-}
-.admin-shell .admin-user-name {
-	color: var(--deep-text);
-	font-size: 0.9rem;
-}
-
-.admin-shell .admin-topbar {
-	background: var(--card-bg) !important;
-	border-bottom: 1px solid var(--line-divider);
-}
-.admin-shell .admin-body {
-	overflow-x: hidden;
-}
-.admin-shell .admin-topbar-title h1 {
-	color: var(--deep-text);
-	font-size: 1.05rem;
-	font-weight: 600;
-}
-.admin-shell .admin-menu-toggle {
-	color: var(--text-muted);
-}
-
-.admin-shell .admin-btn-primary {
-	display: inline-flex !important;
-	align-items: center;
-	gap: 0.4rem;
-	padding: 0.5rem 1rem !important;
-	font-size: 0.875rem !important;
-	font-weight: 500 !important;
-	border-radius: 0.5rem !important;
-	background: var(--primary) !important;
-	background-image: none !important;
-	color: var(--on-accent) !important;
-	border: 1px solid transparent !important;
-	text-decoration: none !important;
-	transition: filter 0.15s !important;
-}
-.admin-shell .admin-btn-primary:hover {
-	filter: brightness(0.94);
-}
-
-.admin-shell .admin-user-trigger {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.4rem 0.6rem;
-	border-radius: 0.5rem;
-	background: transparent;
-	border: 1px solid transparent;
-	color: var(--deep-text);
-	cursor: pointer;
-	font-size: 0.88rem;
-	transition: background 0.15s;
-}
-.admin-shell .admin-user-trigger:hover {
-	background: var(--btn-regular-bg);
-}
-.admin-shell .admin-caret {
-	color: var(--text-muted);
-	font-size: 0.7rem;
-}
-
-.admin-shell .admin-dropdown {
-	background: var(--card-bg);
-	border: 1px solid var(--line-divider);
-	border-radius: 0.5rem;
-	box-shadow: 0 10px 30px rgb(16 24 40 / 0.12);
-	padding: 0.4rem;
-	min-width: 200px;
-}
-.admin-shell .admin-dropdown-item {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	width: 100%;
-	padding: 0.5rem 0.7rem;
-	background: transparent;
-	border: none;
-	color: var(--deep-text);
-	font-size: 0.88rem;
-	border-radius: 0.375rem;
-	cursor: pointer;
-	text-align: left;
-}
-.admin-shell .admin-dropdown-item:hover {
-	background: var(--btn-regular-bg);
-}
-.admin-shell .admin-dropdown-item.danger {
-	color: var(--danger);
-}
-.admin-shell .admin-dropdown-item.danger:hover {
-	background: color-mix(in oklch, var(--danger) 12%, transparent);
-	color: var(--danger);
-}
-
-.admin-shell .admin-overlay {
-	background: rgba(15, 23, 42, 0.45) !important;
 }
 
 /* Vditor 深色适配：vditor 内部很多元素未跟随 .vditor--dark 切换文字色，需显式覆盖 */

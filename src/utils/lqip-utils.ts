@@ -50,6 +50,15 @@ export function isExternalImage(src: string): boolean {
 	);
 }
 
+// 图片来源统一分类：public=站内 public、external=外链/data、local=src 内资源
+export type ImageSource = "public" | "external" | "local";
+
+export function classifyImageSource(src: string): ImageSource {
+	if (src.startsWith("/")) return "public";
+	if (isExternalImage(src)) return "external";
+	return "local";
+}
+
 export function getLqipStyle(
 	src: string,
 	basePath?: string,

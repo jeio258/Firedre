@@ -9,7 +9,7 @@ import {
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@/utils/image-utils";
-import { getLqipProps } from "@/utils/lqip-utils";
+import { classifyImageSource, getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
 
 interface Props {
@@ -61,13 +61,9 @@ const {
 const fallbackFormat = getFallbackFormat();
 const className = Astro.props.class;
 
-const isLocal = !(
-	src.startsWith("/") ||
-	src.startsWith("http") ||
-	src.startsWith("https") ||
-	src.startsWith("data:")
-);
-const isPublic = src.startsWith("/");
+const sourceType = classifyImageSource(src);
+const isLocal = sourceType === "local";
+const isPublic = sourceType === "public";
 
 let img: ImageMetadata | null = null;
 if (isLocal) {

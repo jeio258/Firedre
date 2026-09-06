@@ -98,49 +98,47 @@ $: publishedCount = posts.filter((p) => p.published === 1).length;
 $: draftCount = posts.length - publishedCount;
 </script>
 
-<div class="pl-page">
-	<div class="dash-card pl-toolbar">
-		<div class="pl-toolbar-top">
-			<div>
-				<h2>文章管理</h2>
-				<p class="pl-sub">
-					共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}{#if selected.size > 0}
-						· 已选 {selected.size}{/if}
-				</p>
-			</div>
-			<div class="pl-toolbar-actions">
-				<label class="pl-selectall">
-					<input
-						type="checkbox"
-						checked={filtered.length > 0 && selected.size === filtered.length}
-						on:change={toggleAll}
-					/>
-					全选
-				</label>
-				<a class="btn-primary" href="/admin/posts/new/">+ 新建文章</a>
-			</div>
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>文章管理</h2>
+			<p class="crud-sub">
+				共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}{#if selected.size > 0}
+					· 已选 {selected.size}{/if}
+			</p>
 		</div>
-		<div class="pl-filters">
-			<div class="chips">
-				<button class="chip" class:active={status === "all"} on:click={() => (status = "all")}>全部</button>
-				<button class="chip" class:active={status === "published"} on:click={() => (status = "published")}>已发布</button>
-				<button class="chip" class:active={status === "draft"} on:click={() => (status = "draft")}>草稿</button>
-			</div>
-			<input type="search" placeholder="搜索标题 / slug…" bind:value={search} />
-			{#if selected.size > 0}
-				<button class="btn-danger" on:click={batchDelete} disabled={deleting}>
-					{deleting ? "删除中…" : `删除选中 (${selected.size})`}
-				</button>
-			{/if}
+		<div class="crud-head-actions">
+			<label class="pl-selectall">
+				<input
+					type="checkbox"
+					checked={filtered.length > 0 && selected.size === filtered.length}
+					on:change={toggleAll}
+				/>
+				全选
+			</label>
+			<a class="btn-primary" href="/admin/posts/new/">+ 新建文章</a>
 		</div>
+	</div>
+	<div class="pl-filters">
+		<div class="chips">
+			<button class="chip" class:active={status === "all"} on:click={() => (status = "all")}>全部</button>
+			<button class="chip" class:active={status === "published"} on:click={() => (status = "published")}>已发布</button>
+			<button class="chip" class:active={status === "draft"} on:click={() => (status = "draft")}>草稿</button>
+		</div>
+		<input type="search" placeholder="搜索标题 / slug…" bind:value={search} />
+		{#if selected.size > 0}
+			<button class="btn-danger" on:click={batchDelete} disabled={deleting}>
+				{deleting ? "删除中…" : `删除选中 (${selected.size})`}
+			</button>
+		{/if}
 	</div>
 
 	{#if loading}
-		<div class="dash-card pl-empty">加载中…</div>
+		<div class="crud-empty">加载中…</div>
 	{:else if error}
-		<div class="dash-card pl-empty error">{error}</div>
+		<div class="crud-empty">{error}</div>
 	{:else if filtered.length === 0}
-		<div class="dash-card pl-empty">暂无文章</div>
+		<div class="crud-empty">暂无文章</div>
 	{:else}
 		<div class="pl-grid">
 			{#each filtered as post (post.slug)}
@@ -193,37 +191,7 @@ $: draftCount = posts.length - publishedCount;
 </div>
 
 <style>
-	.pl-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 1280px;
-		margin: 0 auto;
-	}
-	.dash-card {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.9rem;
-		padding: 1.1rem 1.15rem;
-	}
-	.pl-toolbar {
-		display: flex;
-		flex-direction: column;
-		gap: 0.9rem;
-	}
-	.pl-toolbar-top {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-	.pl-toolbar-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.7rem;
-		flex-wrap: wrap;
-	}
+	/* 页面/头部统一走 crud-page/crud-head（admin.css） */
 	.pl-selectall {
 		display: inline-flex;
 		align-items: center;
@@ -234,17 +202,6 @@ $: draftCount = posts.length - publishedCount;
 	}
 	.pl-selectall input {
 		accent-color: var(--primary);
-	}
-	.pl-toolbar h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-	.pl-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
 	}
 
 	.pl-filters {
@@ -281,15 +238,6 @@ $: draftCount = posts.length - publishedCount;
 		background: transparent;
 		color: var(--deep-text);
 		font-size: 0.86rem;
-	}
-
-	.pl-empty {
-		text-align: center;
-		padding: 3rem;
-		color: var(--text-muted);
-	}
-	.pl-empty.error {
-		color: var(--danger);
 	}
 
 	.pl-grid {
@@ -389,30 +337,6 @@ $: draftCount = posts.length - publishedCount;
 		display: flex;
 		gap: 0.4rem;
 	}
-	.badge {
-		display: inline-block;
-		padding: 0.1rem 0.45rem;
-		border-radius: 999px;
-		font-size: 0.7rem;
-		font-weight: 600;
-		vertical-align: middle;
-	}
-	.badge.amber {
-		background: color-mix(in oklch, #f59e0b 16%, transparent);
-		color: #b45309;
-	}
-	.badge.slate {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
-	}
-	.badge.published {
-		background: color-mix(in oklch, #10b981 16%, transparent);
-		color: #059669;
-	}
-	.badge.draft {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
-	}
 	.pl-card-ops {
 		display: flex;
 		align-items: center;
@@ -437,9 +361,6 @@ $: draftCount = posts.length - publishedCount;
 	@media (max-width: 767px) {
 		.pl-grid {
 			grid-template-columns: 1fr;
-		}
-		.pl-toolbar-top {
-			align-items: flex-start;
 		}
 	}
 </style>

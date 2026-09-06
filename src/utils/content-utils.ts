@@ -47,23 +47,6 @@ function sortPosts(posts: ApiPostListItem[]): ApiPostListItem[] {
 	});
 }
 
-function setPrevNext(posts: PostForList[]): PostForList[] {
-	for (let i = 1; i < posts.length; i++) {
-		posts[i].data.prevSlug = posts[i - 1].id;
-		posts[i].data.prevTitle = posts[i - 1].data.title;
-	}
-	for (let i = 0; i < posts.length - 1; i++) {
-		posts[i].data.nextSlug = posts[i + 1].id;
-		posts[i].data.nextTitle = posts[i + 1].data.title;
-	}
-	return posts;
-}
-
-export async function getSortedPosts(): Promise<PostForList[]> {
-	const items = sortPosts(await fetchPostsList({ pageSize: 200 }));
-	return setPrevNext(items.map(apiPostToPostForList));
-}
-
 export async function getSortedPostsList(): Promise<PostForList[]> {
 	const items = sortPosts(await fetchPostsList({ pageSize: 200 }));
 	return items.map(apiPostToPostForList);

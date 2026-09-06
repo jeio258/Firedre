@@ -3,7 +3,7 @@ import { onDestroy, onMount, tick } from "svelte";
 import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
-import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+import { createVditor } from "@/lib/adminVditor";
 import { apiJson } from "@/lib/adminApi";
 
 function slugifyTitle(title: string): string {
@@ -97,35 +97,25 @@ async function load() {
 	}
 }
 
-async function initEditor() {
-	if (editor) {
-		editor.setValue(rawContent);
-		return;
+	async function initEditor() {
+		if (editor) {
+			editor.setValue(rawContent);
+			return;
+		}
+		const res = await createVditor("vditor-editor", {
+			value: rawContent,
+			height: 560,
+			options: {
+				upload: {
+					url: "/api/admin/upload-image/",
+					fieldName: "file",
+					headers: {},
+				},
+			},
+		});
+		editor = res.editor as Vditor | null;
+		vditorThemeObserver = res.observer;
 	}
-
-	const { default: Vditor } = await import("vditor");
-	editor = new Vditor("vditor-editor", {
-		height: 560,
-		// 富文本（所见即所得）为默认编辑模式；可在编辑器内切换到 IR/分屏 Markdown
-		mode: "wysiwyg",
-		value: rawContent,
-
-		cdn: "/vditor",
-		cache: { enable: false },
-		upload: {
-			url: "/api/admin/upload-image/",
-			fieldName: "file",
-			headers: {},
-		},
-		after: () => {
-			const root = document.querySelector<HTMLElement>(".vditor");
-			if (root) {
-				syncVditorTheme(root);
-				vditorThemeObserver = observeVditorTheme(root);
-			}
-		},
-	});
-}
 
 function buildFrontmatter(): Record<string, unknown> {
 	const fm: Record<string, unknown> = {
@@ -207,17 +197,17 @@ onMount(load);
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="pe-page">
-	<div class="pe-head">
-		<div class="pe-head-info">
-			<h2>{isNew ? "新建文章" : `编辑文章`}</h2>
-			<p class="pe-sub">{isNew ? "填写标题与正文即可发布" : `slug：${slug}`}</p>
+<div class="crud-page">
+	<div class="crud-head">
+		<div class="pe-head-wrap">
+			<h2>{isNew ? "新建文章" : "编辑文章"}</h2>
+			<p class="crud-sub">{isNew ? "填写标题与正文即可发布" : `slug：${slug}`}</p>
 		</div>
-		<div class="pe-actions">
+		<div class="crud-head-actions">
 			{#if message}
 				<span class="pe-msg {messageKind}">{message}</span>
 			{/if}
-			<a class="btn-secondary" href="/admin/posts/">返回列表</a>
+			<a class="btn-ghost" href="/admin/posts/">返回列表</a>
 			<button class="btn-primary" on:click={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
@@ -327,40 +317,14 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 </div>
 
 <style>
-	.pe-page {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 1280px;
-		margin: 0 auto;
+	/* 页面/头部统一走 crud-page/crud-head（admin.css） */
+	.pe-head-wrap {
+		min-width: 0;
 	}
-	.pe-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-	.pe-head h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-	.pe-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
+	.pe-head-wrap :global(.crud-sub) {
+		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-		white-space: nowrap;
-		max-width: 60vw;
-	}
-	.pe-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.55rem;
-		flex-wrap: wrap;
 	}
 	.pe-msg {
 		font-size: 0.82rem;
@@ -371,9 +335,6 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	.pe-msg.err {
 		color: var(--danger);
 	}
-
-
-
 
 	.pe-grid {
 		display: grid;
@@ -461,20 +422,6 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	@media (max-width: 767px) {
 		.pe-grid {
 			gap: 0.8rem;
-		}
-		.pe-head {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.6rem;
-		}
-		.pe-sub {
-			max-width: 100%;
-			white-space: normal;
-		}
-		.pe-actions {
-			width: 100%;
-			justify-content: flex-start;
-			flex-wrap: wrap;
 		}
 		.pe-card {
 			padding: 0.9rem 0.85rem;

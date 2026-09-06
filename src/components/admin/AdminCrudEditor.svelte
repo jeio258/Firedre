@@ -243,22 +243,6 @@
 
 <style>
 
-	.crud-head h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-
-
-
-
-
-
-
-
-
-
 	.crud-extra {
 		display: contents;
 	}
