@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
+	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type DynamicItem = {
 		id: string;
@@ -152,6 +153,15 @@
 		</div>
 	</div>
 
+	<AdminPageConfig
+		group="dynamic"
+		enableKey="enabled"
+		enableLabel="启用动态页"
+		title="本页设置 · 动态"
+		titleField="title"
+		descField="description"
+	/>
+
 	{#if error}
 		<div class="crud-empty">{error}</div>
 	{:else if loading}
@@ -168,7 +178,13 @@
 					<textarea rows="5" placeholder="输入动态内容" bind:value={formContent}></textarea>
 				</label>
 				<label class="check-line">
-					<input type="checkbox" bind:checked={formPinned} />
+					<button
+						type="button"
+						class="sw"
+						class:on={formPinned}
+						aria-label="置顶开关"
+						on:click={() => (formPinned = !formPinned)}
+					></button>
 					<span class="check-text">置顶</span>
 				</label>
 				<label class="crud-field">

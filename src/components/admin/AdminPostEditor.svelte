@@ -153,9 +153,10 @@ function buildFrontmatter(): Record<string, unknown> {
 	return fm;
 }
 
-async function save() {
+async function save(targetDraft: boolean) {
 	saving = true;
 	message = "";
+	draft = targetDraft;
 	const content = editor ? editor.getValue() : rawContent;
 	if (!title.trim() || !content.trim()) {
 		message = "标题与正文不能为空";
@@ -186,9 +187,8 @@ async function save() {
 			messageKind = "err";
 			return;
 		}
-		message = "已保存";
+		message = targetDraft ? "已保存草稿" : "已发布";
 		messageKind = "ok";
-		// 更新 slug（若为新文章则跳转到编辑页）
 		if (isNew && data.slug && data.slug !== slug) {
 			history.replaceState({}, "", `/admin/posts/edit/${encodeURIComponent(data.slug)}/`);
 			slug = data.slug;
@@ -207,117 +207,123 @@ onMount(load);
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="pe-page">
-	<div class="pe-head">
-		<div class="pe-head-info">
-			<h2>{isNew ? "新建文章" : `编辑文章`}</h2>
-			<p class="pe-sub">{isNew ? "填写标题与正文即可发布" : `slug：${slug}`}</p>
+<div class="crud-page" style="max-width:none">
+	<div class="crud-head">
+		<div>
+			<h2>{isNew ? "新建文章" : "编辑文章"}</h2>
+			<p class="crud-sub">
+				<a href="/admin/posts/" class="muted">← 返回文章列表</a>
+			</p>
 		</div>
-		<div class="pe-actions">
+		<div class="crud-head-actions">
 			{#if message}
 				<span class="pe-msg {messageKind}">{message}</span>
 			{/if}
-			<a class="btn-secondary" href="/admin/posts/">返回列表</a>
-			<button class="btn-primary" on:click={save} disabled={saving}>
-				{saving ? "保存中…" : "保存"}
+			<button class="btn btn-ghost" on:click={() => save(true)} disabled={saving}>
+				保存草稿
+			</button>
+			<button class="btn btn-primary" on:click={() => save(false)} disabled={saving}>
+				{saving ? "保存中…" : "发布"}
 			</button>
 		</div>
 	</div>
 
 	{#if loaded}
-		<div class="pe-grid">
-			<div class="pe-main">
-				<div class="pe-card editor-card">
+		<div class="editor-layout">
+			<div>
+				<div class="card editor-title" style="padding:.8rem">
+					<input
+						placeholder="文章标题（必填）"
+						bind:value={title}
+						on:input={() => {
+							if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
+						}}
+					/>
+				</div>
+				<div class="card editor-body">
 					<div id="vditor-editor"></div>
 				</div>
 			</div>
 
-			<div class="pe-side">
-				<div class="pe-card">
-					<h3 class="card-title">内容属性</h3>
-					<label>
-						<span>标题 *</span>
-						<input
-							type="text"
-							bind:value={title}
-							placeholder="文章标题"
-							on:input={() => {
-								if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
-							}}
-						/>
-					</label>
-					<label>
-						<span>Slug（URL 标识）</span>
-						<input
-							type="text"
-							bind:value={slug}
-							disabled={!isNew}
-							placeholder="english-slug"
-							on:input={() => {
-								slugManuallyEdited = true;
-							}}
-						/>
-					</label>
-					<div class="row2">
-						<label>
-							<span>发布日期 *</span>
-							<input type="date" bind:value={published} />
+			<div class="side-stack">
+				<div class="card">
+					<h3 class="panel-title">发布设置</h3>
+					<div class="stack-fields">
+						<label class="crud-field">
+							<span>分类</span>
+							<input type="text" bind:value={category} placeholder="如 技术" />
 						</label>
-						<label>
-							<span>更新日期</span>
-							<input type="date" bind:value={updated} />
+						<label class="crud-field">
+							<span>标签（逗号分隔）</span>
+							<input type="text" bind:value={tagsText} placeholder="Astro, Cloudflare" />
+						</label>
+						<label class="crud-field">
+							<span>自定义链接（slug）</span>
+							<input
+								type="text"
+								bind:value={slug}
+								disabled={!isNew}
+								placeholder="english-slug"
+								on:input={() => (slugManuallyEdited = true)}
+							/>
+						</label>
+						<label class="check-line">
+							<button class="sw" class:on={pinned} aria-label="置顶开关" on:click={() => (pinned = !pinned)}></button>
+							<span class="check-text">置顶</span>
 						</label>
 					</div>
-					<label>
-						<span>分类</span>
-						<input type="text" bind:value={category} placeholder="如 技术" />
-					</label>
-					<label>
-						<span>标签（逗号分隔）</span>
-						<input type="text" bind:value={tagsText} placeholder="Astro, Cloudflare" />
-					</label>
-					<label>
-						<span>封面图 URL</span>
-						<input type="text" bind:value={image} placeholder="https://… 或 /path" />
-					</label>
 				</div>
 
-				<div class="pe-card">
-					<h3 class="card-title">发布状态</h3>
-					<label class="switch-line">
-						<input type="checkbox" bind:checked={draft} />
-						草稿（不发布）
-					</label>
-					<label class="switch-line">
-						<input type="checkbox" bind:checked={pinned} />
-						置顶
-					</label>
-					<label class="switch-line">
-						<input type="checkbox" bind:checked={comment} />
-						允许评论
-					</label>
-				</div>
-
-				<div class="pe-card">
-					<h3 class="card-title">扩展设置</h3>
-					<div class="row2">
-						<label>
-							<span>系列</span>
-							<input type="text" bind:value={series} />
+				<div class="card">
+					<h3 class="panel-title">内容与封面</h3>
+					<div class="stack-fields">
+						<div class="row2">
+							<label class="crud-field">
+								<span>发布日期 *</span>
+								<input type="date" bind:value={published} />
+							</label>
+							<label class="crud-field">
+								<span>更新日期</span>
+								<input type="date" bind:value={updated} />
+							</label>
+						</div>
+						<label class="crud-field">
+							<span>简介 / 描述</span>
+							<input type="text" bind:value={description} placeholder="用于列表与 SEO" />
 						</label>
-						<label>
-							<span>序号</span>
-							<input type="number" bind:value={seriesOrder} />
+						<label class="crud-field">
+							<span>封面图 URL</span>
+							<input type="text" bind:value={image} placeholder="https://… 或 /path" />
 						</label>
 					</div>
-					<label>
-						<span>访问密码（加密文章）</span>
-						<input type="text" bind:value={password} />
-					</label>
-					<label>
-						<span>密码提示</span>
-						<input type="text" bind:value={passwordHint} />
-					</label>
+				</div>
+
+				<div class="card">
+					<h3 class="panel-title">扩展设置</h3>
+					<div class="stack-fields">
+						<div class="row2">
+							<label class="crud-field">
+								<span>系列</span>
+								<input type="text" bind:value={series} />
+							</label>
+							<label class="crud-field">
+								<span>序号</span>
+								<input type="number" bind:value={seriesOrder} />
+							</label>
+						</div>
+						<label class="crud-field">
+							<span>访问密码（加密文章）</span>
+							<input type="text" bind:value={password} />
+						</label>
+						<label class="crud-field">
+							<span>密码提示</span>
+							<input type="text" bind:value={passwordHint} />
+						</label>
+						<label class="check-line">
+							<button class="sw" class:on={comment} aria-label="评论开关" on:click={() => (comment = !comment)}></button>
+							<span class="check-text">允许评论</span>
+						</label>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -327,40 +333,15 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 </div>
 
 <style>
-	.pe-page {
+	.stack-fields {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
-		max-width: 1280px;
-		margin: 0 auto;
+		gap: 0.8rem;
 	}
-	.pe-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
-	.pe-head h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-	.pe-sub {
-		margin: 0.2rem 0 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		max-width: 60vw;
-	}
-	.pe-actions {
-		display: flex;
-		align-items: center;
-		gap: 0.55rem;
-		flex-wrap: wrap;
+	.row2 {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.7rem;
 	}
 	.pe-msg {
 		font-size: 0.82rem;
@@ -371,121 +352,34 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	.pe-msg.err {
 		color: var(--danger);
 	}
-
-
-
-
-	.pe-grid {
-		display: grid;
-		grid-template-columns: 1fr;
-		gap: 1rem;
-		align-items: start;
-	}
-	.pe-card {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.9rem;
-		padding: 1.1rem 1.15rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.85rem;
-	}
-	.card-title {
-		margin: 0;
-		font-size: 0.95rem;
-		font-weight: 600;
-		color: var(--deep-text);
-		padding-bottom: 0.55rem;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	.pe-grid > .pe-main,
-	.pe-grid > .pe-side {
-		min-width: 0;
-	}
-	.editor-card {
+	.editor-body {
+		margin-top: 1rem;
 		padding: 1rem 1rem 0.8rem;
 		max-width: 100%;
 		overflow-x: auto;
 	}
-	.editor-card :global(.vditor) {
+	.editor-body :global(.vditor) {
 		max-width: 100%;
-	}
-	.pe-card label {
-		display: flex;
-		flex-direction: column;
-		gap: 0.3rem;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		min-width: 0;
-	}
-	.pe-card input {
-		padding: 0.48rem 0.65rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.88rem;
-		width: 100%;
-		box-sizing: border-box;
-	}
-	.pe-card input:disabled {
-		opacity: 0.55;
-	}
-	.row2 {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.7rem;
-	}
-	.switch-line {
-		flex-direction: row !important;
-		align-items: center;
-		gap: 0.5rem !important;
-		cursor: pointer;
-		font-size: 0.88rem !important;
-		color: var(--deep-text) !important;
-	}
-	.switch-line input {
-		width: auto;
 	}
 	.pe-loading {
 		padding: 3rem;
 		text-align: center;
 		color: var(--text-muted);
 	}
-
-	@media (min-width: 1024px) {
-		.pe-grid {
-			grid-template-columns: minmax(0, 1fr) 330px;
-		}
-	}
-	@media (max-width: 767px) {
-		.pe-grid {
-			gap: 0.8rem;
-		}
-		.pe-head {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 0.6rem;
-		}
-		.pe-sub {
-			max-width: 100%;
-			white-space: normal;
-		}
-		.pe-actions {
-			width: 100%;
-			justify-content: flex-start;
-			flex-wrap: wrap;
-		}
-		.pe-card {
-			padding: 0.9rem 0.85rem;
-		}
-		.editor-card {
-			padding: 0.4rem;
-		}
+	@media (max-width: 1023px) {
 		.row2 {
 			grid-template-columns: 1fr;
 		}
-		.editor-card :global(.vditor-toolbar) {
+	}
+	@media (max-width: 767px) {
+		.crud-head {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+		.crud-head-actions {
+			width: 100%;
+		}
+		.editor-body :global(.vditor-toolbar) {
 			flex-wrap: wrap;
 		}
 	}

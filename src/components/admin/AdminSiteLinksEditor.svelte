@@ -105,7 +105,7 @@
 		<div class="site-url-block">
 			<div class="site-url-head">
 				<span>站点主域名</span>
-				<button class="btn-ghost" on:click={saveSiteUrl} disabled={siteUrlSaving}>
+				<button class="btn btn-ghost" on:click={saveSiteUrl} disabled={siteUrlSaving}>
 					{siteUrlSaving ? "保存中…" : "保存域名"}
 				</button>
 			</div>

@@ -4,29 +4,25 @@ export const prerender = false;
 import AdminApp from "../../components/admin/AdminApp.svelte";
 
 import "@/styles/variables.styl";
-
-const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
-	?.settings ?? {};
-const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
-const defaultMode =
-	((settings as unknown as Record<string, unknown>)?.defaultMode) as string ??
-	"light";
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
-	<script is:inline define:vars={{ configHue, defaultMode }}>
-		// 主题初始化：复用前端深浅模式（localStorage["theme"] / 系统偏好）
+	<script is:inline>
+		// 后台主题初始化：复用前台 theme 系统（与前台 Layout.astro 一致）
+		// 读 localStorage.theme(light/dark/system) → .dark 类；data-theme 用前台代码主题；--hue 跟随前台
 		(function () {
 			try {
-				const theme = localStorage.getItem("theme") || defaultMode;
-				const isDark =
-					theme === "dark" ||
-					(theme === "system" &&
-						window.matchMedia("(prefers-color-scheme: dark)").matches);
-				document.documentElement.classList.toggle("dark", isDark);
-				const hue = localStorage.getItem("hue") || configHue;
+				var DARK = "dark", SYSTEM = "system";
+				var theme = localStorage.getItem("theme") || "light";
+				var isDark = theme === SYSTEM
+					? window.matchMedia("(prefers-color-scheme: dark)").matches
+					: theme === DARK;
+				if (isDark) document.documentElement.classList.add("dark");
+				else document.documentElement.classList.remove("dark");
+				document.documentElement.setAttribute("data-theme", isDark ? "one-dark-pro" : "one-light");
+				var hue = localStorage.getItem("hue") || "165";
 				document.documentElement.style.setProperty("--hue", hue);
 			} catch (e) {}
 		})();
@@ -36,9 +32,8 @@ const defaultMode =
 
 	<link rel="icon" href="/favicon/favicon.ico" />
 	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
-	<style define:vars={{ configHue }}>
-
-		html{--hue:var(--configHue)}
+	<style>
+		html{--hue:165}
 		body{margin:0;font-family:system-ui,sans-serif;background:var(--page-bg);color:var(--deep-text)}
 	</style>
 </head>

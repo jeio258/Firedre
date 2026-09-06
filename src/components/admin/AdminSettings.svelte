@@ -678,6 +678,9 @@ let saving = false;
 let message = "";
 let loaded = false;
 
+export let cat = 0;
+let activeCat = CATEGORIES[typeof cat === "number" ? cat : 0];
+
 function parseNavArray(value: unknown): Array<{ label: string; url: string }> {
 	if (Array.isArray(value)) return value.map((n) => ({ ...n }));
 	if (typeof value === "string") {
@@ -846,27 +849,35 @@ onMount(load);
 		</div>
 	</div>
 
+	<div class="settings-head">
+		<div class="settings-nav">
+			{#each CATEGORIES as c}
+				<button class="sn" class:on={activeCat === c} on:click={() => (activeCat = c)}>{c}</button>
+			{/each}
+		</div>
+	</div>
+
 	{#if loading}
 		<div class="crud-empty">加载中…</div>
 	{:else if loadError}
 		<div class="crud-empty danger">{loadError}</div>
 	{:else}
-		<section class="settings-section">
-			<h3 class="settings-cat">导航与社交</h3>
-			<div class="crud-card">
-				<div class="settings-row">
-					<div class="settings-label">
-						<span>导航栏</span>
-					</div>
-					<div class="settings-ctrl">
-						<button class="switch" class:on={data["nav"]?.enabled === true} title="显示 / 隐藏"
-							on:click={() => {
-								data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
-								markDirty();
-							}}>
-							<span class="knob"></span>
-						</button>
-					</div>
+		<div class="a2card">
+			<header>
+				<h4>导航与社交</h4>
+				<span class="cnt">导航</span>
+			</header>
+			<div class="nav-body">
+				<div class="settings-row-inline">
+					<span class="settings-label">导航栏</span>
+					<button
+						class="sw"
+						class:on={data["nav"]?.enabled === true}
+						on:click={() => {
+							data["nav"] = { ...(data["nav"] ?? {}), enabled: !(data["nav"]?.enabled === true) };
+							markDirty();
+						}}
+					></button>
 				</div>
 
 				<div class="settings-sub">
@@ -891,68 +902,56 @@ onMount(load);
 					<button class="btn-secondary" on:click={addSocial}>+ 添加社交链接</button>
 				</div>
 			</div>
-		</section>
+		</div>
 
-		{#each CATEGORIES as cat}
-			{@const groups = GROUPS.filter((g) => g.category === cat)}
-			{@const catBools = groups.flatMap((g) => g.fields.filter((f) => f.type === "boolean"))}
-			{#if groups.length}
-				<section class="settings-section">
-					<h3 class="settings-cat">{cat}</h3>
-					<div class="crud-card">
-						{#if catBools.length}
-							<div class="toggle-grid">
-								{#each catBools as field}
-									{@const owner = groups.find((g) => g.fields.includes(field))}
-									<label class="toggle-item">
-										<button class="switch" class:on={data[owner.key]?.[field.name] === true} title="开 / 关"
-											on:click={() => cycleBool(owner.key, field.name)}>
-											<span class="knob"></span>
-										</button>
-										<span class="toggle-label">{field.label.replace(/^页面开关[：:]/, "")}</span>
-									</label>
-								{/each}
-							</div>
-						{/if}
-						{#each groups as group}
-							{@const others = group.fields.filter((f) => f.type !== "boolean")}
-							{#each others as field}
-								<div class="settings-row">
-									<div class="settings-label">
-										<span>{field.label}</span>
-										{#if field.hint}
-											<small>{field.hint}</small>
-										{/if}
-									</div>
-									<div class="settings-ctrl">
-										{#if field.type === "textarea" || field.type === "json"}
-											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-											{#if field.type === "json"}
-												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
-											{/if}
-										{:else if field.type === "password"}
-											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-										{:else if field.type === "number"}
-											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
-										{:else}
-											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
-										{/if}
-									</div>
-								</div>
-							{/each}
+		{#each GROUPS.filter((g) => g.category === activeCat) as group}
+			<div class="a2card">
+				<header>
+					<h4>{group.title}</h4>
+					<span class="cnt">{group.fields.length} 项</span>
+				</header>
+				{#if group.fields.some((f) => f.type === "boolean")}
+					<div class="a2sws">
+						{#each group.fields.filter((f) => f.type === "boolean") as field}
+							<label class="a2tr">
+								<span class="a2tx">{field.label}</span>
+								<button
+									class="sw"
+									class:on={data[group.key]?.[field.name] === true}
+									on:click={() => cycleBool(group.key, field.name)}
+								></button>
+							</label>
 						{/each}
 					</div>
-				</section>
-			{/if}
+				{/if}
+				{#if group.fields.some((f) => f.type !== "boolean")}
+					<div class="a2fg">
+						{#each group.fields.filter((f) => f.type !== "boolean") as field}
+							<div class="a2f">
+								<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
+								{#if field.type === "textarea" || field.type === "json"}
+									<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+									{#if field.type === "json"}
+										<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
+									{/if}
+								{:else if field.type === "password"}
+									<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+								{:else if field.type === "number"}
+									<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+								{:else}
+									<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+								{/if}
+							</div>
+						{/each}
+					</div>
+				{/if}
+			</div>
 		{/each}
 	{/if}
 </div>
 
 
 <style>
-
-
-
 	.btn-del {
 		background: none;
 		border: none;
@@ -966,86 +965,25 @@ onMount(load);
 		color: var(--danger);
 	}
 
-	.settings-section {
+	.crud-empty.danger {
+		color: var(--danger);
+		border-color: color-mix(in oklch, var(--danger) 40%, var(--line-divider));
+	}
+
+	.nav-body {
+		padding: 0.25rem 0 0.5rem;
+	}
+	.settings-row-inline {
 		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-	}
-	.settings-cat {
-		margin: 0;
-		font-size: 0.95rem;
-		font-weight: 700;
-		color: var(--deep-text);
-		letter-spacing: 0.02em;
-	}
-	.settings-cat-desc {
-		margin: 0;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		font-weight: 400;
-	}
-	.settings-row {
-		display: grid;
-		grid-template-columns: 240px 1fr;
+		align-items: center;
+		justify-content: space-between;
 		gap: 1rem;
-		align-items: start;
-		padding: 0.9rem 0;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	.settings-row:last-child {
-		border-bottom: none;
+		padding: 0.6rem 0;
 	}
 	.settings-label {
-		display: flex;
-		flex-direction: column;
-		gap: 0.2rem;
-		font-size: 0.88rem;
-		font-weight: 500;
-		color: var(--deep-text);
-		padding-top: 0.5rem;
-	}
-	.settings-label small {
-		color: var(--text-muted);
-		font-weight: 400;
-		font-size: 0.75rem;
-		line-height: 1.4;
-	}
-	.settings-ctrl {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-		min-width: 0;
-	}
-	.settings-ctrl input[type="text"],
-	.settings-ctrl input[type="password"],
-	.settings-ctrl input[type="number"],
-	.settings-ctrl textarea {
-		width: 100%;
-		box-sizing: border-box;
-		padding: 0.55rem 0.8rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.5rem;
 		font-size: 0.9rem;
-		font-family: inherit;
-		background: var(--card-bg);
+		font-weight: 600;
 		color: var(--deep-text);
-		transition: border-color 0.15s, box-shadow 0.15s;
-	}
-	.settings-ctrl input::placeholder,
-	.settings-ctrl textarea::placeholder {
-		color: var(--text-muted);
-		opacity: 1;
-	}
-	.settings-ctrl input:focus,
-	.settings-ctrl textarea:focus {
-		outline: none;
-		border-color: var(--primary);
-		box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
-	}
-	.settings-ctrl textarea {
-		min-height: 96px;
-		resize: vertical;
-		line-height: 1.6;
 	}
 
 	.settings-sub {
@@ -1062,6 +1000,7 @@ onMount(load);
 	.settings-sub .sub-gap {
 		margin-top: 1rem;
 	}
+
 	.pair-row {
 		display: flex;
 		align-items: center;
@@ -1092,17 +1031,6 @@ onMount(load);
 		box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 25%, transparent);
 	}
 
-	.switch-wrap {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding-top: 0.35rem;
-	}
-	.switch-state {
-		font-size: 0.8rem;
-		font-weight: 600;
-		color: var(--deep-text);
-	}
 	.json-hint {
 		color: var(--text-muted);
 		font-size: 0.72rem;
@@ -1110,13 +1038,6 @@ onMount(load);
 	}
 
 	@media (max-width: 720px) {
-		.settings-row {
-			grid-template-columns: 1fr;
-			gap: 0.4rem;
-		}
-		.settings-label {
-			padding-top: 0;
-		}
 		.pair-row {
 			flex-direction: column;
 			align-items: stretch;

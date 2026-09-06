@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
+	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	let title = "公告栏";
 	let content = "";
@@ -69,6 +70,14 @@
 			</button>
 		</div>
 	</div>
+
+	<AdminPageConfig
+		group="announcement"
+		enableKey="enabled"
+		enableLabel="启用公告"
+		title="本页设置 · 公告"
+		titleField="title"
+	/>
 
 	{#if !loading}
 		<div class="crud-card">

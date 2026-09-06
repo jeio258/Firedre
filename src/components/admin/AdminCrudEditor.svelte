@@ -24,10 +24,11 @@
 		fields: CrudField[];
 		identify: (item: Record<string, unknown>) => string;
 		extraBlock?: Snippet;
+		configBlock?: Snippet;
 		children: Snippet;
 	}
 
-	let {
+		let {
 		apiPath,
 		title,
 		addLabel,
@@ -35,6 +36,7 @@
 		fields,
 		identify,
 		extraBlock,
+		configBlock,
 		children,
 	}: Props = $props();
 
@@ -173,11 +175,15 @@
 		</div>
 	</div>
 
-	{#if extraBlock}
-		<div class="crud-extra">
-			{@render extraBlock()}
-		</div>
-	{/if}
+		{#if configBlock}
+			{@render configBlock()}
+		{/if}
+
+		{#if extraBlock}
+			<div class="crud-extra">
+				{@render extraBlock()}
+			</div>
+		{/if}
 
 	{#if error}
 		<div class="crud-empty">{error}</div>
@@ -197,7 +203,13 @@
 						{/if}
 						{#if f.type === "checkbox"}
 							<div class="check-line">
-								<input type="checkbox" bind:checked={formValues[f.key]} />
+								<button
+									type="button"
+									class="sw"
+									class:on={Boolean(formValues[f.key])}
+									aria-label={f.label}
+									on:click={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
+								></button>
 								<span class="check-text">{f.label}</span>
 							</div>
 						{:else if f.type === "select"}

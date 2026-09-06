@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
+	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type FriendItem = {
 		id: number;
@@ -50,10 +51,20 @@
 	title="友链管理"
 	addLabel="+ 添加友链"
 	entityName="友链"
-	{fields}
-	identify={(item) => String(item.title ?? "")}
->
-	{#snippet children({ item })}
+		{fields}
+		identify={(item) => String(item.title ?? "")}
+	>
+		{#snippet configBlock()}
+			<AdminPageConfig
+				group="friends"
+				enableKey="enabled"
+				enableLabel="启用友链页"
+				title="本页设置 · 友链"
+				titleField="title"
+				descField="description"
+			/>
+		{/snippet}
+		{#snippet children({ item })}
 		<div class="friend-info">
 			<img src={item.imgurl} alt={item.title} class="avatar" />
 			<div class="friend-text">

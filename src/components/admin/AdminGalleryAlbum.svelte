@@ -270,14 +270,35 @@
 		}
 	}
 
+	async function removeAlbum() {
+		if (!confirm(`确定删除相册「${slug}」？此操作不可恢复。`)) return;
+		saving = true;
+		try {
+			const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
+				method: "DELETE",
+			});
+			if (resp.ok) {
+				window.location.href = "/admin/gallery/";
+				return;
+			}
+			message = "删除失败";
+		} catch {
+			message = "网络错误";
+		} finally {
+			saving = false;
+		}
+	}
+
 	onMount(load);
 </script>
 
-<div class="crud-page">
+<div class="crud-page" style="max-width:none">
 	<div class="crud-head">
 		<div>
 			<h2>{isNew ? "创建相册" : `相册：${slug}`}</h2>
-			<p class="crud-sub">元数据 + 照片列表 + 密码 + 图床</p>
+			<p class="crud-sub">
+				<a href="/admin/gallery/" class="muted">← 返回相册列表</a>
+			</p>
 		</div>
 		<div class="crud-head-actions">
 			{#if isNew}
@@ -286,7 +307,9 @@
 			{#if message}
 				<span class="crud-msg">{message}</span>
 			{/if}
-			<a class="btn-ghost" href="/admin/gallery/">返回相册列表</a>
+			{#if !isNew}
+				<button class="btn-danger-text" on:click={removeAlbum} disabled={saving}>删除相册</button>
+			{/if}
 			<button class="btn-primary" on:click={save} disabled={saving}>
 				{saving ? "保存中…" : isNew ? "创建" : "保存"}
 			</button>
@@ -294,103 +317,126 @@
 	</div>
 
 	{#if loaded}
-		<div class="crud-card">
-			<div class="form-grid">
-				<label class="crud-field">
-					<span>标题</span>
-					<input class="ctrl" type="text" bind:value={formTitle} placeholder="相册标题" autocomplete="off" />
-				</label>
-				<label class="crud-field">
-					<span>日期</span>
-					<input class="ctrl" type="text" bind:value={formDate} placeholder="如 2026-08-31" autocomplete="off" />
-				</label>
-				<label class="crud-field">
-					<span>地点</span>
-					<input class="ctrl" type="text" bind:value={formLocation} placeholder="如 杭州市" autocomplete="off" />
-				</label>
-				<label class="crud-field">
-					<span>封面 URL</span>
-					<input class="ctrl" type="text" bind:value={formCover} placeholder="封面图片地址（可选）" autocomplete="off" />
-				</label>
-				<label class="crud-field full">
-					<span>标签（逗号分隔）</span>
-					<input class="ctrl" type="text" bind:value={formTags} placeholder="如 旅行, 风景" autocomplete="off" />
-				</label>
-				<label class="crud-field full">
-					<span>描述</span>
-					<textarea class="ctrl" rows="4" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
-				</label>
-			</div>
-		</div>
+		<div class="editor-layout" style="grid-template-columns:1fr 300px">
+			<div>
+				<div class="card">
+					<h3 class="panel-title">照片（点击可预览）</h3>
+					{#if photos.length}
+						<div class="gal-grid">
+							{#each photos as p}
+								<div
+									class="gal-tile"
+									style={p.url ? `background-image:url('${p.url}')` : ""}
+								>
+									{#if p.type === "video"}<span class="tile-badge">视频</span>{/if}
+								</div>
+							{/each}
+						</div>
+					{/if}
+					<label class="crud-field full" style="margin-top:.9rem">
+						<span>照片列表（每行一个 URL，可选 type）</span>
+						<textarea class="ctrl mono" rows="6" bind:value={photosText} placeholder={"https://…/1.jpg\nhttps://…/2.jpg video"}></textarea>
+					</label>
+					{#if imgbedEnabled}
+						<div class="row-flex" style="margin-top:.6rem">
+							<span class="imgbed-info">
+								图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
+							</span>
+							<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
+								{imgbedFetching ? "拉取中…" : "从图床获取图片"}
+							</button>
+						</div>
+					{:else}
+						<p class="imgbed-info" style="margin-top:.6rem">
+							图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。
+						</p>
+					{/if}
+					{#if imgbedMsg}
+						<p class="hint-msg">{imgbedMsg}</p>
+					{/if}
+				</div>
 
-		<div class="crud-card">
-			<label class="crud-field full">
-				<span>照片列表（每行一个 URL，可选 type）</span>
-				<textarea class="ctrl mono" rows="6" bind:value={photosText} placeholder={"https://…/1.jpg\nhttps://…/2.jpg video"}></textarea>
-			</label>
-			{#if photos.length}
-				<div class="thumb-grid">
-					{#each photos as p}
-						<div class="thumb">
-							{#if p.url}
-								<img src={p.url} alt="" loading="lazy" referrerpolicy="no-referrer" />
-								<span class="thumb-type">{p.type || "img"}</span>
+				<div class="card" style="margin-top:1rem">
+					<h3 class="panel-title">访问密码与图床</h3>
+					<label class="crud-field full">
+						<span>相册访问密码（存 D1，不写入文件）</span>
+						<div class="row-flex">
+							<input class="ctrl" type="password" bind:value={passwordInput} placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"} autocomplete="off" />
+							<button class="btn-primary" on:click={savePassword} disabled={passwordSaving}>
+								{passwordSaving ? "保存中…" : "保存密码"}
+							</button>
+							{#if hasPassword}
+								<button class="btn-ghost" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
 							{/if}
 						</div>
-					{/each}
-				</div>
-			{/if}
-		</div>
-
-		<div class="crud-card">
-			<label class="crud-field full">
-				<span>相册访问密码（存 D1，不写入文件）</span>
-				<div class="row-flex">
-					<input class="ctrl" type="password" bind:value={passwordInput} placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"} autocomplete="off" />
-					<button class="btn-primary" on:click={savePassword} disabled={passwordSaving}>
-						{passwordSaving ? "保存中…" : "保存密码"}
-					</button>
-					{#if hasPassword}
-						<button class="btn-ghost" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
+					</label>
+					<label class="crud-field full">
+						<span>图床目录 ?dir=（留空=根目录）</span>
+						<div class="row-flex">
+							<input class="ctrl" type="text" bind:value={imgbedDir} placeholder="图床目录 ?dir=" autocomplete="off" />
+							<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
+								{imgbedDirSaving ? "保存中…" : "保存目录"}
+							</button>
+						</div>
+					</label>
+					{#if passwordMsg}
+						<p class="hint-msg">{passwordMsg}</p>
+					{/if}
+					{#if imgbedDirMsg}
+						<p class="hint-msg">{imgbedDirMsg}</p>
 					{/if}
 				</div>
-			</label>
-			<label class="crud-field full">
-				<span>图床目录 ?dir=（留空=根目录）</span>
-				<div class="row-flex">
-					<input class="ctrl" type="text" bind:value={imgbedDir} placeholder="图床目录 ?dir=" autocomplete="off" />
-					<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
-						{imgbedDirSaving ? "保存中…" : "保存目录"}
-					</button>
-				</div>
-			</label>
-			{#if passwordMsg}
-				<p class="hint-msg">{passwordMsg}</p>
-			{/if}
-			{#if imgbedDirMsg}
-				<p class="hint-msg">{imgbedDirMsg}</p>
-			{/if}
-		</div>
+			</div>
 
-		<div class="crud-card">
-			<label class="crud-field full">
-				<span>图床 API（方案①：全局配置端点+密钥，目录用上方 ?dir=）</span>
-				<div class="row-flex">
-					{#if imgbedEnabled}
-						<span class="imgbed-info">
-							图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
-						</span>
-						<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
-							{imgbedFetching ? "拉取中…" : "从图床获取图片"}
-						</button>
-					{:else}
-						<span class="imgbed-info">图床 API 未启用。请先在<a href="/admin/settings/" class="link">站点设置 → 相册</a>配置「图床 API 端点 + 密钥」并启用。</span>
-					{/if}
+			<div class="side-stack">
+				<div class="card">
+					<h3 class="panel-title">相册信息</h3>
+					<div class="stack-fields">
+						<label class="crud-field">
+							<span>名称</span>
+							<input class="ctrl" type="text" bind:value={formTitle} placeholder="相册标题" autocomplete="off" />
+						</label>
+						<label class="crud-field">
+							<span>封面备注</span>
+							<input class="ctrl" type="text" bind:value={formCover} placeholder="封面图片地址（可选）" autocomplete="off" />
+						</label>
+						<label class="crud-field">
+							<span>访问路径</span>
+							{#if isNew}
+								<input class="ctrl" type="text" bind:value={newSlug} placeholder="english-slug" autocomplete="off" />
+							{:else}
+								<input class="ctrl" type="text" value={slug} disabled />
+							{/if}
+						</label>
+						<label class="crud-field">
+							<span>日期</span>
+							<input class="ctrl" type="text" bind:value={formDate} placeholder="如 2026-08-31" autocomplete="off" />
+						</label>
+						<label class="crud-field">
+							<span>地点</span>
+							<input class="ctrl" type="text" bind:value={formLocation} placeholder="如 杭州市" autocomplete="off" />
+						</label>
+						<label class="crud-field">
+							<span>标签（逗号分隔）</span>
+							<input class="ctrl" type="text" bind:value={formTags} placeholder="如 旅行, 风景" autocomplete="off" />
+						</label>
+						<label class="crud-field">
+							<span>描述</span>
+							<textarea class="ctrl" rows="3" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
+						</label>
+						<label class="check-line">
+							<button
+								type="button"
+								class="sw"
+								class:on={hadEncrypted}
+								aria-label="加密相册"
+								on:click={() => (hadEncrypted = !hadEncrypted)}
+							></button>
+							<span class="check-text">加密相册</span>
+						</label>
+					</div>
 				</div>
-			</label>
-			{#if imgbedMsg}
-				<p class="hint-msg">{imgbedMsg}</p>
-			{/if}
+			</div>
 		</div>
 	{:else}
 		<div class="crud-empty">{message || "加载中…"}</div>
@@ -407,13 +453,13 @@
 		font-size: 0.88rem;
 		width: 220px;
 	}
-	.form-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.9rem 1rem;
+	.stack-fields {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
 	}
 	.crud-field.full {
-		grid-column: 1 / -1;
+		margin-top: 0;
 	}
 	.ctrl {
 		padding: 0.48rem 0.65rem;
@@ -439,27 +485,12 @@
 		gap: 0.6rem;
 		flex-wrap: wrap;
 	}
-	.thumb-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-		gap: 0.4rem;
-		margin-top: 0.6rem;
-	}
-	.thumb {
+	.gal-tile {
+		background-size: cover;
+		background-position: center;
 		position: relative;
-		aspect-ratio: 1;
-		border-radius: 0.4rem;
-		overflow: hidden;
-		background: var(--btn-regular-bg);
-		border: 1px solid var(--line-divider);
 	}
-	.thumb img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		display: block;
-	}
-	.thumb-type {
+	.tile-badge {
 		position: absolute;
 		bottom: 2px;
 		right: 2px;
@@ -482,16 +513,21 @@
 		color: var(--primary);
 		text-decoration: underline;
 	}
-	@media (max-width: 767px) {
-		.form-grid {
-			grid-template-columns: 1fr;
+	@media (max-width: 1023px) {
+		.gal-grid {
+			grid-template-columns: repeat(4, 1fr);
 		}
+	}
+	@media (max-width: 767px) {
 		.slug-input {
 			width: 100%;
 		}
 		.row-flex {
 			flex-direction: column;
 			align-items: stretch;
+		}
+		.gal-grid {
+			grid-template-columns: repeat(3, 1fr);
 		}
 	}
 </style>

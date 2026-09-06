@@ -105,7 +105,9 @@
 	</div>
 
 	{#if loaded}
-		<div id="vditor-editor"></div>
+		<div class="card editor-body">
+			<div id="vditor-editor"></div>
+		</div>
 	{:else}
 		<div class="crud-empty">{message || "加载中…"}</div>
 	{/if}
