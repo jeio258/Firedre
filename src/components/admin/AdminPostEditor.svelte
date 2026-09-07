@@ -6,6 +6,7 @@ import type Vditor from "vditor";
 import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
+import { getDraft, clearDraft } from "@/lib/adminDrafts";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -191,6 +192,7 @@ async function save(targetDraft: boolean) {
 		}
 		message = targetDraft ? "已保存草稿" : "已发布";
 		messageKind = "ok";
+		clearDraft("文章");
 		if (isNew && data.slug && data.slug !== slug) {
 			history.replaceState({}, "", `/admin/posts/edit/${encodeURIComponent(data.slug)}/`);
 			slug = data.slug;
@@ -205,9 +207,69 @@ async function save(targetDraft: boolean) {
 	}
 }
 
-onMount(() => {
-	load();
-	return registerSaveAll("文章", () => save(draft));
+onMount(async () => {
+	await load();
+	const d = getDraft<{
+		title?: string;
+		published?: string;
+		updated?: string;
+		category?: string;
+		tagsText?: string;
+		description?: string;
+		image?: string;
+		password?: string;
+		passwordHint?: string;
+		pinned?: boolean;
+		draft?: boolean;
+		series?: string;
+		seriesOrder?: string;
+		comment?: boolean;
+		content?: string;
+		slug?: string;
+		isNew?: boolean;
+	}>("文章");
+	if (d) {
+		if (d.title != null) title = d.title;
+		if (d.published != null) published = d.published;
+		if (d.updated != null) updated = d.updated;
+		if (d.category != null) category = d.category;
+		if (d.tagsText != null) tagsText = d.tagsText;
+		if (d.description != null) description = d.description;
+		if (d.image != null) image = d.image;
+		if (d.password != null) password = d.password;
+		if (d.passwordHint != null) passwordHint = d.passwordHint;
+		if (d.pinned != null) pinned = d.pinned;
+		if (d.draft != null) draft = d.draft;
+		if (d.series != null) series = d.series;
+		if (d.seriesOrder != null) seriesOrder = d.seriesOrder;
+		if (d.comment != null) comment = d.comment;
+		if (d.slug != null) slug = d.slug;
+		if (d.isNew != null) isNew = d.isNew;
+		if (d.content != null) {
+			rawContent = d.content;
+			if (editor) editor.setValue(d.content);
+		}
+		clearDraft("文章");
+	}
+	return registerSaveAll("文章", () => save(draft), () => ({
+		title,
+		published,
+		updated,
+		category,
+		tagsText,
+		description,
+		image,
+		password,
+		passwordHint,
+		pinned,
+		draft,
+		series,
+		seriesOrder,
+		comment,
+		content: editor ? editor.getValue() : rawContent,
+		slug,
+		isNew,
+	}));
 });
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>

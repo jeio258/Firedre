@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	let title = "公告栏";
@@ -45,18 +46,25 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存";
-		} catch {
-			message = "网络错误";
-		} finally {
-			saving = false;
-		}
+		message = "已保存";
+		clearDraft("公告");
+	} catch {
+		message = "网络错误";
+	} finally {
+		saving = false;
 	}
+}
 
-	onMount(() => {
-	load();
-	return registerSaveAll("公告", save);
-});
+	onMount(async () => {
+		await load();
+		const d = getDraft<{ title?: string; content?: string }>("公告");
+		if (d) {
+			if (d.title != null) title = d.title;
+			if (d.content != null) content = d.content;
+			clearDraft("公告");
+		}
+		return registerSaveAll("公告", save, () => ({ title, content }));
+	});
 </script>
 
 <div class="crud-page">

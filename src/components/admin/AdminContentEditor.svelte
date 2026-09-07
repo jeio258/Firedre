@@ -4,6 +4,7 @@
 	import type Vditor from "vditor";
 	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 
 	let { section = "about", apiPath = "/api/about/" } = $props();
 
@@ -77,18 +78,27 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存";
-		} catch {
-			message = "网络错误";
-		} finally {
-			saving = false;
-		}
+		message = "已保存";
+		clearDraft("关于页");
+	} catch {
+		message = "网络错误";
+	} finally {
+		saving = false;
 	}
+}
 
-	onMount(() => {
-	load();
-	return registerSaveAll("关于页", save);
-});
+	onMount(async () => {
+		await load();
+		const d = getDraft<{ content?: string }>("关于页");
+		if (d?.content != null) {
+			rawContent = d.content;
+			if (editor) editor.setValue(d.content);
+			clearDraft("关于页");
+		}
+		return registerSaveAll("关于页", save, () => ({
+			content: editor ? editor.getValue() : rawContent,
+		}));
+	});
 	onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 

@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type DynamicItem = {
@@ -105,8 +106,9 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存";
-			showForm = false;
+		message = "已保存";
+		clearDraft("动态");
+		showForm = false;
 			editingId = "";
 			await load();
 		} catch {
@@ -135,12 +137,36 @@
 		}
 	}
 
-	onMount(() => {
-	load();
-	return registerSaveAll("动态", () => {
-		if (showForm) submit();
+	onMount(async () => {
+		await load();
+		const d = getDraft<{
+			showForm?: boolean;
+			editingId?: string;
+			formContent?: string;
+			formPinned?: boolean;
+			formLocation?: string;
+			formPublished?: number;
+		}>("动态");
+		if (d) {
+			showForm = d.showForm ?? false;
+			editingId = d.editingId ?? "";
+			formContent = d.formContent ?? "";
+			formPinned = d.formPinned ?? false;
+			formLocation = d.formLocation ?? "";
+			formPublished = d.formPublished ?? 0;
+			clearDraft("动态");
+		}
+		return registerSaveAll("动态", () => {
+			if (showForm) submit();
+		}, () => ({
+			showForm,
+			editingId,
+			formContent,
+			formPinned,
+			formLocation,
+			formPublished,
+		}));
 	});
-});
 </script>
 
 <div class="crud-page">

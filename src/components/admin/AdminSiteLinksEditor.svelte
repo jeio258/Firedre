@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
 
 	type SiteLinkItem = {
@@ -83,6 +84,7 @@
 				return;
 			}
 			siteUrlMsg = "域名已保存 ✓";
+		clearDraft("站点链接");
 		} catch {
 			siteUrlMsg = "网络错误";
 		} finally {
@@ -90,10 +92,15 @@
 		}
 	}
 
-	onMount(() => {
-	loadSiteUrl();
-	return registerSaveAll("站点链接", saveSiteUrl);
-});
+	onMount(async () => {
+		await loadSiteUrl();
+		const d = getDraft<{ siteUrl?: string }>("站点链接");
+		if (d?.siteUrl != null) {
+			siteUrl = d.siteUrl;
+			clearDraft("站点链接");
+		}
+		return registerSaveAll("站点链接", saveSiteUrl, () => ({ siteUrl }));
+	});
 </script>
 
 <AdminCrudEditor

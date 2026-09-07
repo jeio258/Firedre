@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type AlbumSummary = {
@@ -84,16 +85,22 @@
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ slugs: albums.map((a) => a.slug) }),
 			});
+			clearDraft("相册排序");
 		} catch {
 		} finally {
 			savingOrder = false;
 		}
 	}
 
-	onMount(() => {
-	load();
-	return registerSaveAll("相册排序", saveOrder);
-});
+	onMount(async () => {
+		await load();
+		const d = getDraft<{ albums?: AlbumSummary[] }>("相册排序");
+		if (d?.albums) {
+			albums = d.albums;
+			clearDraft("相册排序");
+		}
+		return registerSaveAll("相册排序", saveOrder, () => ({ albums }));
+	});
 </script>
 
 <div class="crud-page">

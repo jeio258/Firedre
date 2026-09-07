@@ -3,7 +3,7 @@
 	import "@/styles/admin.css";
 	import AdminLogin from "./AdminLogin.svelte";
 	import AdminThemeSwitch from "./AdminThemeSwitch.svelte";
-	import { runSaveAll } from "@/lib/adminSave";
+	import { persistActiveDraft, runSaveAll } from "@/lib/adminSave";
 
 	type Section = string;
 
@@ -213,6 +213,7 @@
 	}
 
 	async function render(s: Section, slug?: string) {
+		persistActiveDraft();
 		section = s;
 		viewError = "";
 		const loader = VIEWS[s];

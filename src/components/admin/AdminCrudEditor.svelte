@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import { type Snippet } from "svelte";
 
 	export type CrudFieldType = "text" | "number" | "checkbox" | "select";
@@ -129,9 +130,10 @@
 				message = data.message || "保存失败";
 				return;
 			}
-			message = "已保存";
-			showForm = false;
-			editingId = null;
+		message = "已保存";
+		clearDraft("友链");
+		showForm = false;
+		editingId = null;
 			await load();
 		} catch {
 			message = "网络错误";
@@ -157,12 +159,23 @@
 		}
 	}
 
-	onMount(() => {
-	load();
-	return registerSaveAll("友链", () => {
-		if (showForm) submit();
+	onMount(async () => {
+		await load();
+		const d = getDraft<{
+			showForm?: boolean;
+			editingId?: number | null;
+			formValues?: Record<string, string | number | boolean>;
+		}>("友链");
+		if (d) {
+			showForm = d.showForm ?? false;
+			editingId = d.editingId ?? null;
+			if (d.formValues) formValues = d.formValues;
+			clearDraft("友链");
+		}
+		return registerSaveAll("友链", () => {
+			if (showForm) submit();
+		}, () => ({ showForm, editingId, formValues }));
 	});
-});
 </script>
 
 <div class="crud-page">

@@ -2,6 +2,7 @@
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
+import { getDraft, clearDraft } from "@/lib/adminDrafts";
 // 设置项默认值
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
@@ -734,6 +735,7 @@ async function save() {
 			return;
 		}
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
+		clearDraft("站点设置");
 
 		applyHueToAdmin(groups["basic"]?.hue);
 	} catch {
@@ -756,9 +758,14 @@ function applyHueToAdmin(hue: unknown) {
 }
 
 // 暴露给顶栏「保存全部」
-onMount(() => {
-	load();
-	return registerSaveAll("站点设置", save);
+onMount(async () => {
+	await load();
+	const d = getDraft<Record<string, Record<string, unknown>>>("站点设置");
+	if (d) {
+		data = d;
+		clearDraft("站点设置");
+	}
+	return registerSaveAll("站点设置", save, () => data);
 });
 </script>
 
