@@ -8,8 +8,6 @@ import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
-import type { StandardizedAnime } from "@/types/bilibili";
-import { fetchBilibiliList } from "@/utils/bilibili-utils";
 import { formatDateI18nWithTime } from "@/utils/date-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -25,27 +23,6 @@ const buildTime = formatDateI18nWithTime(new Date());
 // Bilibili 配置
 const BILIBILI_UID = ((settings as any)?.["bilibili"] ?? siteConfig.bilibili)?.uid;
 const isConfigured = !!BILIBILI_UID && BILIBILI_UID.trim() !== "";
-
-// 获取 Bilibili 追番 + 追剧数据
-let animeList: StandardizedAnime[] = [];
-if (BILIBILI_UID) {
-	try {
-		animeList = await fetchBilibiliList(BILIBILI_UID);
-		console.log(`[Bilibili] Page data: ${animeList.length} items`);
-	} catch (error) {
-		console.error("[Bilibili] Failed to fetch data:", error);
-	}
-}
-
-// 统计数据
-const totalCount = animeList.length;
-const bilibiliAverageRating =
-	animeList.length > 0
-		? (
-				animeList.reduce((sum, item) => sum + (Number(item.rating) || 0), 0) /
-				animeList.length
-			).toFixed(1)
-		: "0.0";
 ---
 
 <MainGridLayout
@@ -89,32 +66,7 @@ const bilibiliAverageRating =
         ) : (
           <>
 
-            <div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-              <div class="bg-(--card-bg) rounded-xl p-3 sm:p-4 border border-(--line-divider)">
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-(--primary)/10 flex items-center justify-center shrink-0">
-                    <Icon name="material-symbols:movie-filter" class="text-[1rem] sm:text-[1.25rem] text-(--primary)" />
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeTotal)}</div>
-                    <div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{totalCount}</div>
-                  </div>
-                </div>
-              </div>
-              <div class="bg-(--card-bg) rounded-xl p-3 sm:p-4 border border-(--line-divider)">
-                <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-pink-500/10 flex items-center justify-center shrink-0">
-                    <Icon name="material-symbols:favorite" class="text-[1rem] sm:text-[1.25rem] text-pink-500" />
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeBilibiliAvg)}</div>
-                    <div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{bilibiliAverageRating}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <BilibiliGrid client:load items={animeList} />
+            <BilibiliGrid client:load dynamic />
           </>
         )}
       </div>

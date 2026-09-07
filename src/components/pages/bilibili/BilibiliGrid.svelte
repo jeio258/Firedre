@@ -2,7 +2,6 @@
 import { onMount, untrack } from "svelte";
 import ClientPagination from "@components/common/ClientPagination.svelte";
 import GridSkeleton from "@components/common/GridSkeleton.svelte";
-import { Icon } from "astro-icon/components";
 import TabNav from "@/components/common/TabNav.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -190,9 +189,9 @@ function closeDetail() {
 			<div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
 				<div class="bg-(--card-bg) rounded-xl p-3 sm:p-4 border border-(--line-divider)">
 					<div class="flex items-center gap-2 sm:gap-3">
-						<div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-(--primary)/10 flex items-center justify-center shrink-0">
-							<Icon name="material-symbols:movie-filter" class="text-[1rem] sm:text-[1.25rem] text-(--primary)" />
-						</div>
+					<div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-(--primary)/10 flex items-center justify-center shrink-0">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="text-[1rem] sm:text-[1.25rem] text-(--primary)"><path d="m9.5 11l-.95 2.05L6.5 14l2.05.95L9.5 17l.95-2.05L12.5 14l-2.05-.95L9.5 11Zm6 0l-.65 1.35l-1.35.65l1.35.65l.65 1.35l.65-1.35L17.5 13l-1.35-.65L15.5 11ZM4 4l2 4h3L7 4h2l2 4h3l-2-4h2l2 4h3l-2-4h3q.825 0 1.413.588T22 6v12q0 .825-.588 1.413T20 20H4q-.825 0-1.413.588T2 18V6q0-.825.588-1.413T4 4Z" /></svg>
+					</div>
 						<div class="min-w-0">
 							<div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeTotal)}</div>
 							<div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{totalCount}</div>
@@ -201,9 +200,9 @@ function closeDetail() {
 				</div>
 				<div class="bg-(--card-bg) rounded-xl p-3 sm:p-4 border border-(--line-divider)">
 					<div class="flex items-center gap-2 sm:gap-3">
-						<div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-pink-500/10 flex items-center justify-center shrink-0">
-							<Icon name="material-symbols:favorite" class="text-[1rem] sm:text-[1.25rem] text-pink-500" />
-						</div>
+				<div class="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-pink-500/10 flex items-center justify-center shrink-0">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" class="text-[1rem] sm:text-[1.25rem] text-pink-500"><path d="m12 21l-1.45-1.3q-2.525-2.275-4.175-3.925T3.75 12.812T2.388 10.4T2 8.15Q2 5.8 3.575 4.225T7.5 2.65q1.3 0 2.475.55T12 4.75q.85-1 2.025-1.55t2.475-.55q2.35 0 3.925 1.575T22 8.15q0 1.15-.387 2.25t-1.363 2.412t-2.625 2.963T13.45 19.7z" /></svg>
+				</div>
 						<div class="min-w-0">
 							<div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeBilibiliAvg)}</div>
 							<div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{avgRating}</div>
