@@ -144,21 +144,25 @@ const BUCKET = {
 	async get(key: string) {
 		const p = r2Path(key);
 		if (!existsSync(p)) return null;
-		const content = readFileSync(p, "utf8");
+		const buf = readFileSync(p);
 		return {
 			key,
-			size: content.length,
-			text: async () => content,
-			body: new Response(content).body,
+			size: buf.length,
+			arrayBuffer: async () =>
+				buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength),
+			text: async () => buf.toString("utf8"),
+			json: async () => JSON.parse(buf.toString("utf8")),
+			body: new Response(buf).body,
 		};
 	},
-	async put(key: string, value: string | ArrayBuffer | Uint8Array) {
+	async put(key: string, value: string | ArrayBuffer | ArrayBufferView | Buffer) {
 		const p = r2Path(key);
 		mkdirSync(dirname(p), { recursive: true });
-		const buf =
-			typeof value === "string"
-				? value
-				: Buffer.from(value as ArrayBuffer).toString("utf8");
+		const buf = Buffer.isBuffer(value)
+			? value
+			: typeof value === "string"
+				? Buffer.from(value, "utf8")
+				: Buffer.from(value as ArrayBufferLike);
 		writeFileSync(p, buf);
 		return { key };
 	},

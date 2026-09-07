@@ -4,6 +4,8 @@
 :root {
 	/* 颜色令牌全部复用前台 variables.styl（随 .dark 类自动明暗切换），
 	   此处仅保留后台专属、前台未提供的非颜色令牌 */
+	/* 抽屉（移动端侧栏）断点，与 AdminApp.toggleSidebar 运行时读取保持一致 */
+	--admin-drawer-bp: 767px;
 	--primary-deep: oklch(0.52 0.16 var(--hue));
 	--sb-w: 15rem;
 	--sb-collapsed: 4.25rem;
@@ -2186,4 +2188,31 @@ html.dark .lg-field input {
 	.gal-grid {
 		grid-template-columns: repeat(3, 1fr);
 	}
+}
+
+/* ═══ 保存全部反馈 toast ═══ */
+.save-toast {
+	position: fixed;
+	left: 50%;
+	bottom: 1.5rem;
+	transform: translateX(-50%) translateY(1rem);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	border: 1px solid var(--line-divider);
+	padding: 0.6rem 1rem;
+	border-radius: 0.6rem;
+	box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+	font-size: 0.88rem;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	z-index: 60;
+}
+.save-toast.show {
+	opacity: 1;
+	transform: translateX(-50%) translateY(0);
+}
+.save-toast.err {
+	border-color: rgb(239 68 68 / 0.4);
+	color: var(--danger);
 }

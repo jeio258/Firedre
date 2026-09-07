@@ -9,13 +9,19 @@ export function registerSaveAll(handler: SaveHandler): () => void {
 	return () => handlers.delete(handler);
 }
 
-/** 顶栏按钮调用：执行所有已登记的保存逻辑 */
-export function runSaveAll(): Promise<unknown> {
+/** 顶栏按钮调用：执行所有已登记的保存逻辑，返回每项成败 */
+export type SaveResult = { ok: boolean; error?: unknown };
+
+export function runSaveAll(): Promise<SaveResult[]> {
 	return Promise.all(
-		[...handlers].map((handler) =>
-			Promise.resolve()
-				.then(handler)
-				.catch((e) => console.error("[save-all]", e)),
-		),
+		[...handlers].map(async (handler) => {
+			try {
+				await handler();
+				return { ok: true } as SaveResult;
+			} catch (e) {
+				console.error("[save-all]", e);
+				return { ok: false, error: e } as SaveResult;
+			}
+		}),
 	);
 }

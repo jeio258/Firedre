@@ -143,9 +143,20 @@
 			localStorage.setItem("admin_sidebar_collapsed", collapsed ? "1" : "0");
 		} catch (e) {}
 	}
-	// 移动端唤出抽屉，桌面端折叠侧栏
+	// 移动端唤出抽屉，桌面端折叠侧栏（断点读取 admin.css 的 --admin-drawer-bp）
+	function adminDrawerBreakpoint(): number {
+		if (typeof window === "undefined") return 767;
+		const v = getComputedStyle(document.documentElement)
+			.getPropertyValue("--admin-drawer-bp")
+			.trim();
+		const n = Number.parseInt(v);
+		return Number.isFinite(n) ? n : 767;
+	}
 	function toggleSidebar() {
-		if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+		if (
+			typeof window !== "undefined" &&
+			window.matchMedia(`(max-width: ${adminDrawerBreakpoint()}px)`).matches
+		) {
 			sidebarOpen = !sidebarOpen;
 		} else {
 			toggleCollapse();
@@ -353,8 +364,23 @@
 		}
 	}
 
-	function saveAll() {
-		void runSaveAll();
+	let saveToast = "";
+	let saveToastKind: "ok" | "err" = "ok";
+	let saveToastTimer: ReturnType<typeof setTimeout> | null = null;
+	function showToast(msg: string, kind: "ok" | "err" = "ok") {
+		saveToast = msg;
+		saveToastKind = kind;
+		if (saveToastTimer) clearTimeout(saveToastTimer);
+		saveToastTimer = setTimeout(() => (saveToast = ""), 2600);
+	}
+
+	async function saveAll() {
+		const results = await runSaveAll();
+		const ok = results.filter((r) => r.ok).length;
+		const fail = results.length - ok;
+		if (results.length === 0) showToast("当前页面无可保存项", "ok");
+		else if (fail === 0) showToast(`已保存 ${ok} 项`, "ok");
+		else showToast(`保存完成：${ok} 成功 / ${fail} 失败`, "err");
 	}
 
 	onMount(() => {
@@ -508,9 +534,13 @@
 						{/if}
 					</div>
 				</div>
-			</header>
+		</header>
 
-			<div class="content">
+		<div class="save-toast" class:show={saveToast} class:err={saveToastKind === "err"}>
+			{saveToast}
+		</div>
+
+		<div class="content">
 				<main class="main">
 					{#if viewError}
 						<div class="admin-error">{viewError}</div>
