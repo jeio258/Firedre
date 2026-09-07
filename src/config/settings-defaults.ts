@@ -107,6 +107,16 @@ export const settingsDefaults = {
 	},
 	cover: {
 		showLoading: false,
+		enableInPost: true,
+		enableInPostOverlay: false,
+		randomCoverImage: JSON.stringify({
+			enable: false,
+			apis: [
+				"https://t.alcy.cc/pc",
+				"https://www.dmoe.cc/random.php",
+				"https://uapis.cn/api/v1/random/image?category=acg&type=pc",
+			],
+		}),
 	},
 	music: {
 		showInNavbar: true,

@@ -25,11 +25,10 @@ import PostMetadata from "@/components/layout/PostMeta.astro";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SeriesNav from "@/components/misc/SeriesNav.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
-import { coverImageConfig } from "@/config/coverImageConfig";
 import { licenseConfig } from "@/config/licenseConfig";
 import { profileConfig } from "@/config/profileConfig";
 import { siteConfig } from "@/config/siteConfig";
-import { getSiteConfig } from "@/config/runtime";
+import { getSiteConfig, getCoverConfig } from "@/config/runtime";
 import { sponsorConfig } from "@/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
@@ -78,11 +77,11 @@ const bannerPostMeta = {
 };
 
 const siteUrl = getSiteConfig(Astro.locals).site_url;
-const processedImage = processCoverImageSync(entry.data.image, entry.id);
-const apiUrls = getApiUrlList(entry.data.image, entry.id);
-const showPostCover = Boolean(processedImage && ((((settings as any)?.["cover"]) as any)?.["enableInPost"] ?? coverImageConfig.enableInPost));
-const usePostCoverOverlay =
-	showPostCover && (((((settings as any)?.["cover"]) as any)?.["enableInPostOverlay"] ?? coverImageConfig.enableInPostOverlay) ?? true);
+const coverCfg = getCoverConfig(Astro.locals);
+const processedImage = processCoverImageSync(entry.data.image, entry.id, coverCfg.randomCoverImage);
+const apiUrls = getApiUrlList(entry.data.image, entry.id, coverCfg.randomCoverImage);
+const showPostCover = Boolean(processedImage && coverCfg.enableInPost);
+const usePostCoverOverlay = showPostCover && coverCfg.enableInPostOverlay;
 
 const getDirectImageUrl = (src: string | undefined): string | null => {
 	if (!src) return null;

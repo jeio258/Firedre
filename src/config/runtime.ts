@@ -470,12 +470,24 @@ export function getSidebarConfig(locals: unknown) {
 export function getCoverConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const c = groupOf(s, "cover");
+	let randomCoverImage = staticCoverConfig.randomCoverImage;
+	if (typeof c.randomCoverImage === "string" && c.randomCoverImage.trim()) {
+		try {
+			randomCoverImage = JSON.parse(c.randomCoverImage) as typeof staticCoverConfig.randomCoverImage;
+		} catch {
+		}
+	} else if (c.randomCoverImage && typeof c.randomCoverImage === "object") {
+		randomCoverImage = c.randomCoverImage as typeof staticCoverConfig.randomCoverImage;
+	}
 	return {
 		...staticCoverConfig,
 		...(typeof c.enable === "boolean" ? { enable: c.enable } : {}),
 		...(typeof c.defaultImage === "string" && c.defaultImage ? { defaultImage: c.defaultImage } : {}),
 		...(typeof c.configurable === "boolean" ? { configurable: c.configurable } : {}),
+		enableInPost: bool(c.enableInPost, staticCoverConfig.enableInPost),
+		enableInPostOverlay: bool(c.enableInPostOverlay, staticCoverConfig.enableInPostOverlay ?? false),
 		showLoading: bool(c.showLoading, (staticCoverConfig as Record<string, unknown>).showLoading as boolean),
+		randomCoverImage,
 	};
 }
 

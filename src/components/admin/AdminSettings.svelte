@@ -393,6 +393,15 @@ const GROUPS: Group[] = [
 			{ name: "defaultImage", label: "默认封面 URL", type: "text" },
 			{ name: "configurable", label: "文章可自定义封面", type: "boolean" },
 			{ name: "showLoading", label: "加载动画", type: "boolean" },
+			{ name: "enableInPost", label: "文章页显示封面图", type: "boolean" },
+			{ name: "enableInPostOverlay", label: "封面图叠加标题布局", type: "boolean" },
+			{
+				name: "randomCoverImage",
+				label: "随机封面图配置（JSON）",
+				type: "json",
+				wide: true,
+				placeholder: '{"enable":false,"apis":["https://t.alcy.cc/pc"]}',
+			},
 		],
 	},
 	{
@@ -724,6 +733,7 @@ async function save() {
 			"sections",
 			"groups",
 			"favicon",
+			"randomCoverImage",
 		]);
 
 		for (const g of GROUPS) {
