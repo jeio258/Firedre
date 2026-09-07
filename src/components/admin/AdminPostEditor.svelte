@@ -341,8 +341,11 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	}
 	.row2 {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 		gap: 0.7rem;
+	}
+	.row2 > .crud-field {
+		min-width: 0;
 	}
 	.pe-msg {
 		font-size: 0.82rem;
@@ -356,11 +359,13 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	.editor-body {
 		margin-top: 1rem;
 		padding: 1rem 1rem 0.8rem;
-		max-width: 100%;
-		overflow-x: auto;
+		overflow: hidden;
+		min-width: 0;
 	}
 	.editor-body :global(.vditor) {
+		width: 100%;
 		max-width: 100%;
+		min-width: 0;
 	}
 	.pe-loading {
 		padding: 3rem;

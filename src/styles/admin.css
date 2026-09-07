@@ -1084,9 +1084,12 @@ body {
 /* 编辑器布局 */
 .editor-layout {
 	display: grid;
-	grid-template-columns: 1fr 300px;
+	grid-template-columns: minmax(0, 1fr) 300px;
 	gap: 1rem;
 	align-items: start;
+}
+.editor-layout > * {
+	min-width: 0;
 }
 .editor-title input {
 	padding: 0.7rem 0.9rem;
@@ -1107,6 +1110,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	min-width: 0;
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
 	background: var(--card-bg);
@@ -1316,6 +1320,8 @@ body {
 	font-family: inherit;
 	box-sizing: border-box;
 	transition: border-color 0.15s, box-shadow 0.15s;
+	width: 100%;
+	min-width: 0;
 }
 .cmtbar select,
 .cmtrow input,
@@ -2169,7 +2175,7 @@ html.dark .lg-field input {
 	.dash-cols,
 	.editor-layout,
 	.crud-form {
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 	}
 	.album-grid {
 		grid-template-columns: 1fr 1fr;
