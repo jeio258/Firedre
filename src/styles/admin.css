@@ -1474,6 +1474,22 @@ html.dark .a2card > header {
 	grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
 }
 
+/* 个人资料：简介居左、所在地与邮箱居右，版面平衡 */
+.a2card.profile .a2fg {
+	grid-template-columns: 1fr 1fr;
+	grid-template-areas:
+		"name avatar"
+		"bio loc"
+		"bio eml";
+	align-items: start;
+}
+.a2card.profile .a2f.ar-name { grid-area: name; }
+.a2card.profile .a2f.ar-avatar { grid-area: avatar; }
+.a2card.profile .a2f.ar-bio { grid-area: bio; }
+.a2card.profile .a2f.ar-loc { grid-area: loc; }
+.a2card.profile .a2f.ar-eml { grid-area: eml; }
+.a2card.profile .a2f.ar-bio textarea { min-height: 7rem; }
+
 /* ═══ 侧边栏：复用前台令牌，随 .dark 类自动明暗（浅色浅底、深色深底）═══ */
 .sidebar {
 	background: var(--card-bg);

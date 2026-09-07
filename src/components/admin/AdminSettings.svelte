@@ -4,7 +4,11 @@ import { apiJson } from "@/lib/adminApi";
 // 设置项默认值
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
-type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password";
+type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password" | "select";
+interface SelectOption {
+	label: string;
+	value: string;
+}
 interface Field {
 	name: string;
 	label: string;
@@ -13,6 +17,9 @@ interface Field {
 	hint?: string;
 	wide?: boolean;
 	hidden?: boolean;
+	options?: SelectOption[];
+	// 仅当所属评论类型为指定值时显示（用于评论系统按类型动态显隐）
+	cmt?: string;
 }
 interface Group {
 	key: string;
@@ -175,8 +182,8 @@ const GROUPS: Group[] = [
 			{ name: "name", label: "昵称 / 作者", type: "text" },
 			{ name: "avatar", label: "头像 URL", type: "text" },
 			{ name: "bio", label: "个人简介", type: "textarea" },
-			{ name: "location", label: "所在地", type: "text", wide: true },
-			{ name: "email", label: "邮箱", type: "text", wide: true },
+			{ name: "location", label: "所在地", type: "text" },
+			{ name: "email", label: "邮箱", type: "text" },
 			{
 				name: "links",
 				label: "社交链接（JSON 数组）",
@@ -348,25 +355,31 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用评论", type: "boolean" },
 			{
 				name: "type",
-				label: "类型",
-				type: "text",
-				placeholder: "giscus / waline / disqus / none",
+				label: "评论类型",
+				type: "select",
+				options: [
+					{ label: "Twikoo", value: "twikoo" },
+					{ label: "Giscus", value: "giscus" },
+					{ label: "Waline", value: "waline" },
+					{ label: "Artalk", value: "artalk" },
+					{ label: "Disqus", value: "disqus" },
+				],
 			},
-			{
-				name: "giscusRepo",
-				label: "Giscus 仓库",
-				type: "text",
-				placeholder: "owner/repo",
-			},
-			{ name: "giscusRepoId", label: "Giscus Repo ID", type: "text" },
-			{ name: "giscusCategory", label: "Giscus 分类", type: "text" },
-			{ name: "giscusCategoryId", label: "Giscus 分类 ID", type: "text" },
-			{ name: "walineServer", label: "Waline 服务地址", type: "text" },
-			{ name: "disqusShortname", label: "Disqus Shortname", type: "text" },
-			{ name: "twikooEnvId", label: "Twikoo 环境 ID", type: "text" },
-			{ name: "twikooJsUrl", label: "Twikoo JS 地址", type: "text" },
-			{ name: "artalkServer", label: "Artalk 服务地址", type: "text" },
-			{ name: "artalkSiteName", label: "Artalk 站点名", type: "text" },
+			// Twikoo：环境 ID + JS 地址
+			{ name: "twikooEnvId", label: "Twikoo 环境 ID", type: "text", cmt: "twikoo", placeholder: "https://xxx.vercel.app" },
+			{ name: "twikooJsUrl", label: "Twikoo JS 地址", type: "text", cmt: "twikoo", placeholder: "https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js" },
+			// Giscus：仓库 + 分类（Repo ID / 分类 ID 供前端使用）
+			{ name: "giscusRepo", label: "Giscus 仓库 (owner/repo)", type: "text", cmt: "giscus", placeholder: "owner/repo" },
+			{ name: "giscusRepoId", label: "Giscus Repo ID", type: "text", cmt: "giscus" },
+			{ name: "giscusCategory", label: "Giscus 分类", type: "text", cmt: "giscus" },
+			{ name: "giscusCategoryId", label: "Giscus 分类 ID", type: "text", cmt: "giscus" },
+			// Waline：服务地址
+			{ name: "walineServer", label: "Waline 服务地址", type: "text", cmt: "waline", placeholder: "https://waline.vercel.app" },
+			// Disqus：Shortname
+			{ name: "disqusShortname", label: "Disqus Shortname", type: "text", cmt: "disqus" },
+			// Artalk：服务地址 + 站点名
+			{ name: "artalkServer", label: "Artalk 服务地址", type: "text", cmt: "artalk", placeholder: "https://artalk.example.com/" },
+			{ name: "artalkSiteName", label: "Artalk 站点名", type: "text", cmt: "artalk" },
 		],
 	},
 	{
@@ -610,6 +623,8 @@ let activeCat: string = CATEGORIES[typeof cat === "number" ? cat : 0];
 let groups: Group[] = [];
 // 当前选中的分组
 let activeGroup = "";
+// 当前选中的评论类型（独立响应式变量，供显隐逻辑直接引用）
+let cmtTypeVal = "";
 
 $: {
 	const c = CATEGORIES[typeof cat === "number" ? cat : 0];
@@ -642,6 +657,7 @@ async function load() {
 			data[g.key] = merged;
 		}
 		data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
+		cmtTypeVal = String(data["comment"]?.["type"] ?? "");
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}
@@ -658,6 +674,24 @@ function cycleBool(key: string, field: string) {
 function markDirty() {
 	if (!loaded) return;
 	message = "有未保存的修改，请点击「保存全部」";
+}
+
+// 字段是否可见：带 cmt 标签的字段仅在该评论类型选中时显示
+function isFieldVisible(field: Field, t: string = cmtTypeVal): boolean {
+	if (field.hidden) return false;
+	if (field.cmt) return field.cmt === t;
+	return true;
+}
+
+// 个人资料面板：为 bio/所在地/邮箱 分配 grid-area，使简介居左、所在地与邮箱居右
+function profileArea(group: Group, field: Field): string {
+	if (group.key !== "profile") return "";
+	if (field.name === "bio") return "ar-bio";
+	if (field.name === "location") return "ar-loc";
+	if (field.name === "email") return "ar-eml";
+	if (field.name === "name") return "ar-name";
+	if (field.name === "avatar") return "ar-avatar";
+	return "";
 }
 
 async function save() {
@@ -760,14 +794,14 @@ onMount(load);
 		<div class="s2-host">
 			<section class="s2pane on">
 				{#each groups.filter((g) => g.key === activeGroup) as group (group.key)}
-					<section class="a2card">
+					<section class="a2card" class:profile={group.key === "profile"}>
 						<header>
 							<h4>{group.title}</h4>
-							<span class="cnt">{group.fields.filter((f) => !f.hidden).length} 项</span>
+							<span class="cnt">{group.fields.filter((f) => isFieldVisible(f, cmtTypeVal)).length} 项</span>
 						</header>
-						{#if group.fields.some((f) => !f.hidden && f.type === "boolean")}
+						{#if group.fields.some((f) => isFieldVisible(f, cmtTypeVal) && f.type === "boolean")}
 							<div class="a2sws">
-								{#each group.fields.filter((f) => !f.hidden && f.type === "boolean") as field (field.name)}
+								{#each group.fields.filter((f) => isFieldVisible(f, cmtTypeVal) && f.type === "boolean") as field (field.name)}
 									<label class="a2tr">
 										<span class="a2tx">{field.label}</span>
 										<button
@@ -780,12 +814,18 @@ onMount(load);
 								{/each}
 							</div>
 						{/if}
-						{#if group.fields.some((f) => !f.hidden && f.type !== "boolean")}
+						{#if group.fields.some((f) => isFieldVisible(f, cmtTypeVal) && f.type !== "boolean")}
 							<div class="a2fg">
-								{#each group.fields.filter((f) => !f.hidden && f.type !== "boolean") as field (field.name)}
-									<div class="a2f {field.wide ? 'w' : ''}">
+								{#each group.fields.filter((f) => isFieldVisible(f, cmtTypeVal) && f.type !== "boolean") as field (field.name)}
+									<div class="a2f {field.wide ? 'w' : ''} {profileArea(group, field)}">
 										<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
-										{#if field.type === "textarea" || field.type === "json"}
+										{#if field.type === "select"}
+											<select on:change={(e) => { const v = e.currentTarget.value; data[group.key][field.name] = v; cmtTypeVal = v; markDirty(); }}>
+												{#each field.options ?? [] as opt}
+													<option value={opt.value} selected={((data[group.key]?.[field.name] as string) ?? "") === opt.value}>{opt.label}</option>
+												{/each}
+											</select>
+										{:else if field.type === "textarea" || field.type === "json"}
 											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
 											{#if field.type === "json"}
 												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
