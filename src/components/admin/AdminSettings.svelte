@@ -552,17 +552,6 @@ const GROUPS: Group[] = [
 	},
 
 	{
-		key: "friends",
-		title: "友链页",
-		category: "页面配置",
-		fields: [
-			{ name: "title", label: "页面标题", type: "text" },
-			{ name: "description", label: "页面描述", type: "textarea" },
-			{ name: "showCustomContent", label: "显示底部自定义内容", type: "boolean" },
-			{ name: "showComment", label: "显示评论区", type: "boolean" },
-		],
-	},
-	{
 		key: "footer",
 		title: "页脚",
 		category: "扩展功能",

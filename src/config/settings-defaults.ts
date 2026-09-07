@@ -155,10 +155,6 @@ export const settingsDefaults = {
 	},
 	friends: {
 		enabled: true,
-		title: "",
-		description: "",
-		showCustomContent: true,
-		showComment: true,
 	},
 	gallery: {
 		enabled: true,
