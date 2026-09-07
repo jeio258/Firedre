@@ -87,7 +87,7 @@ async function submit(event: SubmitEvent) {
 			</label>
 			<label class="lg-field">
 				<span>密码</span>
-				<input type="password" autocomplete="current-password" placeholder="admin123" bind:value={pass} />
+				<input type="password" autocomplete="current-password" bind:value={pass} />
 			</label>
 			<div class="lg-row">
 				<label class="check-line" style="cursor:pointer">
@@ -104,8 +104,6 @@ async function submit(event: SubmitEvent) {
 					尚未创建管理员，请
 					<a class="lg-link" href="/admin/setup/">前往初始化</a>
 				</p>
-			{:else}
-				<p class="lg-legal">默认账号 admin · 密码 admin123（本地模拟鉴权）</p>
 			{/if}
 		</form>
 	</div>
