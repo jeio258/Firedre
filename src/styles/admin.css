@@ -411,6 +411,9 @@ body {
 	background: var(--card-bg);
 	border-bottom: 1px solid var(--line-divider);
 }
+.backdrop {
+	display: none;
+}
 .menu-toggle {
 	background: transparent;
 	border: none;

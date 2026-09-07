@@ -3,6 +3,7 @@
 	import "@/styles/admin.css";
 	import AdminLogin from "./AdminLogin.svelte";
 	import AdminThemeSwitch from "./AdminThemeSwitch.svelte";
+	import { runSaveAll } from "@/lib/adminSave";
 
 	type Section = string;
 
@@ -141,6 +142,14 @@
 		try {
 			localStorage.setItem("admin_sidebar_collapsed", collapsed ? "1" : "0");
 		} catch (e) {}
+	}
+	// 移动端唤出抽屉，桌面端折叠侧栏
+	function toggleSidebar() {
+		if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+			sidebarOpen = !sidebarOpen;
+		} else {
+			toggleCollapse();
+		}
 	}
 	function toggleS3() {
 		s3open = !s3open;
@@ -345,7 +354,7 @@
 	}
 
 	function saveAll() {
-		window.dispatchEvent(new CustomEvent("admin:save-all"));
+		void runSaveAll();
 	}
 
 	onMount(() => {
@@ -446,7 +455,7 @@
 
 		<div class="body">
 			<header class="topbar">
-				<button class="menu-toggle" aria-label="折叠侧栏" on:click={toggleCollapse}>
+				<button class="menu-toggle" aria-label="菜单" on:click={toggleSidebar}>
 					{@html iconSvg("menu")}
 				</button>
 				<div class="crumb">

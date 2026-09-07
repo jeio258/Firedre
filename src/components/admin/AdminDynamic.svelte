@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
+	import { registerSaveAll } from "@/lib/adminSave";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type DynamicItem = {
@@ -134,7 +135,12 @@
 		}
 	}
 
-	onMount(load);
+	onMount(() => {
+	load();
+	return registerSaveAll(() => {
+		if (showForm) submit();
+	});
+});
 </script>
 
 <div class="crud-page">

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
+import { registerSaveAll } from "@/lib/adminSave";
 // 设置项默认值
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
@@ -755,14 +756,10 @@ function applyHueToAdmin(hue: unknown) {
 }
 
 // 暴露给顶栏「保存全部」
-function onSaveAll() {
-	save();
-}
-if (typeof window !== "undefined") {
-	window.addEventListener("admin:save-all", onSaveAll);
-}
-
-onMount(load);
+onMount(() => {
+	load();
+	return registerSaveAll(save);
+});
 </script>
 
 <div class="crud-page">

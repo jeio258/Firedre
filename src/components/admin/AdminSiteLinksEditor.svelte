@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
+	import { registerSaveAll } from "@/lib/adminSave";
 	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
 
 	type SiteLinkItem = {
@@ -89,7 +90,10 @@
 		}
 	}
 
-	onMount(loadSiteUrl);
+	onMount(() => {
+	loadSiteUrl();
+	return registerSaveAll(saveSiteUrl);
+});
 </script>
 
 <AdminCrudEditor

@@ -5,6 +5,7 @@ import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
 import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
 import { apiJson } from "@/lib/adminApi";
+import { registerSaveAll } from "@/lib/adminSave";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -204,7 +205,10 @@ async function save(targetDraft: boolean) {
 	}
 }
 
-onMount(load);
+onMount(() => {
+	load();
+	return registerSaveAll(() => save(draft));
+});
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 

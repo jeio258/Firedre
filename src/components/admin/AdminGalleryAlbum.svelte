@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { parseAlbumSource, serializeAlbumMarkdown } from "../../../server/gallery/frontmatter";
+	import { registerSaveAll } from "@/lib/adminSave";
 
 	let { slug = "" } = $props();
 

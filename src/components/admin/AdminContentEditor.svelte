@@ -3,6 +3,7 @@
 	import "vditor/dist/index.css";
 	import type Vditor from "vditor";
 	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+	import { registerSaveAll } from "@/lib/adminSave";
 
 	let { section = "about", apiPath = "/api/about/" } = $props();
 
@@ -84,7 +85,10 @@
 		}
 	}
 
-	onMount(load);
+	onMount(() => {
+	load();
+	return registerSaveAll(save);
+});
 	onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
