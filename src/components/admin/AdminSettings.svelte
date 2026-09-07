@@ -758,7 +758,7 @@ function applyHueToAdmin(hue: unknown) {
 // 暴露给顶栏「保存全部」
 onMount(() => {
 	load();
-	return registerSaveAll(save);
+	return registerSaveAll("站点设置", save);
 });
 </script>
 

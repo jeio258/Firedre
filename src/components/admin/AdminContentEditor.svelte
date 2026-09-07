@@ -87,7 +87,7 @@
 
 	onMount(() => {
 	load();
-	return registerSaveAll(save);
+	return registerSaveAll("关于页", save);
 });
 	onDestroy(() => vditorThemeObserver?.disconnect());
 </script>

@@ -178,4 +178,23 @@ export const env = {
 	BUCKET,
 };
 export const context = undefined;
-export const caches = undefined;
+
+// dev 内存版 CacheStorage：让 HTML 缓存中间件在本地与线上语义一致（可被命中/失效）。
+// 用 globalThis 承载存储：Astro dev 会按请求重新求值 SSR 模块，模块级变量无法跨请求存活。
+const __globalCache = globalThis as unknown as { __firedreHtmlCache?: Map<string, Response> };
+const __htmlCache = __globalCache.__firedreHtmlCache ?? (__globalCache.__firedreHtmlCache = new Map<string, Response>());
+const __cacheKeyOf = (input: string | Request): string =>
+  typeof input === "string" ? input : input.url;
+const __devCache = {
+  async match(key: string | Request): Promise<Response | undefined> {
+    const hit = __htmlCache.get(__cacheKeyOf(key));
+    return hit ? hit.clone() : undefined;
+  },
+  async put(key: string | Request, response: Response): Promise<void> {
+    __htmlCache.set(__cacheKeyOf(key), response.clone());
+  },
+  async delete(key: string | Request): Promise<boolean> {
+    return __htmlCache.delete(__cacheKeyOf(key));
+  },
+} as const;
+export const caches = { default: __devCache } as const;

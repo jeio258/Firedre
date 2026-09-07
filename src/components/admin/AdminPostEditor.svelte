@@ -207,7 +207,7 @@ async function save(targetDraft: boolean) {
 
 onMount(() => {
 	load();
-	return registerSaveAll(() => save(draft));
+	return registerSaveAll("文章", () => save(draft));
 });
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>

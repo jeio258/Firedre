@@ -159,7 +159,7 @@
 
 	onMount(() => {
 	load();
-	return registerSaveAll(() => {
+	return registerSaveAll("友链", () => {
 		if (showForm) submit();
 	});
 });

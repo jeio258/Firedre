@@ -380,7 +380,10 @@
 		const fail = results.length - ok;
 		if (results.length === 0) showToast("当前页面无可保存项", "ok");
 		else if (fail === 0) showToast(`已保存 ${ok} 项`, "ok");
-		else showToast(`保存完成：${ok} 成功 / ${fail} 失败`, "err");
+		else {
+			const failed = results.filter((r) => !r.ok).map((r) => r.label);
+			showToast(`保存 ${ok} 成功 / ${fail} 失败：${failed.join("、")}`, "err");
+		}
 	}
 
 	onMount(() => {

@@ -137,7 +137,7 @@
 
 	onMount(() => {
 	load();
-	return registerSaveAll(() => {
+	return registerSaveAll("动态", () => {
 		if (showForm) submit();
 	});
 });

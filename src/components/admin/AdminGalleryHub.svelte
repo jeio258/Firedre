@@ -92,7 +92,7 @@
 
 	onMount(() => {
 	load();
-	return registerSaveAll(saveOrder);
+	return registerSaveAll("相册排序", saveOrder);
 });
 </script>
 

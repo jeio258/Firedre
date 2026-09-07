@@ -92,7 +92,7 @@
 
 	onMount(() => {
 	loadSiteUrl();
-	return registerSaveAll(saveSiteUrl);
+	return registerSaveAll("站点链接", saveSiteUrl);
 });
 </script>
 

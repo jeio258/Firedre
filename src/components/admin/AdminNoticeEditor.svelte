@@ -55,7 +55,7 @@
 
 	onMount(() => {
 	load();
-	return registerSaveAll(save);
+	return registerSaveAll("公告", save);
 });
 </script>
 
