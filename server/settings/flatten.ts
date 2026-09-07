@@ -89,7 +89,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	const footerL: L = { enable: footer.enable, text: footer.text, icp: footer.icp, startYear: footer.startYear, customHtml: footer.customHtml };
 	const pioL: L = { enabled: pio.enable, position: pio.position, size: pio.size, opacity: pio.opacity };
 	const license: L = { enabled: lic.enable, name: lic.name, type: lic.type, url: lic.url, icon: lic.icon };
-	const sponsor: L = { enabled: sp.enable, qrCode: sp.qrCode };
+	const sponsor: L = { enabled: sp.enable, qrCode: sp.qrCode, usage: sp.usage, sponsors: sp.sponsors };
 	const dynamic: L = {
 		enabled: true, title: dyn.title, description: dyn.description,
 		itemsPerPage: dyn.itemsPerPage, showComment: dyn.showComment, apiUrl: dyn.apiUrl,

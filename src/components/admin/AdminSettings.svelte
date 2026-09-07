@@ -486,8 +486,10 @@ const GROUPS: Group[] = [
 			{ name: "enabled", label: "启用打赏", type: "boolean" },
 			{ name: "title", label: "打赏标题", type: "text" },
 			{ name: "description", label: "打赏描述", type: "textarea" },
+			{ name: "usage", label: "打赏用途说明", type: "textarea" },
 			{ name: "showButtonInPost", label: "文章内打赏按钮", type: "boolean" },
 			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
+			{ name: "sponsors", label: "打赏者列表（JSON）", type: "json", wide: true },
 		],
 	},
 	{
@@ -745,6 +747,7 @@ async function save() {
 			"groups",
 			"favicon",
 			"randomCoverImage",
+			"sponsors",
 		]);
 
 		for (const g of GROUPS) {

@@ -10,6 +10,7 @@ import { live2dWidgetConfig as staticPioConfig } from "./pioConfig";
 import { footerConfig as staticFooterConfig } from "./footerConfig";
 import { licenseConfig as staticLicenseConfig } from "./licenseConfig";
 import { sponsorConfig as staticSponsorConfig } from "./sponsorConfig";
+import type { SponsorItem } from "../types/sponsorConfig";
 import { dynamicConfig as staticDynamicConfig } from "./dynamicConfig";
 import { announcementConfig as staticAnnouncementConfig } from "./announcementConfig";
 import { navBarConfig as staticNavConfig } from "./navBarConfig";
@@ -377,8 +378,13 @@ export function getLicenseConfig(locals: unknown) {
 export function getSponsorConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const sp = groupOf(s, "sponsor");
+	const sponsorsVal =
+		typeof sp.sponsors === "string"
+			? sp.sponsors
+			: JSON.stringify((sp.sponsors as SponsorItem[] | undefined) ?? staticSponsorConfig.sponsors ?? []);
 	return {
 		...staticSponsorConfig,
+		sponsors: sponsorsVal as unknown as SponsorItem[],
 		enable: bool(sp.enabled, (staticSponsorConfig as Record<string, unknown>).enable as boolean),
 		...(typeof sp.qrCode === "string" && sp.qrCode ? { qrCode: sp.qrCode } : {}),
 		showButtonInPost: bool(sp.showButtonInPost, (staticSponsorConfig as Record<string, unknown>).showButtonInPost as boolean),
