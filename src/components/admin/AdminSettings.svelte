@@ -493,14 +493,6 @@ const GROUPS: Group[] = [
 		],
 	},
 	{
-		key: "dynamic",
-		title: "动态",
-		category: "页面配置",
-		fields: [
-			{ name: "memos", label: "Memos 数据源（JSON）", type: "json", wide: true },
-		],
-	},
-	{
 		key: "vndb",
 		title: "VNDB",
 		category: "页面配置",
@@ -745,7 +737,6 @@ async function save() {
 			"favicon",
 			"randomCoverImage",
 			"sponsors",
-			"memos",
 		]);
 
 		for (const g of GROUPS) {
