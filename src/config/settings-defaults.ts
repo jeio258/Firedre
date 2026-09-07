@@ -1,4 +1,4 @@
-
+import { booknavConfig, booknavPageConfig } from "./booknavConfig";
 
 export const settingsDefaults = {
 	basic: {
@@ -147,6 +147,8 @@ export const settingsDefaults = {
 	bookmarks: {
 		title: "",
 		description: "",
+		groups: JSON.stringify(booknavConfig),
+		favicon: JSON.stringify(booknavPageConfig.favicon),
 	},
 	bilibili: {
 		enabled: true,

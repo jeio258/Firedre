@@ -1,5 +1,7 @@
 
 import { siteConfig as staticSiteConfig } from "./siteConfig";
+import { booknavConfig as staticBooknavConfig, booknavPageConfig as staticBooknavPageConfig } from "./booknavConfig";
+import type { BooknavGroup, BooknavFaviconConfig } from "../types/booknavConfig";
 import { profileConfig as staticProfileConfig } from "./profileConfig";
 import { commentConfig as staticCommentConfig } from "./commentConfig";
 import { musicPlayerConfig as staticMusicConfig } from "./musicConfig";
@@ -110,6 +112,41 @@ export function getSiteConfig(locals: unknown) {
 		favicon: typeof s.faviconUrl === "string" && s.faviconUrl
 			? [{ src: s.faviconUrl }]
 			: staticSiteConfig.favicon,
+	};
+}
+
+export function getBooknavConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const bm = groupOf(s, "bookmarks");
+	const groupsRaw = bm.groups;
+	let groups: BooknavGroup[] = [];
+	if (typeof groupsRaw === "string" && groupsRaw.trim()) {
+		try {
+			groups = JSON.parse(groupsRaw) as BooknavGroup[];
+		} catch {
+			groups = [];
+		}
+	} else if (Array.isArray(groupsRaw)) {
+		groups = groupsRaw as BooknavGroup[];
+	}
+	if (!groups || groups.length === 0) {
+		groups = staticBooknavConfig;
+	}
+	let favicon = staticBooknavPageConfig.favicon;
+	const favRaw = bm.favicon;
+	if (typeof favRaw === "string" && favRaw.trim()) {
+		try {
+			favicon = JSON.parse(favRaw) as BooknavFaviconConfig;
+		} catch {
+		}
+	} else if (favRaw && typeof favRaw === "object") {
+		favicon = favRaw as BooknavFaviconConfig;
+	}
+	return {
+		title: str(bm.title ?? s.title, staticBooknavPageConfig.title ?? ""),
+		description: str(bm.description ?? s.description, staticBooknavPageConfig.description ?? ""),
+		groups,
+		favicon,
 	};
 }
 

@@ -515,6 +515,20 @@ const GROUPS: Group[] = [
 		fields: [
 			{ name: "title", label: "页面标题", type: "text" },
 			{ name: "description", label: "页面描述", type: "textarea" },
+			{
+				name: "groups",
+				label: "书签分组与条目（JSON 数组）",
+				type: "json",
+				wide: true,
+				placeholder:
+					'[{"id":"dev","name":"开发","icon":"material-symbols:code-rounded","desc":"","weight":100,"items":[{"title":"GitHub","url":"https://github.com","desc":"","icon":"","weight":10}]}]',
+			},
+			{
+				name: "favicon",
+				label: "Favicon 自动获取配置（JSON）",
+				type: "json",
+				placeholder: '{"enabled":true,"api":"https://a.favicon.im/{domain}"}',
+			},
 		],
 	},
 
@@ -708,6 +722,8 @@ async function save() {
 			"metingFallbackApis",
 			"localPlaylist",
 			"sections",
+			"groups",
+			"favicon",
 		]);
 
 		for (const g of GROUPS) {

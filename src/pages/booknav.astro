@@ -1,9 +1,6 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import { Icon } from "astro-icon/components";
-import { booknavPageConfig } from "@/config";
-import { getSiteConfig } from "@/config/runtime";
+import { getSiteConfig, getBooknavConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -22,8 +19,9 @@ if (!getSiteConfig(Astro.locals).pages.booknav) {
 	return Astro.redirect("/404/");
 }
 
-// 使用配置文件中的书签数据，按权重排序
-const groups = getEnabledBooknavGroups();
+// 书签数据来自后台设置（D1），缺省回退静态 config
+const booknavCfg = getBooknavConfig(Astro.locals);
+const groups = getEnabledBooknavGroups(booknavCfg.groups);
 
 // 预先解析每个书签的图标与域名，避免在模板里重复计算
 const resolvedGroups = groups.map((group) => ({
@@ -32,21 +30,15 @@ const resolvedGroups = groups.map((group) => ({
 		...item,
 		domain: getBooknavDomain(item.url),
 		letter: getBooknavLetter(item.title),
-		resolvedIcon: resolveBooknavIcon(item, booknavPageConfig.favicon),
+		resolvedIcon: resolveBooknavIcon(item, booknavCfg.favicon),
 	})),
 }));
 
 const totalCount = resolvedGroups.reduce((sum, g) => sum + g.items.length, 0);
 
 // 页面标题和描述
-const title =
-	((settings as any)?.["bookmarks"]?.title as string | undefined) ||
-	booknavPageConfig.title ||
-	i18n(I18nKey.booknav);
-const description =
-	((settings as any)?.["bookmarks"]?.description as string | undefined) ||
-	booknavPageConfig.description ||
-	i18n(I18nKey.booknavDescription);
+const title = booknavCfg.title || i18n(I18nKey.booknav);
+const description = booknavCfg.description || i18n(I18nKey.booknavDescription);
 ---
 
 <MainGridLayout title={title} description={description}>
