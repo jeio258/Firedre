@@ -94,6 +94,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		enabled: true, title: dyn.title, description: dyn.description,
 		itemsPerPage: dyn.itemsPerPage, showComment: dyn.showComment, apiUrl: dyn.apiUrl,
 		memosEnable: dyn.memos?.enable, memosApiUrl: dyn.memos?.apiUrl,
+		memos: dyn.memos,
 	};
 	const announcement: L = {
 		enabled: ann.enable, title: ann.title,

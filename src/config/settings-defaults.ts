@@ -147,6 +147,11 @@ export const settingsDefaults = {
 		showComment: true,
 		itemsPerPage: 20,
 		apiUrl: "/api/dynamic.json",
+		memos: {
+			enable: false,
+			apiUrl: "https://memos.example.com",
+			parent: "users/xiaye",
+		},
 	},
 	friends: {
 		enabled: true,

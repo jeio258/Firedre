@@ -395,8 +395,13 @@ export function getSponsorConfig(locals: unknown) {
 export function getDynamicConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const d = groupOf(s, "dynamic");
+	const memosVal =
+		typeof d.memos === "string"
+			? d.memos
+			: JSON.stringify((d.memos as Record<string, unknown> | undefined) ?? staticDynamicConfig.memos ?? {});
 	return {
 		...staticDynamicConfig,
+		memos: memosVal as unknown as typeof staticDynamicConfig.memos,
 		enable: bool(d.enabled, (staticDynamicConfig as Record<string, unknown>).enable as boolean),
 		...(typeof d.title === "string" && d.title ? { title: d.title } : {}),
 		...(typeof d.description === "string" && d.description ? { description: d.description } : {}),
