@@ -9,7 +9,6 @@ import type { VndbUlistEntry } from "@/types/vndb";
 import { isVndbNsfw } from "@/utils/nsfw-utils";
 import {
 	buildVndbTabs,
-	fetchVndbUlist,
 	getVndbItemsForTab,
 	type VndbTab,
 } from "@/utils/vndb-utils";
@@ -22,10 +21,6 @@ interface Props {
 	vnBaseUrl?: string;
 	nsfw?: NsfwMode; // NSFW 处理："off" | "blur" | "hide"
 	fetchConfig?: {
-		userId: string;
-		apiUrl: string;
-		apiToken?: string;
-		vnBaseUrl: string;
 		pagination: { limit: number; delay: number; maxTotal: number };
 		nsfw?: NsfwMode;
 	};
@@ -71,7 +66,7 @@ function handleTabChange(tabId: string) {
 
 async function loadDynamicData() {
 	if (!fetchConfig) return;
-	const { userId, apiUrl, apiToken, pagination } = fetchConfig;
+	const { pagination } = fetchConfig;
 	const { limit, delay, maxTotal } = pagination;
 	let allItems: VndbUlistEntry[] = [];
 	let page = 1;
@@ -79,13 +74,9 @@ async function loadDynamicData() {
 	try {
 		while (true) {
 			if (maxTotal > 0 && allItems.length >= maxTotal) break;
-			const data = await fetchVndbUlist({
-				apiUrl,
-				userId,
-				apiToken,
-				results: limit,
-				page,
-			});
+			const resp = await fetch(`/api/vndb/ulist/?page=${page}&results=${limit}`);
+			if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+			const data = await resp.json();
 			const batch = data.results || [];
 			allItems.push(...batch);
 			if (!data.more || batch.length === 0) break;

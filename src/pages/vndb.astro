@@ -72,13 +72,10 @@ const isUserIdConfigured =
             <VndbGrid
               client:load
               fetchConfig={{
-                userId: vndbConfig.userId,
-                apiUrl: vndbConfig.apiUrl,
-                vnBaseUrl: vndbConfig.vnBaseUrl,
-                apiToken: vndbConfig.apiToken,
                 pagination: vndbConfig.pagination,
                 nsfw: vndbConfig.nsfw
               }}
+              vnBaseUrl={vndbConfig.vnBaseUrl}
             />
         )}
       </div>
