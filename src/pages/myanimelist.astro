@@ -8,7 +8,14 @@ import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import type { MalListItem } from "@/types/mal";
 import { formatDateI18nWithTime } from "@/utils/date-utils";
+import {
+	fetchMalList,
+	type MalCategory,
+	type MalListKind,
+} from "@/utils/mal-utils";
+import { filterNsfw, isMalNsfw } from "@/utils/nsfw-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
@@ -27,6 +34,12 @@ const malConfig = {
 	apiUrl: (malSettings.apiUrl as string | undefined) || "https://api.myanimelist.net/v2",
 	animeBaseUrl: (malSettings.animeBaseUrl as string | undefined) || "https://myanimelist.net/anime/",
 	mangaBaseUrl: (malSettings.mangaBaseUrl as string | undefined) || "https://myanimelist.net/manga/",
+	// 数据获取设置
+	pagination: {
+		limit: 100,          
+		delay: 100,                  
+		maxTotal: 1000,                        
+	},
 	// NSFW 处理："off" | "blur" | "hide"
 	nsfw: (malSettings.nsfw ?? "off") as "off" | "blur" | "hide",
 };
@@ -34,6 +47,102 @@ const malConfig = {
 // 检查是否已配置用户名和 Client ID
 const isConfigured =
 	malConfig.username.trim() !== "" && malConfig.clientId.trim() !== "";
+
+const isDev = import.meta.env.DEV;
+const maxPages = isDev ? 1 : 0; // 0 表示不限制
+
+async function fetchAll(kind: MalListKind): Promise<MalListItem[]> {
+	const { limit, delay, maxTotal } = malConfig.pagination;
+	let offset = 0;
+	const allItems: MalListItem[] = [];
+
+	while (true) {
+		// 开发模式限制：只获取一页
+		if (isDev && maxPages > 0 && allItems.length >= limit * maxPages) {
+			console.log(`[MAL] Dev mode: fetched ${maxPages} page(s), stopping`);
+			break;
+		}
+
+		// 检查是否超过最大获取限制
+		if (maxTotal > 0 && allItems.length >= maxTotal) {
+			console.log(`[MAL] Reached max fetch limit ${maxTotal}, stopping`);
+			break;
+		}
+
+		const data = await fetchMalList({
+			apiUrl: malConfig.apiUrl,
+			username: malConfig.username,
+			clientId: malConfig.clientId,
+			kind,
+			limit,
+			offset,
+		});
+		const batch = data.data || [];
+		allItems.push(...batch);
+
+		// 没有下一页或本次获取为空时终止
+		if (!data.paging?.next || batch.length === 0) break;
+		offset += limit;
+
+		// 添加延迟避免请求过于频繁
+		await new Promise((resolve) => setTimeout(resolve, delay));
+	}
+
+	return allItems;
+}
+
+let animeItems: MalListItem[] = [];
+let mangaItems: MalListItem[] = [];
+let animeFailed = false;
+let mangaFailed = false;
+
+if (isConfigured) {
+	console.log(
+		`[MAL] ${isDev ? "🔧 Dev mode" : "🌐 Prod mode"} - fetching list for user ${malConfig.username}...`,
+	);
+	try {
+		animeItems = await fetchAll("anime");
+		console.log(`[MAL] Anime list: ${animeItems.length} items`);
+	} catch (error) {
+		console.error("[MAL] Failed to fetch anime list:", error);
+		animeFailed = true;
+	}
+	try {
+		mangaItems = await fetchAll("manga");
+		console.log(`[MAL] Manga list: ${mangaItems.length} items`);
+	} catch (error) {
+		console.error("[MAL] Failed to fetch manga list:", error);
+		mangaFailed = true;
+	}
+}
+
+// 两个列表都获取失败才视为整体失败
+const fetchFailed = animeFailed && mangaFailed;
+
+// NSFW 拦截：hide 模式下过滤掉 NSFW 条目，保持分类计数一致
+animeItems = filterNsfw(animeItems, malConfig.nsfw, isMalNsfw);
+mangaItems = filterNsfw(mangaItems, malConfig.nsfw, isMalNsfw);
+
+// 构建分类（空列表的分类不显示）
+const categories: MalCategory[] = [];
+if (animeItems.length > 0) {
+	categories.push({
+		id: "anime",
+		name: i18n(I18nKey.malCategoryAnime),
+		count: animeItems.length,
+		items: animeItems,
+	});
+}
+if (mangaItems.length > 0) {
+	categories.push({
+		id: "manga",
+		name: i18n(I18nKey.malCategoryManga),
+		count: mangaItems.length,
+		items: mangaItems,
+	});
+}
+
+const activeCategory = categories[0]?.id || "anime";
 ---
 
 <MainGridLayout title={i18n(I18nKey.mal)} description={i18n(I18nKey.malSubtitle)}>
@@ -71,13 +180,42 @@ const isConfigured =
               {i18n(I18nKey.malNotConfiguredDesc)}
             </p>
           </div>
-        ) : (
+        ) : fetchFailed ? (
+
+          <div class="text-center py-16">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
+              <Icon name="material-symbols:error-outline" class="text-[2rem] text-red-500" />
+            </div>
+            <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
+              {i18n(I18nKey.malFetchError)}
+            </h2>
+            <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">
+              {i18n(I18nKey.malFetchErrorDesc)}
+            </p>
+          </div>
+        ) : categories.length > 0 ? (
 
           <MalGrid
             client:load
-            dynamic
+            categories={categories}
+            initialActiveCategory={activeCategory}
+            animeBaseUrl={malConfig.animeBaseUrl}
+            mangaBaseUrl={malConfig.mangaBaseUrl}
             nsfw={malConfig.nsfw}
           />
+        ) : (
+
+          <div class="text-center py-16">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-(--btn-regular-bg) rounded-full mb-6 border border-(--line-divider)">
+              <Icon name="material-symbols:settings" class="text-[2rem] text-(--btn-content)" />
+            </div>
+            <h2 class="text-xl font-semibold text-black/80 dark:text-white/80 mb-3">
+              {isConfigured ? i18n(I18nKey.malEmpty) : i18n(I18nKey.malNotConfigured)}
+            </h2>
+            <p class="text-black/60 dark:text-white/60 mb-4 max-w-md mx-auto">
+              {isConfigured ? i18n(I18nKey.malEmptyReason) : i18n(I18nKey.malNotConfiguredDesc)}
+            </p>
+          </div>
         )}
       </div>
     </div>
