@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import JsonEditor from "./JsonEditor.svelte";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
 import { getDraft, clearDraft } from "@/lib/adminDrafts";
@@ -873,11 +874,15 @@ onMount(async () => {
 													<option value={opt.value} selected={((data[group.key]?.[field.name] as string) ?? "") === opt.value}>{opt.label}</option>
 												{/each}
 											</select>
-										{:else if field.type === "textarea" || field.type === "json"}
-											<textarea rows={field.type === "json" ? 5 : 3} value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
-											{#if field.type === "json"}
-												<small class="json-hint">JSON 数组格式；留空使用模板默认值</small>
-											{/if}
+										{:else if field.type === "textarea"}
+											<textarea rows="3" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+										{:else if field.type === "json"}
+											<JsonEditor
+												value={data[group.key]?.[field.name]}
+												placeholder={field.placeholder ?? ""}
+												fieldLabel={field.label}
+												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
+											/>
 										{:else if field.type === "password"}
 											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
 										{:else if field.type === "number"}
@@ -917,11 +922,5 @@ onMount(async () => {
 		background: color-mix(in oklch, var(--danger) 12%, transparent);
 		color: var(--danger);
 		border-color: color-mix(in oklch, var(--danger) 30%, transparent);
-	}
-
-	.json-hint {
-		color: var(--text-muted);
-		font-size: 0.72rem;
-		font-family: ui-monospace, monospace;
 	}
 </style>

@@ -979,8 +979,146 @@ body {
 	grid-row: auto;
 	grid-template-rows: none;
 }
-.a2f small.json-hint {
-	margin-top: 0.35rem;
+/* JSON 字段编辑器：网格内仅显示统一高度的触发器，编辑在模态框中进行 */
+.je-trigger {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	height: 2.4rem;
+	width: 100%;
+	padding: 0 0.8rem;
+	border: 1px solid var(--line-color);
+	border-radius: var(--ctl-r);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	font-family: inherit;
+	font-size: var(--ctl-fs);
+	box-sizing: border-box;
+	cursor: pointer;
+	text-align: left;
+	transition: border-color 0.15s, box-shadow 0.15s;
+}
+.je-trigger:hover {
+	border-color: var(--primary);
+}
+.je-trigger:focus-visible {
+	outline: none;
+	border-color: var(--primary);
+	box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent);
+}
+.je-prev {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--text-muted);
+	font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+	font-size: 0.78rem;
+}
+.je-tag {
+	flex: 0 0 auto;
+	padding: 0.15rem 0.55rem;
+	border-radius: 0.4rem;
+	background: color-mix(in oklch, var(--primary) 14%, transparent);
+	color: var(--primary);
+	font-size: 0.7rem;
+	font-weight: 600;
+}
+.je-mask {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.2rem;
+	background: rgba(0, 0, 0, 0.5);
+}
+.je-modal {
+	width: min(720px, 100%);
+	max-height: 86vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--card-bg);
+	color: var(--deep-text);
+	border: 1px solid var(--line-color);
+	border-radius: var(--radius-large, 0.6rem);
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+}
+.je-hd {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0.8rem 1rem;
+	border-bottom: 1px solid var(--line-divider);
+}
+.je-hd strong {
+	font-size: 0.95rem;
+}
+.je-x {
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 1.1rem;
+	cursor: pointer;
+	line-height: 1;
+}
+.je-area {
+	flex: 1 1 auto;
+	min-height: 280px;
+	width: 100%;
+	resize: vertical;
+	border: none;
+	padding: 0.9rem 1rem;
+	background: var(--page-bg, #fff);
+	color: var(--deep-text);
+	font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+	font-size: 0.85rem;
+	line-height: 1.6;
+	box-sizing: border-box;
+}
+.je-area:focus {
+	outline: none;
+}
+.je-err {
+	margin: 0;
+	padding: 0.5rem 1rem;
+	color: var(--danger);
+	font-size: 0.8rem;
+	border-top: 1px solid var(--line-divider);
+}
+.je-ft {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.7rem 1rem;
+	border-top: 1px solid var(--line-divider);
+}
+.je-sp {
+	flex: 1 1 auto;
+}
+.je-btn {
+	border: 1px solid var(--line-color);
+	background: var(--card-bg);
+	color: var(--deep-text);
+	border-radius: 0.45rem;
+	padding: 0.4rem 0.9rem;
+	font-size: 0.82rem;
+	cursor: pointer;
+}
+.je-btn.primary {
+	background: var(--primary);
+	border-color: var(--primary);
+	color: #fff;
+}
+.je-btn.ghost {
+	background: transparent;
+}
+.je-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 .a2f.w,
 .a2f.split {
@@ -1039,63 +1177,6 @@ body {
 	.a2f.split .dual {
 		grid-template-columns: 1fr;
 	}
-}
-
-.cmtbar {
-	display: grid;
-	grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
-	align-items: center;
-	gap: 0.9rem;
-	padding: 0.6rem 0 0.2rem;
-}
-.cmtbar .cmtl {
-	padding-top: 0;
-	margin: 0;
-	min-width: 0;
-	font-weight: 600;
-	font-size: 0.8rem;
-}
-.cmtbar select {
-	width: 100%;
-	height: 2.4rem;
-	padding: 0 0.72rem;
-	font-size: 0.86rem;
-	border: 1px solid var(--line-color);
-	border-radius: 0.5rem;
-	background: var(--card-bg);
-	color: var(--deep-text);
-	font-family: inherit;
-}
-.cmtpane {
-	display: none;
-	flex-direction: column;
-	gap: 0.5rem;
-	padding: 0.4rem 0 0.2rem;
-}
-.cmtpane[data-p="giscus"] {
-	display: flex;
-}
-.cmtrow {
-	display: grid;
-	grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
-	align-items: center;
-	gap: 0.9rem;
-	padding: 0.5rem 0;
-}
-.cmtrow .cmtl {
-	padding-top: 0;
-	margin: 0;
-	font-weight: 600;
-	font-size: 0.8rem;
-}
-.cmthint {
-	display: none;
-	font-size: 0.8rem;
-	color: var(--text-muted);
-	padding: 0.35rem 0 0.1rem;
-}
-.cmthint.on {
-	display: block;
 }
 
 .editor-layout {
@@ -1163,21 +1244,6 @@ body {
 	height: 1.1rem;
 	background: var(--line-divider);
 	margin: 0 0.25rem;
-}
-.ed-textarea {
-	border: none;
-	resize: none;
-	width: 100%;
-	min-height: 340px;
-	padding: 1rem 1.1rem;
-	background: transparent;
-	color: var(--deep-text);
-	font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-	font-size: 0.9rem;
-	line-height: 1.7;
-}
-.ed-textarea:focus {
-	outline: none;
 }
 .cover-pick {
 	border: 1.5px dashed var(--line-color);
@@ -1339,18 +1405,6 @@ body {
 	width: 100%;
 	min-width: 0;
 }
-.cmtbar select,
-.cmtrow input,
-.cmtrow select {
-	height: 2.35rem;
-	padding: 0 0.75rem;
-	font-size: var(--ctl-fs);
-	border-radius: var(--ctl-r);
-	background: var(--ctl-bg);
-	border: var(--ctl-bd);
-	font-family: inherit;
-	box-sizing: border-box;
-}
 .a2f textarea,
 .crud-field textarea,
 .mcfg textarea {
@@ -1373,8 +1427,7 @@ body {
 .a2f select {
 	width: 100%;
 }
-.a2f textarea.mono,
-.ed-textarea {
+.a2f textarea.mono {
 	font-size: 0.8rem;
 }
 .a2f input:focus,
@@ -1385,9 +1438,6 @@ body {
 .crud-field textarea:focus,
 .mcfg input:focus,
 .mcfg textarea:focus,
-.cmtrow input:focus,
-.cmtrow select:focus,
-.cmtbar select:focus,
 .site-url-block input:focus,
 .pwd-panel input:focus,
 .editor-title input:focus,
@@ -1415,9 +1465,7 @@ body {
 	font-size: 0.7rem;
 }
 .a2f select,
-.crud-field select,
-.cmtrow select,
-.cmtbar select {
+.crud-field select {
 	cursor: pointer;
 }
 html.dark .a2f input,
@@ -1428,9 +1476,6 @@ html.dark .crud-field select,
 html.dark .crud-field textarea,
 html.dark .mcfg input,
 html.dark .mcfg textarea,
-html.dark .cmtrow input,
-html.dark .cmtrow select,
-html.dark .cmtbar select,
 html.dark .site-url-block input,
 html.dark .pwd-panel input {
 	background: var(--card-bg);
@@ -1472,9 +1517,7 @@ html.dark .a2card > header {
 	color: var(--text-muted);
 }
 .a2card .a2sws,
-.a2card .a2fg,
-.a2card .cmtbar,
-.a2card .cmtpane {
+.a2card .a2fg {
 	padding: 0.35rem 1.25rem 1.15rem;
 }
 .a2card .a2sws {
@@ -1490,10 +1533,6 @@ html.dark .a2card > header {
 .a2card .a2fg {
 	gap: 1rem 1.25rem;
 	padding-top: 0.8rem;
-}
-.a2card .cmtbar,
-.a2card .cmtrow {
-	grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
 }
 
 /* 个人资料：简介居左、所在地与邮箱居右，版面平衡 */
