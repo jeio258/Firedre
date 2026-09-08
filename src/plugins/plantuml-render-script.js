@@ -120,7 +120,6 @@
 			applyTransform();
 		};
 
-		// 控制栏按钮
 		const controls = document.createElement("div");
 		controls.className = "plantuml-controls";
 		const buttons = [
@@ -192,7 +191,6 @@
 		container.addEventListener("pointerup", onPointerUp);
 		container.addEventListener("pointercancel", onPointerUp);
 
-		// 双击放大/重置
 		container.addEventListener("dblclick", (event) => {
 			if (event.target.closest(".plantuml-controls")) return;
 			if (state.scale !== 1) {
@@ -329,7 +327,6 @@
 		content.addEventListener("pointerup", endDrag);
 		content.addEventListener("pointercancel", endDrag);
 
-		// 背景点击关闭
 		overlay.addEventListener("click", (event) => {
 			if (event.target === overlay) {
 				close();
@@ -361,7 +358,6 @@
 		applyTheme();
 	}
 
-	// 监听主题切换
 	const themeObserver = new MutationObserver((mutations) => {
 		for (const mutation of mutations) {
 			if (
@@ -385,7 +381,6 @@
 		initAll();
 	});
 
-	// 初次加载
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", initAll, { once: true });
 	} else {

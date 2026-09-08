@@ -1,6 +1,5 @@
 /* 后台设计系统：严格对齐 布局.html 模板（三主题 cms/cloud/linear + 深色侧栏 + 统一组件类） */
 
-/* ═══ 设计令牌 ═══ */
 :root {
 	/* 颜色令牌全部复用前台 variables.styl（随 .dark 类自动明暗切换），
 	   此处仅保留后台专属、前台未提供的非颜色令牌 */
@@ -28,7 +27,6 @@ body {
 	color: var(--deep-text);
 }
 
-/* ═══ 全局组件 ═══ */
 .btn {
 	display: inline-flex;
 	align-items: center;
@@ -193,7 +191,6 @@ body {
 	color: var(--text-muted);
 }
 
-/* ═══ 应用壳布局 ═══ */
 .shell {
 	display: flex;
 	height: 100dvh;
@@ -626,7 +623,6 @@ body {
 	}
 }
 
-/* ═══ 后台组件（CRUD、设置、编辑器等）═══ */
 .crud-page {
 	display: flex;
 	flex-direction: column;
@@ -756,7 +752,6 @@ body {
 	font-size: 0.88rem;
 }
 
-/* 模块页「本页设置」折叠面板 */
 .modcfg {
 	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
@@ -835,7 +830,6 @@ body {
 	}
 }
 
-/* 友链 / 链接 / 动态 行内特殊样式 */
 .friend-info {
 	display: flex;
 	align-items: center;
@@ -911,7 +905,6 @@ body {
 	align-items: center;
 }
 
-/* 站点设置专用 双栏 */
 .setbar {
 	display: flex;
 	align-items: center;
@@ -970,7 +963,6 @@ body {
 .a2f:nth-child(odd):last-child {
 	grid-column: 1 / -1;
 }
-/* 全宽字段(文本域、双栏组合)独占一行 */
 .a2f.w,
 .a2f.split {
 	grid-column: 1 / -1;
@@ -998,7 +990,6 @@ body {
 	font-size: 0.68rem;
 	color: var(--text-muted);
 }
-/* 合并行（两个字段同一行） */
 .a2f.split .dual {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -1086,7 +1077,6 @@ body {
 	display: block;
 }
 
-/* 编辑器布局 */
 .editor-layout {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) 300px;
@@ -1296,7 +1286,6 @@ body {
 	font-size: 0.88rem;
 }
 
-/* ═══ v5.1 统一控件基准 ═══ */
 :root {
 	--ctl-r: 0.55rem;
 	--ctl-fs: 0.875rem;
@@ -1424,7 +1413,6 @@ html.dark .pwd-panel input {
 	background: var(--card-bg);
 }
 
-/* ═══ 站点设置页 · 专业化分组卡片 ═══ */
 .a2card {
 	border-radius: 0.8rem;
 	padding: 0;
@@ -1590,7 +1578,6 @@ html.dark .a2card > header {
 	padding-top: 1.6rem;
 }
 
-/* 站点设置 · 页面内单级导航栏 + 单栏内容 */
 .settings-head {
 	margin-bottom: 1rem;
 }
@@ -1659,7 +1646,6 @@ html.dark .a2card > header {
 	animation: viewIn 0.18s ease;
 }
 
-/* 侧边栏 · 站点设置 二级子菜单 */
 .s3wrap {
 	position: relative;
 }
@@ -1715,7 +1701,6 @@ html.dark .a2card > header {
 	font-weight: 600;
 }
 
-/* ═══ 开关 · 圆点滑杆 ═══ */
 .sw {
 	position: relative;
 	width: 42px;
@@ -1779,7 +1764,6 @@ html.dark .sw::after {
 	font-size: 0.9rem;
 }
 
-/* ═══ 提取的通用工具类 ═══ */
 .stat-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
@@ -1872,7 +1856,6 @@ html.dark .sw::after {
 	pointer-events: none;
 }
 
-/* ═══ 登录门禁 ═══ */
 .login-screen {
 	position: fixed;
 	inset: 0;
@@ -2051,7 +2034,6 @@ html.dark .lg-field input {
 	color: var(--text-muted);
 }
 
-/* 登录态加载/错误 */
 .admin-checking,
 .admin-loading {
 	min-height: 90vh;
@@ -2065,7 +2047,6 @@ html.dark .lg-field input {
 	color: var(--danger);
 }
 
-/* ═══ Vditor 深色适配 ═══ */
 .vditor--dark .vditor-toolbar,
 .vditor--dark .vditor-toolbar__item,
 .vditor--dark .vditor-toolbar__item svg,
@@ -2106,7 +2087,6 @@ html.dark .lg-field input {
 	object-fit: contain;
 }
 
-/* ═══ 响应式 ═══ */
 @media (max-width: 767px) {
 	.menu-toggle {
 		display: inline-flex;
@@ -2190,7 +2170,6 @@ html.dark .lg-field input {
 	}
 }
 
-/* ═══ 保存全部反馈 toast ═══ */
 .save-toast {
 	position: fixed;
 	left: 50%;

@@ -171,7 +171,6 @@ function readPostMeta(contentPath) {
 		return bySlug;
 	}
 
-	// 2. 文件路径精确匹配
 	const candidates = [
 		`${contentPath}.md`,
 		`${contentPath}.mdx`,
@@ -187,7 +186,6 @@ function readPostMeta(contentPath) {
 		}
 	}
 
-	// 3. 裸文件名兜底
 	return findMetaByBaseName(metas, contentPath);
 }
 

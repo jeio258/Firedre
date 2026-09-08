@@ -46,7 +46,6 @@ export function parseDirectiveNode() {
 				) {
 					const type = name.toUpperCase();
 
-					// 处理 label (自定义标题)
 					const firstChild = node.children[0];
 					if (firstChild?.data?.directiveLabel) {
 						// 如果有 label，注入 [!TYPE] 到 label 开头
@@ -69,7 +68,6 @@ export function parseDirectiveNode() {
 						});
 					}
 
-					// 转换为 Blockquote
 					node.type = "blockquote";
 					node.data = node.data || {};
 					node.data.hName = "blockquote";
