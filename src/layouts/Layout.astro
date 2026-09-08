@@ -13,6 +13,7 @@ import MusicPlayerView from "@components/features/MusicPlayerView.astro";
 import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
+import FaviconLinks from "@components/layout/FaviconLinks.astro";
 
 import {
 	analyticsConfig,
@@ -29,13 +30,10 @@ import {
 	BANNER_HEIGHT_NON_HOME,
 	PAGE_WIDTH,
 } from "@/constants/constants";
-import { defaultFavicons } from "@/constants/icon";
-import type { Favicon } from "@/types/config";
 import { toClientSettings } from "@/utils/client-settings";
 import { isHomePage } from "@/utils/layout-utils";
 import { getAuthorAvatarUrl, getRawImageUrl, getSiteLogo } from "@/utils/schema-image";
 import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
-import { url } from "@/utils/url-utils";
 
 import "@/styles/main.css";
 import "@/styles/variables.styl";
@@ -111,17 +109,6 @@ if (((settings as any)?.["post"] ?? siteConfig.post).generateOgImages && postSlu
 } else if (postCoverImage) {
 	ogImageUrl = postCoverImage; // 已由文章页算成绝对 URL
 }
-
-const settingsFavicon =
-	typeof settings.faviconUrl === "string" && settings.faviconUrl
-		? ([{ src: settings.faviconUrl }] as Favicon[])
-		: [];
-const favicons: Favicon[] =
-	settingsFavicon.length > 0
-		? settingsFavicon
-		: siteConfig.favicon.length > 0
-			? siteConfig.favicon
-			: defaultFavicons;
 
 if (!lang) {
 	lang = `${((settings as any)?.["lang"] ?? siteConfig.lang)}`;
@@ -241,16 +228,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    {
-      favicons.map((favicon) => (
-        <link
-          rel="icon"
-          href={favicon.src.startsWith("/") ? url(favicon.src) : favicon.src}
-          sizes={favicon.sizes}
-          media={favicon.theme && `(prefers-color-scheme: ${favicon.theme})`}
-        />
-      ))
-    }
+    <FaviconLinks settings={settings} />
 
     {((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
      ((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (

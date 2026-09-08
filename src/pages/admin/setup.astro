@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import AdminSetup from "../../components/admin/AdminSetup.svelte";
+import FaviconLinks from "@components/layout/FaviconLinks.astro";
 import "@/styles/variables.styl";
 
 const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
@@ -32,8 +33,7 @@ const defaultMode =
 	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>创建管理员 - Firedre 后台</title>
-	<link rel="icon" href="/favicon/favicon.ico" />
-	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
+	<FaviconLinks settings={settings as Record<string, unknown>} />
 	<style define:vars={{ configHue }}>
 		html{--hue:var(--configHue)}
 		html,body{margin:0;padding:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text);-webkit-text-size-adjust:100%}

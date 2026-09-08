@@ -2,8 +2,11 @@
 export const prerender = false;
 
 import AdminApp from "../../components/admin/AdminApp.svelte";
+import FaviconLinks from "@components/layout/FaviconLinks.astro";
 
 import "@/styles/variables.styl";
+
+const settings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -30,8 +33,7 @@ import "@/styles/variables.styl";
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>登录 - Firedre 后台</title>
 
-	<link rel="icon" href="/favicon/favicon.ico" />
-	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
+	<FaviconLinks settings={settings} />
 	<style>
 		html{--hue:165}
 		html,body{margin:0;padding:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text);-webkit-text-size-adjust:100%}
