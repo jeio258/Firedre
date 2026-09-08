@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import { getSiteConfig } from "../config/runtime";
 import { cfEnv } from "../lib/api";
+import { getSettingsVersion } from "../../server/settings/service";
 import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
@@ -8,6 +9,7 @@ export const prerender = false;
 export const GET: APIRoute = async (context) => {
 	const cfg = getSiteConfig(context.locals);
 	const base = cfg.site_url.replace(/\/+$/, "");
+	const settingsVersion = await getSettingsVersion(cfEnv);
 	const urls: string[] = [];
 
 	// 静态页面
@@ -72,7 +74,9 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join("\n")}
 	return new Response(body, {
 		headers: {
 			"Content-Type": "application/xml; charset=utf-8",
-			"Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+			// 缓存随设置版本失效：缩短 max-age 并附版本 ETag，改站点设置后最长 5 分钟即刷新（避免原 1h 静态缓存导致变更不可见）
+			"Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+			ETag: `"settings-${settingsVersion}"`,
 		},
 	});
 };
