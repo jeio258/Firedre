@@ -1,0 +1,14 @@
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/favicon/*
+  Cache-Control: public, max-age=604800
+
+/vditor/*
+  Cache-Control: public, max-age=2592000
+
+/pio/*
+  Cache-Control: public, max-age=2592000

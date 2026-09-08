@@ -43,7 +43,6 @@ export const getBackgroundImages = (): BackgroundImages => {
 	};
 };
 
-// 检查是否为首页
 export const isHomePage = (pathname: string): boolean => {
 	// 获取 base URL
 	const baseUrl = import.meta.env.BASE_URL || "/";

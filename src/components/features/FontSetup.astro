@@ -32,7 +32,6 @@ const bodyFontFamily =
 			)
 		: SYSTEM_FONT_STACK;
 
-// 各区域字体 CSS 变量值
 const bannerTitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
 	? ((((settings as any)?.["font"]) as any)?.["bannerTitleFont"] ?? fontConfig.bannerTitleFont) || ""
 	: "";
@@ -80,7 +79,6 @@ const codeFontFamily = codeFontVar
 />
 
 <script>
-  // 字体加载完成事件
   if (document.fonts && typeof document.fonts.ready !== "undefined") {
     document.fonts.ready
       .then(() => {

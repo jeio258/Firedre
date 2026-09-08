@@ -31,6 +31,10 @@ export function safeUrlScheme(
 	if (!value)
 		return null
 
+	// 协议相对地址（//evil.com）会被解析为当前页面 scheme，是开放重定向/SSRF 向量，默认拒绝
+	if (value.startsWith("//"))
+		return null
+
 	const schemes = options.schemes ?? DEFAULT_SCHEMES
 
 	// 相对路径（含锚点）

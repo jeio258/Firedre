@@ -1,5 +1,4 @@
 ---
-// Fancybox 管理器组件
 ---
 
 <script>
@@ -49,13 +48,13 @@
     if (cached) return cached;
     try {
       const resp = await fetch(src);
-      if (!resp.ok) { console.debug("[Fancybox] SVG fetch failed:", resp.status, src); return null; }
+      if (!resp.ok) { return null; }
       const svgText = await resp.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(svgText, "image/svg+xml");
-      if (doc.querySelector("parsererror")) { console.debug("[Fancybox] SVG parse error:", src); return null; }
+      if (doc.querySelector("parsererror")) { return null; }
       const svgEl = doc.querySelector("svg");
-      if (!svgEl) { console.debug("[Fancybox] No <svg> element:", src); return null; }
+      if (!svgEl) { return null; }
       if (!svgEl.getAttribute("width") || !svgEl.getAttribute("height")) {
         const vb = svgEl.getAttribute("viewBox");
         let w = String(fallbackW), h = String(fallbackH);
@@ -72,7 +71,7 @@
       const blobUrl = URL.createObjectURL(blob);
       svgBlobUrlCache.set(src, blobUrl);
       return blobUrl;
-    } catch (err) { console.debug("[Fancybox] SVG preprocess error:", src, err); return null; }
+    } catch (err) { return null; }
   }
 
   function getCommonOptions() {
@@ -211,7 +210,6 @@
     revokeAllSvgBlobUrls();
   }
 
-  // 初始化
   setup();
 
   document.addEventListener("swup:content:replace", () => {

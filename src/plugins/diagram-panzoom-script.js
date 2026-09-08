@@ -66,7 +66,6 @@
 			apply();
 		};
 
-		// 控制栏
 		const controls = document.createElement("div");
 		controls.className = "diagram-controls";
 		[
@@ -89,7 +88,6 @@
 		});
 		container.appendChild(controls);
 
-		// 拖拽平移
 		let dragging = false;
 		let sx = 0;
 		let sy = 0;
@@ -122,7 +120,6 @@
 		container.addEventListener("pointerup", endDrag);
 		container.addEventListener("pointercancel", endDrag);
 
-		// 双击
 		container.addEventListener("dblclick", (e) => {
 			if (e.target.closest(".diagram-controls")) return;
 			if (state.scale !== 1) reset();
@@ -204,7 +201,6 @@
 			fsControls.appendChild(el);
 		});
 
-		// 全屏滚轮缩放
 		content.addEventListener(
 			"wheel",
 			(e) => {
@@ -297,7 +293,6 @@
 			{ passive: false },
 		);
 
-		// 背景点击关闭
 		overlay.addEventListener("click", (e) => {
 			if (e.target === overlay) close();
 		});

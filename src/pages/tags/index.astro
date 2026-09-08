@@ -8,7 +8,6 @@ import { getTagUrl } from "@/utils/url-utils";
 
 const tags = await getTagList();
 
-// Top 10 标签排行
 const topTags = [...tags].sort((a, b) => b.count - a.count).slice(0, 10);
 const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
 ---

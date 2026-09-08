@@ -100,12 +100,10 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
     if (!tocContent) return;
 
     try {
-      // 清理旧实例
       if (window.SidebarTOC.manager) {
         window.SidebarTOC.manager.cleanup();
       }
 
-      // 创建新实例
       window.SidebarTOC.manager = new TOCManager({
         contentId: "sidebar-toc-content",
         indicatorId: "sidebar-active-indicator",
@@ -133,12 +131,10 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
       setTimeout(initSidebarTOC, 100);
     });
 
-    // Astro 页面切换事件
     document.addEventListener("astro:page-load", () => {
       setTimeout(initSidebarTOC, 100);
     });
 
-    // 浏览器导航事件
     window.addEventListener("popstate", () => {
       setTimeout(initSidebarTOC, 200);
     });

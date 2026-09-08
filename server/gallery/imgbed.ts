@@ -44,6 +44,7 @@ export async function fetchImgbedPhotos(
 
 	const response = await fetch(reqUrl, {
 		headers: { Authorization: `Bearer ${token}` },
+		signal: AbortSignal.timeout(10000),
 	});
 
 	if (!response.ok)

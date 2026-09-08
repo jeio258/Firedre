@@ -55,7 +55,6 @@ export function generateGridClasses(config: ResponsiveSidebarConfig): {
 		config.hasLeftComponents &&
 		config.hasRightComponents
 	) {
-		// 双侧边栏
 		if (config.tabletSidebar === "right") {
 
 			gridCols =

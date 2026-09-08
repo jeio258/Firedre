@@ -14,6 +14,9 @@ export interface BilibiliItem {
 }
 
 const BILIBILI_API = "https://api.bilibili.com/x/space/bangumi/follow/list";
+// 服务端 fetch 需带浏览器 UA，否则 B 站返回 412
+const BILIBILI_UA =
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 const PAGE_SIZE = 30;
 
 async function fetchBilibiliByType(
@@ -21,9 +24,11 @@ async function fetchBilibiliByType(
 	type: number,
 ): Promise<BilibiliItem[]> {
 	const items: BilibiliItem[] = [];
+	const vmid = encodeURIComponent(uid);
 	// 第一页，获取 total
 	const firstRes = await fetch(
-		`${BILIBILI_API}?type=${type}&vmid=${uid}&pn=1&ps=${PAGE_SIZE}`,
+		`${BILIBILI_API}?type=${type}&vmid=${vmid}&pn=1&ps=${PAGE_SIZE}`,
+		{ headers: { "User-Agent": BILIBILI_UA }, signal: AbortSignal.timeout(10000) },
 	);
 	const firstJson = await firstRes.json();
 	if (firstJson.code !== 0 || !firstJson.data?.list?.length) return items;
@@ -38,7 +43,8 @@ async function fetchBilibiliByType(
 		for (let pn = 2; pn <= totalPages; pn++) {
 			promises.push(
 				fetch(
-					`${BILIBILI_API}?type=${type}&vmid=${uid}&pn=${pn}&ps=${PAGE_SIZE}`,
+					`${BILIBILI_API}?type=${type}&vmid=${vmid}&pn=${pn}&ps=${PAGE_SIZE}`,
+					{ headers: { "User-Agent": BILIBILI_UA }, signal: AbortSignal.timeout(10000) },
 				)
 					.then((r) => r.json())
 					.then((j) => j.data?.list || []),

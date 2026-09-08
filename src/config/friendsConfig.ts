@@ -2,7 +2,6 @@ import type { FriendLink, FriendsPageConfig } from "../types/friendsConfig";
 
 // 友链页自定义内容（Firedre：数据在后台友链管理维护）
 
-// 友链页面配置
 export const friendsPageConfig: FriendsPageConfig = {
 	// 页面标题，如果留空则使用 i18n 中的翻译
 	title: "",
@@ -20,7 +19,6 @@ export const friendsPageConfig: FriendsPageConfig = {
 	randomizeSort: false,
 };
 
-// 友链配置
 export const friendsConfig: FriendLink[] = [
 	{
 		title: "夏夜流萤",

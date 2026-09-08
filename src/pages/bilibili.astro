@@ -14,19 +14,16 @@ import { formatDateI18nWithTime } from "@/utils/date-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.bilibili) {
 	return Astro.redirect("/404/");
 }
 
-// 获取构建时间
 const buildTime = formatDateI18nWithTime(new Date());
 
 // Bilibili 配置
 const BILIBILI_UID = ((settings as any)?.["bilibili"] ?? siteConfig.bilibili)?.uid;
 const isConfigured = !!BILIBILI_UID && BILIBILI_UID.trim() !== "";
 
-// 获取 Bilibili 追番 + 追剧数据
 let animeList: StandardizedAnime[] = [];
 if (BILIBILI_UID) {
 	try {

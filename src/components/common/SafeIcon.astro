@@ -1,0 +1,37 @@
+---
+// @ts-ignore virtual module：仅含 include 白名单图标的本地集合
+import icons from "virtual:astro-icon";
+import { getIconData } from "@iconify/utils";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  name?: string;
+  fallback?: string;
+  class?: string;
+}
+
+const { name, fallback = "material-symbols:link", class: className } = Astro.props;
+
+function iconExists(candidate?: string): boolean {
+  if (!candidate || typeof candidate !== "string") return false;
+  const [setName, iconName] = candidate.split(":");
+  if (!setName && iconName) return false;
+  if (iconName === undefined) {
+    const localSet = "local";
+    const localCollection = icons[localSet];
+    if (!localCollection) return false;
+    return setName in (localCollection.icons ?? {});
+  }
+  const collection = icons[setName];
+  if (!collection) return false;
+  return !!getIconData(collection, iconName ?? setName);
+}
+
+const resolved = iconExists(name)
+  ? name
+  : iconExists(fallback)
+    ? fallback
+    : undefined;
+---
+
+{resolved ? <Icon name={resolved} class={className} /> : null}

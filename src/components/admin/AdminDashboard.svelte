@@ -1,255 +1,150 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import { apiJson } from "@/lib/adminApi";
+	import { onMount } from "svelte";
+	import { apiJson } from "@/lib/adminApi";
+	import AdminAreaChart from "./charts/AdminAreaChart.svelte";
 
-let stats = {
-	posts: "-",
-	dynamics: "-",
-	links: "-",
-	tags: "-",
-	categories: "-",
-};
-let loading = true;
-
-// 管理员账户（唯一管理员）改密
-let accountUsername = "";
-let newPassword = "";
-let pwdMsg = "";
-let pwdError = "";
-let pwdSaving = false;
-
-async function loadAccount() {
-	try {
-		const me = await apiJson<{ authenticated?: boolean; username?: string }>(
-			"/api/admin/me/",
-		);
-		accountUsername = me.username || "";
-	} catch {
-		// 忽略，改密仍需登录态
-	}
-}
-
-async function changePassword() {
-	pwdMsg = "";
-	pwdError = "";
-	if (!newPassword) {
-		pwdError = "新密码不能为空";
-		return;
-	}
-	if (newPassword.length < 8) {
-		pwdError = "密码至少 8 位";
-		return;
-	}
-	pwdSaving = true;
-	try {
-		await apiJson("/api/admin/users/password/", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ username: accountUsername, password: newPassword }),
-		});
-		pwdMsg = "密码已修改 ✓";
-		newPassword = "";
-	} catch (e) {
-		pwdError = e instanceof Error ? e.message : "修改失败";
-	} finally {
-		pwdSaving = false;
-	}
-}
-
-onMount(async () => {
-	try {
-		const [posts, dynamics, friends, tags, categories] = await Promise.all([
-			await apiJson("/api/posts/?pageSize=1"),
-			await apiJson("/api/dynamics/"),
-			await apiJson("/api/friends/"),
-			await apiJson("/api/posts/taxonomy/tags/"),
-			await apiJson("/api/posts/taxonomy/categories/"),
-		]);
-		stats = {
-			posts: String(posts.total ?? 0),
-			dynamics: String(dynamics.total ?? 0),
-			links: String((friends.items || []).length),
-			tags: String((tags.tags || []).length),
-			categories: String((categories.categories || []).length),
+	interface Stats {
+		siteTitle?: string;
+		totals?: {
+			posts: number;
+			published: number;
+			draft: number;
+			words: number;
+			dynamics: number;
+			friends: number;
+			friendsEnabled: number;
+			tags: number;
+			categories: number;
+			albums: number;
 		};
-	} catch {
-		// 忽略统计失败
+		monthlyTrend?: { label: string; 发布: number; 草稿: number }[];
+		recent?: {
+			slug: string;
+			title: string;
+			categories: string[];
+			tags: string[];
+			published: boolean;
+			pinned: boolean;
+			updated: string;
+		}[];
 	}
-	loading = false;
-	await loadAccount();
-});
+
+	let stats: Stats = {};
+	let loading = true;
+	let loadError = "";
+
+	const S = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">`;
+	const iconArticle =
+		S +
+		'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>';
+	const iconSparkle =
+		S +
+		'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>';
+	const iconUsers =
+		S +
+		'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+	const iconTag =
+		S +
+		'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>';
+
+	const AREA_COLORS = { 发布: "#0f766e", 草稿: "#0ea5e9" };
+
+	function fmtNum(n: number | undefined): string {
+		return (n ?? 0).toLocaleString("zh-CN");
+	}
+
+	function fromNow(iso: string | undefined): string {
+		if (!iso) return "";
+		const t = new Date(iso).getTime();
+		if (Number.isNaN(t)) return "";
+		const diff = Date.now() - t;
+		const m = Math.floor(diff / 60000);
+		if (m < 1) return "刚刚";
+		if (m < 60) return `${m} 分钟前`;
+		const h = Math.floor(m / 60);
+		if (h < 24) return `${h} 小时前`;
+		const d = Math.floor(h / 24);
+		if (d < 30) return `${d} 天前`;
+		return new Date(t).toLocaleDateString("zh-CN");
+	}
+
+	function gotoEditor(slug: string) {
+		window.history.pushState({}, "", `/admin/posts/edit/${encodeURIComponent(slug)}/`);
+		window.dispatchEvent(new PopStateEvent("popstate"));
+	}
+
+	onMount(async () => {
+		try {
+			stats = await apiJson<Stats>("/api/admin/stats/");
+		} catch (e) {
+			loadError = e instanceof Error ? e.message : "统计加载失败";
+		} finally {
+			loading = false;
+		}
+	});
 </script>
 
-<div class="admin-card">
-	<h2>仪表盘</h2>
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>{stats.siteTitle || "站点"} · 数据看板</h2>
+			<p class="crud-sub">数据更新至刚刚</p>
+		</div>
+		<div class="crud-head-actions">
+			<a class="btn btn-primary" href="/admin/posts/">管理文章</a>
+		</div>
+	</div>
+
 	{#if loading}
-		<p class="hint">加载中…</p>
+		<div class="crud-empty">加载中…</div>
+	{:else if loadError}
+		<div class="crud-empty" style="color:var(--danger)">{loadError}</div>
 	{:else}
-		<div class="stats">
-			<div class="stat">
-				<div class="num">{stats.posts}</div>
-				<div class="label">文章</div>
+		<div class="stat-grid">
+			<div class="card stat-card">
+				<span class="stat-icon" style="background:color-mix(in oklch,var(--primary) 15%,transparent);color:var(--primary)">{@html iconArticle}</span>
+				<p class="stat-label">文章总数</p>
+				<p class="stat-value">{fmtNum(stats.totals?.posts)}</p>
 			</div>
-			<div class="stat">
-				<div class="num">{stats.dynamics}</div>
-				<div class="label">动态</div>
+			<div class="card stat-card">
+				<span class="stat-icon" style="background:color-mix(in oklch,#7c3aed 15%,transparent);color:#7c3aed">{@html iconSparkle}</span>
+				<p class="stat-label">动态总数</p>
+				<p class="stat-value">{fmtNum(stats.totals?.dynamics)}</p>
 			</div>
-			<div class="stat">
-				<div class="num">{stats.links}</div>
-				<div class="label">友链</div>
+			<div class="card stat-card">
+				<span class="stat-icon" style="background:color-mix(in oklch,#059669 15%,transparent);color:#059669">{@html iconUsers}</span>
+				<p class="stat-label">友链数量</p>
+				<p class="stat-value">{fmtNum(stats.totals?.friends)}</p>
 			</div>
-			<div class="stat">
-				<div class="num">{stats.tags}</div>
-				<div class="label">标签</div>
-			</div>
-			<div class="stat">
-				<div class="num">{stats.categories}</div>
-				<div class="label">分类</div>
+			<div class="card stat-card">
+				<span class="stat-icon" style="background:color-mix(in oklch,#d97706 15%,transparent);color:#d97706">{@html iconTag}</span>
+				<p class="stat-label">标签 / 分类</p>
+				<p class="stat-value">{fmtNum(stats.totals?.tags)} / {fmtNum(stats.totals?.categories)}</p>
 			</div>
 		</div>
-		<div class="links">
-			<a href="/admin/posts/">管理文章</a>
-			<a href="/admin/posts/new/">写新文章</a>
-			<a href="/admin/links/">友链</a>
-			<a href="/admin/gallery/">相册</a>
-		</div>
-		<div class="account-block">
-			<h3>管理员账户</h3>
-			<p class="account-name">当前管理员：{accountUsername || "—"}</p>
-			{#if pwdMsg}
-				<p class="ok">{pwdMsg}</p>
-			{/if}
-			{#if pwdError}
-				<p class="err">{pwdError}</p>
-			{/if}
-			<div class="pwd-row">
-				<input
-					type="password"
-					placeholder="新密码"
-					bind:value={newPassword}
-					autocomplete="new-password"
-				/>
-				<button on:click={changePassword} disabled={pwdSaving}>
-					{pwdSaving ? "修改中…" : "修改密码"}
-				</button>
+
+		<div class="dash-cols">
+			<div class="card">
+				<h3 class="panel-title">文章发布趋势</h3>
+				<p class="crud-sub">按发布月份统计</p>
+				<AdminAreaChart data={stats.monthlyTrend || []} colors={AREA_COLORS} height={200} />
+			</div>
+			<div class="card">
+				<h3 class="panel-title">最近更新</h3>
+				{#if (stats.recent || []).length === 0}
+					<p class="crud-sub" style="margin-top:.6rem">暂无内容</p>
+				{:else}
+					{#each stats.recent || [] as a (a.slug)}
+						<div class="list-row clickable" role="button" tabindex="0" on:click={() => gotoEditor(a.slug)} on:keydown={(e) => e.key === "Enter" && gotoEditor(a.slug)}>
+							<div class="list-main">
+								<div class="list-title">{a.title}</div>
+								<div class="list-sub">{fromNow(a.updated)} · {a.categories?.[0] || "未分类"}</div>
+							</div>
+							<span class="u-chip {a.published ? 'ok' : 'off'}">{a.published ? "已发布" : "草稿"}</span>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		</div>
 	{/if}
 </div>
-
-<style>
-	.admin-card {
-		background: var(--card-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: var(--radius-large);
-		padding: 1.5rem;
-	}
-	h2 {
-		font-size: 1.15rem;
-		margin: 0 0 1.25rem;
-		color: var(--deep-text);
-	}
-	.stats {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-		gap: 1rem;
-		margin-bottom: 1.5rem;
-	}
-	.stat {
-		background: var(--btn-regular-bg);
-		border-radius: 0.6rem;
-		padding: 1.25rem;
-		text-align: center;
-	}
-	.num {
-		font-size: 1.75rem;
-		font-weight: 700;
-		color: var(--primary);
-	}
-	.label {
-		font-size: 0.85rem;
-		color: var(--muted);
-		margin-top: 0.3rem;
-	}
-	.links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.6rem;
-	}
-	.links a {
-		padding: 0.5rem 1rem;
-		background: var(--btn-regular-bg);
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		text-decoration: none;
-		color: var(--deep-text);
-		font-size: 0.9rem;
-	}
-	.links a:hover {
-		border-color: var(--primary);
-		color: var(--primary);
-	}
-	.hint {
-		color: var(--muted);
-	}
-	.account-block {
-		margin-top: 2rem;
-		border-top: 1px solid var(--line-divider);
-		padding-top: 1.25rem;
-	}
-	.account-block h3 {
-		font-size: 1rem;
-		margin: 0 0 0.5rem;
-		color: var(--deep-text);
-	}
-	.account-name {
-		font-size: 0.9rem;
-		color: var(--muted);
-		margin: 0 0 0.75rem;
-	}
-	.pwd-row {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-	}
-	.pwd-row input {
-		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.4rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.9rem;
-		width: 220px;
-	}
-	.pwd-row button {
-		padding: 0.5rem 0.9rem;
-		background: var(--primary);
-		color: var(--on-accent);
-		border: none;
-		border-radius: 0.4rem;
-		cursor: pointer;
-	}
-	.pwd-row button:disabled {
-		opacity: 0.6;
-	}
-	.ok {
-		color: var(--success);
-		font-size: 0.85rem;
-		margin: 0.25rem 0 0.5rem;
-	}
-	.err {
-		color: var(--danger);
-		font-size: 0.85rem;
-		margin: 0.25rem 0 0.5rem;
-	}
-
-	@media (max-width: 767px) {
-		.pwd-row {
-			flex-direction: column;
-			align-items: stretch;
-		}
-		.pwd-row input {
-			width: 100%;
-		}
-	}
-</style>

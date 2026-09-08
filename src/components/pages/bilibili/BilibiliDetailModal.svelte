@@ -120,7 +120,6 @@ function getTypeColor(seasonType: number): string {
 						</p>
 					{/if}
 
-					<!-- 徽章 -->
 					<div class="mb-4 flex flex-wrap gap-2">
 						<span class="inline-flex items-center gap-1 rounded-lg {getTypeColor(anime.season_type)} px-3 py-1 text-xs font-bold text-white">
 							{getTypeLabel(anime.season_type)}
@@ -143,7 +142,6 @@ function getTypeColor(seasonType: number): string {
 						</span>
 					</div>
 
-					<!-- 简介 -->
 					{#if anime.overview}
 						<div class="mb-6">
 							<h3 class="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{i18n(I18nKey.animeSynopsis)}</h3>
@@ -153,7 +151,6 @@ function getTypeColor(seasonType: number): string {
 						</div>
 					{/if}
 
-					<!-- 跳转按钮 -->
 					<a
 						href={anime.link}
 						target="_blank"

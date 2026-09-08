@@ -1,4 +1,5 @@
-import { expressiveCodeConfig, siteConfig } from "@/config";
+import { siteConfig } from "@/config";
+import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
 	BANNER_HEIGHT_NON_HOME,
@@ -126,8 +127,7 @@ function registerSwupHooks(): void {
 		// 只处理katex元素的容器，使用浏览器原生滚动条
 		scheduleContentOverflowEnhancements();
 
-		// 重新初始化图标加载器
-		import("@/utils/icon-loader").then(({ initIconLoader }) => {
+				import("@/utils/icon-loader").then(({ initIconLoader }) => {
 			initIconLoader();
 		});
 
@@ -173,10 +173,8 @@ function registerSwupHooks(): void {
 		) as HTMLElement | null;
 
 		if (isHomePage !== wasHome && contentPanel) {
-			const oldTop = contentPanel.getBoundingClientRect().top; // 类切换前读
-			bodyElement.classList.toggle("is-home", isHomePage);
-			const newTop = contentPanel.getBoundingClientRect().top; // 类切换后读
-			const delta = oldTop - newTop;
+			const oldTop = contentPanel.getBoundingClientRect().top; 			bodyElement.classList.toggle("is-home", isHomePage);
+			const newTop = contentPanel.getBoundingClientRect().top; 			const delta = oldTop - newTop;
 
 			if (delta !== 0 && Math.abs(delta) <= window.innerHeight * 0.75) {
 
@@ -236,8 +234,7 @@ function registerSwupHooks(): void {
 		}
 	});
 	window.swup.hooks.on("page:view", () => {
-		// 更新网格列数和侧边栏组件可见性
-		updateMainGridCols();
+				updateMainGridCols();
 		updateSidebarComponentsVisibility();
 
 		const heightExtend = document.getElementById("page-height-extend");
@@ -277,16 +274,15 @@ function registerSwupHooks(): void {
 			"light";
 		let isDark = false;
 
-		// 处理 system 模式
-		if (storedTheme === "system") {
+				if (storedTheme === "system") {
 			isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 		} else {
 			isDark = storedTheme === "dark";
 		}
 
 		const expectedTheme = isDark
-			? expressiveCodeConfig.darkTheme
-			: expressiveCodeConfig.lightTheme;
+			? getExpressiveCodeConfigFromWindow().darkTheme
+			: getExpressiveCodeConfigFromWindow().lightTheme;
 		const currentTheme = document.documentElement.getAttribute("data-theme");
 
 		// 如果主题不匹配，静默更新（不触发事件，避免重新加载效果）
@@ -322,8 +318,7 @@ function registerSwupHooks(): void {
 				heightExtend.classList.add("hidden");
 			}
 
-			// Just make the transition looks better
-			const toc = document.getElementById("toc-wrapper");
+						const toc = document.getElementById("toc-wrapper");
 			if (toc) {
 				toc.classList.remove("toc-not-ready");
 			}

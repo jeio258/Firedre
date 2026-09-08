@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import type { NavBarLink } from "@/types/config";
 import { url } from "@/utils/url-utils";
 
@@ -23,7 +24,7 @@ const processedLinks = Astro.props.links;
                         aria-controls={`mobile-submenu-${index}`}
                     >
                         <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold group-hover:text-(--primary) group-active:text-(--primary)">
-							{link.icon && <Icon name={link.icon} class="text-[1.1rem] mr-2" />}
+							{link.icon && <SafeIcon name={link.icon} class="text-[1.1rem] mr-2" />}
                             {link.name}
                         </div>
                         <Icon name="material-symbols:keyboard-arrow-down-rounded"
@@ -38,7 +39,7 @@ const processedLinks = Astro.props.links;
                                target={child.external ? "_blank" : null}
                             >
                                 <div class="flex items-center transition text-black/60 dark:text-white/60 font-medium group-hover:text-(--primary) group-active:text-(--primary)">
-									{child.icon && <Icon name={child.icon} class="text-[1.1rem] mr-2" />}
+									{child.icon && <SafeIcon name={child.icon} class="text-[1.1rem] mr-2" />}
                                     {child.name}
                                 </div>
                                 {child.external && <Icon name="fa7-solid:arrow-up-right-from-square"
@@ -56,7 +57,7 @@ const processedLinks = Astro.props.links;
                    target={link.external ? "_blank" : null}
                 >
                     <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold group-hover:text-(--primary) group-active:text-(--primary)">
-						{link.icon && <Icon name={link.icon} class="text-[1.1rem] mr-2" />}
+						{link.icon && <SafeIcon name={link.icon} class="text-[1.1rem] mr-2" />}
                         {link.name}
                     </div>
 					{!link.external && <Icon name="material-symbols:chevron-right-rounded"
@@ -101,7 +102,6 @@ const processedLinks = Astro.props.links;
                 e.preventDefault();
                 const isExpanded = dropdown.getAttribute('data-expanded') === 'true';
 
-                // 关闭其他打开的下拉菜单
                 mobileDropdowns.forEach(otherDropdown => {
                     if (otherDropdown !== dropdown) {
                         setDropdownExpanded(otherDropdown, false);

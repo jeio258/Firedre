@@ -13,11 +13,7 @@ export type { DisplaySettingsConfig } from "./displaySettingsConfig";
 export type { DynamicConfig } from "./dynamicConfig";
 export type { SakuraConfig } from "./effectsConfig";
 
-export type {
-	ExpressiveCodeConfig,
-	PluginCollapsibleConfig,
-	PluginLanguageBadgeConfig,
-} from "./expressiveCodeConfig";
+export type { ExpressiveCodeConfig } from "./expressiveCodeConfig";
 export type { FontSelectionConfig } from "./fontConfig";
 export type { FooterConfig } from "./footerConfig";
 export type { FriendLink, FriendsPageConfig } from "./friendsConfig";
@@ -54,8 +50,6 @@ export type {
 	SponsorMethod,
 } from "./sponsorConfig";
 
-// 响应式图像布局类型
 export type ResponsiveImageLayout = "constrained" | "full-width" | "none";
 
-// 图像格式类型
 export type ImageFormat = "avif" | "webp" | "png" | "jpg" | "jpeg" | "gif";

@@ -1,77 +1,85 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
-import "vditor/dist/index.css";
-import type Vditor from "vditor";
+	import { onDestroy, onMount, tick } from "svelte";
+	import "vditor/dist/index.css";
+	import type Vditor from "vditor";
+	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 
-export let section = "about";
-export let apiPath = "/api/about/";
+	let { section = "about", apiPath = "/api/about/" } = $props();
 
-let editor: Vditor | null = null;
-let rawContent = "";
-let saving = false;
-let message = "";
-let loaded = false;
+	let editor: Vditor | null = null;
+	let vditorThemeObserver: MutationObserver | null = null;
+	let rawContent = $state("");
+	let saving = $state(false);
+	let message = $state("");
+	let loaded = $state(false);
 
-const titles: Record<string, string> = {
-	about: "关于页",
-};
+	const titles: Record<string, string> = {
+		about: "关于页",
+	};
 
-async function load() {
-	try {
-		const resp = await fetch(apiPath);
-		if (resp.ok) {
-			const data = await resp.json();
-			rawContent = data.source ?? "";
+	async function load() {
+		try {
+			const resp = await fetch(apiPath);
+			if (resp.ok) {
+				const data = await resp.json();
+				rawContent = data.source ?? "";
+			}
+			loaded = true;
+			await tick();
+			initEditor();
+		} catch {
+			message = "加载失败";
+			loaded = true;
 		}
-		loaded = true;
-		await tick();
-		initEditor();
-	} catch {
-		message = "加载失败";
-		loaded = true;
-	}
-}
-
-async function initEditor() {
-	if (editor) {
-		editor.setValue(rawContent);
-		return;
 	}
 
-	const { default: Vditor } = await import("vditor");
-	editor = new Vditor("vditor-editor", {
-		cdn: "/vditor",
-		height: 520,
-		mode: "ir",
-		value: rawContent,
-		cache: { enable: false },
-		after: () => {
-			// 初始化完成
-		},
-	});
-}
-
-async function save() {
-	saving = true;
-	message = "";
-	const content = editor ? editor.getValue() : rawContent;
-	if (!content.trim()) {
-		message = "内容不能为空";
-		saving = false;
-		return;
-	}
-	try {
-		const resp = await fetch(apiPath, {
-			method: "PUT",
-			headers: { "Content-Type": "text/markdown" },
-			body: content,
-		});
-		const data = await resp.json();
-		if (!resp.ok || !data.ok) {
-			message = data.message || "保存失败";
+	async function initEditor() {
+		if (editor) {
+			editor.setValue(rawContent);
 			return;
 		}
-		message = "已保存 ✓";
+
+		const { default: Vditor } = await import("vditor");
+		editor = new Vditor("vditor-editor", {
+			cdn: "/vditor",
+			height: 520,
+			mode: "wysiwyg",
+			value: rawContent,
+			cache: { enable: false },
+			after: () => {
+				const root = document.querySelector<HTMLElement>(".vditor");
+				if (root) {
+					syncVditorTheme(root);
+					vditorThemeObserver = observeVditorTheme(root);
+				}
+			},
+		});
+	}
+
+	async function save() {
+		saving = true;
+		message = "";
+		const content = editor ? editor.getValue() : rawContent;
+		if (!content.trim()) {
+			message = "内容不能为空";
+			saving = false;
+			return;
+		}
+		try {
+			const resp = await fetch(apiPath, {
+				method: "PUT",
+				headers: { "Content-Type": "text/markdown" },
+				body: content,
+			});
+			const data = await resp.json();
+			if (!resp.ok || !data.ok) {
+				message = data.message || "保存失败";
+				return;
+			}
+		message = "已保存";
+		clearDraft("关于页");
 	} catch {
 		message = "网络错误";
 	} finally {
@@ -79,36 +87,42 @@ async function save() {
 	}
 }
 
-onMount(load);
+	onMount(async () => {
+		await load();
+		const d = getDraft<{ content?: string }>("关于页");
+		if (d?.content != null) {
+			rawContent = d.content;
+			if (editor) editor.setValue(d.content);
+			clearDraft("关于页");
+		}
+		return registerSaveAll("关于页", save, () => ({
+			content: editor ? editor.getValue() : rawContent,
+		}));
+	});
+	onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>{titles[section] || "内容编辑"}</h2>
-		<div class="actions">
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>{titles[section] || "内容编辑"}</h2>
+			<p class="crud-sub">编辑 about/index.md（frontmatter + Markdown 正文）</p>
+		</div>
+		<div class="crud-head-actions">
 			{#if message}
-				<span class="msg">{message}</span>
+				<span class="crud-msg">{message}</span>
 			{/if}
 			<button class="btn-primary" on:click={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>
 	</div>
-	<p class="hint">编辑 about/index.md（frontmatter 中的 title/cover 等 + Markdown 正文）</p>
+
 	{#if loaded}
-		<div id="vditor-editor"></div>
+		<div class="card editor-body">
+			<div id="vditor-editor"></div>
+		</div>
 	{:else}
-		<p>{message || "加载中…"}</p>
+		<div class="crud-empty">{message || "加载中…"}</div>
 	{/if}
 </div>
-
-<style>
-	.toolbar {
-		margin-bottom: 0.5rem;
-	}
-	.hint {
-		color: var(--muted);
-		font-size: 0.82rem;
-		margin: 0 0 1rem;
-	}
-</style>

@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { UserError } from "../../server/utils/userError";
 
-// biome-ignore lint/suspicious/noExplicitAny: 见上方注释
+// biome-ignore lint/suspicious/noExplicitAny: cloudflare:workers env 由运行时注入，类型不静态可知
 export const cfEnv = env as any;
 
 export function json(

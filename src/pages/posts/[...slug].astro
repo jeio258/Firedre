@@ -25,11 +25,10 @@ import PostMetadata from "@/components/layout/PostMeta.astro";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SeriesNav from "@/components/misc/SeriesNav.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
-import { coverImageConfig } from "@/config/coverImageConfig";
 import { licenseConfig } from "@/config/licenseConfig";
 import { profileConfig } from "@/config/profileConfig";
 import { siteConfig } from "@/config/siteConfig";
-import { getSiteConfig } from "@/config/runtime";
+import { getSiteConfig, getCoverConfig } from "@/config/runtime";
 import { sponsorConfig } from "@/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
@@ -78,11 +77,11 @@ const bannerPostMeta = {
 };
 
 const siteUrl = getSiteConfig(Astro.locals).site_url;
-const processedImage = processCoverImageSync(entry.data.image, entry.id);
-const apiUrls = getApiUrlList(entry.data.image, entry.id);
-const showPostCover = Boolean(processedImage && ((((settings as any)?.["cover"]) as any)?.["enableInPost"] ?? coverImageConfig.enableInPost));
-const usePostCoverOverlay =
-	showPostCover && (((((settings as any)?.["cover"]) as any)?.["enableInPostOverlay"] ?? coverImageConfig.enableInPostOverlay) ?? true);
+const coverCfg = getCoverConfig(Astro.locals);
+const processedImage = processCoverImageSync(entry.data.image, entry.id, coverCfg.randomCoverImage);
+const apiUrls = getApiUrlList(entry.data.image, entry.id, coverCfg.randomCoverImage);
+const showPostCover = Boolean(processedImage && coverCfg.enableInPost);
+const usePostCoverOverlay = showPostCover && coverCfg.enableInPostOverlay;
 
 const getDirectImageUrl = (src: string | undefined): string | null => {
 	if (!src) return null;
@@ -117,7 +116,7 @@ const coverImage =
 const aboutUrl =
 	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
-const authorAvatarUrl = await getAuthorAvatarUrl();
+const authorAvatarUrl = await getAuthorAvatarUrl(siteUrl);
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
 	profileConfig,
@@ -129,7 +128,7 @@ const authorPerson = buildPersonEntity({
 const publisher = buildPublisherEntity({
 	site: siteUrl,
 	siteConfig,
-	logo: await getSiteLogo(),
+	logo: await getSiteLogo(siteUrl),
 });
 
 const breadcrumbItems = [
@@ -587,7 +586,6 @@ const seriesData = await getSeriesPosts(entry);
       const dateStr = lastModified.format("YYYY-MM-DD");
       const outdatedThreshold = ((settings as any)?.["post"] ?? siteConfig.post).outdatedThreshold ?? 1;
 
-      // 1. 預設加上 hidden 隱藏，並把時間與閾值綁在 data-* 屬性
       return (
         <div 
           id="outdated-card" 

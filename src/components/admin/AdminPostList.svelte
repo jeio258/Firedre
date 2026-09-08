@@ -11,12 +11,13 @@ type PostItem = {
 	password?: string;
 };
 
-export let section = "posts";
-
 let posts: PostItem[] = [];
 let loading = true;
 let error = "";
 let search = "";
+let status = "all"; // all | published | draft
+let selected = new Set<string>();
+let deleting = false;
 
 async function load() {
 	loading = true;
@@ -32,172 +33,188 @@ async function load() {
 
 async function remove(slug: string) {
 	if (!confirm(`确定删除文章「${slug}」？此操作不可恢复。`)) return;
+	const ok = await doDelete(slug);
+	if (ok) posts = posts.filter((p) => p.slug !== slug);
+}
+
+async function doDelete(slug: string): Promise<boolean> {
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`, {
+		await apiJson(`/api/posts/${encodeURIComponent(slug)}/`, {
 			method: "DELETE",
 		});
-		if (resp.ok) {
-			posts = posts.filter((p) => p.slug !== slug);
-		} else {
-			const data = await resp.json();
-			alert(data.message || "删除失败");
-		}
-	} catch {
-		alert("网络错误");
+		return true;
+	} catch (e) {
+		alert(e instanceof Error ? e.message : "删除失败");
+		return false;
 	}
+}
+
+async function batchDelete() {
+	const list = [...selected];
+	if (list.length === 0) return;
+	if (!confirm(`确定删除选中的 ${list.length} 篇文章？此操作不可恢复。`)) return;
+	deleting = true;
+	for (const slug of list) {
+		if (await doDelete(slug)) {
+			posts = posts.filter((p) => p.slug !== slug);
+		}
+	}
+	selected = new Set();
+	deleting = false;
+}
+
+function toggle(slug: string) {
+	if (selected.has(slug)) selected.delete(slug);
+	else selected.add(slug);
+	selected = new Set(selected);
+}
+
+function toggleAll() {
+	selected =
+		filtered.length > 0 && selected.size === filtered.length
+			? new Set()
+			: new Set(filtered.map((p) => p.slug));
+	selected = new Set(selected);
 }
 
 onMount(load);
 
-$: filtered = posts.filter(
-	(p) =>
+$: filtered = posts.filter((p) => {
+	const hitSearch =
 		!search ||
 		p.title.toLowerCase().includes(search.toLowerCase()) ||
-		p.slug.toLowerCase().includes(search.toLowerCase()),
-);
+		p.slug.toLowerCase().includes(search.toLowerCase());
+	const hitStatus =
+		status === "all" || (status === "published" ? p.published === 1 : p.published === 0);
+	return hitSearch && hitStatus;
+});
+$: publishedCount = posts.filter((p) => p.published === 1).length;
+$: draftCount = posts.length - publishedCount;
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>文章管理（{posts.length}）</h2>
-		<div class="actions">
-			<input type="search" placeholder="搜索标题/slug…" bind:value={search} />
-			<a class="btn btn-primary" href="/admin/posts/new/">+ 新建文章</a>
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>文章管理</h2>
+			<p class="crud-sub">
+				共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}{#if selected.size > 0}
+					· 已选 {selected.size}{/if}
+			</p>
+		</div>
+		<div class="crud-head-actions">
+			<select bind:value={status}>
+				<option value="all">全部状态</option>
+				<option value="published">已发布</option>
+				<option value="draft">草稿</option>
+			</select>
+			<input type="search" placeholder="搜索文章…" bind:value={search} />
+			<label class="row-selectall">
+				<input
+					type="checkbox"
+					checked={filtered.length > 0 && selected.size === filtered.length}
+					on:change={toggleAll}
+				/>
+				全选
+			</label>
+			{#if selected.size > 0}
+				<button class="btn-danger-text" on:click={batchDelete} disabled={deleting}>
+					{deleting ? "删除中…" : `删除选中 (${selected.size})`}
+				</button>
+			{/if}
+			<a class="btn btn-primary" href="/admin/posts/new/">新建文章</a>
 		</div>
 	</div>
 
-	{#if loading}
-		<p class="hint">加载中…</p>
-	{:else if error}
-		<p class="hint error">{error}</p>
-	{:else if filtered.length === 0}
-		<p class="hint">暂无文章</p>
-	{:else}
-		<div class="table-wrap">
-		<table>
-			<thead>
-				<tr>
-					<th>标题</th>
-					<th>Slug</th>
-					<th>日期</th>
-					<th>状态</th>
-					<th>操作</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each filtered as post}
-					<tr>
-						<td>
-							{post.title}
-							{#if post.pin_order}
-								<span class="tag">置顶</span>
-							{/if}
-							{#if post.password}
-								<span class="tag">加密</span>
-							{/if}
-						</td>
-						<td class="mono">{post.slug}</td>
-						<td>{post.date}</td>
-						<td>{post.published ? "已发布" : "草稿"}</td>
-						<td class="ops">
-							<a href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
-							<button class="danger" on:click={() => remove(post.slug)}>删除</button>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		</div>
-	{/if}
+	<div class="crud-card" style="padding:.6rem 1.25rem">
+		{#if loading}
+			<div class="list-empty">加载中…</div>
+		{:else if error}
+			<div class="list-empty error">{error}</div>
+		{:else if filtered.length === 0}
+			<div class="list-empty">暂无文章</div>
+		{:else}
+			{#each filtered as post (post.slug)}
+				<div class="list-row" class:selected={selected.has(post.slug)}>
+					<label class="row-check">
+						<input
+							type="checkbox"
+							checked={selected.has(post.slug)}
+							on:change={() => toggle(post.slug)}
+						/>
+					</label>
+					<div class="list-main">
+						<div class="list-title">{post.title}</div>
+						<div class="list-sub">
+							<span>{post.date}</span>
+							<span class="mono">{post.slug}</span>
+						</div>
+					</div>
+					{#if post.pin_order}<span class="u-chip pin">置顶</span>{/if}
+					{#if post.password}<span class="u-chip lock">加密</span>{/if}
+					<span class="u-chip {post.published === 1 ? 'ok' : 'off'}">
+						{post.published === 1 ? "已发布" : "草稿"}
+					</span>
+					<div class="crud-row-actions">
+						<a class="btn-ghost" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
+						<button class="btn-danger-text" on:click={() => remove(post.slug)}>删除</button>
+					</div>
+				</div>
+			{/each}
+		{/if}
+	</div>
 </div>
 
 <style>
-	.table-wrap {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
+	.row-selectall {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.82rem;
+		color: var(--text-muted);
+		cursor: pointer;
 	}
-	@media (max-width: 767px) {
-		.table-wrap {
-			margin: 0 -1rem;
-			padding: 0 1rem;
-		}
-		.table-wrap table {
-			min-width: 520px;
-		}
+	.row-selectall input,
+	.row-check input {
+		accent-color: var(--primary);
 	}
-	.toolbar {
-		gap: 1rem;
+	.row-check {
+		display: inline-flex;
+		flex-shrink: 0;
 	}
-	input {
-		padding: 0.45rem 0.7rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.4rem;
-		font-size: 0.9rem;
-		background: var(--card-bg);
-		color: var(--deep-text);
-	}
-	.btn {
-		padding: 0.45rem 0.8rem;
-		border-radius: 0.4rem;
-		text-decoration: none;
-		font-size: 0.9rem;
-	}
-	.btn-primary {
-		background: var(--primary);
-		color: var(--on-accent);
-	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.9rem;
-	}
-	th,
-	td {
-		text-align: left;
-		padding: 0.55rem 0.6rem;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	th {
-		color: var(--muted);
-		font-weight: 600;
-		font-size: 0.8rem;
-	}
-	td {
-		color: var(--deep-text);
+	.list-row.selected {
+		background: color-mix(in oklch, var(--primary) 7%, transparent);
+		border-radius: 0.5rem;
 	}
 	.mono {
 		font-family: ui-monospace, monospace;
-		font-size: 0.82rem;
+		font-size: 0.74rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
-	.tag {
+	.u-chip.lock {
 		background: var(--btn-regular-bg);
-		border-radius: 0.3rem;
-		padding: 0.1rem 0.4rem;
-		font-size: 0.72rem;
-		margin-left: 0.35rem;
-		color: var(--muted);
+		color: var(--text-muted);
 	}
-	.ops {
-		display: flex;
-		gap: 0.6rem;
+	.list-empty {
+		text-align: center;
+		padding: 3rem 1rem;
+		color: var(--text-muted);
 	}
-	.ops a {
-		color: var(--primary);
+	.list-empty.error {
+		color: var(--danger);
+	}
+	.btn-ghost {
 		text-decoration: none;
+		border-radius: var(--radius-medium);
+		font-size: 0.85rem;
 	}
-	.danger {
-		background: none;
-		border: none;
-		color: var(--danger);
-		cursor: pointer;
-		font-size: 0.9rem;
-		padding: 0;
-	}
-	.hint {
-		color: var(--muted);
-		padding: 1rem 0;
-	}
-	.hint.error {
-		color: var(--danger);
+	@media (max-width: 767px) {
+		.crud-head-actions {
+			width: 100%;
+		}
+		.list-row {
+			flex-wrap: wrap;
+		}
 	}
 </style>

@@ -49,10 +49,8 @@ const weekDays = [
 	i18n(I18nKey.calendarSaturday),
 ];
 
-// 年份文本
 const yearText = i18n(I18nKey.year);
 
-// 热力图周数文本模板
 const heatmapWeekTemplate = i18n(I18nKey.calendarHeatmapWeek);
 
 // 获取当前语言
@@ -124,7 +122,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 </script>
 <script>
   // @ts-nocheck
-  // State variables
+  import { escapeHtml } from "@/utils/escape-html";
   const __cfg = window.__fireflyCalendarConfig;
   const monthNames = __cfg.monthNames;
   const weekDays = __cfg.weekDays;
@@ -171,19 +169,12 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     }
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
-
   function renderHeatmap() {
     const container = document.getElementById('heatmap-container');
     const monthsEl = document.getElementById('heatmap-months');
     const gridEl = document.getElementById('heatmap-grid');
     if (!container || !monthsEl || !gridEl) return;
 
-    // Show heatmap only in day view
     container.style.display = currentView === 'day' ? 'block' : 'none';
     if (currentView !== 'day') return;
 
@@ -221,7 +212,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     }
     gridEl.innerHTML = cellsHtml;
 
-    // Click on cell to navigate to that month
     gridEl.querySelectorAll('.heatmap-cell[data-month]').forEach(cell => {
       cell.addEventListener('click', () => {
         const m = parseInt(cell.getAttribute('data-month'));
@@ -274,7 +264,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     const yearContainer = document.getElementById('year-view-container');
     const postsContainer = document.getElementById('calendar-posts');
 
-    // Update visibility
     if (container) container.style.display = currentView === 'day' ? 'block' : 'none';
     if (monthContainer) monthContainer.style.display = currentView === 'month' ? 'grid' : 'none';
     if (yearContainer) yearContainer.style.display = currentView === 'year' ? 'grid' : 'none';
@@ -330,13 +319,11 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     const currentDate = now.getDate();
     const isCurrentMonth = currentYear === now.getFullYear() && currentMonth === now.getMonth();
 
-    // 获取月份的第一天是星期几
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
     // 获取当月天数
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-    // 生成日历格子
     const calendarGrid = document.getElementById('calendar-grid');
     if (!calendarGrid) return;
 
@@ -347,7 +334,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       calendarDays.push({ day: null, hasPost: false, count: 0, dateKey: "" });
     }
 
-    // 添加每一天
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const posts = postDateMap[dateKey] || [];
@@ -360,7 +346,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       });
     }
 
-    // 渲染日历格子
     calendarGrid.innerHTML = calendarDays.map(({day, hasPost, count, dateKey}) => {
       const isToday = day === currentDate && isCurrentMonth;
       const classes = [
@@ -401,7 +386,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     // 显示当月文章列表
     showMonthlyPosts(currentMonthPosts);
 
-    // 添加点击事件监听
     setupClickHandlers(currentMonthPosts);
   }
 
@@ -492,14 +476,12 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
         </a>
       `}).join('');
 
-      // 显示/隐藏分割线
       if (divider) {
         divider.style.display = currentMonthPosts.length > 0 ? 'block' : 'none';
       }
     }
   }
 
-  // 设置日历格子点击事件
   function setupClickHandlers(currentMonthPosts) {
     const postsWrapper = document.getElementById('calendar-posts');
     const calendarDays = document.querySelectorAll('.calendar-day[data-date]');
@@ -515,7 +497,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
         if (!hasPost || !dateKey) return;
 
-        // 切换选中状态
         if (currentSelectedDay === dayElement) {
           // 取消选中，恢复显示当月所有文章
           dayElement.classList.remove('calendar-day-selected');
@@ -528,11 +509,9 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
           currentSelectedDay.classList.remove('calendar-day-selected');
         }
 
-        // 添加选中样式
         dayElement.classList.add('calendar-day-selected');
         currentSelectedDay = dayElement;
 
-        // 获取该日期的文章
         const posts = postDateMap[dateKey] || [];
 
         if (posts.length > 0 && postsList) {
@@ -540,7 +519,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
             postsWrapper.style.display = 'block';
           }
 
-          // 渲染文章列表
           postsList.innerHTML = posts.map(post => {
             const date = new Date(post.published);
             const dateStr = `${date.getMonth() + 1}-${date.getDate()}`;
@@ -553,7 +531,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
             </a>
           `}).join('');
 
-          // 显示分割线
           if (divider) {
             divider.style.display = 'block';
           }
@@ -587,14 +564,12 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
   }
 
   function initCalendar() {
-      // Reset to current date on init
       const now = new Date();
       displayYear = now.getFullYear();
       displayMonth = now.getMonth();
 
       fetchData();
 
-      // Bind events
       const prevBtn = document.getElementById('prev-month-btn');
       const nextBtn = document.getElementById('next-month-btn');
       const resetBtn = document.getElementById('reset-month-btn');
@@ -616,12 +591,10 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       }
   }
 
-  // 页面加载时渲染日历
   initCalendar();
 
   if (!window.__calendarInit) {
     window.__calendarInit = true;
-    // 页面切换时重新渲染
     document.addEventListener("swup:contentReplaced", () => {
       setTimeout(initCalendar, 100);
     });

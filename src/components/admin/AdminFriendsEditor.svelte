@@ -1,5 +1,6 @@
 <script lang="ts">
 	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
+	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type FriendItem = {
 		id: number;
@@ -50,17 +51,27 @@
 	title="友链管理"
 	addLabel="+ 添加友链"
 	entityName="友链"
-	{fields}
-	identify={(item) => String(item.title ?? "")}
->
-	{#snippet children({ item })}
+		{fields}
+		identify={(item) => String(item.title ?? "")}
+	>
+		{#snippet configBlock()}
+			<AdminPageConfig
+				group="friends"
+				enableKey="enabled"
+				enableLabel="启用友链页"
+				title="本页设置 · 友链"
+				titleField="title"
+				descField="description"
+			/>
+		{/snippet}
+		{#snippet children({ item })}
 		<div class="friend-info">
 			<img src={item.imgurl} alt={item.title} class="avatar" />
 			<div class="friend-text">
 				<div class="friend-name">
 					{item.title}
 					{#if !item.enabled}
-						<span class="badge muted">未启用</span>
+						<span class="u-chip off">未启用</span>
 					{/if}
 				</div>
 				<div class="friend-desc">{item.desc || "无描述"}</div>
@@ -84,12 +95,14 @@
 		gap: 0.8rem;
 	}
 	.avatar {
-		width: 48px;
-		height: 48px;
-		border-radius: 0.5rem;
+		width: 52px;
+		height: 52px;
+		border-radius: 0.75rem;
 		object-fit: cover;
 		flex-shrink: 0;
+		background: var(--btn-regular-bg);
 	}
+
 	.friend-text {
 		min-width: 0;
 	}
@@ -101,7 +114,7 @@
 	}
 	.friend-desc {
 		font-size: 0.85rem;
-		color: var(--muted);
+		color: var(--text-muted);
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -126,6 +139,6 @@
 		padding: 0.1rem 0.5rem;
 		background: var(--btn-regular-bg);
 		border-radius: 0.3rem;
-		color: var(--muted);
+		color: var(--text-muted);
 	}
 </style>

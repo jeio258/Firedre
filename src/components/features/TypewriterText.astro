@@ -61,7 +61,6 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
     }
 
     private isTypewriterEnabled(): boolean {
-      // 检查是否有打字机相关的数据属性
       return (
         this.element.dataset.speed !== undefined ||
         this.element.dataset.deleteSpeed !== undefined ||
@@ -153,7 +152,6 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
     });
   }
 
-  // 初始化所有打字机效果
   function runInitWithDelay() {
     initTypewriterElements();
 

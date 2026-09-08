@@ -161,6 +161,7 @@ async function fetchMemosInternal(
 
 		const response = await fetch(url.toString(), {
 			headers: { Accept: "application/json" },
+			signal: AbortSignal.timeout(10000),
 		});
 
 		if (!response.ok) {

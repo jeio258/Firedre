@@ -72,7 +72,6 @@ function processGridBlocks(children) {
 				first.value = first.value.replace(/^\s*\[grid\]\s*/, "");
 				last.value = last.value.replace(/\s*\[\/grid\]\s*$/, "");
 
-				// count images in the grid
 				const imgCount = node.children.filter(
 					(n) =>
 						n.type === "image" ||
@@ -105,7 +104,6 @@ function processGridBlocks(children) {
 				continue;
 			}
 
-			// Case 2: Multi-paragraph
 			if (!inGrid && containsGridStart) {
 				inGrid = true;
 				first.value = first.value.replace(/^\s*\[grid\]\s*/, "");

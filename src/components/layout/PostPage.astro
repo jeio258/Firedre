@@ -78,7 +78,6 @@ const coverPositionClass =
 <script is:inline define:vars={{ defaultLayout, mobileDefaultLayout, columnWidth }}>
   (function() {
     const savedLayout = localStorage.getItem('postListLayout');
-    // 根据视口宽度确定有效的默认布局
     const effectiveDefault = window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
     // 低于380px强制网格模式
     const effectiveLayout = window.innerWidth < 380 ? 'grid' : (savedLayout || effectiveDefault);
@@ -90,7 +89,6 @@ const coverPositionClass =
         // 禁用过渡动画
         container.style.transition = 'none';
 
-        // 移除所有布局类
         container.classList.remove('list-mode', 'grid-mode', 'post-grid-auto', 'flex', 'flex-col', 'gap-4', 'md:gap-4');
 
         if (effectiveLayout === 'grid') {
@@ -119,7 +117,6 @@ const coverPositionClass =
     const mobileDefaultLayout =
       postListContainer.getAttribute("data-mobile-default-layout") || defaultLayout;
 
-    // 根据视口宽度确定有效的默认布局
     const effectiveDefault = window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
     let currentLayout = savedLayout || effectiveDefault;
 
@@ -128,7 +125,6 @@ const coverPositionClass =
       currentLayout = "grid";
     }
 
-    // 应用布局
     updatePostListLayout(currentLayout);
   }
 
@@ -136,12 +132,10 @@ const coverPositionClass =
     const postListContainer = document.getElementById("post-list-container");
     if (!postListContainer) return;
 
-    // Check current layout state
     const isCurrentGrid = postListContainer.classList.contains("grid-mode");
     const isCurrentList = postListContainer.classList.contains("list-mode");
     const currentLayout = isCurrentGrid ? "grid" : (isCurrentList ? "list" : null);
 
-    // Common logic vars
     const masonryEnabled = postListContainer.getAttribute("data-masonry-enabled") === "true";
 
     const applyClasses = () => {
@@ -224,7 +218,6 @@ const coverPositionClass =
     const gap = 16;               
     const columnWidth = parseInt(container.getAttribute("data-column-width") || "280");
 
-    // 重置容器样式以允许绝对定位
     container.style.position = "relative";
     container.style.display = "block"; // 覆盖 grid display
 
@@ -237,7 +230,6 @@ const coverPositionClass =
     const colHeights = new Array(colCount).fill(0);
 
     items.forEach((item) => {
-      // 找到最短的列放置
       const colIndex = colHeights.indexOf(Math.min(...colHeights));
 
       // @ts-ignore
@@ -272,7 +264,6 @@ const coverPositionClass =
       // 延迟一点确保DOM完全加载
       setTimeout(initLayout, 50);
 
-      // 监听图片加载以重新计算布局
       const imgs = document.querySelectorAll('#post-list-container img');
       imgs.forEach(img => {
           // @ts-ignore
@@ -290,7 +281,6 @@ const coverPositionClass =
       }
     });
 
-    // 监听布局变化事件
     window.addEventListener("layoutChange", function (event) {
       // @ts-ignore
       const newLayout = event.detail.layout;
@@ -300,7 +290,6 @@ const coverPositionClass =
       updatePostListLayout(newLayout);
     });
 
-    // 监听窗口大小变化
     let resizeTimeout: any;
     window.addEventListener("resize", function () {
       clearTimeout(resizeTimeout);
@@ -313,7 +302,6 @@ const coverPositionClass =
     document.addEventListener("astro:page-load", function () {
       setTimeout(initLayout, 50);
 
-      // 监听图片加载
       const imgs = document.querySelectorAll('#post-list-container img');
       imgs.forEach(img => {
           // @ts-ignore
@@ -336,7 +324,7 @@ const coverPositionClass =
 <style is:global>
   .post-grid-auto {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--post-card-min-width, 320px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--post-card-min-width, 320px)), 1fr));
     gap: 1rem;
   }
 

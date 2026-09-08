@@ -112,7 +112,6 @@ const recentPosts = posts.slice(0, 6);
             const newBtn = copyBtn.cloneNode(true);
             copyBtn.parentNode?.replaceChild(newBtn, copyBtn);
 
-            // 绑定新的事件监听器
             newBtn.addEventListener('click', async function (event) {
                 const btn = event.currentTarget as HTMLElement;
                 const url = btn.getAttribute('data-url');

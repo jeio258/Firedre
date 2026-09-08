@@ -39,8 +39,6 @@ export const TRANSLATE_TO: number = 85;
 
 export const EASE = [0.5, 0.5, 0.45, 0.5] as const;
 
-// cubic-bezier 缓动采样
-
 function sampleBezierX(u: number, x1: number, x2: number): number {
 	return 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u;
 }
@@ -96,8 +94,6 @@ export function cubicBezier(
 export function ease(t: number): number {
 	return cubicBezier(...EASE, t);
 }
-
-// 波浪路径
 
 let wavePath: Path2D | null | undefined;
 function getWavePath(): Path2D | null {

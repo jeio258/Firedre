@@ -1,0 +1,36 @@
+---
+import { siteConfig } from "@/config";
+import { defaultFavicons } from "@/constants/icon";
+import type { Favicon } from "@/types/config";
+import { url } from "@/utils/url-utils";
+
+interface Props {
+	settings?: unknown;
+}
+const { settings } = Astro.props;
+const rawFaviconUrl = settings
+	? (settings as Record<string, unknown>).faviconUrl
+	: undefined;
+const faviconUrl = typeof rawFaviconUrl === "string" ? rawFaviconUrl : "";
+
+// 解析顺序：settings.faviconUrl 覆盖 → siteConfig.favicon（默认 firefly-32.png）→ defaultFavicons
+const settingsFavicon = faviconUrl
+	? ([{ src: faviconUrl }] as Favicon[])
+	: [];
+const favicons: Favicon[] =
+	settingsFavicon.length > 0
+		? settingsFavicon
+		: siteConfig.favicon.length > 0
+			? siteConfig.favicon
+			: defaultFavicons;
+---
+{
+	favicons.map((favicon) => (
+		<link
+			rel="icon"
+			href={favicon.src.startsWith("/") ? url(favicon.src) : favicon.src}
+			sizes={favicon.sizes}
+			media={favicon.theme && `(prefers-color-scheme: ${favicon.theme})`}
+		/>
+	))
+}

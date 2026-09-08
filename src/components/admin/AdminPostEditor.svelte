@@ -1,8 +1,12 @@
 <script lang="ts">
-import { onMount, tick } from "svelte";
+import { onDestroy, onMount, tick } from "svelte";
 import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
+import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+import { apiJson } from "@/lib/adminApi";
+import { registerSaveAll } from "@/lib/adminSave";
+import { getDraft, clearDraft } from "@/lib/adminDrafts";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -23,29 +27,32 @@ function slugifyTitle(title: string): string {
 	return parts.filter(Boolean).join("-").replace(/-{2,}/g, "-");
 }
 
-export let slug = "";
-export let isNew = false;
+let { slug: initialSlug = "", isNew: initialIsNew = false }: { slug?: string; isNew?: boolean } = $props();
 
-let title = "";
-let published = "";
-let updated = "";
-let category = "";
-let tagsText = "";
-let description = "";
-let image = "";
-let password = "";
-let passwordHint = "";
-let pinned = false;
-let draft = false;
-let series = "";
-let seriesOrder = "";
-let comment = true;
-let rawContent = "";
+let title = $state("");
+let published = $state("");
+let updated = $state("");
+let category = $state("");
+let tagsText = $state("");
+let description = $state("");
+let image = $state("");
+let password = $state("");
+let passwordHint = $state("");
+let pinned = $state(false);
+let draft = $state(false);
+let series = $state("");
+let seriesOrder = $state("");
+let comment = $state(true);
+let rawContent = $state("");
+let slug = $state(initialSlug);
+let isNew = $state(initialIsNew);
 
 let editor: Vditor | null = null;
-let saving = false;
-let message = "";
-let loaded = false;
+let vditorThemeObserver: MutationObserver | null = null;
+let saving = $state(false);
+let message = $state("");
+let messageKind = $state<"ok" | "err">("ok");
+let loaded = $state(false);
 let slugManuallyEdited = false;
 
 async function load() {
@@ -58,9 +65,16 @@ async function load() {
 		return;
 	}
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`);
-		if (!resp.ok) throw new Error("文章不存在");
-		const post = await resp.json();
+		const post = await apiJson<{
+			title: string;
+			date?: string;
+			categories?: string[];
+			tags?: string[];
+			description?: string;
+			cover?: string;
+			markdown?: string;
+			frontmatter?: Record<string, unknown>;
+		}>(`/api/posts/${encodeURIComponent(slug)}/`);
 		const fm = post.frontmatter || {};
 		title = post.title;
 		published = String(fm.published || post.date || "");
@@ -82,6 +96,7 @@ async function load() {
 		initEditor();
 	} catch (e) {
 		message = e instanceof Error ? e.message : "加载失败";
+		messageKind = "err";
 	}
 }
 
@@ -93,8 +108,9 @@ async function initEditor() {
 
 	const { default: Vditor } = await import("vditor");
 	editor = new Vditor("vditor-editor", {
-		height: 480,
-		mode: "ir",
+		height: 560,
+		// 富文本（所见即所得）为默认编辑模式；可在编辑器内切换到 IR/分屏 Markdown
+		mode: "wysiwyg",
 		value: rawContent,
 
 		cdn: "/vditor",
@@ -105,7 +121,11 @@ async function initEditor() {
 			headers: {},
 		},
 		after: () => {
-			// 焦点初始化
+			const root = document.querySelector<HTMLElement>(".vditor");
+			if (root) {
+				syncVditorTheme(root);
+				vditorThemeObserver = observeVditorTheme(root);
+			}
 		},
 	});
 }
@@ -136,12 +156,14 @@ function buildFrontmatter(): Record<string, unknown> {
 	return fm;
 }
 
-async function save() {
+async function save(targetDraft: boolean) {
 	saving = true;
 	message = "";
+	draft = targetDraft;
 	const content = editor ? editor.getValue() : rawContent;
 	if (!title.trim() || !content.trim()) {
 		message = "标题与正文不能为空";
+		messageKind = "err";
 		saving = false;
 		return;
 	}
@@ -155,181 +177,282 @@ async function save() {
 		.join("\n")}\n---\n\n${content}`;
 
 	try {
-		const resp = await fetch(`/api/posts/${encodeURIComponent(slug)}/`, {
-			method: "PUT",
-			headers: { "Content-Type": "text/markdown" },
-			body: source,
-		});
-		const data = await resp.json();
-		if (!resp.ok || !data.ok) {
+		const data = await apiJson<{ ok?: boolean; slug?: string; message?: string }>(
+			`/api/posts/${encodeURIComponent(slug)}/`,
+			{
+				method: "PUT",
+				headers: { "Content-Type": "text/markdown" },
+				body: source,
+			},
+		);
+		if (!data.ok) {
 			message = data.message || "保存失败";
+			messageKind = "err";
 			return;
 		}
-		message = "已保存 ✓";
-		// 更新 slug（若为新文章则跳转到编辑页）
+		message = targetDraft ? "已保存草稿" : "已发布";
+		messageKind = "ok";
+		clearDraft("文章");
 		if (isNew && data.slug && data.slug !== slug) {
-			window.location.href = `/admin/posts/edit/${encodeURIComponent(data.slug)}/`;
+			history.replaceState({}, "", `/admin/posts/edit/${encodeURIComponent(data.slug)}/`);
+			slug = data.slug;
+			isNew = false;
 		}
-	} catch {
-		message = "网络错误";
+		setTimeout(() => (message = ""), 2200);
+	} catch (e) {
+		message = e instanceof Error ? e.message : "网络错误";
+		messageKind = "err";
 	} finally {
 		saving = false;
 	}
 }
 
-onMount(load);
+onMount(async () => {
+	await load();
+	const d = getDraft<{
+		title?: string;
+		published?: string;
+		updated?: string;
+		category?: string;
+		tagsText?: string;
+		description?: string;
+		image?: string;
+		password?: string;
+		passwordHint?: string;
+		pinned?: boolean;
+		draft?: boolean;
+		series?: string;
+		seriesOrder?: string;
+		comment?: boolean;
+		content?: string;
+		slug?: string;
+		isNew?: boolean;
+	}>("文章");
+	if (d) {
+		if (d.title != null) title = d.title;
+		if (d.published != null) published = d.published;
+		if (d.updated != null) updated = d.updated;
+		if (d.category != null) category = d.category;
+		if (d.tagsText != null) tagsText = d.tagsText;
+		if (d.description != null) description = d.description;
+		if (d.image != null) image = d.image;
+		if (d.password != null) password = d.password;
+		if (d.passwordHint != null) passwordHint = d.passwordHint;
+		if (d.pinned != null) pinned = d.pinned;
+		if (d.draft != null) draft = d.draft;
+		if (d.series != null) series = d.series;
+		if (d.seriesOrder != null) seriesOrder = d.seriesOrder;
+		if (d.comment != null) comment = d.comment;
+		if (d.slug != null) slug = d.slug;
+		if (d.isNew != null) isNew = d.isNew;
+		if (d.content != null) {
+			rawContent = d.content;
+			if (editor) editor.setValue(d.content);
+		}
+		clearDraft("文章");
+	}
+	return registerSaveAll("文章", () => save(draft), () => ({
+		title,
+		published,
+		updated,
+		category,
+		tagsText,
+		description,
+		image,
+		password,
+		passwordHint,
+		pinned,
+		draft,
+		series,
+		seriesOrder,
+		comment,
+		content: editor ? editor.getValue() : rawContent,
+		slug,
+		isNew,
+	}));
+});
+onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>{isNew ? "新建文章" : `编辑文章：${slug}`}</h2>
-		<div class="actions">
+<div class="crud-page" style="max-width:none">
+	<div class="crud-head">
+		<div>
+			<h2>{isNew ? "新建文章" : "编辑文章"}</h2>
+			<p class="crud-sub">
+				<a href="/admin/posts/" class="muted">← 返回文章列表</a>
+			</p>
+		</div>
+		<div class="crud-head-actions">
 			{#if message}
-				<span class="msg">{message}</span>
+				<span class="pe-msg {messageKind}">{message}</span>
 			{/if}
-			<button class="btn-primary" on:click={save} disabled={saving}>
-				{saving ? "保存中…" : "保存"}
+			<button class="btn btn-ghost" on:click={() => save(true)} disabled={saving}>
+				保存草稿
 			</button>
-			<a class="btn" href="/admin/posts/">返回列表</a>
+			<button class="btn btn-primary" on:click={() => save(false)} disabled={saving}>
+				{saving ? "保存中…" : "发布"}
+			</button>
 		</div>
 	</div>
 
 	{#if loaded}
-		<div class="form-grid">
-			<label>
-				<span>标题 *</span>
-				<input
-					type="text"
-					bind:value={title}
-					on:input={() => {
-						// 新文章且用户未手动改过 slug 时，自动根据标题拼音填充
-						if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
-					}}
-				/>
-			</label>
-			<label>
-				<span>Slug（URL 标识）</span>
-				<input
-					type="text"
-					bind:value={slug}
-					disabled={!isNew}
-					placeholder="english-slug"
-					on:input={() => {
-						slugManuallyEdited = true;
-					}}
-				/>
-			</label>
-			<label>
-				<span>发布日期 *</span>
-				<input type="date" bind:value={published} />
-			</label>
-			<label>
-				<span>更新日期</span>
-				<input type="date" bind:value={updated} />
-			</label>
-			<label>
-				<span>分类</span>
-				<input type="text" bind:value={category} />
-			</label>
-			<label>
-				<span>标签（逗号分隔）</span>
-				<input type="text" bind:value={tagsText} />
-			</label>
-			<label class="span2">
-				<span>摘要 / 描述</span>
-				<textarea rows="2" bind:value={description}></textarea>
-			</label>
-			<label class="span2">
-				<span>封面图 URL（留空用默认）</span>
-				<input type="text" bind:value={image} placeholder="https://… 或 /path" />
-			</label>
-			<label>
-				<span>系列</span>
-				<input type="text" bind:value={series} />
-			</label>
-			<label>
-				<span>系列序号</span>
-				<input type="number" bind:value={seriesOrder} />
-			</label>
-			<label>
-				<span>访问密码（加密文章）</span>
-				<input type="text" bind:value={password} />
-			</label>
-			<label>
-				<span>密码提示</span>
-				<input type="text" bind:value={passwordHint} />
-			</label>
-		</div>
+		<div class="editor-layout">
+			<div>
+				<div class="card editor-title" style="padding:.8rem">
+					<input
+						placeholder="文章标题（必填）"
+						bind:value={title}
+						on:input={() => {
+							if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
+						}}
+					/>
+				</div>
+				<div class="card editor-body">
+					<div id="vditor-editor"></div>
+				</div>
+			</div>
 
-		<div class="checks">
-			<label><input type="checkbox" bind:checked={pinned} /> 置顶</label>
-			<label><input type="checkbox" bind:checked={draft} /> 草稿（不发布）</label>
-			<label><input type="checkbox" bind:checked={comment} /> 允许评论</label>
-		</div>
+			<div class="side-stack">
+				<div class="card">
+					<h3 class="panel-title">发布设置</h3>
+					<div class="stack-fields">
+						<label class="crud-field">
+							<span>分类</span>
+							<input type="text" bind:value={category} placeholder="如 技术" />
+						</label>
+						<label class="crud-field">
+							<span>标签（逗号分隔）</span>
+							<input type="text" bind:value={tagsText} placeholder="Astro, Cloudflare" />
+						</label>
+						<label class="crud-field">
+							<span>自定义链接（slug）</span>
+							<input
+								type="text"
+								bind:value={slug}
+								disabled={!isNew}
+								placeholder="english-slug"
+								on:input={() => (slugManuallyEdited = true)}
+							/>
+						</label>
+						<label class="check-line">
+							<button class="sw" class:on={pinned} aria-label="置顶开关" on:click={() => (pinned = !pinned)}></button>
+							<span class="check-text">置顶</span>
+						</label>
+					</div>
+				</div>
 
-		<div id="vditor-editor"></div>
+				<div class="card">
+					<h3 class="panel-title">内容与封面</h3>
+					<div class="stack-fields">
+						<div class="row2">
+							<label class="crud-field">
+								<span>发布日期 *</span>
+								<input type="date" bind:value={published} />
+							</label>
+							<label class="crud-field">
+								<span>更新日期</span>
+								<input type="date" bind:value={updated} />
+							</label>
+						</div>
+						<label class="crud-field">
+							<span>简介 / 描述</span>
+							<input type="text" bind:value={description} placeholder="用于列表与 SEO" />
+						</label>
+						<label class="crud-field">
+							<span>封面图 URL</span>
+							<input type="text" bind:value={image} placeholder="https://… 或 /path" />
+						</label>
+					</div>
+				</div>
+
+				<div class="card">
+					<h3 class="panel-title">扩展设置</h3>
+					<div class="stack-fields">
+						<div class="row2">
+							<label class="crud-field">
+								<span>系列</span>
+								<input type="text" bind:value={series} />
+							</label>
+							<label class="crud-field">
+								<span>序号</span>
+								<input type="number" bind:value={seriesOrder} />
+							</label>
+						</div>
+						<label class="crud-field">
+							<span>访问密码（加密文章）</span>
+							<input type="text" bind:value={password} />
+						</label>
+						<label class="crud-field">
+							<span>密码提示</span>
+							<input type="text" bind:value={passwordHint} />
+						</label>
+						<label class="check-line">
+							<button class="sw" class:on={comment} aria-label="评论开关" on:click={() => (comment = !comment)}></button>
+							<span class="check-text">允许评论</span>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
 	{:else}
-		<p>{message || "加载中…"}</p>
+		<div class="pe-loading">{message || "加载中…"}</div>
 	{/if}
 </div>
 
 <style>
-	.toolbar {
-		gap: 1rem;
-	}
-	.btn {
-		padding: 0.5rem 0.9rem;
-		border-radius: 0.4rem;
-		text-decoration: none;
-		font-size: 0.9rem;
-		border: 1px solid var(--line-color);
-		color: var(--deep-text);
-		background: var(--card-bg);
-		cursor: pointer;
-	}
-	.btn-primary {
-		composes: btn;
-		background: var(--primary);
-		color: var(--on-accent);
-		border-color: var(--primary);
-	}
-	.form-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.9rem;
-		margin-bottom: 1rem;
-	}
-	.form-grid label {
+	.stack-fields {
 		display: flex;
 		flex-direction: column;
-		gap: 0.3rem;
-		font-size: 0.85rem;
+		gap: 0.8rem;
+	}
+	.row2 {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 0.7rem;
+	}
+	.row2 > .crud-field {
+		min-width: 0;
+	}
+	.pe-msg {
+		font-size: 0.82rem;
+	}
+	.pe-msg.ok {
+		color: var(--success);
+	}
+	.pe-msg.err {
+		color: var(--danger);
+	}
+	.editor-body {
+		margin-top: 1rem;
+		padding: 1rem 1rem 0.8rem;
+		overflow: hidden;
+		min-width: 0;
+	}
+	.editor-body :global(.vditor) {
+		width: 100%;
+		max-width: 100%;
+		min-width: 0;
+	}
+	.pe-loading {
+		padding: 3rem;
+		text-align: center;
 		color: var(--text-muted);
 	}
-	.form-grid .span2 {
-
-		grid-column: 1 / -1;
-	}
-	input,
-	textarea {
-		padding: 0.5rem 0.7rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.4rem;
-		font-size: 0.9rem;
-		background: var(--card-bg);
-		color: var(--deep-text);
-	}
-	.checks {
-		display: flex;
-		gap: 1.5rem;
-		margin-bottom: 1rem;
-		font-size: 0.9rem;
-		color: var(--deep-text);
-	}
-
-	@media (max-width: 767px) {
-		.form-grid {
+	@media (max-width: 1023px) {
+		.row2 {
 			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 767px) {
+		.crud-head {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+		.crud-head-actions {
+			width: 100%;
+		}
+		.editor-body :global(.vditor-toolbar) {
+			flex-wrap: wrap;
 		}
 	}
 </style>

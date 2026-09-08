@@ -14,7 +14,6 @@ export const ja: Translation = {
 	[Key.searchViewMore]: "さらに結果を表示 ({count} 件)",
 	[Key.other]: "その他",
 
-	// ナビバーメニューグループ
 	[Key.navArticles]: "記事",
 	[Key.navSocial]: "ソーシャル",
 	[Key.navMine]: "マイ",
@@ -70,7 +69,6 @@ export const ja: Translation = {
 	[Key.musicNoCover]: "カバーなし",
 	[Key.musicAudioPlayer]: "オーディオプレーヤー",
 
-	// お知らせ
 	[Key.announcement]: "お知らせ",
 	[Key.announcementClose]: "閉じる",
 
@@ -121,7 +119,6 @@ export const ja: Translation = {
 	[Key.license]: "ライセンス",
 	[Key.bangumi]: "Bangumi",
 
-	// バングミフィルターと状態文本
 	[Key.bangumiTitle]: "私のBangumi",
 	[Key.bangumiSubtitle]: "私の二次元の旅を記録する",
 	[Key.bangumiFilterAll]: "すべて",
@@ -172,19 +169,16 @@ export const ja: Translation = {
 	[Key.bangumiTotalPages]: "の",
 	[Key.bangumiPage]: "ページ",
 
-	// バングミカテゴリ
 	[Key.bangumiCategoryBook]: "本",
 	[Key.bangumiCategoryAnime]: "アニメ",
 	[Key.bangumiCategoryMusic]: "音楽",
 	[Key.bangumiCategoryGame]: "ゲーム",
 	[Key.bangumiCategoryReal]: "実写",
 
-	// バングミデータ更新
 	[Key.bangumiLastUpdated]: "データ更新",
 	[Key.bangumiUpdatedAt]: "ビルド時間",
 	[Key.bangumiDataStatic]: "静的データ",
 
-	// VNDB
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "私のビジュアルノベルリスト",
 	[Key.vndbFilterAll]: "すべて",
@@ -216,14 +210,12 @@ export const ja: Translation = {
 	[Key.vndbLengthLong]: "長い",
 	[Key.vndbLengthVeryLong]: "非常に長い",
 
-	// 追番 - Bilibili
 	[Key.bilibili]: "Bilibili",
 	[Key.bilibiliSubtitle]: "私のBilibili追番・追劇リスト",
 	[Key.bilibiliNotConfigured]: "Bilibiliデータソースが未設定",
 	[Key.bilibiliNotConfiguredDesc]:
 		"src/config/siteConfig.ts で bilibili.uid を設定してください",
 
-	// 追番 - 共通コンポーネント
 	[Key.animeTotal]: "合計",
 	[Key.animeAverageRating]: "平均評価",
 	[Key.animeSearch]: "アニメを検索...",
@@ -253,7 +245,6 @@ export const ja: Translation = {
 	[Key.animeTypeDrama]: "ドラマ",
 	[Key.animeTypeConcert]: "コンサート",
 
-	// MyAnimeList
 	[Key.mal]: "MyAnimeList",
 	[Key.malSubtitle]: "私の MyAnimeList アニメ・マンガリスト",
 	[Key.malCategoryAnime]: "アニメ",
@@ -283,7 +274,6 @@ export const ja: Translation = {
 	[Key.malSeasonSummer]: "夏",
 	[Key.malSeasonFall]: "秋",
 
-	// ページネーション
 	[Key.paginationFirst]: "最初",
 	[Key.paginationPrev]: "前へ",
 	[Key.paginationNext]: "次へ",
@@ -294,14 +284,12 @@ export const ja: Translation = {
 	[Key.paginationRecords]: "件",
 	[Key.paginationJump]: "指定ページへ移動",
 
-	// 404ページ
 	[Key.notFound]: "404",
 	[Key.notFoundTitle]: "ページが見つかりません",
 	[Key.notFoundDescription]:
 		"申し訳ありませんが、アクセスしたページは存在しないか、移動されています。",
 	[Key.backToHome]: "ホームに戻る",
 
-	// RSSページ
 	[Key.rss]: "RSSフィード",
 	[Key.rssDescription]: "最新の更新を購読する",
 	[Key.rssSubtitle]: "RSSで購読して、最新の記事と更新を第一时间で取得する",
@@ -322,7 +310,6 @@ export const ja: Translation = {
 	[Key.rssCopied]: "RSSリンクがクリップボードにコピーされました！",
 	[Key.rssCopyFailed]: "コピーに失敗しました。手動でリンクをコピーしてください",
 
-	// 最終更新時間カード
 	[Key.lastModifiedPrefix]: "最終更新日：",
 	[Key.lastModifiedOutdated]: "一部の内容が古くなっている可能性があります",
 	[Key.lastModifiedDaysAgo]: "{days}日前",
@@ -333,15 +320,12 @@ export const ja: Translation = {
 	[Key.minute]: "分",
 	[Key.second]: "秒",
 
-	// ページビュー統計
 	[Key.pageViews]: "閲覧数",
 	[Key.pageViewsLoading]: "読み込み中...",
 	[Key.pageViewsError]: "統計利用不可",
 
-	// ピン留め
 	[Key.pinned]: "ピン留め",
 
-	// 関連記事
 	[Key.relatedPosts]: "関連記事",
 	[Key.randomPosts]: "ランダム記事",
 	[Key.smartRecommend]: "スマート",
@@ -349,24 +333,20 @@ export const ja: Translation = {
 	[Key.noRelatedPosts]: "関連記事がありません",
 	[Key.noRandomPosts]: "ランダム記事がありません",
 
-	// 記事シリーズ
 	[Key.series]: "シリーズ",
 	[Key.seriesPartOf]: "シリーズの一部",
 	[Key.seriesPart]: "パート {n}",
 	[Key.seriesThisArticle]: "この記事",
 	[Key.noSeries]: "シリーズはありません",
 
-	// 暗号化
 	[Key.postEncrypted]: "この記事は暗号化されています",
 
-	// 壁紙モード
 	[Key.wallpaperMode]: "壁紙モード",
 	[Key.wallpaperBannerMode]: "バナー壁紙",
 	[Key.wallpaperFullscreenMode]: "フルスクリーン壁紙",
 	[Key.wallpaperOverlayMode]: "透明",
 	[Key.wallpaperNoneMode]: "単色背景",
 
-	// 壁紙設定
 	[Key.wallpaperSettings]: "壁紙設定",
 	[Key.wallpaperTitle]: "ホーム壁紙タイトル",
 	[Key.wallpaperCarousel]: "壁紙カルーセル",
@@ -379,22 +359,18 @@ export const ja: Translation = {
 	[Key.overlayBlur]: "背景ぼかし",
 	[Key.overlayCardOpacity]: "カード透明度",
 
-	// 設定パネルタブ
 	[Key.settingsTabAppearance]: "外観",
 	[Key.settingsTabWallpaper]: "壁紙",
 	[Key.settingsTabEffects]: "エフェクト",
 
-	// カードスタイル
 	[Key.cardSettings]: "カードスタイル",
 	[Key.cardBorder]: "カードのボーダーと影",
 	[Key.cardFollowTheme]: "カードのテーマカラー追随",
 
-	// 投稿リストレイアウト
 	[Key.postListLayout]: "投稿リストレイアウト",
 	[Key.postListLayoutList]: "リスト",
 	[Key.postListLayoutGrid]: "グリッド",
 
-	// スポンサーページ
 	[Key.sponsor]: "スポンサー",
 	[Key.sponsorTitle]: "サポート",
 	[Key.sponsorDescription]:
@@ -416,7 +392,6 @@ export const ja: Translation = {
 	[Key.shareOnSocialDescription]:
 		"この記事が役に立ったなら、ぜひ他の人と共有してください！",
 
-	// サイト統計
 	[Key.siteStats]: "サイト統計",
 	[Key.siteStatsPostCount]: "記事",
 	[Key.siteStatsDynamicCount]: "投稿",
@@ -429,7 +404,6 @@ export const ja: Translation = {
 	[Key.siteStatsDays]: "{days} 日",
 	[Key.today]: "今日",
 
-	// サイト情報
 	[Key.siteInfo]: "サイト情報",
 	[Key.siteInfoBuildTime]: "ビルド日時",
 	[Key.siteInfoBuildPlatform]: "ビルドプラットフォーム",
@@ -443,7 +417,6 @@ export const ja: Translation = {
 	[Key.siteInfoDomain]: "ドメイン",
 	[Key.siteInfoLicense]: "ライセンス",
 
-	// カレンダーコンポーネント
 	[Key.calendarSunday]: "日",
 	[Key.calendarMonday]: "月",
 	[Key.calendarTuesday]: "火",
@@ -474,13 +447,11 @@ export const ja: Translation = {
 	[Key.savePoster]: "ポスターを保存",
 	[Key.scanToRead]: "QRコードで読む",
 
-	// コードブロック折りたたみ設定
 	[Key.codeCollapsibleShowMore]: "展開する",
 	[Key.codeCollapsibleShowLess]: "折りたたむ",
 	[Key.codeCollapsibleExpanded]: "コードブロックが展開されました",
 	[Key.codeCollapsibleCollapsed]: "コードブロックが折りたたまれました",
 
-	// ギャラリーページ
 	[Key.gallery]: "ギャラリー",
 	[Key.galleryDescription]: "人生の美しい瞬間を記録する",
 	[Key.galleryPhotos]: "枚の写真",
@@ -489,7 +460,6 @@ export const ja: Translation = {
 	[Key.galleryBackToAlbums]: "アルバム一覧に戻る",
 	[Key.searchAlbums]: "アルバムを検索...",
 
-	// パスワード保護
 	[Key.passwordProtected]: "パスワード保護",
 	[Key.passwordProtectedDesc]:
 		"このコンテンツはパスワードで保護されています。表示するにはパスワードを入力してください。",
@@ -500,7 +470,6 @@ export const ja: Translation = {
 	[Key.passwordProtectedRss]:
 		"この記事は暗号化されています。ウェブサイトにアクセスしてご覧ください。",
 
-	// 背景動画プレイヤー
 	[Key.videoPlay]: "背景動画を再生",
 	[Key.videoPause]: "背景動画を一時停止",
 	[Key.videoPrev]: "前の動画",

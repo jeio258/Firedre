@@ -545,7 +545,6 @@ onMount(() => {
 			window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
 	}
 
-	// 监听窗口大小变化
 	window.addEventListener("resize", checkScreenSize);
 
 	return () => {
@@ -553,7 +552,6 @@ onMount(() => {
 	};
 });
 
-// 监听布局变化事件
 onMount(() => {
 	const handleCustomEvent = (event: Event) => {
 		const customEvent = event as CustomEvent<{ layout: "list" | "grid" }>;
@@ -660,9 +658,7 @@ $effect(() => {
 	</div>
 	{/if}
 
-	<!-- Appearance Tab: Theme Color + Layout -->
 	{#if activeTab === "appearance"}
-		<!-- Theme Color Section -->
 		{#if showThemeColor}
 		<div class="">
 			<div class="section-title">
@@ -686,7 +682,6 @@ $effect(() => {
 		</div>
 		{/if}
 
-		<!-- Layout Switch Section -->
 		{#if allowLayoutSwitch}
 		<div class="">
 			<div class="section-title">
@@ -732,7 +727,6 @@ $effect(() => {
 		</div>
 		{/if}
 
-		<!-- Card Settings Section -->
 		{#if isCardBorderSwitchable || isCardFollowThemeSwitchable}
 		<div>
 			<div class="section-title">
@@ -878,7 +872,6 @@ $effect(() => {
 		</div>
 		{/if}
 
-		<!-- Banner Settings Section -->
 		{#if (wallpaperMode === WALLPAPER_BANNER || wallpaperMode === WALLPAPER_FULLSCREEN) && hasBannerSettings}
 		<div class="">
 			<div class="section-title">
@@ -910,7 +903,6 @@ $effect(() => {
 					</div>
 				</button>
 				{/if}
-				<!-- Banner Carousel Switch -->
 				{#if isBannerCarouselSwitchable}
 				<button
 					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"

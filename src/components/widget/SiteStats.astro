@@ -28,12 +28,10 @@ const settings =
 const siteStartDate =
 	settings.siteStartDate || ((settings as any)?.["siteStartDate"] ?? siteConfig.siteStartDate) || "2025-01-01";
 
-// 获取所有文章
 const posts = await fetchPostsForStats();
 const categories = await getCategoryList();
 const tags = await getTagList();
 
-// 计算总字数
 let totalWords = 0;
 for (const post of posts) {
 	const postDescription = String(

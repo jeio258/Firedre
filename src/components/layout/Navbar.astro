@@ -36,7 +36,6 @@ const musicConfigRuntime = getMusicConfig(Astro.locals);
 
 const className = Astro.props.class;
 
-// 检查是否为首页
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
 const wallpaperMode = wallpaperConfig.mode;
@@ -201,7 +200,6 @@ const logoVariants = await Promise.all(
           mode = bannerTMode;
           blur = bannerBlur;
         } else {
-          // overlay / none
           mode = "none";
           blur = 0;
         }
@@ -361,7 +359,6 @@ const logoVariants = await Promise.all(
         var playing = ce.detail && ce.detail.playing;
         toggleBgPlayerIcon(playing);
     });
-    // 切换壁纸模式时隐藏/显示播放按钮
     window.addEventListener("wallpaperModeChange", function (e) {
         var ce = e as CustomEvent;
         var mode = ce.detail && ce.detail.mode;
@@ -381,7 +378,6 @@ const logoVariants = await Promise.all(
     }
 })();
 
-// 为semifull模式添加滚动检测逻辑
 function initSemifullScrollDetection() {
     const navbar = document.getElementById('navbar');
     if (!navbar) return;
@@ -435,10 +431,8 @@ function initSemifullScrollDetection() {
         window.removeEventListener('scroll', window.semifullScrollHandler as () => void);
     }
 
-    // 保存新的事件处理器引用
     window.semifullScrollHandler = requestTick as unknown as (() => void);
 
-    // 监听滚动事件
     window.addEventListener('scroll', requestTick, { passive: true });
 
     // 初始化状态

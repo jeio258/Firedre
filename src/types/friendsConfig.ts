@@ -1,4 +1,3 @@
-// 友链配置
 export type FriendLink = {
 	title: string;        
 	imgurl: string;           

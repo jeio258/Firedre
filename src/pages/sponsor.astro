@@ -3,6 +3,7 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import Comment from "@components/comment/index.astro";
 import { Icon } from "astro-icon/components";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import { commentConfig, sponsorConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
@@ -15,12 +16,10 @@ import { cfEnv } from "../lib/api";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.sponsor) {
 	return Astro.redirect("/404/");
 }
 
-// 检查评论系统是否启用
 const isCommentEnabled =
 	commentConfig?.type &&
 	((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none" &&
@@ -86,7 +85,7 @@ function getQrLqipProps(qrCode: string) {
 
                         <div class="flex items-center gap-3 mb-4">
                           {method.icon && (
-                            <Icon name={method.icon} class="text-2xl text-neutral-900 dark:text-neutral-100 transition-colors" />
+                            <SafeIcon name={method.icon} class="text-2xl text-neutral-900 dark:text-neutral-100 transition-colors" />
                           )}
                           <h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                             {method.name}
@@ -220,7 +219,7 @@ function getQrLqipProps(qrCode: string) {
 <style is:global>
   .sponsor-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
     gap: 0.75rem;
   }
 </style>

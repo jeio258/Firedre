@@ -1,267 +1,238 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import { apiJson } from "@/lib/adminApi";
+	import { onMount } from "svelte";
+	import { apiJson } from "@/lib/adminApi";
+	import { registerSaveAll } from "@/lib/adminSave";
+	import { getDraft, clearDraft } from "@/lib/adminDrafts";
+	import AdminPageConfig from "./AdminPageConfig.svelte";
 
-type AlbumSummary = {
-	slug: string;
-	title: string;
-	date?: string;
-	count?: number;
-	encrypted?: boolean;
-	source?: string;
-	cover?: string;
-};
+	type AlbumSummary = {
+		slug: string;
+		title: string;
+		date?: string;
+		count?: number;
+		encrypted?: boolean;
+		source?: string;
+		cover?: string;
+	};
 
-let albums: AlbumSummary[] = [];
-let loading = true;
-let message = "";
-let savingOrder = false;
+	let albums: AlbumSummary[] = $state([]);
+	let loading = $state(true);
+	let message = $state("");
+	let savingOrder = $state(false);
 
-async function load() {
-	try {
-		const data = await apiJson<{ albums?: AlbumSummary[] }>("/api/gallery/");
-		albums = data.albums || [];
-	} catch {
-		message = "加载失败";
-	}
-	loading = false;
-}
-
-// 创建相册：直接进入创建页，不先填 slug；slug 在创建页保存时必填
-function create() {
-	window.location.href = `/admin/gallery/new/`;
-}
-
-async function remove(slug: string) {
-	if (!confirm(`确定删除相册「${slug}」？`)) return;
-	try {
-		const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
-			method: "DELETE",
-		});
-		if (resp.ok) {
-			albums = albums.filter((a) => a.slug !== slug);
-		} else {
-			alert("删除失败");
+	async function load() {
+		try {
+			const data = await apiJson<{ albums?: AlbumSummary[] }>("/api/gallery/");
+			albums = data.albums || [];
+		} catch {
+			message = "加载失败";
 		}
-	} catch {
-		alert("网络错误");
+		loading = false;
 	}
-}
 
-let dragIndex = -1;
-
-function onDragStart(index: number) {
-	dragIndex = index;
-}
-
-function onDragOver(event: DragEvent, index: number) {
-	event.preventDefault();
-	if (index === dragIndex) return;
-	// 拖动时实时交换，让列表在拖拽过程中跟随
-	const list = [...albums];
-	const [moved] = list.splice(dragIndex, 1);
-	list.splice(index, 0, moved);
-	albums = list;
-	dragIndex = index;
-}
-
-function onDrop(event: DragEvent) {
-	event.preventDefault();
-	dragIndex = -1;
-	void saveOrder();
-}
-
-async function saveOrder() {
-	if (savingOrder) return;
-	savingOrder = true;
-	message = "排序保存中…";
-	try {
-		await apiJson("/api/gallery/order/", {
-			method: "PUT",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ slugs: albums.map((a) => a.slug) }),
-		});
-		message = "排序已保存 ✓";
-	} catch {
-		message = "排序保存失败";
-	} finally {
-		savingOrder = false;
+	function editHref(slug: string) {
+		return `/admin/gallery/${encodeURIComponent(slug)}/`;
 	}
-}
 
-onMount(load);
+	function create() {
+		window.location.href = `/admin/gallery/new/`;
+	}
+
+	async function remove(slug: string) {
+		if (!confirm(`确定删除相册「${slug}」？`)) return;
+		try {
+			const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
+				method: "DELETE",
+			});
+			if (resp.ok) {
+				albums = albums.filter((a) => a.slug !== slug);
+			} else {
+				alert("删除失败");
+			}
+		} catch {
+			alert("网络错误");
+		}
+	}
+
+	let dragIndex = $state(-1);
+
+	function onDragStart(index: number) {
+		dragIndex = index;
+	}
+
+	function onDragOver(event: DragEvent, index: number) {
+		event.preventDefault();
+		if (index === dragIndex) return;
+		const list = [...albums];
+		const [moved] = list.splice(dragIndex, 1);
+		list.splice(index, 0, moved);
+		albums = list;
+		dragIndex = index;
+	}
+
+	function onDrop(event: DragEvent) {
+		event.preventDefault();
+		dragIndex = -1;
+		void saveOrder();
+	}
+
+	async function saveOrder() {
+		if (savingOrder) return;
+		savingOrder = true;
+		try {
+			await apiJson("/api/gallery/order/", {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ slugs: albums.map((a) => a.slug) }),
+			});
+			clearDraft("相册排序");
+		} catch {
+		} finally {
+			savingOrder = false;
+		}
+	}
+
+	onMount(async () => {
+		await load();
+		const d = getDraft<{ albums?: AlbumSummary[] }>("相册排序");
+		if (d?.albums) {
+			albums = d.albums;
+			clearDraft("相册排序");
+		}
+		return registerSaveAll("相册排序", saveOrder, () => ({ albums }));
+	});
 </script>
 
-<div class="admin-card">
-	<div class="toolbar">
-		<h2>相册管理</h2>
-		<div class="create">
-			<button class="btn-primary" on:click={create}>创建相册</button>
+<div class="crud-page">
+	<div class="crud-head">
+		<div>
+			<h2>相册管理</h2>
+			<p class="crud-sub">共 {albums.length} 个相册</p>
+		</div>
+		<div class="crud-head-actions">
+			{#if message}
+				<span class="crud-msg">{message}</span>
+			{/if}
+			<button class="btn-primary" on:click={create}>+ 新增相册</button>
 		</div>
 	</div>
 
-	{#if message}
-		<p class="msg">{message}</p>
-	{/if}
+	<AdminPageConfig
+		group="gallery"
+		enableKey="enabled"
+		enableLabel="启用相册页"
+		title="本页设置 · 相册"
+		titleField="title"
+	/>
 
 	{#if loading}
-		<p class="hint">加载中…</p>
+		<div class="crud-empty">加载中…</div>
 	{:else if albums.length === 0}
-		<p class="hint">暂无相册</p>
+		<div class="crud-empty">暂无相册，点击「新增相册」开始。</div>
 	{:else}
-		<p class="sort-hint">拖动左侧手柄调整相册显示顺序，松开即保存。</p>
-		<div class="table-wrap">
-		<table>
-			<thead>
-				<tr>
-					<th class="drag-col" aria-label="排序"></th>
-					<th>相册</th>
-					<th>Slug</th>
-					<th>日期</th>
-					<th>照片</th>
-					<th>状态</th>
-					<th>操作</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each albums as album, index (album.slug)}
-					<tr
-						draggable="true"
-						class:dragging={dragIndex === index}
-						on:dragstart={() => onDragStart(index)}
-						on:dragover={(e) => onDragOver(e, index)}
-						on:drop={onDrop}
+		<p class="sort-hint">拖动卡片调整相册显示顺序，松开即保存。</p>
+		<div class="album-grid">
+			{#each albums as album, index (album.slug)}
+				<a
+					class="album-card"
+					class:dragging={dragIndex === index}
+					href={editHref(album.slug)}
+					draggable="true"
+					on:dragstart={() => onDragStart(index)}
+					on:dragover={(e) => onDragOver(e, index)}
+					on:drop={onDrop}
+				>
+					<div
+						class="thumb"
+						style={album.cover
+							? `background-image:url('${album.cover}')`
+							: "background:linear-gradient(135deg,#0e7490,#06b6d4)"}
 					>
-						<td class="drag-col">
-							<span class="drag-handle" title="拖拽排序">⠿</span>
-						</td>
-						<td>
-							{#if album.cover}
-								<img src={album.cover} alt="" width="40" height="40" />
-							{/if}
-							{album.title}
-						</td>
-						<td class="mono">{album.slug}</td>
-						<td>{album.date || "-"}</td>
-						<td>{album.count ?? "-"}</td>
-						<td>
-							{#if album.encrypted}
-								<span class="tag">加密</span>
-							{/if}
-							{#if album.source === "webdav"}
-								<span class="tag">WebDAV</span>
-							{/if}
-						</td>
-						<td class="ops">
-							<a href={`/admin/gallery/${encodeURIComponent(album.slug)}/`}>编辑</a>
-							<button class="danger" on:click={() => remove(album.slug)}>删除</button>
-						</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+						{#if !album.cover}
+							<span class="img-glyph">
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+									<rect x="3" y="4" width="18" height="16" rx="2" />
+									<circle cx="8.5" cy="9.5" r="1.6" />
+									<path d="m3 16 5-4 4 3 3-2 6 5" />
+								</svg>
+							</span>
+						{/if}
+						<button
+							type="button"
+							class="album-del"
+							on:click={(e) => {
+								e.preventDefault();
+								e.stopPropagation();
+								remove(album.slug);
+							}}
+						>
+							删除
+						</button>
+					</div>
+					<div class="album-info">
+						<span class="album-name">{album.title}</span>
+						<span class="album-count">{album.count ?? 0} 张</span>
+					</div>
+					{#if album.encrypted || album.source === "webdav"}
+						<div class="album-chips">
+							{#if album.encrypted}<span class="u-chip on">加密</span>{/if}
+							{#if album.source === "webdav"}<span class="u-chip on">WebDAV</span>{/if}
+						</div>
+					{/if}
+				</a>
+			{/each}
 		</div>
 	{/if}
 </div>
 
 <style>
-	.toolbar {
-		gap: 1rem;
-	}
-	.create {
-		display: flex;
-		gap: 0.5rem;
-	}
 	.sort-hint {
-		color: var(--muted);
+		color: var(--text-muted);
 		font-size: 0.82rem;
-		margin: 0.2rem 0 0.4rem;
+		margin: 0 0 0.4rem;
 	}
-	.table-wrap {
-		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
-	}
-	@media (max-width: 767px) {
-		.table-wrap {
-			margin: 0 -1rem;
-			padding: 0 1rem;
-		}
-		.table-wrap table {
-			min-width: 560px;
-		}
-	}
-	input {
-		padding: 0.45rem 0.7rem;
-		border: 1px solid var(--line-color);
-		border-radius: 0.4rem;
-		font-size: 0.9rem;
-		background: var(--card-bg);
-		color: var(--deep-text);
-	}
-	.btn-primary {
-		padding: 0.45rem 0.9rem;
-	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.9rem;
-	}
-	th,
-	td {
-		text-align: left;
-		padding: 0.5rem 0.6rem;
-		border-bottom: 1px solid var(--line-divider);
-	}
-	.drag-col {
-		width: 2rem;
-	}
-	.drag-handle {
-		cursor: grab;
-		color: var(--muted);
-		font-size: 1.1rem;
-		user-select: none;
-		display: inline-block;
-	}
-	tr.dragging {
+	.album-card.dragging {
 		opacity: 0.6;
-		background: var(--line-divider);
 	}
-	img {
-		border-radius: 0.35rem;
-		object-fit: cover;
-		vertical-align: middle;
-		margin-right: 0.5rem;
+	.thumb {
+		background-size: cover;
+		background-position: center;
+		position: relative;
 	}
-	.mono {
-		font-family: ui-monospace, monospace;
-		font-size: 0.82rem;
-	}
-	.tag {
-		background: var(--btn-regular-bg);
-		border-radius: 0.3rem;
-		padding: 0.1rem 0.4rem;
-		font-size: 0.72rem;
-		color: var(--muted);
-		margin-right: 0.3rem;
-	}
-	.ops {
-		display: flex;
-		gap: 0.6rem;
-	}
-	.ops a {
-		color: var(--primary);
-		text-decoration: none;
-	}
-	.danger {
-		background: none;
+	.album-del {
+		position: absolute;
+		top: 0.4rem;
+		right: 0.4rem;
 		border: none;
-		color: var(--danger);
+		background: rgba(0, 0, 0, 0.45);
+		color: #fff;
+		font-size: 0.72rem;
+		padding: 0.15rem 0.5rem;
+		border-radius: 0.4rem;
 		cursor: pointer;
-		font-size: 0.9rem;
-		padding: 0;
+		opacity: 0;
+		transition: opacity 0.15s;
 	}
-	.hint {
-		color: var(--muted);
-		padding: 1rem 0;
+	.album-card:hover .album-del {
+		opacity: 1;
+	}
+	.album-chips {
+		display: flex;
+		gap: 0.3rem;
+		padding: 0 0.9rem 0.7rem;
+	}
+	.u-chip.on {
+		background: color-mix(in oklch, var(--primary) 18%, transparent);
+		color: var(--primary);
+	}
+	@media (max-width: 1023px) {
+		.album-grid {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+	@media (max-width: 640px) {
+		.album-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 </style>

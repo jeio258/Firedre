@@ -1,5 +1,7 @@
 
 import { siteConfig as staticSiteConfig } from "./siteConfig";
+import { booknavConfig as staticBooknavConfig, booknavPageConfig as staticBooknavPageConfig } from "./booknavConfig";
+import type { BooknavGroup, BooknavFaviconConfig } from "../types/booknavConfig";
 import { profileConfig as staticProfileConfig } from "./profileConfig";
 import { commentConfig as staticCommentConfig } from "./commentConfig";
 import { musicPlayerConfig as staticMusicConfig } from "./musicConfig";
@@ -8,6 +10,7 @@ import { live2dWidgetConfig as staticPioConfig } from "./pioConfig";
 import { footerConfig as staticFooterConfig } from "./footerConfig";
 import { licenseConfig as staticLicenseConfig } from "./licenseConfig";
 import { sponsorConfig as staticSponsorConfig } from "./sponsorConfig";
+import type { SponsorItem } from "../types/sponsorConfig";
 import { dynamicConfig as staticDynamicConfig } from "./dynamicConfig";
 import { announcementConfig as staticAnnouncementConfig } from "./announcementConfig";
 import { navBarConfig as staticNavConfig } from "./navBarConfig";
@@ -15,6 +18,8 @@ import { sidebarLayoutConfig as staticSidebarConfig } from "./sidebarConfig";
 import { coverImageConfig as staticCoverConfig } from "./coverImageConfig";
 import { fontConfig as staticFontConfig } from "./fontConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
+import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
+import { expressiveCodeConfig as staticExpressiveCodeConfig } from "./expressiveCodeConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
@@ -40,7 +45,9 @@ function num(v: unknown, fallback: number): number {
 	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
 }
 function bool(v: unknown, fallback: boolean): boolean {
-	return typeof v === "boolean" ? v : fallback;
+	if (typeof v === "boolean") return v;
+	if (v === "true" || v === "false") return v === "true";
+	return fallback;
 }
 function arr(v: unknown, fallback: unknown[]): unknown[] {
 	if (Array.isArray(v)) return v;
@@ -113,6 +120,41 @@ export function getSiteConfig(locals: unknown) {
 	};
 }
 
+export function getBooknavConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const bm = groupOf(s, "bookmarks");
+	const groupsRaw = bm.groups;
+	let groups: BooknavGroup[] = [];
+	if (typeof groupsRaw === "string" && groupsRaw.trim()) {
+		try {
+			groups = JSON.parse(groupsRaw) as BooknavGroup[];
+		} catch {
+			groups = [];
+		}
+	} else if (Array.isArray(groupsRaw)) {
+		groups = groupsRaw as BooknavGroup[];
+	}
+	if (!groups || groups.length === 0) {
+		groups = staticBooknavConfig;
+	}
+	let favicon = staticBooknavPageConfig.favicon;
+	const favRaw = bm.favicon;
+	if (typeof favRaw === "string" && favRaw.trim()) {
+		try {
+			favicon = JSON.parse(favRaw) as BooknavFaviconConfig;
+		} catch {
+		}
+	} else if (favRaw && typeof favRaw === "object") {
+		favicon = favRaw as BooknavFaviconConfig;
+	}
+	return {
+		title: str(bm.title ?? s.title, staticBooknavPageConfig.title ?? ""),
+		description: str(bm.description ?? s.description, staticBooknavPageConfig.description ?? ""),
+		groups,
+		favicon,
+	};
+}
+
 export function getProfileConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const pr = groupOf(s, "profile");
@@ -132,6 +174,7 @@ export function getCommentConfig(locals: unknown) {
 	const c = groupOf(s, "comment");
 	return {
 		...staticCommentConfig,
+		enable: bool(c.enabled, true),
 		type: str(c.type, staticCommentConfig.type),
 		giscus: {
 			...(staticCommentConfig.giscus ?? {}),
@@ -289,6 +332,7 @@ export function getFooterConfig(locals: unknown) {
 	const f = groupOf(s, "footer");
 	return {
 		...staticFooterConfig,
+		enable: bool(f.enabled, (staticFooterConfig as Record<string, unknown>).enable as boolean),
 		...(typeof f.text === "string" && f.text ? { text: f.text } : {}),
 		...(typeof f.icp === "string" && f.icp ? { icp: f.icp } : {}),
 		...(typeof f.startYear === "string" && f.startYear ? { startYear: f.startYear } : {}),
@@ -340,8 +384,13 @@ export function getLicenseConfig(locals: unknown) {
 export function getSponsorConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const sp = groupOf(s, "sponsor");
+	const sponsorsVal =
+		typeof sp.sponsors === "string"
+			? sp.sponsors
+			: JSON.stringify((sp.sponsors as SponsorItem[] | undefined) ?? staticSponsorConfig.sponsors ?? []);
 	return {
 		...staticSponsorConfig,
+		sponsors: sponsorsVal as unknown as SponsorItem[],
 		enable: bool(sp.enabled, (staticSponsorConfig as Record<string, unknown>).enable as boolean),
 		...(typeof sp.qrCode === "string" && sp.qrCode ? { qrCode: sp.qrCode } : {}),
 		showButtonInPost: bool(sp.showButtonInPost, (staticSponsorConfig as Record<string, unknown>).showButtonInPost as boolean),
@@ -433,12 +482,24 @@ export function getSidebarConfig(locals: unknown) {
 export function getCoverConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const c = groupOf(s, "cover");
+	let randomCoverImage = staticCoverConfig.randomCoverImage;
+	if (typeof c.randomCoverImage === "string" && c.randomCoverImage.trim()) {
+		try {
+			randomCoverImage = JSON.parse(c.randomCoverImage) as typeof staticCoverConfig.randomCoverImage;
+		} catch {
+		}
+	} else if (c.randomCoverImage && typeof c.randomCoverImage === "object") {
+		randomCoverImage = c.randomCoverImage as typeof staticCoverConfig.randomCoverImage;
+	}
 	return {
 		...staticCoverConfig,
 		...(typeof c.enable === "boolean" ? { enable: c.enable } : {}),
 		...(typeof c.defaultImage === "string" && c.defaultImage ? { defaultImage: c.defaultImage } : {}),
 		...(typeof c.configurable === "boolean" ? { configurable: c.configurable } : {}),
+		enableInPost: bool(c.enableInPost, staticCoverConfig.enableInPost),
+		enableInPostOverlay: bool(c.enableInPostOverlay, staticCoverConfig.enableInPostOverlay ?? false),
 		showLoading: bool(c.showLoading, (staticCoverConfig as Record<string, unknown>).showLoading as boolean),
+		randomCoverImage,
 	};
 }
 
@@ -456,8 +517,21 @@ export function getMermaidConfig(locals: unknown) {
 	const m = groupOf(s, "mermaid");
 	return {
 		...staticMermaidConfig,
+		enable: bool(m.enabled, true),
 		lightTheme: str(m.lightTheme, staticMermaidConfig.lightTheme),
 		darkTheme: str(m.darkTheme, staticMermaidConfig.darkTheme),
+	};
+}
+
+export function getPlantumlConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const p = groupOf(s, "plantuml");
+	return {
+		...staticPlantumlConfig,
+		enable: bool(p.enable, staticPlantumlConfig.enable),
+		server: str(p.server, staticPlantumlConfig.server),
+		lightTheme: str(p.lightTheme, staticPlantumlConfig.lightTheme),
+		darkTheme: str(p.darkTheme, staticPlantumlConfig.darkTheme),
 	};
 }
 
@@ -473,6 +547,16 @@ export function getAnalyticsConfig(locals: unknown) {
 			websiteId: str(a.umamiId, staticAnalyticsConfig.umamiAnalytics?.websiteId ?? ""),
 			scriptUrl: str(a.umamiUrl, staticAnalyticsConfig.umamiAnalytics?.scriptUrl ?? ""),
 		},
+	};
+}
+
+export function getExpressiveCodeConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const ec = groupOf(s, "expressiveCode");
+	return {
+		...staticExpressiveCodeConfig,
+		darkTheme: str(ec.darkTheme, staticExpressiveCodeConfig.darkTheme),
+		lightTheme: str(ec.lightTheme, staticExpressiveCodeConfig.lightTheme),
 	};
 }
 
@@ -514,4 +598,7 @@ export function getWallpaperConfigFromWindow() {
 }
 export function getPanelConfigFromWindow() {
 	return getPanelConfig({ settings: windowSettings() });
+}
+export function getExpressiveCodeConfigFromWindow() {
+	return getExpressiveCodeConfig({ settings: windowSettings() });
 }

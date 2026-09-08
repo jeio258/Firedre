@@ -12,7 +12,6 @@ import { getGalleryHub } from "../../../server/gallery/service";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.gallery) {
 	return Astro.redirect("/404/");
 }
@@ -38,7 +37,6 @@ const albums = (hub?.albums ?? []).map((album) => ({
 	encrypted: album.encrypted || false,
 }));
 
-// 收集所有标签用于筛选
 const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
 ---
 

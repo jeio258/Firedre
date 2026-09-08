@@ -19,12 +19,10 @@ import { filterNsfw, isMalNsfw } from "@/utils/nsfw-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.mal) {
 	return Astro.redirect("/404/");
 }
 
-// 获取构建时间
 const buildTime = formatDateI18nWithTime(new Date());
 
 const malSettings = ((settings as any)?.["myanimelist"] ?? (settings as any)?.["mal"] ?? siteConfig.mal) as Record<string, unknown>;
@@ -34,7 +32,6 @@ const malConfig = {
 	apiUrl: (malSettings.apiUrl as string | undefined) || "https://api.myanimelist.net/v2",
 	animeBaseUrl: (malSettings.animeBaseUrl as string | undefined) || "https://myanimelist.net/anime/",
 	mangaBaseUrl: (malSettings.mangaBaseUrl as string | undefined) || "https://myanimelist.net/manga/",
-	// 数据获取设置
 	pagination: {
 		limit: 100,          
 		delay: 100,                  
@@ -63,7 +60,6 @@ async function fetchAll(kind: MalListKind): Promise<MalListItem[]> {
 			break;
 		}
 
-		// 检查是否超过最大获取限制
 		if (maxTotal > 0 && allItems.length >= maxTotal) {
 			console.log(`[MAL] Reached max fetch limit ${maxTotal}, stopping`);
 			break;
@@ -80,7 +76,6 @@ async function fetchAll(kind: MalListKind): Promise<MalListItem[]> {
 		const batch = data.data || [];
 		allItems.push(...batch);
 
-		// 没有下一页或本次获取为空时终止
 		if (!data.paging?.next || batch.length === 0) break;
 		offset += limit;
 

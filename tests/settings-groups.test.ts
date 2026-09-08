@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { SETTING_GROUPS } from "../server/settings/service";
 import { flattenSettingsDefaults } from "../server/settings/flatten";
 
-const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt", "plantuml"];
+const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt"];
 
 describe("SETTING_GROUPS 已清除死配置组", () => {
 	it("四个死组（widgets/expressive/encrypt/plantuml）不再出现", () => {

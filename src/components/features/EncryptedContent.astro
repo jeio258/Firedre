@@ -216,7 +216,6 @@ const labels = {
     return new TextDecoder().decode(decrypted);
   }
 
-  // Handle form submit
   form.addEventListener('submit', function(e) {
     e.preventDefault();
     var pwd = input.value.trim();
@@ -230,7 +229,6 @@ const labels = {
     });
   });
 
-  // Try cached password
   var cached = sessionStorage.getItem(cacheKey);
   if (cached) {
     decrypt(cached).then(function(html) {

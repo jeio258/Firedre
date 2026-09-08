@@ -179,7 +179,6 @@ const tLoadError = i18n(I18nKey.videoLoadError);
 			}
 		}
 
-		// 监听导航栏播放按钮事件
 		window.addEventListener("bg-player-toggle", toggle);
 		video.addEventListener("ended", onEnded);
 		video.addEventListener("error", onError);
@@ -188,7 +187,6 @@ const tLoadError = i18n(I18nKey.videoLoadError);
 		if (prevBtn) prevBtn.addEventListener("click", function () { switchTrack(prevIndex()); });
 		if (nextBtn) nextBtn.addEventListener("click", function () { switchTrack(pickIndex(currentIndex)); });
 
-		// 切换壁纸模式时停止播放
 		window.addEventListener("wallpaperModeChange", function (e) {
 			if (e.detail && e.detail.mode === "none" && isPlaying) {
 				isPlaying = false;
@@ -198,7 +196,6 @@ const tLoadError = i18n(I18nKey.videoLoadError);
 			}
 		});
 
-		// 动态控制 prev/next 按钮显示
 		if (!isMultiple) {
 			if (prevBtn) prevBtn.style.display = "none";
 			if (nextBtn) nextBtn.style.display = "none";

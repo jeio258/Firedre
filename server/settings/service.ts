@@ -27,6 +27,8 @@ export const SETTING_GROUPS = [
 	"ads",
 	"license",
 	"pio",
+	"plantuml",
+	"expressiveCode",
 	"analytics",
 ] as const;
 export type SettingGroup = (typeof SETTING_GROUPS)[number];
@@ -127,11 +129,12 @@ export async function saveSettingsGroups(
 	const entries = Object.entries(groups) as [SettingGroup, Record<string, unknown>][];
 	if (entries.length === 0) return;
 
+	// 合并下沉到 SQL：json_patch 递归合并现有值与传入值，避免部分更新清空同组其余字段（含嵌套子字段/跨编辑器保全），且原子无额外读
 	const sql = `
 		INSERT INTO site_settings (key, value, updated_at)
-		VALUES (?, ?, datetime('now'))
+		VALUES (?, json(?), datetime('now'))
 		ON CONFLICT(key) DO UPDATE SET
-			value = excluded.value,
+			value = json_patch(value, ?),
 			updated_at = datetime('now')
 	`;
 
@@ -143,14 +146,16 @@ export async function saveSettingsGroups(
 	};
 	if (typeof db.batch === "function") {
 		await db.batch(
-			entries.map(([group, data]) =>
-				db.prepare(sql).bind(group, JSON.stringify(data)),
-			),
+			entries.map(([group, data]) => {
+				const payload = JSON.stringify(data);
+				return db.prepare(sql).bind(group, payload, payload);
+			}),
 		);
 	} else {
 		// 本地 dev 垫片：无 batch()，逐组写（KV 全量同步仍只做一次）
 		for (const [group, data] of entries) {
-			await db.prepare(sql).bind(group, JSON.stringify(data)).run();
+			const payload = JSON.stringify(data);
+			await db.prepare(sql).bind(group, payload, payload).run();
 		}
 	}
 

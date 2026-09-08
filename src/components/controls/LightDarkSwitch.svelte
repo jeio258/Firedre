@@ -47,7 +47,6 @@ function updateDisplayedMode() {
 
 // 使用onMount确保在组件挂载后正确初始化
 onMount(() => {
-	// 立即获取并设置正确的主题
 	const storedTheme = getStoredTheme();
 	mode = storedTheme;
 	updateDisplayedMode();
@@ -71,14 +70,12 @@ onMount(() => {
 		mediaQuery.addEventListener("change", handleSystemChange);
 	}
 
-	// 添加Swup监听
 	const handleContentReplace = () => {
 		const newTheme = getStoredTheme();
 		mode = newTheme;
 		updateDisplayedMode();
 	};
 
-	// 检查Swup是否已经加载
 	const win = window as WindowWithSwup;
 	if (win.swup?.hooks) {
 		win.swup.hooks.on("content:replace", handleContentReplace);
@@ -91,7 +88,6 @@ onMount(() => {
 		});
 	}
 
-	// 监听主题变化事件
 	const handleThemeChange = () => {
 
 		if (mode !== SYSTEM_MODE) {
@@ -106,7 +102,6 @@ onMount(() => {
 
 	window.addEventListener("theme-change", handleThemeChange);
 
-	// 清理函数
 	return () => {
 		window.removeEventListener("theme-change", handleThemeChange);
 	};

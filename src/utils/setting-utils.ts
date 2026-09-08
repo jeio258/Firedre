@@ -11,19 +11,18 @@ import {
 import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
 import {
 	backgroundWallpaper,
-	expressiveCodeConfig,
 	sakuraConfig,
 	siteConfig,
 } from "../config";
 import {
 	getEffectsConfigFromWindow,
+	getExpressiveCodeConfigFromWindow,
 	getPanelConfigFromWindow,
 	getSiteConfigFromWindow,
 	getWallpaperConfigFromWindow,
 } from "../config/runtime";
 import { isHomePage as checkIsHomePage } from "./layout-utils";
 
-// Declare global functions
 declare global {
 	interface Window {
 		initSemifullScrollDetection?: () => void;
@@ -106,8 +105,7 @@ function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSet
 
 export function getDefaultHue(): number {
 	const fallback = "250";
-	// 检查是否在浏览器环境中
-	if (typeof document === "undefined") {
+		if (typeof document === "undefined") {
 		return Number.parseInt(fallback, 10);
 	}
 	const configCarrier = document.getElementById("config-carrier");
@@ -119,7 +117,6 @@ function getDefaultTheme(): LIGHT_DARK_MODE {
 	return (getSiteConfigFromWindow().themeColor?.defaultMode ?? siteConfig.themeColor.defaultMode ?? DEFAULT_THEME) as LIGHT_DARK_MODE;
 }
 
-// 获取系统主题
 export function getSystemTheme(): LIGHT_DARK_MODE {
 	if (typeof window === "undefined") {
 		return LIGHT_MODE;
@@ -138,8 +135,7 @@ export function resolveTheme(theme: LIGHT_DARK_MODE): LIGHT_DARK_MODE {
 }
 
 export function getHue(): number {
-	// 先检查全局对象
-	if (typeof window === "undefined" || !window.localStorage) {
+		if (typeof window === "undefined" || !window.localStorage) {
 		return getDefaultHue();
 	}
 	const stored = localStorage.getItem("hue");
@@ -147,8 +143,7 @@ export function getHue(): number {
 }
 
 export function setHue(hue: number): void {
-	// 先检查是否在浏览器环境
-	if (
+		if (
 		typeof window === "undefined" ||
 		!window.localStorage ||
 		typeof document === "undefined"
@@ -164,16 +159,13 @@ export function setHue(hue: number): void {
 }
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
-	// 检查是否在浏览器环境中
-	if (typeof document === "undefined") {
+		if (typeof document === "undefined") {
 		return;
 	}
 
-	// 解析主题
-	const resolvedTheme = resolveTheme(theme);
+		const resolvedTheme = resolveTheme(theme);
 
-	// 获取当前主题状态的完整信息
-	const currentIsDark = document.documentElement.classList.contains("dark");
+		const currentIsDark = document.documentElement.classList.contains("dark");
 	const currentTheme = document.documentElement.getAttribute("data-theme");
 
 	let targetIsDark = false;          
@@ -192,8 +184,8 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 
 	const needsThemeChange = currentIsDark !== targetIsDark;
 	const expectedTheme = targetIsDark
-		? expressiveCodeConfig.darkTheme
-		: expressiveCodeConfig.lightTheme;
+		? getExpressiveCodeConfigFromWindow().darkTheme
+		: getExpressiveCodeConfigFromWindow().lightTheme;
 	const needsCodeThemeUpdate = currentTheme !== expectedTheme;
 
 	// 如果既不需要主题切换也不需要代码主题更新，直接返回
@@ -216,22 +208,19 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 	}
 }
 
-// 系统主题监听器引用
 let systemThemeListener:
 	| ((e: MediaQueryListEvent | MediaQueryList) => void)
 	| null = null;
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {
-	// 检查是否在浏览器环境中
-	if (
+		if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.setItem !== "function"
 	) {
 		return;
 	}
 
-	// 先应用主题
-	applyThemeToDocument(theme);
+		applyThemeToDocument(theme);
 
 	localStorage.setItem("theme", theme);
 
@@ -244,7 +233,6 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 	}
 }
 
-// 设置系统主题监听器
 
 function setupSystemThemeListener(): void {
 
@@ -256,8 +244,7 @@ function setupSystemThemeListener(): void {
 
 	const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-	// 处理系统主题变化的回调
-	const handleSystemThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
+		const handleSystemThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
 		const isDark = e.matches;
 		const currentIsDark = document.documentElement.classList.contains("dark");
 
@@ -274,8 +261,8 @@ function setupSystemThemeListener(): void {
 		}
 
 		const expressiveTheme = isDark
-			? expressiveCodeConfig.darkTheme
-			: expressiveCodeConfig.lightTheme;
+			? getExpressiveCodeConfigFromWindow().darkTheme
+			: getExpressiveCodeConfigFromWindow().lightTheme;
 		document.documentElement.setAttribute("data-theme", expressiveTheme);
 
 		// 触发自定义事件通知其他组件（仅在真正切换时触发）
@@ -296,7 +283,6 @@ function setupSystemThemeListener(): void {
 	systemThemeListener = handleSystemThemeChange;
 }
 
-// 清理系统主题监听器
 function cleanupSystemThemeListener() {
 	if (typeof window === "undefined" || !systemThemeListener) {
 		return;
@@ -315,8 +301,7 @@ function cleanupSystemThemeListener() {
 }
 
 export function getStoredTheme(): LIGHT_DARK_MODE {
-	// 检查是否在浏览器环境中
-	if (
+		if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.getItem !== "function"
 	) {
@@ -327,7 +312,6 @@ export function getStoredTheme(): LIGHT_DARK_MODE {
 	);
 }
 
-// 初始化主题监听器（用于页面加载后）
 export function initThemeListener(): void {
 	if (
 		typeof localStorage === "undefined" ||
@@ -344,7 +328,6 @@ export function initThemeListener(): void {
 	}
 }
 
-// Wallpaper mode functions
 
 export function syncBannerHomeTextVisibility(): void {
 	const overlay = document.querySelector(
@@ -414,12 +397,10 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 
 	// 根据当前壁纸模式设置导航栏透明模式和模糊效果
 	if (mode === WALLPAPER_OVERLAY) {
-		// 全屏透明模式
-		transparentMode = "none";
+				transparentMode = "none";
 		blurAmount = 0;
 	} else if (mode === WALLPAPER_NONE) {
-		// 纯色背景模式
-		transparentMode = "none";
+				transparentMode = "none";
 		blurAmount = 0;
 	} else if (mode === WALLPAPER_FULLSCREEN) {
 
@@ -440,22 +421,18 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 		blurAmount = backgroundWallpaper.banner?.navbar?.blur ?? 20;
 	}
 
-	// 更新导航栏的透明模式属性
-	navbar.setAttribute("data-transparent-mode", transparentMode);
+		navbar.setAttribute("data-transparent-mode", transparentMode);
 	navbar.style.setProperty("--navbar-glass-blur", `${blurAmount}px`);
 
-	// 移除现有的透明模式类
-	navbar.classList.remove(
+		navbar.classList.remove(
 		"navbar-transparent-semi",
 		"navbar-transparent-full",
 		"navbar-transparent-semifull",
 	);
 
-	// 移除scrolled类
-	navbar.classList.remove("scrolled");
+		navbar.classList.remove("scrolled");
 
-	// 滚动检测功能
-	if (
+		if (
 		transparentMode === "semifull" &&
 		(mode === WALLPAPER_BANNER || mode === WALLPAPER_FULLSCREEN) &&
 		typeof window.initSemifullScrollDetection === "function"
@@ -463,15 +440,13 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 		// 在Banner和全屏壁纸模式的semifull下启用滚动检测
 		window.initSemifullScrollDetection();
 	} else if (window.semifullScrollHandler) {
-		// 移除滚动监听器
-		window.removeEventListener("scroll", window.semifullScrollHandler);
+				window.removeEventListener("scroll", window.semifullScrollHandler);
 		delete window.semifullScrollHandler;
 	}
 }
 
 export function setWallpaperMode(mode: WALLPAPER_MODE): void {
-	// 检查是否在浏览器环境中
-	if (
+		if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.setItem !== "function"
 	) {
@@ -491,8 +466,7 @@ export function initWallpaperMode(): void {
 export function getStoredWallpaperMode(): WALLPAPER_MODE {
 
 	const runtimeMode = getWallpaperConfigFromWindow().mode;
-	// 检查是否在浏览器环境中
-	if (
+		if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.getItem !== "function"
 	) {
@@ -508,7 +482,6 @@ export function getStoredWallpaperMode(): WALLPAPER_MODE {
 	return (localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) || runtimeMode;
 }
 
-// Overlay settings functions
 export function getDefaultOverlayOpacity(): number {
 	return getWallpaperConfigFromWindow().overlay?.opacity ?? backgroundWallpaper.overlay?.opacity ?? 0.8;
 }
@@ -665,7 +638,6 @@ export function setWavesEnabled(enabled: boolean): void {
 	wavesSetting.set(enabled);
 }
 
-// Gradient transition functions
 export const getDefaultGradientEnabled = createDeviceBooleanDefault(
 	() => getEffectsConfigFromWindow().gradient,
 	backgroundWallpaper.banner?.gradient?.enable,
@@ -684,7 +656,6 @@ export function setGradientEnabled(enabled: boolean): void {
 	gradientSetting.set(enabled);
 }
 
-// Sakura effect functions
 export function getDefaultSakuraEnabled(): boolean {
 	return getEffectsConfigFromWindow().enable ?? sakuraConfig?.enable ?? false;
 }
@@ -707,7 +678,6 @@ export function setSakuraEnabled(enabled: boolean): void {
 	sakuraSetting.set(enabled);
 }
 
-// Banner title functions
 export function getDefaultBannerTitleEnabled(): boolean {
 	return getWallpaperConfigFromWindow().common?.homeText?.enable ?? backgroundWallpaper.common?.homeText?.enable ?? true;
 }
@@ -799,7 +769,6 @@ function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 	);
 }
 
-// Card border functions
 export function getDefaultCardBorderEnabled(): boolean {
 	return getSiteConfigFromWindow().card?.border ?? siteConfig.card?.border ?? false;
 }
@@ -820,7 +789,6 @@ export function setCardBorderEnabled(enabled: boolean): void {
 	cardBorderSetting.set(enabled);
 }
 
-// Card follow theme functions
 export function getDefaultCardFollowThemeEnabled(): boolean {
 	return getSiteConfigFromWindow().card?.followTheme ?? siteConfig.card?.followTheme ?? false;
 }

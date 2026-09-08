@@ -2,8 +2,6 @@ import { coverImageConfig } from "../config/coverImageConfig";
 import { siteConfig } from "../config/siteConfig";
 import type { ImageFormat } from "../types/config";
 
-const { randomCoverImage } = coverImageConfig;
-
 function getSeedHash(seed?: string): number {
 	return seed
 		? Math.abs(
@@ -23,6 +21,7 @@ function appendSeedParam(apiUrl: string, hash: number): string {
 export function processCoverImageSync(
 	image: string | undefined,
 	seed?: string,
+	randomCover: typeof coverImageConfig.randomCoverImage = coverImageConfig.randomCoverImage,
 ): string {
 	if (!image || image === "") {
 		return "";
@@ -33,28 +32,29 @@ export function processCoverImageSync(
 	}
 
 	if (
-		!randomCoverImage.enable ||
-		!randomCoverImage.apis ||
-		randomCoverImage.apis.length === 0
+		!randomCover.enable ||
+		!randomCover.apis ||
+		randomCover.apis.length === 0
 	) {
 		return "";
 	}
 
 	// 始终使用第一个API，失败时由客户端按顺序尝试后续API
 	const hash = getSeedHash(seed);
-	return appendSeedParam(randomCoverImage.apis[0], hash);
+	return appendSeedParam(randomCover.apis[0], hash);
 }
 
 export function getApiUrlList(
 	image: string | undefined,
 	seed?: string,
+	randomCover: typeof coverImageConfig.randomCoverImage = coverImageConfig.randomCoverImage,
 ): string[] {
-	if (image !== "api" || !randomCoverImage.enable || !randomCoverImage.apis) {
+	if (image !== "api" || !randomCover.enable || !randomCover.apis) {
 		return [];
 	}
 
 	const hash = getSeedHash(seed);
-	return randomCoverImage.apis.map((api) => appendSeedParam(api, hash));
+	return randomCover.apis.map((api) => appendSeedParam(api, hash));
 }
 
 export function getImageFormats(): ImageFormat[] {

@@ -25,7 +25,6 @@ if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
 			"FooterConfig.html",
 		);
 		customFooterHtml = fs.readFileSync(footerConfigPath, "utf-8");
-		// 移除HTML注释
 		customFooterHtml = customFooterHtml.replace(/<!--[\s\S]*?-->/g, "").trim();
 	} catch (error) {
 		console.warn(

@@ -1,45 +1,29 @@
 import type { Live2DWidgetConfig, SpineModelConfig } from "../types/pioConfig";
 
-// Spine 看板娘配置
 export const spineModelConfig: SpineModelConfig = {
-	// Spine 看板娘开关
 	enable: false,
 
-	// Spine模型配置
 	model: {
-		// Spine模型文件路径
 		path: "/pio/models/spine/firefly/1310.json",
-		// 模型缩放比例
 		scale: 1.0,
-		// X轴偏移
 		x: 0,
-		// Y轴偏移
 		y: 0,
 	},
 
-	// 位置配置
 	position: {
 
 		corner: "bottom-left",
-		// 距离边缘0px
 		offsetX: 0,
-		// 距离下边缘0px
 		offsetY: 0,
 	},
 
-	// 尺寸配置
 	size: {
-		// 容器宽度
 		width: 135,
-		// 容器高度
 		height: 165,
 	},
 
-	// 交互配置
 	interactive: {
-		// 交互功能开关
 		enabled: true,
-		// 点击时随机播放的动画列表
 		clickAnimations: [
 			"emoji_0",
 			"emoji_1",
@@ -48,7 +32,6 @@ export const spineModelConfig: SpineModelConfig = {
 			"emoji_4",
 			"emoji_5",
 		],
-		// 点击时随机显示的文字消息
 		clickMessages: [
 			"你好呀！我是流萤~",
 			"今天也要加油哦！✨",
@@ -61,37 +44,29 @@ export const spineModelConfig: SpineModelConfig = {
 		],
 		// 文字显示时间（毫秒）
 		messageDisplayTime: 3000,
-		// 待机动画列表
 		idleAnimations: ["idle", "emoji_0", "emoji_1", "emoji_3", "emoji_4"],
 		// 待机动画切换间隔（毫秒）
 		idleInterval: 8000,
 	},
 
-	// 响应式配置
 	responsive: {
-		// 在移动端隐藏
 		hideOnMobile: true,
-		// 移动端断点
 		mobileBreakpoint: 768,
 	},
 
-	zIndex: 1000,      
+	zIndex: 1000,
 
-	// 透明度
 	opacity: 1.0,
 };
 
 export const live2dWidgetConfig: Live2DWidgetConfig = {
-	// Live2D 看板娘开关
 	enable: false,
 	// 模型配置，支持单个模型或数组（多模型切换）
 	model: [
 		{
-			// Live2D模型本地文件路径
 			path: "/pio/models/live2d/snow_miku/model.json",
 			// 动作声音音量 范围0~1，默认 0（静音）
 			volume: 0,
-			// 模型缩放比例
 			scale: 1,
 			// X轴偏移，范围 -2~2，正值向右
 			x: 0,
@@ -115,9 +90,7 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 	primaryColor: "var(--l2d-msg-bg)",
 	// 入场/退场动画时长（ms）
 	transitionDuration: 1500,
-	// 入场/退场动画类型
 	transitionType: "slide" as const,
-	// 菜单配置
 	menus: {
 		// 完全替换默认菜单项
 		items: [
@@ -147,16 +120,11 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 				action: "github",
 			},
 		],
-		// 菜单对齐方式
 		align: "right" as const,
 	},
-	// 提示气泡配置
 	tips: {
-		// 气泡开关
 		enable: true,
-		// 初始欢迎消息
 		welcomeMessage: ["你好呀！", "欢迎来到我的世界！"],
-		// 循环提示内容
 		messages: [
 			"有什么需要帮助的吗？",
 			"今天天气真不错呢！",
@@ -173,11 +141,8 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 			y: 0,             
 		},
 	},
-	// 响应式配置
 	responsive: {
-		// 在移动端隐藏
 		hideOnMobile: true,
-		// 移动端断点
 		mobileBreakpoint: 768,
 	},
 };

@@ -39,7 +39,6 @@ const config = {
         // 初始化 Artalk
         const artalk = Artalk.init(effectiveConfig);
 
-        // 深色模式
         function updateTheme() {
             const isDark = document.documentElement.classList.contains('dark');
             artalk.setDarkMode(isDark);

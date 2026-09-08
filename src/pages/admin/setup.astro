@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import AdminSetup from "../../components/admin/AdminSetup.svelte";
+import AdminHead from "@components/layout/AdminHead.astro";
 import "@/styles/variables.styl";
 
 const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
@@ -15,27 +16,10 @@ const defaultMode =
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
-	<script is:inline define:vars={{ configHue, defaultMode }}>
-		// 主题初始化：复用前端深浅模式（localStorage["theme"] / 系统偏好）
-		(function () {
-			try {
-				const theme = localStorage.getItem("theme") || defaultMode;
-				const isDark =
-					theme === "dark" ||
-					(theme === "system" &&
-						window.matchMedia("(prefers-color-scheme: dark)").matches);
-				document.documentElement.classList.toggle("dark", isDark);
-				const hue = localStorage.getItem("hue") || configHue;
-				document.documentElement.style.setProperty("--hue", hue);
-			} catch (e) {}
-		})();
-	</script>
+	<AdminHead defaultMode={defaultMode} defaultHue={configHue} />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>创建管理员 - Firedre 后台</title>
-	<link rel="icon" href="/favicon/favicon.ico" />
-	<link rel="icon" href="/favicon/favicon-dark-32.png" sizes="32x32" media="(prefers-color-scheme: dark)" />
-	<style define:vars={{ configHue }}>
-		html{--hue:var(--configHue)}
+	<style>
 		html,body{margin:0;padding:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--deep-text);-webkit-text-size-adjust:100%}
 		*{box-sizing:border-box}
 	</style>

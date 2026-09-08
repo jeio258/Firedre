@@ -4,12 +4,10 @@ import { visit } from "unist-util-visit";
 export default function rehypeEmailProtection(options = {}) {
 	const { method = "base64" } = options;
 
-	// Base64 编码函数
 	const base64Encode = (str) => {
 		return btoa(str);
 	};
 
-	// ROT13 编码函数
 	const rot13Encode = (str) => {
 		return str.replace(/[a-zA-Z]/g, (char) => {
 			const start = char <= "Z" ? 65 : 97;
@@ -19,12 +17,10 @@ export default function rehypeEmailProtection(options = {}) {
 		});
 	};
 
-	// 根据选择的方法进行编码
 	const encode = (str) => {
 		return method === "rot13" ? rot13Encode(str) : base64Encode(str);
 	};
 
-	// 生成解码 JavaScript 代码
 	const generateDecodeScript = () => {
 		if (method === "rot13") {
 			return `
@@ -46,12 +42,10 @@ export default function rehypeEmailProtection(options = {}) {
 		let hasEmailLinks = false;
 
 		visit(tree, "element", (node, index, parent) => {
-			// 只处理 a 元素
 			if (node.tagName !== "a") {
 				return;
 			}
 
-			// 检查是否是 mailto 链接
 			const href = node.properties?.href;
 			if (!href?.startsWith("mailto:")) {
 				return;
@@ -59,7 +53,6 @@ export default function rehypeEmailProtection(options = {}) {
 
 			hasEmailLinks = true;
 
-			// 提取邮箱地址
 			const email = href.replace("mailto:", "");
 			const encodedEmail = encode(email);
 
@@ -89,13 +82,11 @@ export default function rehypeEmailProtection(options = {}) {
 				node.children,
 			);
 
-			// 替换当前的 a 节点
 			if (parent && typeof index === "number") {
 				parent.children[index] = protectedLink;
 			}
 		});
 
-		// 如果页面中有邮箱链接，添加样式
 		if (hasEmailLinks) {
 			visit(tree, "element", (node) => {
 				if (node.tagName === "head") {

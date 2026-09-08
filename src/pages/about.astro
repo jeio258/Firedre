@@ -4,11 +4,11 @@ const settings =
 
 import Markdown from "@components/common/Markdown.astro";
 import { profileConfig } from "@/config/profileConfig";
-import { siteConfig } from "@/config/siteConfig";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getAuthorAvatarUrl } from "@/utils/schema-image";
+import { getSiteConfig } from "@/config/runtime";
 import { buildProfilePage } from "@/utils/schema-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -20,9 +20,9 @@ const aboutDetail = await getAbout(cfEnv);
 
 const aboutHtml = aboutDetail?.html ?? "";
 
-const avatarUrl = await getAuthorAvatarUrl();
+const avatarUrl = await getAuthorAvatarUrl(getSiteConfig(Astro.locals).site_url);
 const jsonLd = buildProfilePage({
-	site: ((settings as any)?.["site_url"] ?? siteConfig.site_url),
+	site: getSiteConfig(Astro.locals).site_url,
 	profileConfig,
 	authorUrl: Astro.url.toString(),
 	avatarUrl,

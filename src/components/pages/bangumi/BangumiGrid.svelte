@@ -10,7 +10,6 @@ import { filterNsfw, isBangumiNsfw } from "@/utils/nsfw-utils";
 import BangumiSection from "./BangumiSection.svelte";
 
 interface Props {
-	// 静态模式：直接传入数据
 	tabs?: Array<{ id: string; name: string; count: number }>;
 	initialActiveTab?: string;
 	bangumiData?: Record<string, UserSubjectCollection[]>;
@@ -40,7 +39,6 @@ const nsfwMode = $derived(nsfw ?? fetchConfig?.nsfw ?? "off");
 
 const isDynamic = $derived(!!fetchConfig);
 
-// 状态
 let activeTab = $state("");
 let fetchLoading = $state(false);
 const loading = $derived(isDynamic && fetchLoading);
@@ -66,7 +64,6 @@ let dynamicTabs = $state<Array<{ id: string; name: string; count: number }>>(
 );
 let dynamicData = $state<Record<string, UserSubjectCollection[]>>({});
 
-// 合并后的数据
 const tabs = $derived(staticTabs || dynamicTabs);
 const bangumiData = $derived(staticData || dynamicData);
 
@@ -176,7 +173,6 @@ async function loadDynamicData() {
 	updateTimestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
-// 从 URL hash 恢复 tab
 function restoreTabFromHash() {
 	if (!isDynamic) {
 		const hash = window.location.hash.replace(/^#/, "");

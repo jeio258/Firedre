@@ -216,7 +216,6 @@ function createItem(entry: DynamicData) {
 		if (gallery) gallery.dataset.sourceId = content.id;
 	}
 
-	// 置顶标识
 	const pinned = root.querySelector<HTMLElement>("[data-dynamic-pinned]");
 	if (pinned) {
 		if (entry.pinned) {

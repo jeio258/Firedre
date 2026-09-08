@@ -1,4 +1,4 @@
-
+import { booknavConfig, booknavPageConfig } from "./booknavConfig";
 
 export const settingsDefaults = {
 	basic: {
@@ -20,10 +20,10 @@ export const settingsDefaults = {
 		pageDynamic: true,
 		pageGallery: true,
 		pageBooknav: true,
-		pageBilibili: false,
+		pageBilibili: true,
 		pageBangumi: false,
 		pageVndb: false,
-		pageMal: false,
+		pageMal: true,
 		pageSponsor: true,
 		keywords: "Firefly,Fuwari,Astro,ACGN,博客,技术博客,静态博客",
 	},
@@ -107,6 +107,16 @@ export const settingsDefaults = {
 	},
 	cover: {
 		showLoading: false,
+		enableInPost: true,
+		enableInPostOverlay: false,
+		randomCoverImage: JSON.stringify({
+			enable: false,
+			apis: [
+				"https://t.alcy.cc/pc",
+				"https://www.dmoe.cc/random.php",
+				"https://uapis.cn/api/v1/random/image?category=acg&type=pc",
+			],
+		}),
 	},
 	music: {
 		showInNavbar: true,
@@ -147,6 +157,8 @@ export const settingsDefaults = {
 	bookmarks: {
 		title: "",
 		description: "",
+		groups: JSON.stringify(booknavConfig),
+		favicon: JSON.stringify(booknavPageConfig.favicon),
 	},
 	bilibili: {
 		enabled: true,
@@ -155,6 +167,7 @@ export const settingsDefaults = {
 	},
 	vndb: {
 		enabled: false,
+		mode: "dynamic",
 		username: "u358128",
 	},
 	myanimelist: {
@@ -163,6 +176,7 @@ export const settingsDefaults = {
 	},
 	bangumi: {
 		enabled: false,
+		mode: "dynamic",
 		username: "1143164",
 	},
 	ads: {
@@ -173,8 +187,13 @@ export const settingsDefaults = {
 	sponsor: {
 		title: "",
 		description: "",
+		usage: "您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
 		showButtonInPost: true,
 		showSponsorsList: true,
+		sponsors: [
+			{ name: "夏叶", avatar: "https://weavatar.com/avatar/d252655d40d6874417a720bad0a6c5f77f8f338402dc37e4190?s=640", amount: "¥50", date: "2025-10-01" },
+			{ name: "匿名用户", amount: "¥20", date: "2025-10-01" },
+		],
 	},
 	effects: {
 		sakura: false,
@@ -207,4 +226,14 @@ export const settingsDefaults = {
 		},
 	},
 	analytics: {},
+	plantuml: {
+		enable: true,
+		server: "https://www.plantuml.com/plantuml",
+		lightTheme: "",
+		darkTheme: "cyborg",
+	},
+	expressiveCode: {
+		darkTheme: "one-dark-pro",
+		lightTheme: "one-light",
+	},
 } as const;

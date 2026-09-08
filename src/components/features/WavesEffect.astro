@@ -6,14 +6,12 @@
 	import type { WavesManagerLike } from "@/types/waves";
 	import { WavesRenderer } from "@/utils/waves-draw";
 
-	// 通用工具
 	function readPageBg(): string {
 		return getComputedStyle(document.documentElement)
 			.getPropertyValue("--page-bg")
 			.trim();
 	}
 
-	// 主线程 Canvas 2D 管理器
 	class WavesManager implements WavesManagerLike {
 		isRunning = false;
 		canvas: HTMLCanvasElement | null = null;
@@ -209,7 +207,6 @@
 				this.resizeObserver.observe(this.canvas);
 			}
 
-			// window resize + dpr/zoom 变化
 			const onResize = () => this.scheduleResize();
 			this.boundHandleResize = onResize;
 			window.addEventListener("resize", onResize);
@@ -236,7 +233,6 @@
 				attributeFilter: ["class", "data-theme", "style"],
 			});
 
-			// prefers-reduced-motion
 			const onReducedMotion = (e: MediaQueryListEvent) => {
 				this.applyReducedMotion(e.matches);
 			};
@@ -300,7 +296,6 @@
 		}
 	}
 
-	// 初始化
 	function initWaves(): void {
 		if (window.wavesManager) {
 			return;

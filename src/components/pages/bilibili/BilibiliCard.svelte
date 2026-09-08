@@ -92,12 +92,10 @@ function getTypeColor(seasonType: number): string {
 			{getTypeLabel(anime.season_type)}
 		</div>
 
-		<!-- 来源标签 -->
 		<div class="absolute bottom-2 left-2 rounded-md bg-pink-500/80 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
 			Bilibili
 		</div>
 
-		<!-- 悬停遮罩 -->
 		<div class="absolute inset-0 flex flex-col justify-end bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
 			<div class="p-3">
 				<p class="mb-2 line-clamp-3 text-xs text-white/90 leading-relaxed">{anime.overview || i18n(I18nKey.animeNoOverview)}</p>
@@ -108,19 +106,15 @@ function getTypeColor(seasonType: number): string {
 		</div>
 	</div>
 
-	<!-- 底部信息 -->
 	<div class="p-3">
-		<!-- 标题 -->
 		<h3 class="mb-1 line-clamp-1 text-sm font-semibold text-neutral-900 dark:text-neutral-100" title={anime.title}>
 			{anime.title}
 		</h3>
-		<!-- 原文标题 -->
 		{#if anime.originalTitle && anime.originalTitle !== anime.title}
 			<p class="mb-2 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400" title={anime.originalTitle}>
 				{anime.originalTitle}
 			</p>
 		{/if}
-		<!-- 底部信息行 -->
 		<div class="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
 			<span>{anime.epStatus || anime.date?.slice(0, 4) || ""}</span>
 		</div>

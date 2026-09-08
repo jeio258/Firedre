@@ -83,11 +83,10 @@ const statsShowPublished = statsConfig.showPublished ?? true;
 const statsShowWords = statsConfig.showWords ?? true;
 const statsShowReadingTime = statsConfig.showReadingTime ?? true;
 
-// 标签显示位置
 const tagsPosition = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsPosition ?? "meta";
 const showTagsInMeta = metaShowTags && tagsPosition === "meta";
 const showTagsAtBottom = metaShowTags && tagsPosition === "bottom";
-// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
+	// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
 const bottomTagsAsText =
 	(((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsBottomStyle ?? "chip") === "text";
 const descriptionClampLines = String(descriptionLines);
@@ -128,6 +127,7 @@ const minutes = 0;
     <a
       href={url}
       class="post-card-title transition group w-full block font-bold mb-3 text-3xl text-90
+        break-words
         hover:text-(--primary) dark:hover:text-(--primary)
         active:text-(--title-active) dark:active:text-(--title-active)
         before:w-1 before:h-5 before:rounded-md before:bg-(--primary)
@@ -288,12 +288,17 @@ const minutes = 0;
     line-clamp: var(--descriptionClampLines);
   }
 
+  /* 列表模式封面宽度随视口自适应，窄屏不再固定 9rem 挤压正文 */
+  :global(.list-mode) {
+    --list-cover-w: clamp(6rem, 28vw, 9rem);
+  }
+
   :global(.list-mode) .post-card-wrapper {
     flex-direction: row !important;
   }
 
   :global(.list-mode) .has-cover .post-card-content {
-    width: calc(100% - 9rem - 0.75rem) !important;
+    width: calc(100% - var(--list-cover-w) - 0.75rem) !important;
     padding: 0.75rem 0.5rem 0.75rem 0.75rem !important;
   }
 
@@ -302,7 +307,7 @@ const minutes = 0;
     top: 0.5rem !important;
     bottom: 0.5rem !important;
     right: 0.5rem !important;
-    width: 9rem !important;
+    width: var(--list-cover-w) !important;
     aspect-ratio: auto !important;
     border-radius: 0.75rem !important;
   }

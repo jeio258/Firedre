@@ -247,7 +247,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 var frag = tpl.content.cloneNode(true);
                 if (high) {
                     var img = frag.querySelector('img');
-                    // 必须在插入前写，插入即发起请求
                     if (img) {
                         img.setAttribute('fetchpriority', 'high');
 
@@ -372,7 +371,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 }
             }
 
-            // 键盘控制
             document.addEventListener('keydown', function(e) {
                 if (!isBannerWallpaperMode() || !isCarouselEnabled()) return;
                 if (e.key === 'ArrowRight') {
@@ -387,7 +385,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 }
             });
 
-            // 触屏滑动
             document.addEventListener('touchstart', function(e) {
                 appState.touchStartX = e.changedTouches[0].screenX;
             }, { passive: true });
@@ -402,7 +399,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 }
             }, { passive: true });
 
-            // 事件监听
             window.addEventListener('bannerCarouselChange', function(e) {
                 e.detail && e.detail.enabled ? startAutoPlay() : stopAutoPlay();
             });
@@ -461,7 +457,6 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 else window.addEventListener('load', schedulePrefetch, { once: true });
             }
 
-            // 启动
             if (isCarouselEnabled() && isBannerWallpaperMode()) {
                 startAutoPlay();
             }

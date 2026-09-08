@@ -16,7 +16,6 @@ import { getAlbumPassword } from "../../../server/gallery/password";
 
 export const prerender = false;
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.gallery) {
 	return Astro.redirect("/404/");
 }

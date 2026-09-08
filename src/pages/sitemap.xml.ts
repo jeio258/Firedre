@@ -1,12 +1,15 @@
 import type { APIRoute } from "astro";
-import { siteConfig } from "../config/index";
+import { getSiteConfig } from "../config/runtime";
 import { cfEnv } from "../lib/api";
+import { getSettingsVersion } from "../../server/settings/service";
 import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
-	const base = siteConfig.site_url.replace(/\/+$/, "");
+export const GET: APIRoute = async (context) => {
+	const cfg = getSiteConfig(context.locals);
+	const base = cfg.site_url.replace(/\/+$/, "");
+	const settingsVersion = await getSettingsVersion(cfEnv);
 	const urls: string[] = [];
 
 	// 静态页面
@@ -18,31 +21,33 @@ export const GET: APIRoute = async () => {
 		["/tags/", true],
 		["/series/", true],
 		["/search/", true],
-		["/friends/", siteConfig.pages.friends],
-		["/guestbook/", siteConfig.pages.guestbook],
-		["/dynamic/", siteConfig.pages.dynamic],
-		["/gallery/", siteConfig.pages.gallery],
-		["/booknav/", siteConfig.pages.booknav],
-		["/sponsor/", siteConfig.pages.sponsor],
-		["/bangumi/", siteConfig.pages.bangumi],
-		["/bilibili/", siteConfig.pages.bilibili],
-		["/vndb/", siteConfig.pages.vndb],
-		["/myanimelist/", siteConfig.pages.mal],
+		["/friends/", cfg.pages.friends],
+		["/guestbook/", cfg.pages.guestbook],
+		["/dynamic/", cfg.pages.dynamic],
+		["/gallery/", cfg.pages.gallery],
+		["/booknav/", cfg.pages.booknav],
+		["/sponsor/", cfg.pages.sponsor],
+		["/bangumi/", cfg.pages.bangumi],
+		["/bilibili/", cfg.pages.bilibili],
+		["/vndb/", cfg.pages.vndb],
+		["/myanimelist/", cfg.pages.mal],
 	];
 	for (const [path, enabled] of staticPages) {
 		if (enabled) urls.push(`${base}${path}`);
 	}
 
-	// 相册详情（仅公开、非加密相册入 sitemap，加密相册不对外暴露 URL）
-	try {
-		const hub = await getGalleryHub(cfEnv);
-		for (const album of hub?.albums ?? []) {
-			if (album.encrypted) continue;
-			const encoded = encodeURIComponent(album.slug);
-			urls.push(`${base}/gallery/${encoded}/`);
+	// 相册详情（仅公开、非加密相册入 sitemap，加密相册不对外暴露 URL；相册页关闭时不收录）
+	if (cfg.pages.gallery) {
+		try {
+			const hub = await getGalleryHub(cfEnv);
+			for (const album of hub?.albums ?? []) {
+				if (album.encrypted) continue;
+				const encoded = encodeURIComponent(album.slug);
+				urls.push(`${base}/gallery/${encoded}/`);
+			}
+		} catch {
+			// 相册读取失败不影响其余 URL
 		}
-	} catch {
-		// 相册读取失败不影响其余 URL
 	}
 
 	// 文章
@@ -69,7 +74,9 @@ ${urls.map((u) => `  <url><loc>${u}</loc></url>`).join("\n")}
 	return new Response(body, {
 		headers: {
 			"Content-Type": "application/xml; charset=utf-8",
-			"Cache-Control": "public, max-age=3600, stale-while-revalidate=86400",
+			// 缓存随设置版本失效：缩短 max-age 并附版本 ETag，改站点设置后最长 5 分钟即刷新（避免原 1h 静态缓存导致变更不可见）
+			"Cache-Control": "public, max-age=300, stale-while-revalidate=86400",
+			ETag: `"settings-${settingsVersion}"`,
 		},
 	});
 };

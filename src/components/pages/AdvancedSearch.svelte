@@ -14,7 +14,6 @@ let results: SearchResult[] = [];
 let isSearching = false;
 let initialized = true;
 
-// 在客户端获取 URL 参数
 const getInitialKeyword = (): string => {
 	if (typeof window !== "undefined") {
 		const searchParams = new URLSearchParams(window.location.search);

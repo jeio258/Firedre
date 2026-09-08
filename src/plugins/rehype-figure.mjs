@@ -5,7 +5,6 @@ import { shouldAddNoReferrer } from "../utils/image-utils.ts";
 export default function rehypeFigure() {
 	return (tree) => {
 		visit(tree, "element", (node, index, parent) => {
-			// 只处理 img 元素
 			if (node.tagName !== "img") {
 				return;
 			}
@@ -27,7 +26,6 @@ export default function rehypeFigure() {
 				imgProps.referrerpolicy = "no-referrer";
 			}
 
-			// 获取 alt 属性
 			const alt = imgProps.alt;
 
 			// 如果没有 alt 属性或 alt 为空字符串，则只更新属性并保持原样
@@ -36,19 +34,15 @@ export default function rehypeFigure() {
 				return;
 			}
 
-			// 创建 figure 元素，包含处理后的 img 和居中的 figcaption
 			const figure = h("figure", [
-				// 使用原始属性的 img 节点
 				h("img", {
 					...imgProps,
 				}),
 				h("figcaption", alt),
 			]);
 
-			// 居中显示
 			const centerFigure = h("center", figure);
 
-			// 替换当前的 img 节点为 figure 节点
 			if (parent && typeof index === "number") {
 				parent.children[index] = centerFigure;
 			}

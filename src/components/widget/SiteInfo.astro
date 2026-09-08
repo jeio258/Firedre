@@ -33,7 +33,6 @@ const nodeVersion = process.version || NODE_VERSION;
 // pnpm 版本（常量）
 const pnpmVersion = `v${PNPM_VERSION}`;
 
-// 构建时间
 const buildTime = formatDateI18nWithTime(new Date());
 
 const buildPlatform = "Cloudflare Pages";
@@ -60,7 +59,6 @@ const siteDomain = siteUrl
 	? siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
 	: "unknown";
 
-// 文章许可
 const licenseName = ((((settings as any)?.["license"]) as any)?.["enable"] ?? licenseConfig.enable) ? ((((settings as any)?.["license"]) as any)?.["name"] ?? licenseConfig.name) : "None";
 
 const mainItems = [

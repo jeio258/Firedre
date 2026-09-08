@@ -13,28 +13,27 @@ import MusicPlayerView from "@components/features/MusicPlayerView.astro";
 import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
+import FaviconLinks from "@components/layout/FaviconLinks.astro";
 
 import {
 	analyticsConfig,
 	backgroundWallpaper,
 	displaySettingsConfig,
-	expressiveCodeConfig,
 	musicPlayerConfig,
 	profileConfig,
 	siteConfig,
 } from "@/config";
+import { getExpressiveCodeConfig } from "@/config/runtime";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
 	BANNER_HEIGHT_NON_HOME,
 	PAGE_WIDTH,
 } from "@/constants/constants";
-import { defaultFavicons } from "@/constants/icon";
-import type { Favicon } from "@/types/config";
+import { toClientSettings } from "@/utils/client-settings";
 import { isHomePage } from "@/utils/layout-utils";
 import { getAuthorAvatarUrl, getRawImageUrl, getSiteLogo } from "@/utils/schema-image";
 import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
-import { url } from "@/utils/url-utils";
 
 import "@/styles/main.css";
 import "@/styles/variables.styl";
@@ -111,34 +110,24 @@ if (((settings as any)?.["post"] ?? siteConfig.post).generateOgImages && postSlu
 	ogImageUrl = postCoverImage; // 已由文章页算成绝对 URL
 }
 
-const settingsFavicon =
-	typeof settings.faviconUrl === "string" && settings.faviconUrl
-		? ([{ src: settings.faviconUrl }] as Favicon[])
-		: [];
-const favicons: Favicon[] =
-	settingsFavicon.length > 0
-		? settingsFavicon
-		: ((settings as any)?.["favicon"] ?? siteConfig.favicon).length > 0
-			? ((settings as any)?.["favicon"] ?? siteConfig.favicon)
-			: defaultFavicons;
-
 if (!lang) {
 	lang = `${((settings as any)?.["lang"] ?? siteConfig.lang)}`;
 }
 const siteLang = lang.replace("_", "-");
 
-const avatarUrl = await getAuthorAvatarUrl();
+// 作者个人页（/about/）绝对 URL，作为 Person.url
+const effectiveSiteUrl = settings.siteUrl || ((settings as any)?.["site_url"] ?? siteConfig.site_url);
+
+const avatarUrl = await getAuthorAvatarUrl(effectiveSiteUrl);
 // 头像 preload：默认头像（未被后台替换）时预取静态文件，提前加载 LCP 图
 const avatarPreloadUrl =
 	(!((settings as any)?.["avatar"]) || ((settings as any)?.["avatar"] === profileConfig.avatar)) &&
 	profileConfig.avatar
 		? await getRawImageUrl(profileConfig.avatar).catch(() => null)
 		: null;
-// 作者个人页（/about/）绝对 URL，作为 Person.url
-const effectiveSiteUrl = settings.siteUrl || ((settings as any)?.["site_url"] ?? siteConfig.site_url);
 const aboutUrl = toAbsoluteUrl("/about/", effectiveSiteUrl) ?? effectiveSiteUrl;
 
-const siteLogo = await getSiteLogo();
+const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
 ---
 
@@ -239,16 +228,7 @@ const siteLogo = await getSiteLogo();
 
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    {
-      favicons.map((favicon) => (
-        <link
-          rel="icon"
-          href={favicon.src.startsWith("/") ? url(favicon.src) : favicon.src}
-          sizes={favicon.sizes}
-          media={favicon.theme && `(prefers-color-scheme: ${favicon.theme})`}
-        />
-      ))
-    }
+    <FaviconLinks settings={settings} />
 
     {((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
      ((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (
@@ -263,7 +243,6 @@ const siteLogo = await getSiteLogo();
         (function() {
           const domains = JSON.parse(noReferrerDomains);
 
-          // 域名匹配函数，支持通配符
           function matchesDomain(urlStr, patterns) {
             try {
               const urlObj = new URL(urlStr);
@@ -279,7 +258,6 @@ const siteLogo = await getSiteLogo();
             }
           }
 
-          // 处理单个图片元素
           function processImage(img) {
             if (!img.src || img.hasAttribute('referrerpolicy')) return;
 
@@ -322,8 +300,8 @@ const siteLogo = await getSiteLogo();
         defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
           ((settings as any)?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
-        darkTheme: expressiveCodeConfig.darkTheme,
-        lightTheme: expressiveCodeConfig.lightTheme,
+        darkTheme: getExpressiveCodeConfig(settings).darkTheme,
+        lightTheme: getExpressiveCodeConfig(settings).lightTheme,
         baseUrl: import.meta.env.BASE_URL,
         cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlayCardOpacity"] ?? ((((settings as any)?.["theme"]) as any)?.["overlay"] as any)?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
         cardRadius: ((settings as any)?.["cardRadius"] ?? (siteConfig as any).card?.radius) ?? 1,
@@ -337,7 +315,6 @@ const siteLogo = await getSiteLogo();
       // 获取存储的主题，如果没有则使用默认值
       const theme = localStorage.getItem("theme") || defaultMode;
 
-      // 获取系统主题
       function getSystemTheme() {
         return window.matchMedia("(prefers-color-scheme: dark)").matches
           ? DARK_MODE
@@ -355,7 +332,6 @@ const siteLogo = await getSiteLogo();
       const resolvedTheme = resolveTheme(theme);
       const isDark = resolvedTheme === DARK_MODE;
 
-      // 应用主题
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
@@ -367,7 +343,6 @@ const siteLogo = await getSiteLogo();
         isDark ? darkTheme : lightTheme
       );
 
-      // Load the hue from local storage
       const hue = localStorage.getItem("hue") || configHue;
       document.documentElement.style.setProperty("--hue", hue);
 
@@ -392,7 +367,6 @@ const siteLogo = await getSiteLogo();
         ? localStorage.getItem("wallpaperMode") || defaultWallpaperMode
         : defaultWallpaperMode;
 
-      // 设置data-wallpaper-mode属性
       document.documentElement.setAttribute(
         "data-wallpaper-mode",
         wallpaperMode
@@ -506,7 +480,7 @@ const siteLogo = await getSiteLogo();
       <MusicPlayerView />
     )}
 
-    <script is:inline define:vars={{ fireflySettings: settings }}>
+    <script is:inline define:vars={{ fireflySettings: toClientSettings(settings) }}>
       // 后台站点设置注入客户端（樱花等客户端组件的开关/参数读取）
       window.__FIREFLY_SETTINGS__ = fireflySettings;
     </script>
