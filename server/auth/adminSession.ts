@@ -167,19 +167,19 @@ export async function hashPassword(password: string): Promise<string> {
 	return bcrypt.hash(password, BCRYPT_ROUNDS);
 }
 
-export async function verifyAdminRequest(
+export async function getAuthenticatedAdminUsername(
 	request: Request,
 	env?: CloudflareEnv,
-) {
+): Promise<string | null> {
 	const token = getCookieValue(
 		request.headers.get("Cookie"),
 		ADMIN_SESSION_COOKIE,
 	);
-	if (!token) return false;
+	if (!token) return null;
 
 	const adminEnv = resolveAdminEnv(env);
 	const username = await getSessionUser(token, adminEnv);
-	if (!username) return false;
+	if (!username) return null;
 
 	if (env?.DB) {
 		try {
@@ -188,13 +188,20 @@ export async function verifyAdminRequest(
 			)
 				.bind(username)
 				.first<{ enabled: number }>();
-			if (row && row.enabled !== 1) return false;
+			if (row && row.enabled !== 1) return null;
 		} catch {
 			// DB 查询失败不阻断
 		}
 	}
 
-	return true;
+	return username;
+}
+
+export async function verifyAdminRequest(
+	request: Request,
+	env?: CloudflareEnv,
+) {
+	return Boolean(await getAuthenticatedAdminUsername(request, env));
 }
 
 export const authExports = {

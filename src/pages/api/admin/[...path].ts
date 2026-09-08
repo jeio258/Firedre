@@ -5,6 +5,7 @@ import {
 	buildClearSessionCookie,
 	buildSessionCookie,
 	createSessionToken,
+	getAuthenticatedAdminUsername,
 	getCookieValue,
 	getSessionUser,
 	resolveAdminEnv,
@@ -174,17 +175,11 @@ export const GET: APIRoute = async ({ params, request }) => {
 		return json({ message: "Not found" }, 404);
 
 	try {
-		const adminEnv = resolveAdminEnv(cfEnv);
-
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (!isAdmin) return json({ authenticated: false }, 200, "private");
 
 		if (action === "me") {
-			const token = getCookieValue(
-				request.headers.get("Cookie"),
-				ADMIN_SESSION_COOKIE,
-			);
-			const username = token ? await getSessionUser(token, adminEnv) : null;
+			const username = await getAuthenticatedAdminUsername(request, cfEnv);
 			return json(
 				{ authenticated: true, username: username || "" },
 				200,
