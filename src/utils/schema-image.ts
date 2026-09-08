@@ -71,8 +71,10 @@ async function getLocalImageInfo(
 	};
 }
 
-export async function getAuthorAvatarUrl(): Promise<string | null> {
-	return toAbsoluteImageUrl(profileConfig.avatar, "", siteConfig.site_url);
+export async function getAuthorAvatarUrl(
+	siteUrl: string = siteConfig.site_url,
+): Promise<string | null> {
+	return toAbsoluteImageUrl(profileConfig.avatar, "", siteUrl);
 }
 
 // 本地资源静态 hashed URL（不经 _image 按需优化，用于 LCP 首图直接走 CDN 静态文件）
@@ -92,7 +94,9 @@ function parseSizes(sizes?: string): { width: number; height: number } | null {
 	return m ? { width: Number(m[1]), height: Number(m[2]) } : null;
 }
 
-async function getFaviconAsLogo(): Promise<{
+async function getFaviconAsLogo(
+	siteUrl: string = siteConfig.site_url,
+): Promise<{
 	url: string;
 	width?: number;
 	height?: number;
@@ -122,9 +126,9 @@ async function getFaviconAsLogo(): Promise<{
 	if (/^https?:|^\/\//.test(favicon.src) || favicon.src.startsWith("data:")) {
 		logoUrl = favicon.src;
 	} else if (favicon.src.startsWith("/")) {
-		logoUrl = new URL(url(favicon.src), siteConfig.site_url).toString();
+		logoUrl = new URL(url(favicon.src), siteUrl).toString();
 	} else {
-		logoUrl = await toAbsoluteImageUrl(favicon.src, "", siteConfig.site_url);
+		logoUrl = await toAbsoluteImageUrl(favicon.src, "", siteUrl);
 	}
 	if (!logoUrl) return null;
 
@@ -135,27 +139,34 @@ async function getFaviconAsLogo(): Promise<{
 	};
 }
 
-// 缓存站点 publisher logo 解析结果（构建期静态，只解析一次）
-let _siteLogoPromise:
-	| Promise<{
-			url: string;
-			width?: number;
-			height?: number;
-	  } | null>
-	| undefined;
+// 缓存站点 publisher logo 解析结果（按 siteUrl 分别缓存，避免跨域名串味）
+const siteLogoCache = new Map<
+	string,
+	Promise<{
+		url: string;
+		width?: number;
+		height?: number;
+	} | null>
+>();
 
-export function getSiteLogo(): Promise<{
+export function getSiteLogo(
+	siteUrl: string = siteConfig.site_url,
+): Promise<{
 	url: string;
 	width?: number;
 	height?: number;
 } | null> {
-	if (!_siteLogoPromise) {
-		_siteLogoPromise = computeSiteLogo();
+	let p = siteLogoCache.get(siteUrl);
+	if (!p) {
+		p = computeSiteLogo(siteUrl);
+		siteLogoCache.set(siteUrl, p);
 	}
-	return _siteLogoPromise;
+	return p;
 }
 
-async function computeSiteLogo(): Promise<{
+async function computeSiteLogo(
+	siteUrl: string = siteConfig.site_url,
+): Promise<{
 	url: string;
 	width?: number;
 	height?: number;
@@ -164,12 +175,12 @@ async function computeSiteLogo(): Promise<{
 	if (logo) {
 		if (logo.type === "url") return { url: logo.value };
 		if (logo.type === "image") {
-			const info = await getLocalImageInfo(logo.value, "", siteConfig.site_url);
+			const info = await getLocalImageInfo(logo.value, "", siteUrl);
 			return info
 				? { url: info.url, width: info.width, height: info.height }
 				: null;
 		}
 		// icon 类型无图片 URL → 落到 favicon 兜底
 	}
-	return getFaviconAsLogo();
+	return getFaviconAsLogo(siteUrl);
 }

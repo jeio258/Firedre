@@ -116,7 +116,7 @@ const coverImage =
 const aboutUrl =
 	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
-const authorAvatarUrl = await getAuthorAvatarUrl();
+const authorAvatarUrl = await getAuthorAvatarUrl(siteUrl);
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
 	profileConfig,
@@ -128,7 +128,7 @@ const authorPerson = buildPersonEntity({
 const publisher = buildPublisherEntity({
 	site: siteUrl,
 	siteConfig,
-	logo: await getSiteLogo(),
+	logo: await getSiteLogo(siteUrl),
 });
 
 const breadcrumbItems = [
