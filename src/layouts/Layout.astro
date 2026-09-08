@@ -119,8 +119,8 @@ const settingsFavicon =
 const favicons: Favicon[] =
 	settingsFavicon.length > 0
 		? settingsFavicon
-		: ((settings as any)?.["favicon"] ?? siteConfig.favicon).length > 0
-			? ((settings as any)?.["favicon"] ?? siteConfig.favicon)
+		: siteConfig.favicon.length > 0
+			? siteConfig.favicon
 			: defaultFavicons;
 
 if (!lang) {

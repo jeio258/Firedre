@@ -8,115 +8,188 @@ import {
 } from "../../src/config/runtime";
 import { settingsDefaults } from "../../src/config/settings-defaults";
 
-type L = Record<string, unknown>;
+type AnyObj = Record<string, any>;
+type FlatGroup = Record<string, unknown>;
 
-export function flattenSettingsDefaults(): Record<string, L> {
-	const empty = {};
-	const sc = getSiteConfig(empty) as L;
-	const scAny = sc as unknown as Record<string, any>;
-	const pc = getProfileConfig(empty) as L;
-	const cc = getCommentConfig(empty) as unknown as Record<string, any>;
-	const mc = getMusicConfig(empty) as unknown as Record<string, any>;
-	const wc = getWallpaperConfig(empty) as unknown as Record<string, any>;
-	const ec = getEffectsConfig(empty) as L;
-	const footer = getFooterConfig(empty) as L;
-	const pio = getPioConfig(empty) as L;
-	const lic = getLicenseConfig(empty) as L;
-	const sp = getSponsorConfig(empty) as L;
-	const dyn = getDynamicConfig(empty) as unknown as Record<string, any>;
-	const ann = getAnnouncementConfig(empty) as L;
-	const nav = getNavbarConfig(empty) as unknown as Record<string, any>;
-	const sb = getSidebarConfig(empty) as L;
-	const cov = getCoverConfig(empty) as L;
-	const font = getFontConfig(empty) as L;
-	const mer = getMermaidConfig(empty) as L;
-	const plc = getPlantumlConfig(empty) as L;
-	const ecc = getExpressiveCodeConfig(empty) as L;
-	const ana = getAnalyticsConfig(empty) as unknown as Record<string, any>;
+// 反射取值说明：表单字段名 → 源结构化配置中的取值规则
+// - string        : 点路径，按反射逐层取值（支持重命名，如 "site_url" → 表单 siteUrl）
+// - { path, join }: 数组按分隔符 join 成字符串（兜底空串）
+// - { path, json }: 数组 JSON.stringify（兜底空串）
+// - { const }     : 固定常量（源中无对应字段，如 artalkSiteName: ""）
+type Spec =
+	| string
+	| { path: string; join?: string }
+	| { path: string; json: true }
+	| { const: unknown };
 
-	const basic: L = {
-		title: sc.title, subtitle: sc.subtitle, description: sc.description,
-		siteUrl: sc.site_url, siteStartDate: sc.siteStartDate, timezone: sc.timezone,
-		pageWidth: sc.pageWidth, categoryBar: sc.categoryBar, categoryStyle: sc.categoryStyle, tagStyle: sc.tagStyle,
-		hue: scAny.themeColor?.hue, defaultMode: scAny.themeColor?.defaultMode,
-		cardBorder: scAny.card?.border, cardFollowTheme: scAny.card?.followTheme, cardRadius: scAny.card?.radius,
-		keywords: Array.isArray(scAny.keywords) ? scAny.keywords.join(",") : "",
-		pageFriends: scAny.pages?.friends, pageGuestbook: scAny.pages?.guestbook,
-		pageDynamic: scAny.pages?.dynamic, pageGallery: scAny.pages?.gallery,
-		pageBooknav: scAny.pages?.booknav, pageBilibili: scAny.pages?.bilibili,
-		pageBangumi: scAny.pages?.bangumi, pageVndb: scAny.pages?.vndb,
-		pageMal: scAny.pages?.mal, pageSponsor: scAny.pages?.sponsor,
-	};
-	const profile: L = {
-		name: pc.name, avatar: pc.avatar, bio: pc.bio,
-		location: pc.location, email: pc.email,
-		links: Array.isArray(pc.links) ? JSON.stringify(pc.links) : "",
-	};
-	const comment: L = {
-		type: cc.type,
-		giscusRepo: cc.giscus?.repo, giscusRepoId: cc.giscus?.repoId,
-		giscusCategory: cc.giscus?.category, giscusCategoryId: cc.giscus?.categoryId,
-		twikooEnvId: cc.twikoo?.envId, twikooJsUrl: cc.twikoo?.jsUrl,
-		walineServer: cc.waline?.serverURL, disqusShortname: cc.disqus?.shortname,
-		artalkServer: cc.artalk?.server, artalkSiteName: "",
-	};
-	const music: L = {
-		showInNavbar: mc.showInNavbar, showInSidebar: mc.showInSidebar,
-		mode: mc.mode, volume: mc.volume, playMode: mc.playMode, showLyrics: mc.showLyrics,
-		metingApi: mc.meting?.api, metingServer: mc.meting?.server, metingType: mc.meting?.type,
-		metingId: mc.meting?.id, metingAuth: mc.meting?.auth,
-		metingFallbackApis: Array.isArray(mc.meting?.fallbackApis) ? JSON.stringify(mc.meting.fallbackApis) : "",
-		localPlaylist: Array.isArray(mc.local?.playlist) ? JSON.stringify(mc.local.playlist) : "",
-	};
-	const theme: L = {
-		mode: wc.mode, playerEnable: wc.playerEnable,
-		bannerUrl: Array.isArray(wc.src?.desktop) ? (wc.src.desktop as string[]).join(",") : "",
-		mobileImages: Array.isArray(wc.src?.mobile) ? (wc.src.mobile as string[]).join(",") : "",
-		playerUrl: Array.isArray(wc.src?.playerUrl) ? (wc.src.playerUrl as string[]).join(",") : "",
-		dimOpacity: wc.common?.dimOpacity, playerMode: wc.common?.playerMode,
-		homeTextEnable: wc.common?.homeText?.enable, homeTitle: wc.common?.homeText?.title,
-		homeTitleSize: wc.common?.homeText?.titleSize,
-		homeSubtitles: Array.isArray(wc.common?.homeText?.subtitle) ? JSON.stringify(wc.common.homeText.subtitle) : "",
-		homeSubtitleSize: wc.common?.homeText?.subtitleSize,
-		typewriter: wc.common?.homeText?.typewriter?.enable,
-		typewriterSpeed: wc.common?.homeText?.typewriter?.speed,
-		typewriterDeleteSpeed: wc.common?.homeText?.typewriter?.deleteSpeed,
-		typewriterPauseTime: wc.common?.homeText?.typewriter?.pauseTime,
-		carousel: wc.common?.carousel?.enable, carouselInterval: wc.common?.carousel?.interval,
-		carouselTransition: wc.common?.carousel?.transitionEffect,
-		overlayOpacity: wc.overlay?.opacity, overlayBlur: wc.overlay?.blur,
-		overlayCardOpacity: wc.overlay?.cardOpacity,
-	};
-	const effects: L = { sakura: ec.enable, sakuraNum: ec.sakuraNum, limitTimes: ec.limitTimes, waves: ec.waves, gradient: ec.gradient, bannerCarousel: ec.bannerCarousel };
-	const footerL: L = { enable: footer.enable, text: footer.text, icp: footer.icp, startYear: footer.startYear, customHtml: footer.customHtml };
-	const pioL: L = { enabled: pio.enable, position: pio.position, size: pio.size, opacity: pio.opacity };
-	const license: L = { enabled: lic.enable, name: lic.name, type: lic.type, url: lic.url, icon: lic.icon };
-	const sponsor: L = { enabled: sp.enable, qrCode: sp.qrCode, usage: sp.usage, sponsors: sp.sponsors };
-	const dynamic: L = {
-		enabled: true, title: dyn.title, description: dyn.description,
-		itemsPerPage: dyn.itemsPerPage, showComment: dyn.showComment, apiUrl: dyn.apiUrl,
-		memosEnable: dyn.memos?.enable, memosApiUrl: dyn.memos?.apiUrl,
-	};
-	const announcement: L = {
-		enabled: ann.enable, title: ann.title,
-		sections: Array.isArray(ann.sections) ? JSON.stringify(ann.sections) : "",
-	};
-	const navL: L = { navItems: Array.isArray(nav.links) ? JSON.stringify(nav.links) : "", social: "" };
-	const sidebar: L = { hideSidebarOnPostPage: sb.hideSidebarOnPostPage, showBothSidebarsOnPostPage: sb.showBothSidebarsOnPostPage };
-	const cover: L = { enable: cov.enable, defaultImage: cov.defaultImage, configurable: cov.configurable };
-	const fontL: L = { scale: font.fontScale };
-	const mermaid: L = { lightTheme: mer.lightTheme, darkTheme: mer.darkTheme };
-	const plantuml: L = { enable: plc.enable, server: plc.server, lightTheme: plc.lightTheme, darkTheme: plc.darkTheme };
-	const expressiveCode: L = { darkTheme: ecc.darkTheme, lightTheme: ecc.lightTheme };
-	const analytics: L = {
-		googleAnalyticsId: ana.googleAnalyticsId, microsoftClarityId: ana.microsoftClarityId,
-		umamiId: ana.umamiAnalytics?.websiteId, umamiUrl: ana.umamiAnalytics?.scriptUrl,
-	};
+function getByPath(src: AnyObj, path: string): unknown {
+	return path.split(".").reduce<unknown>(
+		(acc, key) => (acc == null ? acc : (acc as AnyObj)[key]),
+		src,
+	);
+}
 
-	return {
-		...settingsDefaults,
-		basic, profile, comment, music, theme, effects, footer: footerL, pio: pioL,
-		license, sponsor, dynamic, announcement, nav: navL, sidebar, cover,
-		font: fontL, mermaid, analytics, plantuml, expressiveCode,
-	};
+function resolve(src: AnyObj, spec: Spec): unknown {
+	if (typeof spec === "string") return getByPath(src, spec);
+	if ("const" in spec) return spec.const;
+	const v = getByPath(src, spec.path);
+	if ("json" in spec) return Array.isArray(v) ? JSON.stringify(v) : "";
+	if ("join" in spec) return Array.isArray(v) ? v.join(spec.join ?? ",") : "";
+	return v;
+}
+
+// settings-defaults 中已是扁平表单形状的组，直接展平，无需转换
+const PASSTHROUGH = [
+	"panel", "friends", "gallery", "bookmarks", "bilibili",
+	"vndb", "myanimelist", "bangumi", "ads",
+] as const;
+
+// 其余组：声明「源 getter + 字段→取值规则」，由 resolve 反射生成扁平形状
+const SCHEMA: Record<string, { src: () => AnyObj; fields: Record<string, Spec> }> = {
+	basic: {
+		src: () => getSiteConfig({}) as AnyObj,
+		fields: {
+			title: "title", subtitle: "subtitle", description: "description",
+			siteUrl: "site_url", siteStartDate: "siteStartDate", timezone: "timezone",
+			pageWidth: "pageWidth", categoryBar: "categoryBar", categoryStyle: "categoryStyle", tagStyle: "tagStyle",
+			hue: "themeColor.hue", defaultMode: "themeColor.defaultMode",
+			cardBorder: "card.border", cardFollowTheme: "card.followTheme", cardRadius: "card.radius",
+			keywords: { path: "keywords", join: "," },
+			pageFriends: "pages.friends", pageGuestbook: "pages.guestbook", pageDynamic: "pages.dynamic",
+			pageGallery: "pages.gallery", pageBooknav: "pages.booknav", pageBilibili: "pages.bilibili",
+			pageBangumi: "pages.bangumi", pageVndb: "pages.vndb", pageMal: "pages.mal", pageSponsor: "pages.sponsor",
+		},
+	},
+	profile: {
+		src: () => getProfileConfig({}) as AnyObj,
+		fields: {
+			name: "name", avatar: "avatar", bio: "bio", location: "location", email: "email",
+			links: { path: "links", json: true },
+		},
+	},
+	comment: {
+		src: () => getCommentConfig({}) as AnyObj,
+		fields: {
+			type: "type",
+			giscusRepo: "giscus.repo", giscusRepoId: "giscus.repoId",
+			giscusCategory: "giscus.category", giscusCategoryId: "giscus.categoryId",
+			twikooEnvId: "twikoo.envId", twikooJsUrl: "twikoo.jsUrl",
+			walineServer: "waline.serverURL", disqusShortname: "disqus.shortname",
+			artalkServer: "artalk.server", artalkSiteName: { const: "" },
+		},
+	},
+	music: {
+		src: () => getMusicConfig({}) as AnyObj,
+		fields: {
+			showInNavbar: "showInNavbar", showInSidebar: "showInSidebar", mode: "mode", volume: "volume",
+			playMode: "playMode", showLyrics: "showLyrics",
+			metingApi: "meting.api", metingServer: "meting.server", metingType: "meting.type",
+			metingId: "meting.id", metingAuth: "meting.auth",
+			metingFallbackApis: { path: "meting.fallbackApis", json: true },
+			localPlaylist: { path: "local.playlist", json: true },
+		},
+	},
+	theme: {
+		src: () => getWallpaperConfig({}) as AnyObj,
+		fields: {
+			mode: "mode", playerEnable: "playerEnable",
+			bannerUrl: { path: "src.desktop", join: "," },
+			mobileImages: { path: "src.mobile", join: "," },
+			playerUrl: { path: "src.playerUrl", join: "," },
+			dimOpacity: "common.dimOpacity", playerMode: "common.playerMode",
+			homeTextEnable: "common.homeText.enable", homeTitle: "common.homeText.title", homeTitleSize: "common.homeText.titleSize",
+			homeSubtitles: { path: "common.homeText.subtitle", json: true },
+			homeSubtitleSize: "common.homeText.subtitleSize",
+			typewriter: "common.homeText.typewriter.enable", typewriterSpeed: "common.homeText.typewriter.speed",
+			typewriterDeleteSpeed: "common.homeText.typewriter.deleteSpeed", typewriterPauseTime: "common.homeText.typewriter.pauseTime",
+			carousel: "common.carousel.enable", carouselInterval: "common.carousel.interval", carouselTransition: "common.carousel.transitionEffect",
+			overlayOpacity: "overlay.opacity", overlayBlur: "overlay.blur", overlayCardOpacity: "overlay.cardOpacity",
+		},
+	},
+	effects: {
+		src: () => getEffectsConfig({}) as AnyObj,
+		fields: {
+			sakura: "enable", sakuraNum: "sakuraNum", limitTimes: "limitTimes", waves: "waves",
+			gradient: "gradient", bannerCarousel: "bannerCarousel",
+		},
+	},
+	footer: {
+		src: () => getFooterConfig({}) as AnyObj,
+		fields: { enable: "enable", text: "text", icp: "icp", startYear: "startYear", customHtml: "customHtml" },
+	},
+	pio: {
+		src: () => getPioConfig({}) as AnyObj,
+		fields: { enabled: "enable", position: "position", size: "size", opacity: "opacity" },
+	},
+	license: {
+		src: () => getLicenseConfig({}) as AnyObj,
+		fields: { enabled: "enable", name: "name", type: "type", url: "url", icon: "icon" },
+	},
+	sponsor: {
+		src: () => getSponsorConfig({}) as AnyObj,
+		fields: { enabled: "enable", qrCode: "qrCode", usage: "usage", sponsors: "sponsors" },
+	},
+	dynamic: {
+		src: () => getDynamicConfig({}) as AnyObj,
+		fields: {
+			enabled: { const: true }, title: "title", description: "description",
+			itemsPerPage: "itemsPerPage", showComment: "showComment", apiUrl: "apiUrl",
+			memosEnable: "memos.enable", memosApiUrl: "memos.apiUrl",
+		},
+	},
+	announcement: {
+		src: () => getAnnouncementConfig({}) as AnyObj,
+		fields: { enabled: "enable", title: "title", sections: { path: "sections", json: true } },
+	},
+	nav: {
+		src: () => getNavbarConfig({}) as AnyObj,
+		fields: { navItems: { path: "links", json: true }, social: { const: "" } },
+	},
+	sidebar: {
+		src: () => getSidebarConfig({}) as AnyObj,
+		fields: { hideSidebarOnPostPage: "hideSidebarOnPostPage", showBothSidebarsOnPostPage: "showBothSidebarsOnPostPage" },
+	},
+	cover: {
+		src: () => getCoverConfig({}) as AnyObj,
+		fields: { enable: "enable", defaultImage: "defaultImage", configurable: "configurable" },
+	},
+	font: {
+		src: () => getFontConfig({}) as AnyObj,
+		fields: { scale: "fontScale" },
+	},
+	mermaid: {
+		src: () => getMermaidConfig({}) as AnyObj,
+		fields: { lightTheme: "lightTheme", darkTheme: "darkTheme" },
+	},
+	analytics: {
+		src: () => getAnalyticsConfig({}) as AnyObj,
+		fields: {
+			googleAnalyticsId: "googleAnalyticsId", microsoftClarityId: "microsoftClarityId",
+			umamiId: "umamiAnalytics.websiteId", umamiUrl: "umamiAnalytics.scriptUrl",
+		},
+	},
+	plantuml: {
+		src: () => getPlantumlConfig({}) as AnyObj,
+		fields: { enable: "enable", server: "server", lightTheme: "lightTheme", darkTheme: "darkTheme" },
+	},
+	expressiveCode: {
+		src: () => getExpressiveCodeConfig({}) as AnyObj,
+		fields: { darkTheme: "darkTheme", lightTheme: "lightTheme" },
+	},
+};
+
+export function flattenSettingsDefaults(): Record<string, FlatGroup> {
+	const out: Record<string, FlatGroup> = {};
+	for (const g of PASSTHROUGH) {
+		out[g] = { ...(settingsDefaults as AnyObj)[g] };
+	}
+	for (const [group, spec] of Object.entries(SCHEMA)) {
+		const src = spec.src();
+		const fields: FlatGroup = {};
+		for (const [field, s] of Object.entries(spec.fields)) {
+			fields[field] = resolve(src, s);
+		}
+		out[group] = fields;
+	}
+	return out;
 }
