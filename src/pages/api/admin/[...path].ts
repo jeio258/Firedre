@@ -132,17 +132,24 @@ export const POST: APIRoute = async ({ params, request }) => {
 			if (sub !== "password") return json({ message: "未知操作" }, 400);
 
 			const body = (await request.json().catch(() => ({}))) as {
-				username?: string;
 				password?: string;
 			};
-			const target = String(body.username || "").trim();
-			if (!target || !body.password)
-				return json({ message: "用户名与密码不能为空" }, 400);
+			const newPassword = String(body.password || "");
+			if (!newPassword)
+				return json({ message: "密码不能为空" }, 400);
+
+			// 用户名取自已认证会话，不再依赖客户端传入（修复生产环境 username 取不到导致无法改密）
+			const token = getCookieValue(
+				request.headers.get("Cookie"),
+				ADMIN_SESSION_COOKIE,
+			);
+			const sessionUser = token ? await getSessionUser(token, adminEnv) : null;
+			if (!sessionUser) return json({ message: "会话无效，请重新登录" }, 401);
 
 			const ok = await updateAdminUserPassword(
 				cfEnv.DB,
-				target,
-				body.password,
+				sessionUser,
+				newPassword,
 			);
 			if (!ok) return json({ message: "用户不存在" }, 404);
 			return jsonWithHeaders({ ok: true });

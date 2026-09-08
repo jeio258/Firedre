@@ -348,7 +348,7 @@
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ username, password: newPassword }),
+				body: JSON.stringify({ password: newPassword }),
 			});
 			const data = await resp.json().catch(() => ({}));
 			if (!resp.ok || data.ok !== true) {
