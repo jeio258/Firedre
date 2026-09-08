@@ -5,6 +5,7 @@ import type { APIContext } from "astro";
 import sanitizeHtml from "sanitize-html";
 import { siteConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
+import { getSettingsVersion } from "../../server/settings/service";
 
 export const prerender = false;
 
@@ -22,6 +23,9 @@ export async function GET(context: APIContext): Promise<Response> {
 	const { cfEnv } = await import("../lib/api");
 
 	const { posts } = await listPosts(cfEnv, { pageSize: 200 });
+
+	const siteUrl = getSiteConfig(context.locals).site_url;
+	const settingsVersion = await getSettingsVersion(cfEnv);
 
 	const items: RSSFeedItem[] = [];
 	for (const post of posts) {
@@ -80,14 +84,18 @@ export async function GET(context: APIContext): Promise<Response> {
 		});
 	}
 
-	return rss({
+	const resp = await rss({
 		title: siteConfig.title,
 		description: siteConfig.description as string,
-		site: getSiteConfig(context.locals).site_url,
+		site: siteUrl,
 		items,
 		customData: `<language>${siteConfig.lang}</language>`,
 		xmlns: { media: "http://search.yahoo.com/mrss/" },
 	});
+	// 缓存随设置版本失效：缩短 max-age 并附版本 ETag，改站点设置后最长 5 分钟即刷新
+	resp.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=86400");
+	resp.headers.set("ETag", `"settings-${settingsVersion}"`);
+	return resp;
 }
 
 export { formatDateI18nWithTime };
