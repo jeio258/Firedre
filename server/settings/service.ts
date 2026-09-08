@@ -28,6 +28,7 @@ export const SETTING_GROUPS = [
 	"license",
 	"pio",
 	"plantuml",
+	"expressiveCode",
 	"analytics",
 ] as const;
 export type SettingGroup = (typeof SETTING_GROUPS)[number];

@@ -13,11 +13,7 @@ export type { DisplaySettingsConfig } from "./displaySettingsConfig";
 export type { DynamicConfig } from "./dynamicConfig";
 export type { SakuraConfig } from "./effectsConfig";
 
-export type {
-	ExpressiveCodeConfig,
-	PluginCollapsibleConfig,
-	PluginLanguageBadgeConfig,
-} from "./expressiveCodeConfig";
+export type { ExpressiveCodeConfig } from "./expressiveCodeConfig";
 export type { FontSelectionConfig } from "./fontConfig";
 export type { FooterConfig } from "./footerConfig";
 export type { FriendLink, FriendsPageConfig } from "./friendsConfig";

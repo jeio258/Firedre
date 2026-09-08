@@ -1,4 +1,5 @@
-import { expressiveCodeConfig, siteConfig } from "@/config";
+import { siteConfig } from "@/config";
+import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
 	BANNER_HEIGHT_NON_HOME,
@@ -285,8 +286,8 @@ function registerSwupHooks(): void {
 		}
 
 		const expectedTheme = isDark
-			? expressiveCodeConfig.darkTheme
-			: expressiveCodeConfig.lightTheme;
+			? getExpressiveCodeConfigFromWindow().darkTheme
+			: getExpressiveCodeConfigFromWindow().lightTheme;
 		const currentTheme = document.documentElement.getAttribute("data-theme");
 
 		// 如果主题不匹配，静默更新（不触发事件，避免重新加载效果）

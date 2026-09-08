@@ -480,6 +480,15 @@ const GROUPS: Group[] = [
 		],
 	},
 	{
+		key: "expressiveCode",
+		title: "代码块主题",
+		category: "功能配置",
+		fields: [
+			{ name: "darkTheme", label: "暗色主题", type: "text" },
+			{ name: "lightTheme", label: "亮色主题", type: "text" },
+		],
+	},
+	{
 		key: "bilibili",
 		title: "哔哩哔哩",
 		category: "页面配置",

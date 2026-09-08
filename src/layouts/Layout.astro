@@ -18,11 +18,11 @@ import {
 	analyticsConfig,
 	backgroundWallpaper,
 	displaySettingsConfig,
-	expressiveCodeConfig,
 	musicPlayerConfig,
 	profileConfig,
 	siteConfig,
 } from "@/config";
+import { getExpressiveCodeConfig } from "@/config/runtime";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -323,8 +323,8 @@ const siteLogo = await getSiteLogo();
         defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
           ((settings as any)?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
-        darkTheme: expressiveCodeConfig.darkTheme,
-        lightTheme: expressiveCodeConfig.lightTheme,
+        darkTheme: getExpressiveCodeConfig(settings).darkTheme,
+        lightTheme: getExpressiveCodeConfig(settings).lightTheme,
         baseUrl: import.meta.env.BASE_URL,
         cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlayCardOpacity"] ?? ((((settings as any)?.["theme"]) as any)?.["overlay"] as any)?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
         cardRadius: ((settings as any)?.["cardRadius"] ?? (siteConfig as any).card?.radius) ?? 1,

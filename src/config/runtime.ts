@@ -19,6 +19,7 @@ import { coverImageConfig as staticCoverConfig } from "./coverImageConfig";
 import { fontConfig as staticFontConfig } from "./fontConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
 import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
+import { expressiveCodeConfig as staticExpressiveCodeConfig } from "./expressiveCodeConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
@@ -544,6 +545,16 @@ export function getAnalyticsConfig(locals: unknown) {
 	};
 }
 
+export function getExpressiveCodeConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const ec = groupOf(s, "expressiveCode");
+	return {
+		...staticExpressiveCodeConfig,
+		darkTheme: str(ec.darkTheme, staticExpressiveCodeConfig.darkTheme),
+		lightTheme: str(ec.lightTheme, staticExpressiveCodeConfig.lightTheme),
+	};
+}
+
 export function getPanelConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const pn = groupOf(s, "panel");
@@ -582,4 +593,7 @@ export function getWallpaperConfigFromWindow() {
 }
 export function getPanelConfigFromWindow() {
 	return getPanelConfig({ settings: windowSettings() });
+}
+export function getExpressiveCodeConfigFromWindow() {
+	return getExpressiveCodeConfig({ settings: windowSettings() });
 }

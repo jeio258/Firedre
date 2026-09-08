@@ -11,12 +11,12 @@ import {
 import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
 import {
 	backgroundWallpaper,
-	expressiveCodeConfig,
 	sakuraConfig,
 	siteConfig,
 } from "../config";
 import {
 	getEffectsConfigFromWindow,
+	getExpressiveCodeConfigFromWindow,
 	getPanelConfigFromWindow,
 	getSiteConfigFromWindow,
 	getWallpaperConfigFromWindow,
@@ -192,8 +192,8 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 
 	const needsThemeChange = currentIsDark !== targetIsDark;
 	const expectedTheme = targetIsDark
-		? expressiveCodeConfig.darkTheme
-		: expressiveCodeConfig.lightTheme;
+		? getExpressiveCodeConfigFromWindow().darkTheme
+		: getExpressiveCodeConfigFromWindow().lightTheme;
 	const needsCodeThemeUpdate = currentTheme !== expectedTheme;
 
 	// 如果既不需要主题切换也不需要代码主题更新，直接返回
@@ -274,8 +274,8 @@ function setupSystemThemeListener(): void {
 		}
 
 		const expressiveTheme = isDark
-			? expressiveCodeConfig.darkTheme
-			: expressiveCodeConfig.lightTheme;
+			? getExpressiveCodeConfigFromWindow().darkTheme
+			: getExpressiveCodeConfigFromWindow().lightTheme;
 		document.documentElement.setAttribute("data-theme", expressiveTheme);
 
 		// 触发自定义事件通知其他组件（仅在真正切换时触发）

@@ -7,6 +7,7 @@ const CLIENT_SETTING_GROUPS = [
 	"panel",
 	"effects",
 	"mermaid",
+	"expressiveCode",
 ] as const;
 
 const clientFlatKeys = new Set<string>();

@@ -232,4 +232,8 @@ export const settingsDefaults = {
 		lightTheme: "",
 		darkTheme: "cyborg",
 	},
+	expressiveCode: {
+		darkTheme: "one-dark-pro",
+		lightTheme: "one-light",
+	},
 } as const;
