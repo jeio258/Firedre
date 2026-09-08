@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import { profileConfig } from "@/config/profileConfig";
 import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
@@ -138,14 +139,14 @@ const className = Astro.props.class;
                     return (
                         <a rel="me" aria-label={item.name} href="#" data-encoded-email={encodedEmail} onclick={MAILTO_ONCLICK_SCRIPT}
                             class={className}>
-                            <Icon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></Icon>
+                            <SafeIcon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></SafeIcon>
                             {showName && item.name}
                         </a>
                     );
                 }
                 return (
                     <a rel="me" aria-label={item.name} href={linkUrl} target={/^https?:\/\//i.test(linkUrl) ? "_blank" : undefined} class={className}>
-                        <Icon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></Icon>
+                        <SafeIcon name={item.icon || "material-symbols:link"} class="text-[1.5rem]"></SafeIcon>
                         {showName && item.name}
                     </a>
                 );

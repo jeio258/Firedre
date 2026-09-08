@@ -3,6 +3,7 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import Comment from "@components/comment/index.astro";
 import { Icon } from "astro-icon/components";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import { commentConfig, sponsorConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
@@ -84,7 +85,7 @@ function getQrLqipProps(qrCode: string) {
 
                         <div class="flex items-center gap-3 mb-4">
                           {method.icon && (
-                            <Icon name={method.icon} class="text-2xl text-neutral-900 dark:text-neutral-100 transition-colors" />
+                            <SafeIcon name={method.icon} class="text-2xl text-neutral-900 dark:text-neutral-100 transition-colors" />
                           )}
                           <h3 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
                             {method.name}
