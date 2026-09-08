@@ -68,6 +68,7 @@ export async function fetchMalList(
 				"X-MAL-CLIENT-ID": options.clientId,
 				Accept: "application/json",
 			},
+			signal: AbortSignal.timeout(10000),
 		},
 	);
 

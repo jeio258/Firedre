@@ -70,6 +70,7 @@ const SCHEMA: Record<string, { src: () => AnyObj; fields: Record<string, Spec> }
 	comment: {
 		src: () => getCommentConfig({}) as AnyObj,
 		fields: {
+			enabled: "enable",
 			type: "type",
 			giscusRepo: "giscus.repo", giscusRepoId: "giscus.repoId",
 			giscusCategory: "giscus.category", giscusCategoryId: "giscus.categoryId",
@@ -159,7 +160,7 @@ const SCHEMA: Record<string, { src: () => AnyObj; fields: Record<string, Spec> }
 	},
 	mermaid: {
 		src: () => getMermaidConfig({}) as AnyObj,
-		fields: { lightTheme: "lightTheme", darkTheme: "darkTheme" },
+		fields: { enabled: "enable", lightTheme: "lightTheme", darkTheme: "darkTheme" },
 	},
 	analytics: {
 		src: () => getAnalyticsConfig({}) as AnyObj,

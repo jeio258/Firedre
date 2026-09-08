@@ -66,6 +66,7 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "artalkServer": "https://artalk.example.com/",
     "artalkSiteName": "",
     "disqusShortname": "firefly",
+    "enabled": true,
     "giscusCategory": "General",
     "giscusCategoryId": "DIC_kwDOKy9HOc4CegmW",
     "giscusRepo": "jeio258/Firedre",
@@ -127,6 +128,7 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
   },
   "mermaid": {
     "darkTheme": "editor-dark",
+    "enabled": true,
     "lightTheme": "editor-light",
   },
   "music": {

@@ -143,11 +143,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	const response = await next();
 
-	if (request.method === "GET") {
-		response.headers.set("X-Content-Type-Options", "nosniff");
-		response.headers.set("X-Frame-Options", "SAMEORIGIN");
-		response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-	}
+	// 安全响应头对所有 HTTP 方法生效（含 API 写操作的响应）
+	response.headers.set("X-Content-Type-Options", "nosniff");
+	response.headers.set("X-Frame-Options", "SAMEORIGIN");
+	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");

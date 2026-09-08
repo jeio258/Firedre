@@ -56,10 +56,12 @@ export const POST: APIRoute = async ({ params, request }) => {
 	try {
 		// 首次创建唯一管理员（注册）：仅当系统尚无管理员时允许。
 		if (action === "setup") {
-			const body = (await request.json()) as {
+			const body = (await request.json().catch(() => null)) as {
 				username?: string;
 				password?: string;
-			};
+			} | null;
+			if (!body)
+				return json({ message: "请求体格式错误" }, 400);
 			const username = String(body.username || "").trim();
 			const password = String(body.password || "");
 
@@ -83,10 +85,12 @@ export const POST: APIRoute = async ({ params, request }) => {
 		}
 
 		if (action === "login") {
-			const body = (await request.json()) as {
+			const body = (await request.json().catch(() => null)) as {
 				username?: string;
 				password?: string;
-			};
+			} | null;
+			if (!body)
+				return json({ message: "请求体格式错误" }, 400);
 			const username = String(body.username || "").trim();
 			const password = String(body.password || "");
 			const clientIp = getRequestClientIp(request);
@@ -138,6 +142,8 @@ export const POST: APIRoute = async ({ params, request }) => {
 			const newPassword = String(body.password || "");
 			if (!newPassword)
 				return json({ message: "密码不能为空" }, 400);
+			if (newPassword.length < 8)
+				return json({ message: "密码至少 8 位" }, 400);
 
 			// 用户名取自已认证会话，不再依赖客户端传入（修复生产环境 username 取不到导致无法改密）
 			const token = getCookieValue(

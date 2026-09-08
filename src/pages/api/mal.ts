@@ -2,11 +2,8 @@ import type { APIRoute } from "astro";
 import { json, serverError } from "../../lib/api";
 import { proxyCacheGet, proxyCachePut, proxyRateLimited } from "@/lib/proxyCache";
 import { siteConfig } from "@/config";
-import {
-	fetchMalList,
-	type MalListKind,
-	type MalListItem,
-} from "@/utils/mal-utils";
+import { fetchMalList, type MalListKind } from "@/utils/mal-utils";
+import type { MalListItem } from "@/types/mal";
 
 export const prerender = false;
 

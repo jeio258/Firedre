@@ -154,6 +154,7 @@ export async function propfindWebDavAlbum(
 		method: "PROPFIND",
 		headers,
 		body,
+		signal: AbortSignal.timeout(10000),
 	});
 
 	if (!response.ok && response.status !== 207)
@@ -177,7 +178,7 @@ export async function fetchWebDavFile(
 	if (auth) headers.Authorization = auth;
 	if (options?.range) headers.Range = options.range;
 
-	const response = await fetch(url, { headers, redirect: "manual" });
+	const response = await fetch(url, { headers, redirect: "manual", signal: AbortSignal.timeout(10000) });
 	if (response.status >= 300 && response.status < 400) {
 		throw new Error("WebDAV 源返回重定向，出于安全已拒绝跟随");
 	}

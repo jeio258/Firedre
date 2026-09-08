@@ -172,6 +172,7 @@ export function getCommentConfig(locals: unknown) {
 	const c = groupOf(s, "comment");
 	return {
 		...staticCommentConfig,
+		enable: bool(c.enabled, true),
 		type: str(c.type, staticCommentConfig.type),
 		giscus: {
 			...(staticCommentConfig.giscus ?? {}),
@@ -329,6 +330,7 @@ export function getFooterConfig(locals: unknown) {
 	const f = groupOf(s, "footer");
 	return {
 		...staticFooterConfig,
+		enable: bool(f.enabled, (staticFooterConfig as Record<string, unknown>).enable as boolean),
 		...(typeof f.text === "string" && f.text ? { text: f.text } : {}),
 		...(typeof f.icp === "string" && f.icp ? { icp: f.icp } : {}),
 		...(typeof f.startYear === "string" && f.startYear ? { startYear: f.startYear } : {}),
@@ -513,6 +515,7 @@ export function getMermaidConfig(locals: unknown) {
 	const m = groupOf(s, "mermaid");
 	return {
 		...staticMermaidConfig,
+		enable: bool(m.enabled, true),
 		lightTheme: str(m.lightTheme, staticMermaidConfig.lightTheme),
 		darkTheme: str(m.darkTheme, staticMermaidConfig.darkTheme),
 	};

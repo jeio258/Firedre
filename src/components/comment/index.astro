@@ -36,10 +36,11 @@ const commentSettings = (settings.comment ?? {}) as Record<string, unknown>;
 let commentService: string = String(
 	commentSettings.type || commentConfig?.type || "none",
 );
+const commentEnabled = commentSettings.enabled !== false;
 ---
 
 {
-  commentService !== "none" && (
+  commentService !== "none" && commentEnabled && (
     <div id="post-comments" class="card-base p-8 mb-6 relative overflow-hidden">
 
       <div class="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none">

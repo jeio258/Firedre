@@ -42,6 +42,7 @@ export async function fetchVndbUlist(
 			results: options.results,
 			page: options.page,
 		}),
+		signal: AbortSignal.timeout(10000),
 	});
 
 	if (!response.ok) {

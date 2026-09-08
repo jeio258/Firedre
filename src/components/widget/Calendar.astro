@@ -122,6 +122,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 </script>
 <script>
   // @ts-nocheck
+  import { escapeHtml } from "@/utils/escape-html";
   const __cfg = window.__fireflyCalendarConfig;
   const monthNames = __cfg.monthNames;
   const weekDays = __cfg.weekDays;
@@ -166,12 +167,6 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     } catch (error) {
       console.error("Failed to fetch calendar data", error);
     }
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
   }
 
   function renderHeatmap() {

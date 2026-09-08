@@ -1,5 +1,7 @@
 
 
+import { escapeHtmlAttr } from "@/utils/escape-html";
+
 export interface TocInput {
 
 	depth: number;
@@ -74,15 +76,6 @@ export function computeTocItems(
 	}
 
 	return items;
-}
-
-function escapeHtmlAttr(value: string): string {
-	return value
-		.replace(/&/g, "&amp;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&#39;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;");
 }
 
 function renderBadgeInnerHTML(item: TocItem): string {
