@@ -949,14 +949,15 @@ body {
 .a2fg {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.9rem 1.1rem;
+	gap: 0.95rem 1.1rem;
+	align-items: start;
 	padding-top: 0.45rem;
 	width: 100%;
 }
 .a2f {
 	display: flex;
 	flex-direction: column;
-	gap: 0.3rem;
+	gap: 0.4rem;
 	min-width: 0;
 }
 .a2f.only-child,
@@ -974,7 +975,8 @@ body {
 	line-height: 1.4;
 	word-break: break-word;
 	min-height: 2.6em;
-	display: block;
+	display: flex;
+	align-items: center;
 }
 .a2f small {
 	color: var(--text-muted);
@@ -1001,7 +1003,7 @@ body {
 }
 .a2f.split .dual input,
 .a2f.split .dual textarea {
-	height: 2.3rem;
+	height: 2.4rem;
 	resize: vertical;
 }
 .a2f.split .ds {
@@ -1304,8 +1306,9 @@ body {
 .editor-title input,
 .crud-head input,
 .crud-head select {
-	height: 2.35rem;
-	padding: 0 0.75rem;
+	height: 2.4rem;
+	padding: 0 0.8rem;
+	line-height: normal;
 	font-size: var(--ctl-fs);
 	border-radius: var(--ctl-r);
 	background: var(--ctl-bg);
@@ -1332,7 +1335,7 @@ body {
 .a2f textarea,
 .crud-field textarea,
 .mcfg textarea {
-	padding: 0.6rem 0.75rem;
+	padding: 0.55rem 0.8rem;
 	font-size: var(--ctl-fs);
 	line-height: 1.55;
 	border-radius: var(--ctl-r);
@@ -1342,7 +1345,8 @@ body {
 	font-family: inherit;
 	box-sizing: border-box;
 	resize: vertical;
-	min-height: 96px;
+	min-height: 5.5rem;
+	width: 100%;
 }
 
 .a2f input,
