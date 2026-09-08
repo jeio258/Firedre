@@ -129,6 +129,17 @@ export async function saveSettingsGroups(
 	const entries = Object.entries(groups) as [SettingGroup, Record<string, unknown>][];
 	if (entries.length === 0) return;
 
+	// 合并写入：以现有 D1 值为底、新值覆盖，避免「只更新某字段」时清空同组其余字段
+	const merged = await Promise.all(
+		entries.map(async ([group, data]) => {
+			const existing = await getSettingsGroup(env, group);
+			return [group, { ...existing, ...data }] as [
+				SettingGroup,
+				Record<string, unknown>,
+			];
+		}),
+	);
+
 	const sql = `
 		INSERT INTO site_settings (key, value, updated_at)
 		VALUES (?, ?, datetime('now'))
@@ -145,13 +156,13 @@ export async function saveSettingsGroups(
 	};
 	if (typeof db.batch === "function") {
 		await db.batch(
-			entries.map(([group, data]) =>
+			merged.map(([group, data]) =>
 				db.prepare(sql).bind(group, JSON.stringify(data)),
 			),
 		);
 	} else {
 		// 本地 dev 垫片：无 batch()，逐组写（KV 全量同步仍只做一次）
-		for (const [group, data] of entries) {
+		for (const [group, data] of merged) {
 			await db.prepare(sql).bind(group, JSON.stringify(data)).run();
 		}
 	}
