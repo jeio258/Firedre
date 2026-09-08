@@ -313,6 +313,8 @@ export default defineConfig({
 			include: ["vditor"],
 		},
 		build: {
+			sourcemap: false,
+			reportCompressedSize: false,
 			minify: "esbuild",
 			esbuildOptions: {
 				minify: true,

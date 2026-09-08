@@ -1,0 +1,27 @@
+---
+import FaviconLinks from "./FaviconLinks.astro";
+
+interface Props {
+	defaultMode?: string;
+	defaultHue?: string | number;
+}
+const { defaultMode = "light", defaultHue = "165" } = Astro.props;
+const settings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+---
+<FaviconLinks settings={settings} />
+<style is:inline set:html={`html{--hue:${defaultHue}}`}></style>
+<script is:inline define:vars={{ defaultMode, defaultHue }}>
+	(function () {
+		try {
+			var DARK = "dark", SYSTEM = "system";
+			var theme = localStorage.getItem("theme") || defaultMode;
+			var isDark = theme === SYSTEM
+				? window.matchMedia("(prefers-color-scheme: dark)").matches
+				: theme === DARK;
+			document.documentElement.classList.toggle("dark", isDark);
+			document.documentElement.setAttribute("data-theme", isDark ? "one-dark-pro" : "one-light");
+			var hue = localStorage.getItem("hue") || defaultHue;
+			document.documentElement.style.setProperty("--hue", hue);
+		} catch (e) {}
+	})();
+</script>

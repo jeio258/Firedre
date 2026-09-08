@@ -2,40 +2,19 @@
 export const prerender = false;
 
 import AdminApp from "../../components/admin/AdminApp.svelte";
-import FaviconLinks from "@components/layout/FaviconLinks.astro";
+import AdminHead from "@components/layout/AdminHead.astro";
 
 import "@/styles/variables.styl";
-
-const settings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
-	<script is:inline>
-		// 后台主题初始化：复用前台 theme 系统（与前台 Layout.astro 一致）
-		// 读 localStorage.theme(light/dark/system) → .dark 类；data-theme 用前台代码主题；--hue 跟随前台
-		(function () {
-			try {
-				var DARK = "dark", SYSTEM = "system";
-				var theme = localStorage.getItem("theme") || "light";
-				var isDark = theme === SYSTEM
-					? window.matchMedia("(prefers-color-scheme: dark)").matches
-					: theme === DARK;
-				if (isDark) document.documentElement.classList.add("dark");
-				else document.documentElement.classList.remove("dark");
-				document.documentElement.setAttribute("data-theme", isDark ? "one-dark-pro" : "one-light");
-				var hue = localStorage.getItem("hue") || "165";
-				document.documentElement.style.setProperty("--hue", hue);
-			} catch (e) {}
-		})();
-	</script>
+	<AdminHead />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Firedre 后台</title>
 
-	<FaviconLinks settings={settings} />
 	<style>
-		html{--hue:165}
 		body{margin:0;font-family:system-ui,sans-serif;background:var(--page-bg);color:var(--deep-text)}
 	</style>
 </head>
