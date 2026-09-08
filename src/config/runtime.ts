@@ -45,7 +45,9 @@ function num(v: unknown, fallback: number): number {
 	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
 }
 function bool(v: unknown, fallback: boolean): boolean {
-	return typeof v === "boolean" ? v : fallback;
+	if (typeof v === "boolean") return v;
+	if (v === "true" || v === "false") return v === "true";
+	return fallback;
 }
 function arr(v: unknown, fallback: unknown[]): unknown[] {
 	if (Array.isArray(v)) return v;
