@@ -4,7 +4,6 @@ export function formatDateToYYYYMMDD(date: Date): string {
 	return date.toISOString().substring(0, 10);
 }
 
-// 国际化日期格式化函数
 export function formatDateI18n(
 	dateInput: Date | string,
 	includeTime?: boolean,
@@ -30,7 +29,6 @@ export function formatDateI18n(
 		(options as Intl.DateTimeFormatOptions).timeZone = siteConfig.timezone;
 	}
 
-	// 语言代码映射
 	const localeMap: Record<string, string> = {
 		zh_CN: "zh-CN",
 		zh_TW: "zh-TW",
@@ -54,7 +52,6 @@ export function formatDateI18n(
 		: date.toLocaleDateString(locale, options);
 }
 
-// 国际化日期时间格式化函数（带时分秒）
 export function formatDateI18nWithTime(dateInput: Date | string): string {
 	return formatDateI18n(dateInput, true);
 }

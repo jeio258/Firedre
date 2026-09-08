@@ -1,7 +1,6 @@
 import type { SidebarLayoutConfig } from "../types/sidebarConfig";
 
 export const sidebarLayoutConfig: SidebarLayoutConfig = {
-	// 是否启用侧边栏功能
 	enable: true,
 
 	position: "both",
@@ -15,28 +14,24 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 
 	leftComponents: [
 		{
-			// 用户资料组件
 			type: "profile",
 			enable: true,
 			position: "top",
 			showOnPostPage: true,
 		},
 		{
-			// 公告组件
 			type: "announcement",
 			enable: true,
 			position: "top",
 			showOnPostPage: true,
 		},
 		{
-			// 音乐播放器
 			type: "music",
 			enable: true,
 			position: "sticky",
 			showOnPostPage: true,
 		},
 		{
-			// 分类组件
 			type: "categories",
 			enable: true,
 			position: "sticky",
@@ -47,7 +42,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 标签组件
 			type: "tags",
 			enable: true,
 			position: "sticky",
@@ -59,30 +53,25 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		},
 	],
 
-	// 右侧边栏组件配置列表
 	rightComponents: [
 		{
-			// 最新动态组件
 			type: "dynamic",
 			enable: true,
 			position: "top",
 			showOnPostPage: true,
 			specificConfig: {
 				dynamic: {
-					// 显示的最新动态数量
 					limit: 2,
 				},
 			},
 		},
 		{
-			// 站点统计组件
 			type: "stats",
 			enable: true,
 			position: "top",
 			showOnPostPage: false,
 		},
 		{
-			// 站点信息组件
 			type: "siteInfo",
 			enable: true,
 			position: "top",
@@ -95,7 +84,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 日历组件
 			type: "calendar",
 			enable: true,
 			showTitle: false,
@@ -109,7 +97,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 侧边栏目录组件（只在文章详情页显示）
 			type: "sidebarToc",
 			enable: true,
 			position: "sticky",
@@ -117,13 +104,11 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			hideOnNonPostPage: true,
 		},
 		{
-			// 广告栏组件 1
 			type: "advertisement",
 			enable: false,
 			showTitle: false,
 			position: "sticky",
 			showOnPostPage: true,
-			// 广告内容直接在此配置
 			specificConfig: {
 				ad: {
 					image: {
@@ -132,11 +117,9 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 						link: "https://haoka.lot-ml.com/plugreg.html?agentid=1423316",
 						external: true,
 					},
-					// 是否允许关闭广告
 					closable: false,
 					// 显示次数限制，-1为无限制
 					displayCount: -1,
-					// 组件内边距配置
 					padding: {
 						all: "1rem",
 					},
@@ -144,12 +127,10 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 广告栏组件 2
 			type: "advertisement",
 			enable: false,
 			position: "sticky",
 			showOnPostPage: true,
-			// 广告内容直接在此配置
 			specificConfig: {
 				ad: {
 					title: "支持博主",
@@ -169,13 +150,11 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 
 	mobileBottomComponents: [
 		{
-			// 公告组件
 			type: "announcement",
 			enable: true,
 			showOnPostPage: true,
 		},
 		{
-			// 分类组件
 			type: "categories",
 			enable: true,
 			showOnPostPage: true,
@@ -185,7 +164,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 标签组件
 			type: "tags",
 			enable: true,
 			showOnPostPage: true,
@@ -195,25 +173,21 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			},
 		},
 		{
-			// 最新动态组件
 			type: "dynamic",
 			enable: true,
 			showOnPostPage: true,
 			specificConfig: {
 				dynamic: {
-					// 显示的最新动态数量
 					limit: 2,
 				},
 			},
 		},
 		{
-			// 站点统计组件
 			type: "stats",
 			enable: true,
 			showOnPostPage: true,
 		},
 		{
-			// 站点信息组件
 			type: "siteInfo",
 			enable: true,
 			showOnPostPage: true,

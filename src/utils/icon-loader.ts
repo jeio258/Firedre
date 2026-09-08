@@ -3,7 +3,6 @@
 let bodyObserver: MutationObserver | null = null;
 
 export function initIconLoader(): void {
-	// 初始化单个图标容器
 	function initContainer(container: Element) {
 		if (container.hasAttribute("data-icon-initialized")) return;
 		container.setAttribute("data-icon-initialized", "true");
@@ -18,7 +17,6 @@ export function initIconLoader(): void {
 
 		if (!loadingIndicator || !iconElement) return;
 
-		// 检查图标是否已经加载
 		function checkIconLoaded() {
 			const hasContent =
 				iconElement.shadowRoot && iconElement.shadowRoot.children.length > 0;
@@ -30,21 +28,18 @@ export function initIconLoader(): void {
 			return false;
 		}
 
-		// 显示图标，隐藏加载指示器
 		function showIcon() {
 			loadingIndicator.style.display = "none";
 			iconElement.classList.remove("opacity-0");
 			iconElement.classList.add("opacity-100");
 		}
 
-		// 显示加载指示器，隐藏图标
 		function showLoading() {
 			loadingIndicator.style.display = "inline-flex";
 			iconElement.classList.remove("opacity-100");
 			iconElement.classList.add("opacity-0");
 		}
 
-		// 初始状态
 		showLoading();
 
 		// 监听图标加载事件
@@ -90,7 +85,6 @@ export function initIconLoader(): void {
 		}, 100);
 	}
 
-	// 初始化页面上现有的图标
 	document.querySelectorAll("[data-icon-container]").forEach(initContainer);
 
 	bodyObserver?.disconnect();

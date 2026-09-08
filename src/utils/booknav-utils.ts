@@ -5,7 +5,6 @@ import type {
 	BooknavItem,
 } from "../types/booknavConfig";
 
-// 书签图标解析结果
 export type ResolvedBooknavIcon =
 	| { kind: "icon"; value: string }                  
 	| { kind: "image"; value: string }        

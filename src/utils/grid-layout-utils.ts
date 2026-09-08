@@ -8,12 +8,10 @@ const sidebarStickyState: Record<
 	right: { topClass: "top-0", hasVisibleTop: false },
 };
 
-// 检查当前页面是否为文章详情页
 const isCurrentPagePost = (): boolean =>
 	window.location.pathname.includes("/posts/") ||
 	window.location.pathname.includes("/post/");
 
-// Grid 列类常量
 const GRID_COL_CLASSES = [
 	"grid-cols-1",
 	"md:grid-cols-[17.5rem_1fr]",
@@ -33,7 +31,6 @@ const MULTI_COL_POS_CLASSES = [
 	"xl:col-span-1",
 ];
 
-// 清除元素上的多列定位类
 function clearColPositioning(
 	...elements: (Element | null | undefined)[]
 ): void {
@@ -55,7 +52,6 @@ function applySingleColLayout(mainGrid: Element): void {
 	);
 }
 
-// 更新主网格的网格列数
 export function updateMainGridCols(): void {
 	const mainGrid = document.getElementById("main-grid");
 	if (!mainGrid) return;
@@ -129,7 +125,6 @@ export function updateMainGridCols(): void {
 	}
 }
 
-// 更新侧边栏组件的可见性
 export function updateSidebarComponentsVisibility(): void {
 	const isPostPage = isCurrentPagePost();
 

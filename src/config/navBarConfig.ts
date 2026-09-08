@@ -1,85 +1,64 @@
 import type { NavBarConfig, NavBarLink } from "../types/navBarConfig";
 
 const getDynamicNavBarConfig = (): NavBarConfig => {
-	// 基础导航栏链接
 	const links: NavBarLink[] = [];
 
-	// 主页
 	links.push(LinkPresets.Home);
 
-	// 文章及其子菜单
 	links.push({
 		name: "文章",
 		url: "#",
 		icon: "material-symbols:article",
 		children: [
-			// 归档
 			LinkPresets.Archive,
 
-			// 分类
 			LinkPresets.Categories,
 
-			// 标签
 			LinkPresets.Tags,
 
-			// 系列
 			LinkPresets.Series,
 		],
 	});
 
-	//社交及其子菜单
 	links.push({
 		name: "社交",
 		url: "#",
 		icon: "material-symbols:group",
 		children: [
-			// 友链
 			LinkPresets.Friends,
 
-			// 留言
 			LinkPresets.Guestbook,
 		],
 	});
 
-	// 我的及其子菜单
 	links.push({
 		name: "我的",
 		url: "#",
 		icon: "material-symbols:person",
 		children: [
-			// 动态
 			LinkPresets.Dynamic,
 
-			// 相册
 			LinkPresets.Gallery,
 
-			// 书签导航
 			LinkPresets.Booknav,
 
-			// 哔哩哔哩追番
 			LinkPresets.Bilibili,
 
-			// 番组计划
 			LinkPresets.Bangumi,
 
-			// VNDB
 			LinkPresets.VNDB,
 
-			// MyAnimeList
 			LinkPresets.MAL,
 		],
 	});
 
-	// 关于及其子菜单
 	links.push({
 		name: "关于",
 		url: "#",
 		icon: "material-symbols:info",
 		children: [
-			// 打赏
 			LinkPresets.Sponsor,
 
-			// 关于页面
 			LinkPresets.About,
 		],
 	});

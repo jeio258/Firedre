@@ -67,7 +67,6 @@ export function initLayout(): void {
 		scheduleContentOverflowEnhancements();
 	}
 
-	// Initialize wallpaper mode
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", () => {
 			updateMainGridCols();

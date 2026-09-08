@@ -66,12 +66,10 @@ export const siteConfig: SiteConfig = {
 			alt: "🍀",
 		},
 		title: "Firefly",
-		// 导航栏是否占满屏幕宽度
 		widthFull: false,
 		// 菜单对齐方式：left 左对齐，center 居中
 		menuAlign: "center",
 		followTheme: false,
-		// 导航栏是否固定在顶部并始终可见
 		stickyNavbar: true,
 	},
 
@@ -139,7 +137,6 @@ export const siteConfig: SiteConfig = {
 
 			enablePythonMarkdownAdmonitions: false,
 		},
-		// 文章页底部"上次编辑时间"卡片开关
 		showLastModified: true,
 		// 超过该天数(天)才显示"上次编辑"卡片
 		outdatedThreshold: 30,
@@ -149,7 +146,6 @@ export const siteConfig: SiteConfig = {
 	},
 
 	bilibili: {
-		// 你的 Bilibili 用户 UID
 		uid: "38932988",
 	},
 

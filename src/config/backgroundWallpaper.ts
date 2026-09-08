@@ -34,15 +34,10 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		dimOpacity: 0.2,
 
 		playerMode: "random",
-		// 主页横幅文字
 		homeText: {
-			// 是否启用主页横幅文字
 			enable: true,
-			// 主页横幅主标题
 			title: "Lovely firefly!",
-			// 主页横幅主标题字体大小
 			titleSize: "4.5rem",
-			// 主页横幅副标题
 			subtitle: [
 				"In Reddened Chrysalis, I Once Rest",
 				"From Shattered Sky, I Free Fall",
@@ -51,7 +46,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				"From Undreamt Night, I Thence Shine",
 				"In Finalized Morrow, I Full Bloom",
 			],
-			// 主页横幅副标题字体大小
 			subtitleSize: "1.5rem",
 			typewriter: {
 
@@ -63,7 +57,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 				// 完全显示后的暂停时间（毫秒）
 				pauseTime: 2000,
 			},
-			// 是否显示标题下方的链接图标
 			linksEnable: true,
 
 			links: [
@@ -108,7 +101,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		postInfo: {
 			mode: "description",
 		},
-		// 导航栏配置
 		navbar: {
 
 			transparentMode: "semi",
@@ -118,21 +110,16 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 		// 水波纹动画效果配置，开启会影响页面性能，增加内存占用，请根据自己的喜好开启
 		waves: {
 			enable: {
-				// 桌面端是否启用水波纹动画效果
 				desktop: true,
-				// 移动端是否启用水波纹动画效果
 				mobile: true,
 			},
 		},
 		// 渐变过渡效果配置，当水波纹关闭时自动启用，提供壁纸底部到背景色的平滑过渡
 		gradient: {
 			enable: {
-				// 桌面端是否启用渐变过渡
 				desktop: true,
-				// 移动端是否启用渐变过渡
 				mobile: true,
 			},
-			// 渐变高度
 			height: "10%",
 		},
 	},
@@ -140,18 +127,14 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	overlay: {
 
 		zIndex: 0,
-		// 壁纸透明度
 		opacity: 0.8,
-		// 背景模糊度
 		blur: 10,
 		// 卡片透明度，0-1之间，值越小越透明
 		cardOpacity: 0.6,
 	},
 
 	fullscreen: {
-		// 图片位置
 		position: "center",
-		// 全屏壁纸模式的导航栏配置
 		navbar: {
 			// 是否开启动态透明：开启后首页顶部导航栏透明，下滑后变不透明（仅首页生效）
 			dynamicTransparent: false,
@@ -159,9 +142,7 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 
 		blurRamp: {
 			enable: {
-				// 桌面端是否启用模糊渐变
 				desktop: true,
-				// 移动端是否启用模糊渐变
 				mobile: true,
 			},
 		},

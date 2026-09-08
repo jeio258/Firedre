@@ -44,10 +44,8 @@ export type MalListStatus = {
 	start_date?: string;
 	finish_date?: string;
 	comments?: string;
-	// 动画字段
 	num_episodes_watched?: number;
 	is_rewatching?: boolean;
-	// 漫画字段
 	num_chapters_read?: number;
 	num_volumes_read?: number;
 	is_rereading?: boolean;

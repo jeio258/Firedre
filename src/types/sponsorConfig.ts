@@ -1,4 +1,3 @@
-// 打赏方式类型
 export type SponsorMethod = {
 	name: string;                                
 	icon?: string;                                          
@@ -8,7 +7,6 @@ export type SponsorMethod = {
 	enabled: boolean;        
 };
 
-// 打赏者列表项
 export type SponsorItem = {
 	name: string;                                     
 	avatar?: string;                                       
@@ -16,7 +14,6 @@ export type SponsorItem = {
 	date?: string;                   
 };
 
-// 打赏配置
 export type SponsorConfig = {
 	title?: string;                  
 	description?: string;          

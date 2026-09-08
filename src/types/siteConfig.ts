@@ -43,7 +43,6 @@ export type SiteConfig = {
 	// 页面整体宽度（单位：rem）
 	pageWidth?: number;
 
-	// 卡片样式配置
 	card: {
 		// 是否开启卡片边框和阴影立体效果
 		border: boolean;
@@ -78,7 +77,6 @@ export type SiteConfig = {
 		stickyNavbar?: boolean;                  
 	};
 
-	// 页面开关配置
 	pages: {
 		booknav: boolean;            
 		friends: boolean;          
@@ -92,7 +90,6 @@ export type SiteConfig = {
 		dynamic: boolean;          
 	};
 
-	// 分类导航栏开关
 	categoryBar?: boolean;
 
 	categoryStyle?: "pill" | "rectangle";
@@ -102,7 +99,6 @@ export type SiteConfig = {
 	// 归档页是否折叠非最新年份文章
 	foldArticle?: boolean;
 
-	// 文章列表布局配置
 	postListLayout: {
 		defaultMode: "list" | "grid";                              
 		mobileDefaultMode?: "list" | "grid";                                               
@@ -114,7 +110,6 @@ export type SiteConfig = {
 		tagsPosition?: "meta" | "bottom";
 
 		tagsBottomStyle?: "chip" | "text";
-		// PostMeta 元数据显示控制
 		meta?: {
 			showPublished?: boolean;            
 			showCategory?: boolean;          
@@ -123,7 +118,6 @@ export type SiteConfig = {
 			showWords?: boolean;          
 			showReadingTime?: boolean;            
 		};
-		// PostStats 统计信息显示控制
 		stats?: {
 			showPublished?: boolean;            
 			showWords?: boolean;          
@@ -139,9 +133,7 @@ export type SiteConfig = {
 		};
 	};
 
-	// 文章内容页配置
 	post: {
-		// 提醒框（Admonitions）配置
 		rehypeCallouts: {
 			theme: "github" | "obsidian" | "vitepress" | "docusaurus";
 			enablePythonMarkdownAdmonitions?: boolean;
@@ -156,7 +148,6 @@ export type SiteConfig = {
 		generateOgImages: boolean;
 	};
 
-	// bangumi配置
 	bangumi?: {
 		userId?: string;               
 		mode?: "static" | "dynamic";                                     
@@ -174,7 +165,6 @@ export type SiteConfig = {
 		nsfw?: NsfwMode;                                                  
 	};
 
-	// VNDB 配置
 	vndb?: {
 		userId?: string;                      
 		mode?: "static" | "dynamic";                                     
@@ -185,7 +175,6 @@ export type SiteConfig = {
 		nsfw?: NsfwMode;                                                  
 	};
 
-	// MyAnimeList 配置
 	mal?: {
 		username?: string;                            
 		clientId?: string;                                                                       
@@ -195,12 +184,10 @@ export type SiteConfig = {
 		nsfw?: NsfwMode;                                                  
 	};
 
-	// Bilibili 配置
 	bilibili?: {
-		uid?: string; // Bilibili 用户 UID
+		uid?: string;
 	};
 
-	// 分页配置
 	pagination: {
 		postsPerPage: number; // 每页显示的文章数量
 	};

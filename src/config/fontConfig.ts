@@ -55,22 +55,17 @@ export const fontsList: FontDefinition[] = [
 ];
 
 export const fontConfig: FontSelectionConfig = {
-	// 是否启用自定义字体功能
 	enable: true,
 
 	selected: ["system"],
 
 	bannerTitleFont: "--font-zen-maru-gothic",
-	// 主页横幅副标题字体
 	bannerSubtitleFont: "--font-inter",
-	// 导航栏标题字体
 	navbarTitleFont: "",
-	// 代码块字体（用于代码高亮和等宽字体场景）
 	codeFont: "--font-jetbrains-mono",
 
 	subsetFonts: {
 		"--font-greatvibes": {
-			// 额外包含的字符
 			extraChars: "",
 		},
 	},

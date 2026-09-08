@@ -14,7 +14,6 @@ export const ko: Translation = {
 	[Key.searchViewMore]: "더 많은 결과 보기 ({count}개 더)",
 	[Key.other]: "기타",
 
-	// 네비게이션 메뉴 그룹
 	[Key.navArticles]: "글",
 	[Key.navSocial]: "소셜",
 	[Key.navMine]: "마이",
@@ -70,7 +69,6 @@ export const ko: Translation = {
 	[Key.musicNoCover]: "커버 이미지 없음",
 	[Key.musicAudioPlayer]: "오디오 플레이어",
 
-	// Announcement
 	[Key.announcement]: "공지사항",
 	[Key.announcementClose]: "닫기",
 
@@ -121,7 +119,6 @@ export const ko: Translation = {
 	[Key.license]: "라이선스",
 	[Key.bangumi]: "Bangumi",
 
-	// Bangumi Filter and Status Text
 	[Key.bangumiTitle]: "나의 Bangumi",
 	[Key.bangumiSubtitle]: "나의 ACG 기록",
 	[Key.bangumiFilterAll]: "전체",
@@ -172,19 +169,16 @@ export const ko: Translation = {
 	[Key.bangumiTotalPages]: "/",
 	[Key.bangumiPage]: "페이지",
 
-	// Bangumi Categories
 	[Key.bangumiCategoryBook]: "책",
 	[Key.bangumiCategoryAnime]: "애니메이션",
 	[Key.bangumiCategoryMusic]: "음악",
 	[Key.bangumiCategoryGame]: "게임",
 	[Key.bangumiCategoryReal]: "실사",
 
-	// Bangumi Data Update
 	[Key.bangumiLastUpdated]: "데이터 업데이트 시각",
 	[Key.bangumiUpdatedAt]: "빌드 시각",
 	[Key.bangumiDataStatic]: "정적 데이터",
 
-	// VNDB
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "내 VNDB 비주얼 노벨 목록",
 	[Key.vndbFilterAll]: "전체",
@@ -216,14 +210,12 @@ export const ko: Translation = {
 	[Key.vndbLengthLong]: "김",
 	[Key.vndbLengthVeryLong]: "매우 김",
 
-	// Anime Tracking - Bilibili
 	[Key.bilibili]: "Bilibili",
 	[Key.bilibiliSubtitle]: "저의 Bilibili 시청 목록 (애니메이션 + 드라마)",
 	[Key.bilibiliNotConfigured]: "Bilibili 데이터 소스가 설정되지 않았습니다",
 	[Key.bilibiliNotConfiguredDesc]:
 		"src/config/siteConfig.ts에서 bilibili.uid를 설정하세요",
 
-	// Anime Tracking - Shared components
 	[Key.animeTotal]: "총계",
 	[Key.animeAverageRating]: "평균 평점",
 	[Key.animeSearch]: "애니메이션 검색...",
@@ -253,7 +245,6 @@ export const ko: Translation = {
 	[Key.animeTypeDrama]: "드라마",
 	[Key.animeTypeConcert]: "콘서트",
 
-	// MyAnimeList
 	[Key.mal]: "MyAnimeList",
 	[Key.malSubtitle]: "MyAnimeList 애니메이션 및 만화 목록",
 	[Key.malCategoryAnime]: "애니메이션",
@@ -283,7 +274,6 @@ export const ko: Translation = {
 	[Key.malSeasonSummer]: "여름",
 	[Key.malSeasonFall]: "가을",
 
-	// Pagination
 	[Key.paginationFirst]: "처음",
 	[Key.paginationPrev]: "이전",
 	[Key.paginationNext]: "다음",
@@ -294,14 +284,12 @@ export const ko: Translation = {
 	[Key.paginationRecords]: "개",
 	[Key.paginationJump]: "지정한 페이지로 이동",
 
-	// 404 Page
 	[Key.notFound]: "404",
 	[Key.notFoundTitle]: "페이지를 찾을 수 없습니다",
 	[Key.notFoundDescription]:
 		"죄송합니다. 방문하신 페이지가 존재하지 않거나 이동되었습니다.",
 	[Key.backToHome]: "홈으로 돌아가기",
 
-	// RSS Page
 	[Key.rss]: "RSS 피드",
 	[Key.rssDescription]: "최신 소식을 구독하세요",
 	[Key.rssSubtitle]: "RSS를 구독하여 최신 글과 업데이트를 즉시 받아보세요",
@@ -322,7 +310,6 @@ export const ko: Translation = {
 	[Key.rssCopied]: "RSS 링크가 클립보드에 복사되었습니다!",
 	[Key.rssCopyFailed]: "복사에 실패했습니다. 링크를 직접 복사해 주세요",
 
-	// Last Modified Time Card
 	[Key.lastModifiedPrefix]: "마지막 업데이트: ",
 	[Key.lastModifiedOutdated]: "일부 내용이 오래되었을 수 있습니다",
 	[Key.lastModifiedDaysAgo]: "{days}일 전",
@@ -333,15 +320,12 @@ export const ko: Translation = {
 	[Key.minute]: "분",
 	[Key.second]: "초",
 
-	// Page Views Statistics
 	[Key.pageViews]: "조회수",
 	[Key.pageViewsLoading]: "불러오는 중...",
 	[Key.pageViewsError]: "통계를 불러올 수 없습니다",
 
-	// Pinned
 	[Key.pinned]: "고정됨",
 
-	// Related Posts
 	[Key.relatedPosts]: "관련 게시글",
 	[Key.randomPosts]: "무작위 게시글",
 	[Key.smartRecommend]: "스마트",
@@ -349,24 +333,20 @@ export const ko: Translation = {
 	[Key.noRelatedPosts]: "관련 게시글이 없습니다",
 	[Key.noRandomPosts]: "무작위 게시글이 없습니다",
 
-	// 글 시리즈
 	[Key.series]: "시리즈",
 	[Key.seriesPartOf]: "시리즈의 일부",
 	[Key.seriesPart]: "파트 {n}",
 	[Key.seriesThisArticle]: "이 글",
 	[Key.noSeries]: "시리즈가 없습니다",
 
-	// Encrypted
 	[Key.postEncrypted]: "이 게시글은 암호화되어 있습니다",
 
-	// Wallpaper Mode
 	[Key.wallpaperMode]: "배경화면 모드",
 	[Key.wallpaperBannerMode]: "배너 배경화면",
 	[Key.wallpaperFullscreenMode]: "전체화면 배경화면",
 	[Key.wallpaperOverlayMode]: "오버레이 배경화면",
 	[Key.wallpaperNoneMode]: "배경화면 없음",
 
-	// Wallpaper Settings
 	[Key.wallpaperSettings]: "배경화면 설정",
 	[Key.wallpaperTitle]: "홈 배경화면 제목",
 	[Key.wallpaperCarousel]: "배경화면 캐러셀",
@@ -379,22 +359,18 @@ export const ko: Translation = {
 	[Key.overlayBlur]: "배경 흐림",
 	[Key.overlayCardOpacity]: "카드 불투명도",
 
-	// Settings Panel Tabs
 	[Key.settingsTabAppearance]: "외형",
 	[Key.settingsTabWallpaper]: "배경화면",
 	[Key.settingsTabEffects]: "효과",
 
-	// 카드 스타일
 	[Key.cardSettings]: "카드 스타일",
 	[Key.cardBorder]: "카드 테두리와 그림자",
 	[Key.cardFollowTheme]: "카드 테마 색상 따르기",
 
-	// Post List Layout
 	[Key.postListLayout]: "게시글 목록 레이아웃",
 	[Key.postListLayoutList]: "목록형",
 	[Key.postListLayoutGrid]: "격자형",
 
-	// Sponsor Page
 	[Key.sponsor]: "후원",
 	[Key.sponsorTitle]: "저를 후원해 주세요",
 	[Key.sponsorDescription]:
@@ -415,7 +391,6 @@ export const ko: Translation = {
 	[Key.shareOnSocialDescription]:
 		"이 글이 도움이 되셨다면 다른 사람과 공유해 주세요!",
 
-	// Site Statistics
 	[Key.siteStats]: "사이트 통계",
 	[Key.siteStatsPostCount]: "게시글",
 	[Key.siteStatsDynamicCount]: "일상",
@@ -428,7 +403,6 @@ export const ko: Translation = {
 	[Key.siteStatsDays]: "{days}일",
 	[Key.today]: "오늘",
 
-	// Site Info
 	[Key.siteInfo]: "사이트 정보",
 	[Key.siteInfoBuildTime]: "빌드 시각",
 	[Key.siteInfoBuildPlatform]: "빌드 플랫폼",
@@ -442,7 +416,6 @@ export const ko: Translation = {
 	[Key.siteInfoDomain]: "도메인",
 	[Key.siteInfoLicense]: "라이선스",
 
-	// Calendar Component
 	[Key.calendarSunday]: "일",
 	[Key.calendarMonday]: "월",
 	[Key.calendarTuesday]: "화",
@@ -473,13 +446,11 @@ export const ko: Translation = {
 	[Key.savePoster]: "포스터 저장",
 	[Key.scanToRead]: "스캔하여 읽기",
 
-	// Code Block Collapsible Configuration
 	[Key.codeCollapsibleShowMore]: "더 보기",
 	[Key.codeCollapsibleShowLess]: "간략히 보기",
 	[Key.codeCollapsibleExpanded]: "코드 블록 펼쳐짐",
 	[Key.codeCollapsibleCollapsed]: "코드 블록 접힘",
 
-	// Gallery Page
 	[Key.gallery]: "갤러리",
 	[Key.galleryDescription]: "삶의 아름다운 순간을 담다",
 	[Key.galleryPhotos]: "장",
@@ -488,7 +459,6 @@ export const ko: Translation = {
 	[Key.galleryBackToAlbums]: "앨범으로 돌아가기",
 	[Key.searchAlbums]: "앨범 검색...",
 
-	// Password Protection
 	[Key.passwordProtected]: "비밀번호로 보호됨",
 	[Key.passwordProtectedDesc]:
 		"이 콘텐츠는 비밀번호로 보호되어 있습니다. 보려면 비밀번호를 입력하세요.",
@@ -499,7 +469,6 @@ export const ko: Translation = {
 	[Key.passwordProtectedRss]:
 		"이 글은 암호화되어 있습니다. 웹사이트에서 확인해 주세요.",
 
-	// Background video player
 	[Key.videoPlay]: "배경 영상 재생",
 	[Key.videoPause]: "배경 영상 일시정지",
 	[Key.videoPrev]: "이전 영상",

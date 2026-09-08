@@ -50,8 +50,6 @@ export type {
 	SponsorMethod,
 } from "./sponsorConfig";
 
-// 响应式图像布局类型
 export type ResponsiveImageLayout = "constrained" | "full-width" | "none";
 
-// 图像格式类型
 export type ImageFormat = "avif" | "webp" | "png" | "jpg" | "jpeg" | "gif";

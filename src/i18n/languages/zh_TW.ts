@@ -14,7 +14,6 @@ export const zh_TW: Translation = {
 	[Key.searchViewMore]: "查看更多結果 ({count} 個更多)",
 	[Key.other]: "其他",
 
-	// 導覽列選單分組
 	[Key.navArticles]: "文章",
 	[Key.navSocial]: "社交",
 	[Key.navMine]: "我的",
@@ -70,7 +69,6 @@ export const zh_TW: Translation = {
 	[Key.musicNoCover]: "暫無封面",
 	[Key.musicAudioPlayer]: "音頻播放器",
 
-	// 公告欄
 	[Key.announcement]: "公告",
 	[Key.announcementClose]: "關閉",
 
@@ -119,11 +117,9 @@ export const zh_TW: Translation = {
 	[Key.license]: "許可協議",
 	[Key.bangumi]: "番組計劃",
 
-	// 番組計劃
 	[Key.bangumiTitle]: "我的番組計劃",
 	[Key.bangumiSubtitle]: "記錄我的二次元之旅",
 
-	// 番組計劃篩選和狀態文本
 	[Key.bangumiFilterAll]: "全部",
 	[Key.bangumiFilterWatched]: "看過",
 	[Key.bangumiFilterWatching]: "在看",
@@ -170,19 +166,16 @@ export const zh_TW: Translation = {
 	[Key.bangumiTotalPages]: "頁，共",
 	[Key.bangumiPage]: "頁",
 
-	// 番組分類
 	[Key.bangumiCategoryBook]: "書籍",
 	[Key.bangumiCategoryAnime]: "動畫",
 	[Key.bangumiCategoryMusic]: "音樂",
 	[Key.bangumiCategoryGame]: "遊戲",
 	[Key.bangumiCategoryReal]: "三次元",
 
-	// 番組數據更新
 	[Key.bangumiLastUpdated]: "數據更新於",
 	[Key.bangumiUpdatedAt]: "構建時間",
 	[Key.bangumiDataStatic]: "靜態數據",
 
-	// VNDB
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "我的 VNDB 視覺小說列表",
 	[Key.vndbFilterAll]: "全部",
@@ -214,14 +207,12 @@ export const zh_TW: Translation = {
 	[Key.vndbLengthLong]: "長",
 	[Key.vndbLengthVeryLong]: "極長",
 
-	// 追番 - Bilibili
 	[Key.bilibili]: "嗶哩嗶哩",
 	[Key.bilibiliSubtitle]: "我的嗶哩嗶哩追番與追劇列表",
 	[Key.bilibiliNotConfigured]: "未配置嗶哩嗶哩資料來源",
 	[Key.bilibiliNotConfiguredDesc]:
 		"請在 src/config/siteConfig.ts 中配置 bilibili.uid",
 
-	// 追番 - 公共組件
 	[Key.animeTotal]: "總追番",
 	[Key.animeAverageRating]: "平均評分",
 	[Key.animeSearch]: "搜尋番劇...",
@@ -251,7 +242,6 @@ export const zh_TW: Translation = {
 	[Key.animeTypeDrama]: "電視劇",
 	[Key.animeTypeConcert]: "演唱會",
 
-	// MyAnimeList
 	[Key.mal]: "MyAnimeList",
 	[Key.malSubtitle]: "我的 MyAnimeList 動畫與漫畫列表",
 	[Key.malCategoryAnime]: "動畫",
@@ -281,7 +271,6 @@ export const zh_TW: Translation = {
 	[Key.malSeasonSummer]: "夏季",
 	[Key.malSeasonFall]: "秋季",
 
-	// 分頁
 	[Key.paginationFirst]: "首頁",
 	[Key.paginationPrev]: "上一頁",
 	[Key.paginationNext]: "下一頁",
@@ -292,13 +281,11 @@ export const zh_TW: Translation = {
 	[Key.paginationRecords]: "條記錄",
 	[Key.paginationJump]: "跳轉到指定頁",
 
-	// 404頁面
 	[Key.notFound]: "404",
 	[Key.notFoundTitle]: "頁面未找到",
 	[Key.notFoundDescription]: "抱歉，您訪問的頁面不存在或已被移動。",
 	[Key.backToHome]: "返回首頁",
 
-	// RSS頁面
 	[Key.rss]: "RSS 訂閱",
 	[Key.rssDescription]: "訂閱獲取最新更新",
 	[Key.rssSubtitle]: "通過 RSS 訂閱，第一時間獲取最新文章和動態",
@@ -317,7 +304,6 @@ export const zh_TW: Translation = {
 	[Key.rssCopied]: "RSS 鏈接已複製到剪貼板！",
 	[Key.rssCopyFailed]: "複製失敗，請手動複製鏈接",
 
-	//最後編輯時間卡片
 	[Key.lastModifiedPrefix]: "最後更新於 ",
 	[Key.lastModifiedOutdated]: "部分內容可能已過時",
 	[Key.lastModifiedDaysAgo]: "距今已過 {days} 天",
@@ -328,15 +314,12 @@ export const zh_TW: Translation = {
 	[Key.minute]: "分",
 	[Key.second]: "秒",
 
-	// 訪問量統計
 	[Key.pageViews]: "瀏覽量",
 	[Key.pageViewsLoading]: "載入中...",
 	[Key.pageViewsError]: "統計不可用",
 
-	// 置頂
 	[Key.pinned]: "置頂",
 
-	// 相關文章推薦
 	[Key.relatedPosts]: "相關文章",
 	[Key.randomPosts]: "隨機文章",
 	[Key.smartRecommend]: "智慧推薦",
@@ -344,24 +327,20 @@ export const zh_TW: Translation = {
 	[Key.noRelatedPosts]: "暫無相關文章",
 	[Key.noRandomPosts]: "暫無隨機文章",
 
-	// 文章系列
 	[Key.series]: "系列",
 	[Key.seriesPartOf]: "所屬系列",
 	[Key.seriesPart]: "第 {n} 篇",
 	[Key.seriesThisArticle]: "本文",
 	[Key.noSeries]: "暫無系列",
 
-	// 加密
 	[Key.postEncrypted]: "本文已加密",
 
-	// 壁紙模式
 	[Key.wallpaperMode]: "壁紙模式",
 	[Key.wallpaperBannerMode]: "橫幅壁紙",
 	[Key.wallpaperFullscreenMode]: "全屏壁紙",
 	[Key.wallpaperOverlayMode]: "覆蓋透明",
 	[Key.wallpaperNoneMode]: "純色背景",
 
-	// 壁紙設置
 	[Key.wallpaperSettings]: "壁紙設置",
 	[Key.wallpaperTitle]: "首頁壁紙標題",
 	[Key.wallpaperCarousel]: "壁紙輪播",
@@ -374,22 +353,18 @@ export const zh_TW: Translation = {
 	[Key.overlayBlur]: "背景模糊度",
 	[Key.overlayCardOpacity]: "卡片透明度",
 
-	// 設定面板標籤
 	[Key.settingsTabAppearance]: "外觀",
 	[Key.settingsTabWallpaper]: "壁紙",
 	[Key.settingsTabEffects]: "特效",
 
-	// 卡片樣式
 	[Key.cardSettings]: "卡片樣式",
 	[Key.cardBorder]: "卡片邊框和陰影",
 	[Key.cardFollowTheme]: "卡片跟隨主題色",
 
-	// 文章佈局
 	[Key.postListLayout]: "文章佈局",
 	[Key.postListLayoutList]: "清單",
 	[Key.postListLayoutGrid]: "網格",
 
-	// 打賞頁面
 	[Key.sponsor]: "打賞",
 	[Key.sponsorTitle]: "打賞支持",
 	[Key.sponsorDescription]:
@@ -410,7 +385,6 @@ export const zh_TW: Translation = {
 	[Key.shareOnSocial]: "文章分享",
 	[Key.shareOnSocialDescription]: "如果這篇文章對你有幫助，歡迎分享給更多人！",
 
-	// 站點統計
 	[Key.siteStats]: "站點統計",
 	[Key.siteStatsPostCount]: "文章",
 	[Key.siteStatsDynamicCount]: "動態",
@@ -423,7 +397,6 @@ export const zh_TW: Translation = {
 	[Key.siteStatsDays]: "{days} 天",
 	[Key.today]: "今天",
 
-	// 站點資訊
 	[Key.siteInfo]: "站點資訊",
 	[Key.siteInfoBuildTime]: "構建時間",
 	[Key.siteInfoBuildPlatform]: "構建平台",
@@ -437,7 +410,6 @@ export const zh_TW: Translation = {
 	[Key.siteInfoDomain]: "站點域名",
 	[Key.siteInfoLicense]: "文章許可",
 
-	// 日曆組件
 	[Key.calendarSunday]: "日",
 	[Key.calendarMonday]: "一",
 	[Key.calendarTuesday]: "二",
@@ -468,13 +440,11 @@ export const zh_TW: Translation = {
 	[Key.savePoster]: "保存海報",
 	[Key.scanToRead]: "掃碼閱讀文章",
 
-	// 代碼區塊折疊配置
 	[Key.codeCollapsibleShowMore]: "展開",
 	[Key.codeCollapsibleShowLess]: "收起",
 	[Key.codeCollapsibleExpanded]: "代碼區塊已展開",
 	[Key.codeCollapsibleCollapsed]: "代碼區塊已折疊",
 
-	// 相簿頁面
 	[Key.gallery]: "相簿",
 	[Key.galleryDescription]: "記錄生活中的美好瞬間",
 	[Key.galleryPhotos]: "張照片",
@@ -483,7 +453,6 @@ export const zh_TW: Translation = {
 	[Key.galleryBackToAlbums]: "返回相簿列表",
 	[Key.searchAlbums]: "搜尋相簿...",
 
-	// 密碼保護
 	[Key.passwordProtected]: "密碼保護",
 	[Key.passwordProtectedDesc]: "此內容已被密碼保護，請輸入密碼查看。",
 	[Key.passwordHint]: "提示",
@@ -492,7 +461,6 @@ export const zh_TW: Translation = {
 	[Key.passwordError]: "密碼錯誤，請重試。",
 	[Key.passwordProtectedRss]: "本文已加密保護，請訪問網站查看。",
 
-	// 背景影片播放器
 	[Key.videoPlay]: "播放背景影片",
 	[Key.videoPause]: "暫停背景影片",
 	[Key.videoPrev]: "上一個影片",

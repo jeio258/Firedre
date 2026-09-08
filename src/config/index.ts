@@ -1,6 +1,5 @@
 
 
-// 类型导出
 export type {
 	AdConfig,
 	AnalyticsConfig,

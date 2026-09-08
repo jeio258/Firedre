@@ -11,7 +11,6 @@ enum I18nKey {
 	searchViewMore = "searchViewMore",
 	other = "other",
 
-	// 导航栏菜单分组
 	navArticles = "navArticles",
 	navSocial = "navSocial",
 	navMine = "navMine",
@@ -29,7 +28,6 @@ enum I18nKey {
 	tocEmpty = "tocEmpty",
 	music = "music",
 
-	// 动态
 	dynamic = "dynamic",
 	latestDynamics = "latestDynamics",
 	moreDynamics = "moreDynamics",
@@ -50,7 +48,6 @@ enum I18nKey {
 	dynamicViewImage = "dynamicViewImage",
 	dynamicSelectImage = "dynamicSelectImage",
 
-	// 公告栏
 	announcement = "announcement",
 	announcementClose = "announcementClose",
 
@@ -73,7 +70,6 @@ enum I18nKey {
 	tagsCount = "tagsCount",
 	noData = "noData",
 
-	// Music Widget
 	musicNoPlaying = "musicNoPlaying",
 	musicLyrics = "musicLyrics",
 	musicVolume = "musicVolume",
@@ -116,13 +112,11 @@ enum I18nKey {
 	guestbookDescription = "guestbookDescription",
 	bangumi = "bangumi",
 
-	// 书签导航
 	booknav = "booknav",
 	booknavDescription = "booknavDescription",
 	searchBooknav = "searchBooknav",
 	booknavEmpty = "booknavEmpty",
 
-	// 番组计划筛选和状态文本
 	bangumiTitle = "bangumiTitle",
 	bangumiSubtitle = "bangumiSubtitle",
 	bangumiFilterAll = "bangumiFilterAll",
@@ -168,23 +162,19 @@ enum I18nKey {
 	bangumiTotalPages = "bangumiTotalPages",
 	bangumiPage = "bangumiPage",
 
-	// 番组错误
 	bangumiFetchError = "bangumiFetchError",
 	bangumiFetchErrorDesc = "bangumiFetchErrorDesc",
 
-	// 番组分类
 	bangumiCategoryBook = "bangumiCategoryBook",
 	bangumiCategoryAnime = "bangumiCategoryAnime",
 	bangumiCategoryMusic = "bangumiCategoryMusic",
 	bangumiCategoryGame = "bangumiCategoryGame",
 	bangumiCategoryReal = "bangumiCategoryReal",
 
-	// 番组数据更新
 	bangumiLastUpdated = "bangumiLastUpdated",
 	bangumiUpdatedAt = "bangumiUpdatedAt",
 	bangumiDataStatic = "bangumiDataStatic",
 
-	// VNDB
 	vndb = "vndb",
 	vndbSubtitle = "vndbSubtitle",
 	vndbFilterAll = "vndbFilterAll",
@@ -213,13 +203,11 @@ enum I18nKey {
 	vndbLengthLong = "vndbLengthLong",
 	vndbLengthVeryLong = "vndbLengthVeryLong",
 
-	// 追番 - Bilibili
 	bilibili = "bilibili",
 	bilibiliSubtitle = "bilibiliSubtitle",
 	bilibiliNotConfigured = "bilibiliNotConfigured",
 	bilibiliNotConfiguredDesc = "bilibiliNotConfiguredDesc",
 
-	// 追番 - 公共组件
 	animeTotal = "animeTotal",
 	animeAverageRating = "animeAverageRating",
 	animeSearch = "animeSearch",
@@ -249,7 +237,6 @@ enum I18nKey {
 	animeTypeDrama = "animeTypeDrama",
 	animeTypeConcert = "animeTypeConcert",
 
-	// MyAnimeList
 	mal = "mal",
 	malSubtitle = "malSubtitle",
 	malCategoryAnime = "malCategoryAnime",
@@ -276,7 +263,6 @@ enum I18nKey {
 	malSeasonSummer = "malSeasonSummer",
 	malSeasonFall = "malSeasonFall",
 
-	// 分页
 	paginationFirst = "paginationFirst",
 	paginationPrev = "paginationPrev",
 	paginationNext = "paginationNext",
@@ -287,13 +273,11 @@ enum I18nKey {
 	paginationRecords = "paginationRecords",
 	paginationJump = "paginationJump",
 
-	// 404页面
 	notFound = "notFound",
 	notFoundTitle = "notFoundTitle",
 	notFoundDescription = "notFoundDescription",
 	backToHome = "backToHome",
 
-	// RSS页面
 	rss = "rss",
 	rssDescription = "rssDescription",
 	rssSubtitle = "rssSubtitle",
@@ -311,7 +295,6 @@ enum I18nKey {
 	rssCopied = "rssCopied",
 	rssCopyFailed = "rssCopyFailed",
 
-	//最后编辑时间卡片
 	lastModifiedPrefix = "lastModifiedPrefix",
 	lastModifiedOutdated = "lastModifiedOutdated",
 	lastModifiedDaysAgo = "lastModifiedDaysAgo",
@@ -322,15 +305,12 @@ enum I18nKey {
 	minute = "minute",
 	second = "second",
 
-	// 访问量统计
 	pageViews = "pageViews",
 	pageViewsLoading = "pageViewsLoading",
 	pageViewsError = "pageViewsError",
 
-	// 置顶
 	pinned = "pinned",
 
-	// 相关文章推荐
 	relatedPosts = "relatedPosts",
 	randomPosts = "randomPosts",
 	smartRecommend = "smartRecommend",
@@ -338,24 +318,20 @@ enum I18nKey {
 	noRelatedPosts = "noRelatedPosts",
 	noRandomPosts = "noRandomPosts",
 
-	// 文章系列
 	series = "series",
 	seriesPartOf = "seriesPartOf",
 	seriesPart = "seriesPart",
 	seriesThisArticle = "seriesThisArticle",
 	noSeries = "noSeries",
 
-	// 加密
 	postEncrypted = "postEncrypted",
 
-	// 壁纸模式
 	wallpaperMode = "wallpaperMode",
 	wallpaperBannerMode = "wallpaperBannerMode",
 	wallpaperFullscreenMode = "wallpaperFullscreenMode",
 	wallpaperOverlayMode = "wallpaperOverlayMode",
 	wallpaperNoneMode = "wallpaperNoneMode",
 
-	// 壁纸设置
 	wallpaperSettings = "wallpaperSettings",
 	wallpaperTitle = "wallpaperTitle",
 	wallpaperCarousel = "wallpaperCarousel",
@@ -368,22 +344,18 @@ enum I18nKey {
 	overlayBlur = "overlayBlur",
 	overlayCardOpacity = "overlayCardOpacity",
 
-	// 设置面板标签
 	settingsTabAppearance = "settingsTabAppearance",
 	settingsTabWallpaper = "settingsTabWallpaper",
 	settingsTabEffects = "settingsTabEffects",
 
-	// 卡片样式
 	cardSettings = "cardSettings",
 	cardBorder = "cardBorder",
 	cardFollowTheme = "cardFollowTheme",
 
-	// 文章布局
 	postListLayout = "postListLayout",
 	postListLayoutList = "postListLayoutList",
 	postListLayoutGrid = "postListLayoutGrid",
 
-	// 打赏页面
 	sponsor = "sponsor",
 	sponsorTitle = "sponsorTitle",
 	sponsorDescription = "sponsorDescription",
@@ -402,7 +374,6 @@ enum I18nKey {
 	shareOnSocial = "shareOnSocial",
 	shareOnSocialDescription = "shareOnSocialDescription",
 
-	// 站点统计
 	siteStats = "siteStats",
 	siteStatsPostCount = "siteStatsPostCount",
 	siteStatsDynamicCount = "siteStatsDynamicCount",
@@ -415,7 +386,6 @@ enum I18nKey {
 	siteStatsDays = "siteStatsDays",
 	today = "today",
 
-	// 站点信息
 	siteInfo = "siteInfo",
 	siteInfoBuildTime = "siteInfoBuildTime",
 	siteInfoBuildPlatform = "siteInfoBuildPlatform",
@@ -429,7 +399,6 @@ enum I18nKey {
 	siteInfoDomain = "siteInfoDomain",
 	siteInfoLicense = "siteInfoLicense",
 
-	// 日历组件
 	calendarSunday = "calendarSunday",
 	calendarMonday = "calendarMonday",
 	calendarTuesday = "calendarTuesday",
@@ -460,13 +429,11 @@ enum I18nKey {
 	savePoster = "savePoster",
 	scanToRead = "scanToRead",
 
-	// 代码块折叠配置
 	codeCollapsibleShowMore = "codeCollapsibleShowMore",
 	codeCollapsibleShowLess = "codeCollapsibleShowLess",
 	codeCollapsibleExpanded = "codeCollapsibleExpanded",
 	codeCollapsibleCollapsed = "codeCollapsibleCollapsed",
 
-	// 相册页面
 	gallery = "gallery",
 	galleryDescription = "galleryDescription",
 	galleryPhotos = "galleryPhotos",
@@ -475,7 +442,6 @@ enum I18nKey {
 	galleryBackToAlbums = "galleryBackToAlbums",
 	searchAlbums = "searchAlbums",
 
-	// 密码保护
 	passwordProtected = "passwordProtected",
 	passwordProtectedDesc = "passwordProtectedDesc",
 	passwordHint = "passwordHint",
@@ -484,7 +450,6 @@ enum I18nKey {
 	passwordError = "passwordError",
 	passwordProtectedRss = "passwordProtectedRss",
 
-	// 背景视频播放器
 	videoPlay = "videoPlay",
 	videoPause = "videoPause",
 	videoPrev = "videoPrev",

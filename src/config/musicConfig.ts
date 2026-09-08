@@ -1,11 +1,8 @@
 import type { MusicPlayerConfig } from "../types/musicConfig";
 
-// 音乐播放器配置
 export const musicPlayerConfig: MusicPlayerConfig = {
-	// 是否在导航栏显示音乐播放器入口
 	showInNavbar: true,
 
-	// 是否在侧边栏显示音乐播放器组件
 	showInSidebar: true,
 
 	mode: "local",
@@ -15,10 +12,8 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 
 	playMode: "list",
 
-	// 是否启用歌词
 	showLyrics: false,
 
-	// Meting API 配置
 	meting: {
 
 		api: "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r",

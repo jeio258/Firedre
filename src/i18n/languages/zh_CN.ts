@@ -14,7 +14,6 @@ export const zh_CN: Translation = {
 	[Key.searchViewMore]: "查看更多结果 ({count} 个更多)",
 	[Key.other]: "其他",
 
-	// 导航栏菜单分组
 	[Key.navArticles]: "文章",
 	[Key.navSocial]: "社交",
 	[Key.navMine]: "我的",
@@ -70,7 +69,6 @@ export const zh_CN: Translation = {
 	[Key.musicNoCover]: "暂无封面",
 	[Key.musicAudioPlayer]: "音频播放器",
 
-	// 公告栏
 	[Key.announcement]: "公告",
 	[Key.announcementClose]: "关闭",
 
@@ -119,7 +117,6 @@ export const zh_CN: Translation = {
 	[Key.license]: "许可协议",
 	[Key.bangumi]: "番组计划",
 
-	// 番组计划筛选和状态文本
 	[Key.bangumiTitle]: "我的番组计划",
 	[Key.bangumiSubtitle]: "记录我的二次元之旅",
 	[Key.bangumiFilterAll]: "全部",
@@ -168,19 +165,16 @@ export const zh_CN: Translation = {
 	[Key.bangumiTotalPages]: "页，共",
 	[Key.bangumiPage]: "页",
 
-	// 番组分类
 	[Key.bangumiCategoryBook]: "书籍",
 	[Key.bangumiCategoryAnime]: "动画",
 	[Key.bangumiCategoryMusic]: "音乐",
 	[Key.bangumiCategoryGame]: "游戏",
 	[Key.bangumiCategoryReal]: "三次元",
 
-	// 番组数据更新
 	[Key.bangumiLastUpdated]: "数据更新于",
 	[Key.bangumiUpdatedAt]: "构建时间",
 	[Key.bangumiDataStatic]: "静态数据",
 
-	// VNDB
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "我的 VNDB 视觉小说列表",
 	[Key.vndbFilterAll]: "全部",
@@ -212,14 +206,12 @@ export const zh_CN: Translation = {
 	[Key.vndbLengthLong]: "长",
 	[Key.vndbLengthVeryLong]: "极长",
 
-	// 追番 - Bilibili
 	[Key.bilibili]: "哔哩哔哩",
 	[Key.bilibiliSubtitle]: "我的哔哩哔哩追番与追剧列表",
 	[Key.bilibiliNotConfigured]: "未配置哔哩哔哩数据源",
 	[Key.bilibiliNotConfiguredDesc]:
 		"请在 src/config/siteConfig.ts 中配置 bilibili.uid",
 
-	// 追番 - 公共组件
 	[Key.animeTotal]: "总追番",
 	[Key.animeAverageRating]: "平均评分",
 	[Key.animeSearch]: "搜索番剧...",
@@ -249,7 +241,6 @@ export const zh_CN: Translation = {
 	[Key.animeTypeDrama]: "电视剧",
 	[Key.animeTypeConcert]: "演唱会",
 
-	// MyAnimeList
 	[Key.mal]: "MyAnimeList",
 	[Key.malSubtitle]: "我的 MyAnimeList 动画与漫画列表",
 	[Key.malCategoryAnime]: "动画",
@@ -279,7 +270,6 @@ export const zh_CN: Translation = {
 	[Key.malSeasonSummer]: "夏季",
 	[Key.malSeasonFall]: "秋季",
 
-	// 分页
 	[Key.paginationFirst]: "首页",
 	[Key.paginationPrev]: "上一页",
 	[Key.paginationNext]: "下一页",
@@ -290,13 +280,11 @@ export const zh_CN: Translation = {
 	[Key.paginationRecords]: "条记录",
 	[Key.paginationJump]: "跳转到指定页",
 
-	// 404页面
 	[Key.notFound]: "404",
 	[Key.notFoundTitle]: "页面未找到",
 	[Key.notFoundDescription]: "抱歉，您访问的页面不存在或已被移动。",
 	[Key.backToHome]: "返回首页",
 
-	// RSS页面
 	[Key.rss]: "RSS 订阅",
 	[Key.rssDescription]: "订阅获取最新更新",
 	[Key.rssSubtitle]: "通过 RSS 订阅，第一时间获取最新文章和动态",
@@ -315,7 +303,6 @@ export const zh_CN: Translation = {
 	[Key.rssCopied]: "RSS 链接已复制到剪贴板！",
 	[Key.rssCopyFailed]: "复制失败，请手动复制链接",
 
-	//最后编辑时间卡片
 	[Key.lastModifiedPrefix]: "最后更新于 ",
 	[Key.lastModifiedOutdated]: "部分内容可能已过时",
 	[Key.lastModifiedDaysAgo]: "距今已过 {days} 天",
@@ -326,15 +313,12 @@ export const zh_CN: Translation = {
 	[Key.minute]: "分",
 	[Key.second]: "秒",
 
-	// 访问量统计
 	[Key.pageViews]: "浏览量",
 	[Key.pageViewsLoading]: "加载中...",
 	[Key.pageViewsError]: "统计不可用",
 
-	// 置顶
 	[Key.pinned]: "置顶",
 
-	// 相关文章推荐
 	[Key.relatedPosts]: "相关文章",
 	[Key.randomPosts]: "随机文章",
 	[Key.smartRecommend]: "智能推荐",
@@ -342,24 +326,20 @@ export const zh_CN: Translation = {
 	[Key.noRelatedPosts]: "暂无相关文章",
 	[Key.noRandomPosts]: "暂无随机文章",
 
-	// 文章系列
 	[Key.series]: "系列",
 	[Key.seriesPartOf]: "所属系列",
 	[Key.seriesPart]: "第 {n} 篇",
 	[Key.seriesThisArticle]: "本文",
 	[Key.noSeries]: "暂无系列",
 
-	// 加密
 	[Key.postEncrypted]: "本文已加密",
 
-	// 壁纸模式
 	[Key.wallpaperMode]: "壁纸模式",
 	[Key.wallpaperBannerMode]: "横幅壁纸",
 	[Key.wallpaperFullscreenMode]: "全屏壁纸",
 	[Key.wallpaperOverlayMode]: "覆盖透明",
 	[Key.wallpaperNoneMode]: "纯色背景",
 
-	// 壁纸设置
 	[Key.wallpaperSettings]: "壁纸设置",
 	[Key.wallpaperTitle]: "首页壁纸标题",
 	[Key.wallpaperCarousel]: "壁纸轮播",
@@ -372,22 +352,18 @@ export const zh_CN: Translation = {
 	[Key.overlayBlur]: "背景模糊度",
 	[Key.overlayCardOpacity]: "卡片透明度",
 
-	// 设置面板标签
 	[Key.settingsTabAppearance]: "外观",
 	[Key.settingsTabWallpaper]: "壁纸",
 	[Key.settingsTabEffects]: "特效",
 
-	// 卡片样式
 	[Key.cardSettings]: "卡片样式",
 	[Key.cardBorder]: "卡片边框和阴影",
 	[Key.cardFollowTheme]: "卡片跟随主题色",
 
-	// 文章布局
 	[Key.postListLayout]: "文章布局",
 	[Key.postListLayoutList]: "列表",
 	[Key.postListLayoutGrid]: "网格",
 
-	// 打赏页面
 	[Key.sponsor]: "打赏",
 	[Key.sponsorTitle]: "打赏支持",
 	[Key.sponsorDescription]:
@@ -408,7 +384,6 @@ export const zh_CN: Translation = {
 	[Key.shareOnSocial]: "文章分享",
 	[Key.shareOnSocialDescription]: "如果这篇文章对你有帮助，欢迎分享给更多人！",
 
-	// 站点统计
 	[Key.siteStats]: "站点统计",
 	[Key.siteStatsPostCount]: "文章",
 	[Key.siteStatsDynamicCount]: "动态",
@@ -421,7 +396,6 @@ export const zh_CN: Translation = {
 	[Key.siteStatsDays]: "{days} 天",
 	[Key.today]: "今天",
 
-	// 站点信息
 	[Key.siteInfo]: "站点信息",
 	[Key.siteInfoBuildTime]: "构建时间",
 	[Key.siteInfoBuildPlatform]: "构建平台",
@@ -435,7 +409,6 @@ export const zh_CN: Translation = {
 	[Key.siteInfoDomain]: "站点域名",
 	[Key.siteInfoLicense]: "文章许可",
 
-	// 日历组件
 	[Key.calendarSunday]: "日",
 	[Key.calendarMonday]: "一",
 	[Key.calendarTuesday]: "二",
@@ -466,13 +439,11 @@ export const zh_CN: Translation = {
 	[Key.savePoster]: "保存海报",
 	[Key.scanToRead]: "扫码阅读文章",
 
-	// 代码块折叠配置
 	[Key.codeCollapsibleShowMore]: "展开",
 	[Key.codeCollapsibleShowLess]: "收起",
 	[Key.codeCollapsibleExpanded]: "代码块已展开",
 	[Key.codeCollapsibleCollapsed]: "代码块已折叠",
 
-	// 相册页面
 	[Key.gallery]: "相册",
 	[Key.galleryDescription]: "记录生活中的美好瞬间",
 	[Key.galleryPhotos]: "张照片",
@@ -481,7 +452,6 @@ export const zh_CN: Translation = {
 	[Key.galleryBackToAlbums]: "返回相册列表",
 	[Key.searchAlbums]: "搜索相簿...",
 
-	// 密码保护
 	[Key.passwordProtected]: "密码保护",
 	[Key.passwordProtectedDesc]: "此内容已被密码保护，请输入密码查看。",
 	[Key.passwordHint]: "提示",
@@ -490,7 +460,6 @@ export const zh_CN: Translation = {
 	[Key.passwordError]: "密码错误，请重试。",
 	[Key.passwordProtectedRss]: "本文已加密保护，请访问网站查看。",
 
-	// 背景视频播放器
 	[Key.videoPlay]: "播放背景视频",
 	[Key.videoPause]: "暂停背景视频",
 	[Key.videoPrev]: "上一个视频",

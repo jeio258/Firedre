@@ -14,7 +14,6 @@ export const en: Translation = {
 	[Key.searchViewMore]: "View more results ({count} more)",
 	[Key.other]: "Other",
 
-	// Navbar menu groups
 	[Key.navArticles]: "Articles",
 	[Key.navSocial]: "Social",
 	[Key.navMine]: "Mine",
@@ -70,7 +69,6 @@ export const en: Translation = {
 	[Key.musicNoCover]: "No cover available",
 	[Key.musicAudioPlayer]: "Audio Player",
 
-	// Announcement
 	[Key.announcement]: "Announcement",
 	[Key.announcementClose]: "Close",
 
@@ -122,7 +120,6 @@ export const en: Translation = {
 	[Key.license]: "License",
 	[Key.bangumi]: "Bangumi",
 
-	// Bangumi Filter and Status Text
 	[Key.bangumiTitle]: "My Bangumi",
 	[Key.bangumiSubtitle]: "Record my ACG journey",
 	[Key.bangumiFilterAll]: "All",
@@ -173,19 +170,16 @@ export const en: Translation = {
 	[Key.bangumiTotalPages]: "of",
 	[Key.bangumiPage]: "page",
 
-	// Bangumi Categories
 	[Key.bangumiCategoryBook]: "Book",
 	[Key.bangumiCategoryAnime]: "Anime",
 	[Key.bangumiCategoryMusic]: "Music",
 	[Key.bangumiCategoryGame]: "Game",
 	[Key.bangumiCategoryReal]: "Real",
 
-	// Bangumi Data Update
 	[Key.bangumiLastUpdated]: "Data updated at",
 	[Key.bangumiUpdatedAt]: "Build time",
 	[Key.bangumiDataStatic]: "Static data",
 
-	// VNDB
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "My visual novel list from VNDB",
 	[Key.vndbFilterAll]: "All",
@@ -217,14 +211,12 @@ export const en: Translation = {
 	[Key.vndbLengthLong]: "Long",
 	[Key.vndbLengthVeryLong]: "Very long",
 
-	// Anime Tracking - Bilibili
 	[Key.bilibili]: "Bilibili",
 	[Key.bilibiliSubtitle]: "My Bilibili follow list (anime + drama)",
 	[Key.bilibiliNotConfigured]: "Bilibili not configured",
 	[Key.bilibiliNotConfiguredDesc]:
 		"Configure bilibili.uid in src/config/siteConfig.ts",
 
-	// Anime Tracking - Shared components
 	[Key.animeTotal]: "Total",
 	[Key.animeAverageRating]: "Avg Rating",
 	[Key.animeSearch]: "Search anime...",
@@ -254,7 +246,6 @@ export const en: Translation = {
 	[Key.animeTypeDrama]: "Drama",
 	[Key.animeTypeConcert]: "Concert",
 
-	// MyAnimeList
 	[Key.mal]: "MyAnimeList",
 	[Key.malSubtitle]: "My anime and manga lists from MyAnimeList",
 	[Key.malCategoryAnime]: "Anime",
@@ -284,7 +275,6 @@ export const en: Translation = {
 	[Key.malSeasonSummer]: "Summer",
 	[Key.malSeasonFall]: "Fall",
 
-	// Pagination
 	[Key.paginationFirst]: "First",
 	[Key.paginationPrev]: "Previous",
 	[Key.paginationNext]: "Next",
@@ -295,14 +285,12 @@ export const en: Translation = {
 	[Key.paginationRecords]: " records",
 	[Key.paginationJump]: "Jump to page",
 
-	// 404 Page
 	[Key.notFound]: "404",
 	[Key.notFoundTitle]: "Page Not Found",
 	[Key.notFoundDescription]:
 		"Sorry, the page you visited does not exist or has been moved.",
 	[Key.backToHome]: "Back to Home",
 
-	// RSS Page
 	[Key.rss]: "RSS Feed",
 	[Key.rssDescription]: "Subscribe to get latest updates",
 	[Key.rssSubtitle]:
@@ -324,7 +312,6 @@ export const en: Translation = {
 	[Key.rssCopied]: "RSS link copied to clipboard!",
 	[Key.rssCopyFailed]: "Copy failed, please copy the link manually",
 
-	// Last Modified Time Card
 	[Key.lastModifiedPrefix]: "Last updated on ",
 	[Key.lastModifiedOutdated]: "Some content may be outdated",
 	[Key.lastModifiedDaysAgo]: "{days} days ago",
@@ -335,15 +322,12 @@ export const en: Translation = {
 	[Key.minute]: "minute",
 	[Key.second]: "second",
 
-	// Page Views Statistics
 	[Key.pageViews]: "Views",
 	[Key.pageViewsLoading]: "Loading...",
 	[Key.pageViewsError]: "Stats unavailable",
 
-	// Pinned
 	[Key.pinned]: "Pinned",
 
-	// Related Posts
 	[Key.relatedPosts]: "Related Posts",
 	[Key.randomPosts]: "Random Posts",
 	[Key.smartRecommend]: "Smart",
@@ -351,24 +335,20 @@ export const en: Translation = {
 	[Key.noRelatedPosts]: "No related posts",
 	[Key.noRandomPosts]: "No random posts",
 
-	// Article Series
 	[Key.series]: "Series",
 	[Key.seriesPartOf]: "Part of series",
 	[Key.seriesPart]: "Part {n}",
 	[Key.seriesThisArticle]: "This article",
 	[Key.noSeries]: "No series yet",
 
-	// Encrypted
 	[Key.postEncrypted]: "This post is encrypted",
 
-	// Wallpaper Mode
 	[Key.wallpaperMode]: "Wallpaper Mode",
 	[Key.wallpaperBannerMode]: "Banner Wallpaper",
 	[Key.wallpaperFullscreenMode]: "Fullscreen Wallpaper",
 	[Key.wallpaperOverlayMode]: "Overlay Wallpaper",
 	[Key.wallpaperNoneMode]: "None Wallpaper",
 
-	// Wallpaper Settings
 	[Key.wallpaperSettings]: "Wallpaper Settings",
 	[Key.wallpaperTitle]: "Home Wallpaper Title",
 	[Key.wallpaperCarousel]: "Wallpaper Carousel",
@@ -381,22 +361,18 @@ export const en: Translation = {
 	[Key.overlayBlur]: "Background Blur",
 	[Key.overlayCardOpacity]: "Card Opacity",
 
-	// Settings Panel Tabs
 	[Key.settingsTabAppearance]: "Appearance",
 	[Key.settingsTabWallpaper]: "Wallpaper",
 	[Key.settingsTabEffects]: "Effects",
 
-	// Card Style
 	[Key.cardSettings]: "Card Style",
 	[Key.cardBorder]: "Card Border & Shadow",
 	[Key.cardFollowTheme]: "Card Follow Theme Color",
 
-	// Post List Layout
 	[Key.postListLayout]: "Post List Layout",
 	[Key.postListLayoutList]: "List",
 	[Key.postListLayoutGrid]: "Grid",
 
-	// Sponsor Page
 	[Key.sponsor]: "Sponsor",
 	[Key.sponsorTitle]: "Support Me",
 	[Key.sponsorDescription]:
@@ -418,7 +394,6 @@ export const en: Translation = {
 	[Key.shareOnSocialDescription]:
 		"If this article helped you, please share it with others!",
 
-	// Site Statistics
 	[Key.siteStats]: "Site Statistics",
 	[Key.siteStatsPostCount]: "Posts",
 	[Key.siteStatsDynamicCount]: "Moments",
@@ -431,7 +406,6 @@ export const en: Translation = {
 	[Key.siteStatsDays]: "{days} days",
 	[Key.today]: "Today",
 
-	// Site Info
 	[Key.siteInfo]: "Site Info",
 	[Key.siteInfoBuildTime]: "Build Time",
 	[Key.siteInfoBuildPlatform]: "Build Platform",
@@ -445,7 +419,6 @@ export const en: Translation = {
 	[Key.siteInfoDomain]: "Domain",
 	[Key.siteInfoLicense]: "License",
 
-	// Calendar Component
 	[Key.calendarSunday]: "Sun",
 	[Key.calendarMonday]: "Mon",
 	[Key.calendarTuesday]: "Tue",
@@ -476,13 +449,11 @@ export const en: Translation = {
 	[Key.savePoster]: "Save Poster",
 	[Key.scanToRead]: "Scan to Read",
 
-	// Code Block Collapsible Configuration
 	[Key.codeCollapsibleShowMore]: "Show more",
 	[Key.codeCollapsibleShowLess]: "Show less",
 	[Key.codeCollapsibleExpanded]: "Code block expanded",
 	[Key.codeCollapsibleCollapsed]: "Code block collapsed",
 
-	// Gallery Page
 	[Key.gallery]: "Gallery",
 	[Key.galleryDescription]: "Capturing beautiful moments in life",
 	[Key.galleryPhotos]: "photos",
@@ -491,7 +462,6 @@ export const en: Translation = {
 	[Key.galleryBackToAlbums]: "Back to albums",
 	[Key.searchAlbums]: "Search albums...",
 
-	// Password Protection
 	[Key.passwordProtected]: "Password Protected",
 	[Key.passwordProtectedDesc]:
 		"This content is password protected. Please enter the password to view.",
@@ -502,7 +472,6 @@ export const en: Translation = {
 	[Key.passwordProtectedRss]:
 		"This article is encrypted. Please visit the website to view it.",
 
-	// Background video player
 	[Key.videoPlay]: "Play background video",
 	[Key.videoPause]: "Pause background video",
 	[Key.videoPrev]: "Previous video",
