@@ -1,12 +1,13 @@
 import type { APIRoute } from "astro";
 import { siteConfig } from "../config/index";
+import { getSiteConfig } from "../config/runtime";
 import { cfEnv } from "../lib/api";
 import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
-	const base = siteConfig.site_url.replace(/\/+$/, "");
+export const GET: APIRoute = async (context) => {
+	const base = getSiteConfig(context.locals).site_url.replace(/\/+$/, "");
 	const urls: string[] = [];
 
 	// 静态页面

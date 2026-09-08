@@ -4,6 +4,7 @@ import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
 import sanitizeHtml from "sanitize-html";
 import { siteConfig } from "@/config";
+import { getSiteConfig } from "@/config/runtime";
 
 export const prerender = false;
 
@@ -82,7 +83,7 @@ export async function GET(context: APIContext): Promise<Response> {
 	return rss({
 		title: siteConfig.title,
 		description: siteConfig.description as string,
-		site: (context.site || siteConfig.site_url) as string,
+		site: getSiteConfig(context.locals).site_url,
 		items,
 		customData: `<language>${siteConfig.lang}</language>`,
 		xmlns: { media: "http://search.yahoo.com/mrss/" },
