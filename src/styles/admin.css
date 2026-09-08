@@ -817,7 +817,7 @@ body {
 .mcfg {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.85rem 1.1rem;
+	gap: 0 1.1rem;
 	padding-top: 0.7rem;
 }
 .mcfg .a2f:only-child,
@@ -949,8 +949,7 @@ body {
 .a2fg {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 0.95rem 1.1rem;
-	align-items: start;
+	gap: 0 1.1rem;
 	padding-top: 0.45rem;
 	width: 100%;
 }
@@ -963,6 +962,25 @@ body {
 .a2f.only-child,
 .a2f:nth-child(odd):last-child {
 	grid-column: 1 / -1;
+}
+/* 表单控件对齐：label 与控件各占共享行轨道，无论 label 多高（hint/折行），
+   同行的控件都对齐到同一 Y，消除上下错位 */
+.a2fg > .a2f,
+.mcfg > .a2f {
+	display: grid;
+	grid-row: span 2;
+	grid-template-rows: subgrid;
+	margin-bottom: 0.45rem;
+}
+/* profile 分组用 grid-template-areas 手动布局，不启用 subgrid */
+.a2card.profile .a2fg > .a2f {
+	display: flex;
+	flex-direction: column;
+	grid-row: auto;
+	grid-template-rows: none;
+}
+.a2f small.json-hint {
+	margin-top: 0.35rem;
 }
 .a2f.w,
 .a2f.split {
@@ -977,6 +995,7 @@ body {
 	min-height: 2.6em;
 	display: flex;
 	align-items: center;
+	margin-bottom: 0.4rem;
 }
 .a2f small {
 	color: var(--text-muted);
@@ -1484,6 +1503,7 @@ html.dark .a2card > header {
 		"name avatar"
 		"bio loc"
 		"bio eml";
+	gap: 0.95rem 1.1rem;
 	align-items: start;
 }
 .a2card.profile .a2f.ar-name { grid-area: name; }
