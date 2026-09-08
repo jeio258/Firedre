@@ -49,7 +49,6 @@ const {
 const configQuality = getImageQuality();
 const className = Astro.props.class;
 
-// 判断图片类型
 const isLocal = !(
 	src.startsWith("/") ||
 	src.startsWith("http") ||
@@ -58,7 +57,6 @@ const isLocal = !(
 );
 const isPublic = src.startsWith("/");
 
-// 图片样式
 const imageClass =
 	"w-full h-full object-cover opacity-0 transition-opacity duration-500 ease-out";
 const imageStyle = `object-position: ${position};`;
@@ -70,14 +68,12 @@ const lqipProps = isLocal
 		? getLqipProps(src, basePath, true)
 		: getLqipProps(src);
 
-// 列表卡片和文章详情共享同一组封面产物
 const widths = [828];
 const sizes = preview
 	? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
 	: "(max-width: 768px) 100vw, 828px";
 const quality = configQuality;
 
-// 是否显示加载动画
 const showLoading = ((((settings as any)?.["cover"]) as any)?.["showLoading"] ?? coverImageConfig.showLoading) ?? true;
 
 // 检查远程图片是否需要 referrerpolicy

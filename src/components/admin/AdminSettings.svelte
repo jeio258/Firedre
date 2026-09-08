@@ -3,7 +3,6 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
 import { getDraft, clearDraft } from "@/lib/adminDrafts";
-// 设置项默认值
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 
 type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password" | "select";
@@ -666,9 +665,7 @@ let loaded = false;
 
 export let cat = 0;
 let activeCat: string = CATEGORIES[typeof cat === "number" ? cat : 0];
-// 当前分类下的分组
 let groups: Group[] = [];
-// 当前选中的分组
 let activeGroup = "";
 // 当前选中的评论类型（独立响应式变量，供显隐逻辑直接引用）
 let cmtTypeVal = "";
@@ -717,7 +714,6 @@ function cycleBool(key: string, field: string) {
 	markDirty();
 }
 
-// 标记存在未保存修改
 function markDirty() {
 	if (!loaded) return;
 	message = "有未保存的修改，请点击「保存全部」";
@@ -800,7 +796,6 @@ function applyHueToAdmin(hue: unknown) {
 	if (hue == null || hue === "") return;
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
-	// 仅更新主题色相
 	document.documentElement.style.setProperty("--hue", String(h));
 	document.body.style.background =
 		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();

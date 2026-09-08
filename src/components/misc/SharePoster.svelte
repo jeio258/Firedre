@@ -216,7 +216,6 @@ async function generatePoster() {
 		const padding = 24 * scale;
 		const logoBox = 22 * scale; // 站点 Logo 尺寸
 
-		// 1. Prepare resources
 		const qrCodeUrl = await QRCode.toDataURL(url, {
 			margin: 1,
 			width: 100 * scale,
@@ -245,16 +244,13 @@ async function generatePoster() {
 
 		canvas.height = 1000 * scale;
 
-		// 3. Layout Calculation
 		const contentWidth = width - padding * 2;
 		let currentY = 0;
 
-		// Cover
 		const coverHeight = (coverImg ? 200 : 64) * scale;
 		currentY += coverHeight;
 		currentY += padding; // Gap after cover
 
-		// Title
 		ctx.font = `700 ${24 * scale}px 'Roboto', sans-serif`;
 		const titleLines = getLines(ctx, title, contentWidth);
 		const titleLineHeight = 30 * scale;
@@ -262,7 +258,6 @@ async function generatePoster() {
 		currentY += titleHeight;
 		currentY += 16 * scale; // Gap
 
-		// Description
 		let descHeight = 0;
 		if (description) {
 			ctx.font = `${14 * scale}px 'Roboto', sans-serif`;
@@ -289,7 +284,6 @@ async function generatePoster() {
 		ctx.fillStyle = "#ffffff";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		// Draw Decorative Circles
 		ctx.save();
 		ctx.globalAlpha = 0.1;
 		ctx.fillStyle = themeColor;
@@ -303,7 +297,6 @@ async function generatePoster() {
 		ctx.fill();
 		ctx.restore();
 
-		// Parse Date
 		let dateObj: { day: string; month: string; year: string } | null = null;
 		try {
 			const d = new Date(pubDate);
@@ -316,9 +309,7 @@ async function generatePoster() {
 			}
 		} catch (e) {}
 
-		// Draw Cover
 		if (coverImg) {
-			// Object-fit: cover implementation
 			const imgRatio = coverImg.width / coverImg.height;
 			const targetRatio = width / coverHeight;
 			let sx: number;
@@ -356,7 +347,6 @@ async function generatePoster() {
 			ctx.restore();
 		}
 
-		// Draw Header Overlay
 		const headerHeight = (coverImg ? 44 : 64) * scale;
 		const headerCenterY = headerHeight / 2;
 		const dateText = dateObj
@@ -415,7 +405,6 @@ async function generatePoster() {
 
 		let drawY = coverHeight + padding;
 
-		// Draw Title
 		ctx.textBaseline = "top";
 		ctx.textAlign = "left";
 		ctx.font = `700 ${24 * scale}px 'Roboto', sans-serif`;
@@ -426,9 +415,7 @@ async function generatePoster() {
 		});
 		drawY += 16 * scale - (titleLineHeight - 24 * scale);                               
 
-		// Draw Description
 		if (description) {
-			// Draw vertical line
 			ctx.fillStyle = "#e5e7eb";
 			const descLineH = descHeight;               
 
@@ -465,19 +452,16 @@ async function generatePoster() {
 		ctx.stroke();
 		drawY += 8 * scale; // Spacing after line
 
-		// Draw Footer Content
 		const footerY = drawY;
 		const qrSize = 64 * scale;
 		const qrX = width - padding - qrSize;
 		const authorY = footerY + 8 * scale;
 
-		// Left: Author
 		if (avatarImg) {
 			ctx.save();
 			const avatarSize = 64 * scale;
 			const avatarX = padding;
 
-			// Circle clip
 			ctx.beginPath();
 			ctx.arc(
 				avatarX + avatarSize / 2,
@@ -525,7 +509,6 @@ async function generatePoster() {
 		);
 
 		ctx.fillStyle = "#ffffff";
-		// Shadow simulation
 		ctx.shadowColor = "rgba(0, 0, 0, 0.05)";
 		ctx.shadowBlur = 4 * scale;
 		ctx.shadowOffsetY = 2 * scale;
@@ -533,7 +516,6 @@ async function generatePoster() {
 		ctx.fill();
 		ctx.shadowColor = "transparent"; // Reset shadow
 
-		// Draw QR
 		const qrInnerSize = 56 * scale;
 		const qrPadding = (qrSize - qrInnerSize) / 2;
 		if (qrImg) {
@@ -546,7 +528,6 @@ async function generatePoster() {
 			);
 		}
 
-		// QR caption
 		ctx.textAlign = "center";
 		ctx.textBaseline = "top";
 		ctx.fillStyle = "#9ca3af";
@@ -557,7 +538,6 @@ async function generatePoster() {
 			footerY + qrSize + 6 * scale,
 		);
 
-		// Finalize
 		posterImage = canvas.toDataURL("image/png");
 		generating = false;
 	} catch (error) {

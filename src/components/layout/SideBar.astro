@@ -26,14 +26,12 @@ interface Props {
 	side?: "left" | "right" | "bottom";
 }
 
-// 侧边栏位置常量
 const SIDEBAR_SIDE = {
 	LEFT: "left",
 	RIGHT: "right",
 	BOTTOM: "bottom",
 } as const;
 
-// 组件位置常量
 const COMPONENT_POSITION = {
 	TOP: "top",
 	STICKY: "sticky",
@@ -56,12 +54,10 @@ const componentMap = {
 	dynamic: Dynamic,
 };
 
-// 获取侧边栏位置
 const side = (Astro.props.side ||
 	SIDEBAR_SIDE.LEFT) as (typeof SIDEBAR_SIDE)[keyof typeof SIDEBAR_SIDE];
 const className = Astro.props.class;
 
-// 根据 side 属性获取对应的组件列表
 const getComponents = (): (
 	| WidgetComponentConfig
 	| MobileBottomComponentConfig
@@ -151,7 +147,6 @@ const getComponentProps = (
 		}
 	}
 
-	// 特殊处理 SidebarTOC 组件
 	if (config.type === "sidebarToc") {
 		return {
 			...baseProps,
@@ -195,7 +190,6 @@ const filteredComponents = filterAndSortComponents(allComponents).filter(
 	},
 );
 
-// 对于移动端底部组件，直接使用所有组件，不进行position分组
 const isMobileBottom = side === SIDEBAR_SIDE.BOTTOM;
 const { topComponents, stickyComponents } = !isMobileBottom
 	? getComponentsByPosition(filteredComponents)

@@ -51,14 +51,12 @@
 					<stop offset="100%" stop-color={chartColors.草稿} stop-opacity="0" />
 				</linearGradient>
 			</defs>
-			<!-- 横网格线 + y 刻度 -->
 			{#each [0, 1, 2, 3] as gi (gi)}
 				{@const gy = pad.top + (innerH / 3) * gi}
 				{@const gv = Math.round(maxV - (maxV / 3) * gi)}
 				<line x1={pad.left} y1={gy} x2={w - pad.right} y2={gy} style="stroke:{gridColor}" stroke-width="1" stroke-dasharray="3 3" />
 				<text x={pad.left - 6} y={gy + 3.5} text-anchor="end" font-size="11" style="fill:{textColor}">{gv}</text>
 			{/each}
-			<!-- 序列面积 -->
 			{#if data.length > 1}
 				<path
 					d={data.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(d.草稿).toFixed(1)}`).join("") + ` L${x(data.length - 1).toFixed(1)},${(pad.top + innerH).toFixed(1)} L${x(0).toFixed(1)},${(pad.top + innerH).toFixed(1)} Z`}
@@ -85,7 +83,6 @@
 				stroke-linejoin="round"
 				stroke-linecap="round"
 			/>
-			<!-- x 轴月份 -->
 			{#each data as d, i (d.label)}
 				<text
 					x={x(i)}

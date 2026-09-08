@@ -58,7 +58,6 @@ interface Props {
 
 const { config } = Astro.props;
 
-// 构建模型配置
 const models = Array.isArray(config.model) ? config.model : [config.model];
 const resolvePath = (p: string) => (/^https?:\/\//.test(p) ? p : url(p));
 
@@ -123,7 +122,6 @@ function serializeMenus(menus: Props["config"]["menus"]) {
 	});
 	tipObserver.observe(document.body, { childList: true, subtree: true });
 
-	// 菜单动作映射
 	let currentModelIndex = 0;
 	const menuActions: Record<string, (widget: any) => void> = {
 		home: () => (window.location.href = "/"),
@@ -203,7 +201,6 @@ function serializeMenus(menus: Props["config"]["menus"]) {
 				}
 			}
 
-			// 提示配置
 			if (tips) {
 				const tipsConfig = tips.enable === false ? false : {
 					...(tips.welcomeMessage && { welcomeMessage: tips.welcomeMessage }),

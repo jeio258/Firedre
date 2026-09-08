@@ -16,7 +16,6 @@ const posts = sortedPostsList
 	.slice()
 	.sort((a, b) => b.data.published.getTime() - a.data.published.getTime());
 
-// 按年份分组
 const grouped = new Map<number, typeof posts>();
 for (const post of posts) {
 	const year = post.data.published.getFullYear();
@@ -225,7 +224,6 @@ const foldOnFilter = collapseAllButFirst;
           if (match) visibleCount++;
         }
 
-        // 更新每年计数显示
         const countEl = block.querySelector(".archive-year-count");
         const labelEl = block.querySelector(".archive-year-count-label");
         if (countEl) countEl.textContent = String(visibleCount);
@@ -234,7 +232,6 @@ const foldOnFilter = collapseAllButFirst;
             visibleCount === 1 ? i18nStrings.postCount : i18nStrings.postsCount;
         }
 
-        // 隐藏没有可见文章的年份块
         block.hidden = visibleCount === 0;
         if (visibleCount > 0) {
           visibleBlocks.push(block);
@@ -248,7 +245,6 @@ const foldOnFilter = collapseAllButFirst;
         this.setBlockCollapsed(block, shouldCollapse);
       });
 
-      // 填充并显示筛选头部
       this.renderFilterHeader(tags, categories, uncategorized, totalVisible);
     }
 

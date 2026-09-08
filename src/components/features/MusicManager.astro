@@ -415,7 +415,6 @@ window.__fireflyMusicConfig = managerConfigStr;
             durationStr: formatTime(dur)
         });
 
-        // Lyrics sync
         if (state.lyrics.length > 0) {
             var idx = -1;
             for (var i = 0; i < state.lyrics.length; i++) {
@@ -464,7 +463,6 @@ window.__fireflyMusicConfig = managerConfigStr;
             }
 
             if (state.playlist.length > 0) {
-                // Apply volume
                 audio.volume = state.volume;
 
                 var startIndex = 0;

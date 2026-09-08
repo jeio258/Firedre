@@ -12,7 +12,6 @@ interface Props {
 
 const { link, class: className } = Astro.props;
 
-// 检查 link 是否存在
 if (!link) {
 	return null;
 }
@@ -99,7 +98,6 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 </style>
 
 <script>
-	// 键盘导航支持
 	document.addEventListener('DOMContentLoaded', function() {
 		const dropdowns = document.querySelectorAll('[data-dropdown]');
 
@@ -110,7 +108,6 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 
 			if (!trigger || !menu) return;
 
-			// 键盘事件处理
 			trigger.addEventListener('keydown', function(e: KeyboardEvent) {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
@@ -126,7 +123,6 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 				}
 			});
 
-			// 菜单项键盘导航
 			items.forEach((item, index) => {
 				item.addEventListener('keydown', function(e: KeyboardEvent) {
 					if (e.key === 'ArrowDown') {
@@ -145,7 +141,6 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 			});
 		});
 
-		// 点击外部关闭下拉菜单
 		document.addEventListener('click', function(e) {
 			dropdowns.forEach(dropdown => {
 				if (!dropdown.contains(e.target as Node)) {

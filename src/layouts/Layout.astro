@@ -243,7 +243,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         (function() {
           const domains = JSON.parse(noReferrerDomains);
 
-          // 域名匹配函数，支持通配符
           function matchesDomain(urlStr, patterns) {
             try {
               const urlObj = new URL(urlStr);
@@ -259,7 +258,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
             }
           }
 
-          // 处理单个图片元素
           function processImage(img) {
             if (!img.src || img.hasAttribute('referrerpolicy')) return;
 
@@ -317,7 +315,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       // 获取存储的主题，如果没有则使用默认值
       const theme = localStorage.getItem("theme") || defaultMode;
 
-      // 获取系统主题
       function getSystemTheme() {
         return window.matchMedia("(prefers-color-scheme: dark)").matches
           ? DARK_MODE
@@ -335,7 +332,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       const resolvedTheme = resolveTheme(theme);
       const isDark = resolvedTheme === DARK_MODE;
 
-      // 应用主题
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
@@ -347,7 +343,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         isDark ? darkTheme : lightTheme
       );
 
-      // Load the hue from local storage
       const hue = localStorage.getItem("hue") || configHue;
       document.documentElement.style.setProperty("--hue", hue);
 
@@ -372,7 +367,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         ? localStorage.getItem("wallpaperMode") || defaultWallpaperMode
         : defaultWallpaperMode;
 
-      // 设置data-wallpaper-mode属性
       document.documentElement.setAttribute(
         "data-wallpaper-mode",
         wallpaperMode

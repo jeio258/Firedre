@@ -45,7 +45,6 @@ async function submit(event: SubmitEvent) {
 				const meData = await me.json();
 				if (meData.authenticated) break;
 			} catch {
-				// 网络抖动忽略
 			}
 			if (attempt === 0) await new Promise((r) => setTimeout(r, 400));
 		}

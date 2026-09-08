@@ -103,7 +103,6 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
 
             var isOpen = btn.getAttribute('aria-expanded') === 'true';
 
-            // 手风琴：关闭其它已展开的系列
             var others = document.querySelectorAll('.series-acc-header[aria-expanded="true"]');
             for (var i = 0; i < others.length; i++) {
                 var o = others[i];

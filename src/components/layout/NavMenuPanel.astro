@@ -101,7 +101,6 @@ const processedLinks = Astro.props.links;
                 e.preventDefault();
                 const isExpanded = dropdown.getAttribute('data-expanded') === 'true';
 
-                // 关闭其他打开的下拉菜单
                 mobileDropdowns.forEach(otherDropdown => {
                     if (otherDropdown !== dropdown) {
                         setDropdownExpanded(otherDropdown, false);

@@ -25,9 +25,7 @@
 	let pwdError = "";
 	let pwdSaving = false;
 
-	// 侧栏折叠（桌面端）
 	let collapsed = false;
-	// 设置二级子菜单
 	let s3open = false;
 	let settingsCat = 0;
 

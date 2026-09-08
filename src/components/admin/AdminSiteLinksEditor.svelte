@@ -50,7 +50,6 @@
 		{ key: "enabled", label: "启用（显示在前台对应位置）", type: "checkbox" },
 	];
 
-	// 站点主域名
 	let siteUrl = "";
 	let siteUrlSaving = false;
 	let siteUrlMsg = "";

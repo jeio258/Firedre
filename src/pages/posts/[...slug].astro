@@ -586,7 +586,6 @@ const seriesData = await getSeriesPosts(entry);
       const dateStr = lastModified.format("YYYY-MM-DD");
       const outdatedThreshold = ((settings as any)?.["post"] ?? siteConfig.post).outdatedThreshold ?? 1;
 
-      // 1. 預設加上 hidden 隱藏，並把時間與閾值綁在 data-* 屬性
       return (
         <div 
           id="outdated-card" 

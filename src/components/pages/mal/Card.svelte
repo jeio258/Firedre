@@ -55,7 +55,7 @@ const coverSrcs = $derived(coverUrl ? [coverUrl] : []);
 const userScore = $derived(item.list_status?.score || 0);
 const meanScore = $derived(node.mean || 0);
 
-// 日期：动画用季度+年份，漫画用起始日期年份
+	// 日期：动画用季度+年份，漫画用起始日期年份
 const seasonText = $derived(
   isManga
     ? ""

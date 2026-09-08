@@ -15,12 +15,10 @@ import { cfEnv } from "../lib/api";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.sponsor) {
 	return Astro.redirect("/404/");
 }
 
-// 检查评论系统是否启用
 const isCommentEnabled =
 	commentConfig?.type &&
 	((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none" &&

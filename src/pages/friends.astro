@@ -14,7 +14,6 @@ import MainGridLayout from "@/layouts/MainGridLayout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.friends) {
 	return Astro.redirect("/404/");
 }
@@ -24,7 +23,6 @@ const { listEnabledFriends } = await import("../../server/friends/service");
 const { cfEnv } = await import("../lib/api");
 const friendRows = await listEnabledFriends(cfEnv);
 
-// 检查评论系统是否启用
 const isCommentEnabled =
 	commentConfig?.type &&
 	((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none" &&
@@ -47,7 +45,6 @@ const items: FriendsCardItem[] = friendRows.map((friend) => ({
 }));
 const allTags = [...new Set(items.flatMap((item) => item.tags || []))].sort();
 
-// 页面标题和描述
 const title =
 	((settings as any)?.["friends"]?.title as string | undefined) ||
 	friendsPageConfig.title ||

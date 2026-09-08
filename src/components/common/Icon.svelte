@@ -21,7 +21,6 @@ interface Props {
 
 let { icon, class: className = "", style = "" }: Props = $props();
 
-// 检测图标是否存在
 const iconExists = $derived(() => {
 	const [prefix, name] = icon.split(":");
 	if (!prefix || !name) return false;

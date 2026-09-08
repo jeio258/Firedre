@@ -35,7 +35,6 @@ import { url } from "@/utils/url-utils";
   function loadSpineCSS() {
     if (!spineModelConfig.enable) return;
 
-    // 检查是否已经加载
     const existingLink = document.querySelector('link[href*="spine-player"]');
     if (existingLink) return;
 
@@ -48,12 +47,10 @@ import { url } from "@/utils/url-utils";
     cdnLink.onerror = function () {
       console.warn("⚠️ Spine CSS CDN failed, trying local fallback...");
 
-      // 移除失败的 CDN link
       if (cdnLink.parentNode) {
         cdnLink.parentNode.removeChild(cdnLink);
       }
 
-      // 创建本地备用 CSS link
       const localLink = document.createElement("link");
       localLink.rel = "stylesheet";
       localLink.href = cssPath;
@@ -76,7 +73,6 @@ import { url } from "@/utils/url-utils";
 
   // 消息显示函数 - 使用公共消息框组件
   function showMessage(message) {
-    // 使用公共消息框组件
     if (window.showModelMessage) {
       window.showModelMessage(message, {
         containerId: "spine-model-container",
@@ -85,14 +81,12 @@ import { url } from "@/utils/url-utils";
     }
   }
 
-  // 更新响应式显示
   function updateResponsiveDisplay() {
     if (!spineModelConfig.enable) return;
 
     const container = document.getElementById("spine-model-container");
     if (!container) return;
 
-    // 检查移动端显示设置
     if (
       spineModelConfig.responsive.hideOnMobile &&
       window.innerWidth <= spineModelConfig.responsive.mobileBreakpoint
@@ -103,7 +97,6 @@ import { url } from "@/utils/url-utils";
     }
   }
 
-  // 清理函数
   function cleanupSpineModel() {
     console.log("🧹 Cleaning up existing Spine model...");
 
@@ -112,7 +105,6 @@ import { url } from "@/utils/url-utils";
       window.clearModelMessage();
     }
 
-    // 清理现有的播放器实例
     if (window.spinePlayerInstance) {
       try {
         if (window.spinePlayerInstance.dispose) {
@@ -124,13 +116,11 @@ import { url } from "@/utils/url-utils";
       window.spinePlayerInstance = null;
     }
 
-    // 清理容器内容
     const playerContainer = document.getElementById("spine-player-container");
     if (playerContainer) {
       playerContainer.innerHTML = "";
     }
 
-    // 重置初始化标志
     window.spineModelInitialized = false;
   }
 
@@ -148,7 +138,6 @@ import { url } from "@/utils/url-utils";
       return;
     }
 
-    // 检查是否已经初始化
     if (window.spineModelInitialized) {
       console.log("⏭️ Spine model already initialized, skipping...");
       return;
@@ -162,7 +151,6 @@ import { url } from "@/utils/url-utils";
     // 首先加载 CSS
     loadSpineCSS();
 
-    // 加载 Spine Web Player 运行时
     const loadSpineRuntime = () => {
       return new Promise((resolve, reject) => {
         if (typeof window.spine !== "undefined") {
@@ -225,10 +213,8 @@ import { url } from "@/utils/url-utils";
       // 然后等待 Spine 对象可用
       await waitForSpine();
 
-      // 标记为已初始化
       window.spineModelInitialized = true;
 
-      // 创建 SpinePlayer
       new window.spine.SpinePlayer("spine-player-container", {
         skeleton: modelPath,
         atlas: atlasPath,
@@ -240,7 +226,6 @@ import { url } from "@/utils/url-utils";
         success: (player) => {
           console.log("🎉 Spine model loaded successfully!");
 
-          // 保存播放器实例引用
           window.spinePlayerInstance = player;
 
           // 构建可用动画索引，避免播放不存在的动画导致报错
@@ -322,7 +307,6 @@ import { url } from "@/utils/url-utils";
             }
           }, 500);
 
-          // 设置交互功能
           if (spineModelConfig.interactive.enabled) {
             const canvas = document.querySelector(
               "#spine-player-container canvas"
@@ -355,7 +339,6 @@ import { url } from "@/utils/url-utils";
                   safeSetAnimation(fallbackIdleAnim, true);
                 }
 
-                // 显示随机消息
                 const messages = spineModelConfig.interactive.clickMessages;
                 if (messages && messages.length > 0) {
                   const randomMessage =
@@ -438,7 +421,6 @@ import { url } from "@/utils/url-utils";
     }, 100);
   });
 
-  // 监听窗口大小变化
   window.addEventListener("resize", updateResponsiveDisplay);
 
   // 页面加载完成后初始化（只初始化一次）

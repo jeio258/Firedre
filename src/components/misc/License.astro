@@ -28,7 +28,6 @@ const profileConf = profileConfig;
 const licenseConf = licenseConfig;
 const postUrl = sourceLink || decodeURIComponent(Astro.url.toString());
 
-// 根据许可证名称匹配对应图标
 function getLicenseIcon(name: string): string {
 	const n = name.toLowerCase();
 	if (/cc0|creative commons zero/.test(n)) {

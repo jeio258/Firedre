@@ -119,7 +119,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             itemTemplate: document.getElementById('playlist-item-template')
         };
 
-        // Verify critical elements
         var _critical = [ui.btnPlay, ui.btnRepeat, ui.btnMute, ui.volContainer,
             ui.btnDrawer, ui.btnLrc, ui.lrcDrawer, ui.lrcContainer,
             ui.progressContainer, ui.btnNext, ui.btnPrev, ui.loading,
@@ -169,7 +168,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.btnPlay.setAttribute('aria-label', cfg.i18n.play);
                 ui.btnPlay.title = cfg.i18n.play;
             }
-            // Toggle eq-bars / play icon in playlist
             var activeItems = ui.playlistContainer.querySelectorAll('.playlist-item[aria-current="true"]');
             activeItems.forEach(function (item) {
                 var eqBars = item.querySelector('.eq-bars');
@@ -236,13 +234,11 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.cover.alt = cfg.i18n.noCover;
             }
 
-            // Reset cover rotation
             ui.cover.classList.remove('animate-spin-slow');
             void ui.cover.offsetWidth;
             ui.cover.classList.add('animate-spin-slow');
             ui.cover.style.animationPlayState = 'paused';
 
-            // Reset progress
             ui.progressBar.style.width = '0%';
             ui.progressThumb.style.left = '0%';
             ui.progressContainer.setAttribute('aria-valuenow', '0');
@@ -357,7 +353,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 }
             }
 
-            // Rebuild reference map
             vs.renderedEls = {};
             var children = container.children;
             for (var ci = 0; ci < children.length; ci++) {
@@ -478,7 +473,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             var s = mgr.getState();
             if (!s.initialized) return;
 
-            // Loading off
             setLoading(false);
 
             if (s.playlist.length === 0) {
@@ -492,7 +486,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             updateModeUI(s.playMode);
             updateVolumeUI(s.volume, s.isMuted);
 
-            // Progress
             if (s.duration > 0) {
                 ui.progressBar.style.width = s.progress + '%';
                 ui.progressThumb.style.left = s.progress + '%';
@@ -501,7 +494,6 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.totalTime.innerText = s.durationStr;
             }
 
-            // Lyrics
             renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : 'none');
             if (s.currentLrcIndex >= 0) updateLrcHighlight(s.currentLrcIndex);
 

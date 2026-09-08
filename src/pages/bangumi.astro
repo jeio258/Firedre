@@ -11,7 +11,6 @@ import MainGridLayout from "@/layouts/MainGridLayout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-// 检查页面是否启用
 if (!getSiteConfig(Astro.locals).pages.bangumi) {
 	return Astro.redirect("/404/");
 }
@@ -32,7 +31,6 @@ const bangumiConfig = {
 		game: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.game ?? true,
 		real: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.real ?? false,
 	},
-	// 数据获取设置
 	pagination: {
 		limit: 50,
 		delay: 50,

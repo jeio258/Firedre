@@ -22,7 +22,6 @@ if (!adConfig) {
 	return null;
 }
 
-// 检查广告是否过期
 const isExpired = adConfig.expireDate
 	? new Date() > new Date(adConfig.expireDate)
 	: false;
@@ -31,7 +30,6 @@ if (isExpired) {
 	return null;
 }
 
-// 计算 padding 内联样式
 const getPaddingStyle = (): string => {
 	if (!adConfig.padding) return "padding: 1rem";
 
@@ -154,7 +152,6 @@ const useContentPadding = !adConfig.padding;
       localStorage.setItem(storageKey, (currentCount + 1).toString());
     }
 
-    // 绑定关闭按钮事件
     if (isClosable) {
       var closeBtn = wrapper.querySelector(".close-ad-btn");
       if (closeBtn && !closeBtn.dataset.bound) {

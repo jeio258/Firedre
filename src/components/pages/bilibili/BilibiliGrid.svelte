@@ -16,7 +16,6 @@ interface Props {
 
 let { items, itemsPerPage = 24 }: Props = $props();
 
-// 状态
 let searchQuery = $state("");
 let activeFilter = $state(
 	untrack(() =>
@@ -50,7 +49,6 @@ let filterOptions = $derived(() => {
 		const st = item.season_type || 1;
 		typeMap.set(st, (typeMap.get(st) || 0) + 1);
 	}
-	// 按 season_type 排序
 	return Array.from(typeMap.entries())
 		.sort(([a], [b]) => a - b)
 		.map(([type, count]) => ({
@@ -60,11 +58,9 @@ let filterOptions = $derived(() => {
 		}));
 });
 
-// 筛选和排序后的数据
 let filteredItems = $derived(() => {
 	let result = [...items];
 
-	// 搜索过滤
 	if (searchQuery.trim()) {
 		const query = searchQuery.toLowerCase().trim();
 		result = result.filter(
@@ -74,13 +70,11 @@ let filteredItems = $derived(() => {
 		);
 	}
 
-	// 类型过滤
 	if (activeFilter) {
 		const filterType = Number(activeFilter);
 		result = result.filter((item) => (item.season_type || 1) === filterType);
 	}
 
-	// 排序
 	switch (sortBy) {
 		case "rating-desc":
 			result.sort((a, b) => b.rating - a.rating);
@@ -99,13 +93,11 @@ let filteredItems = $derived(() => {
 	return result;
 });
 
-// 分页
 let pagedItems = $derived(() => {
 	const start = (currentPage - 1) * itemsPerPage;
 	return filteredItems().slice(start, start + itemsPerPage);
 });
 
-// 筛选/搜索变化时重置到第一页
 function resetPage() {
 	currentPage = 1;
 }
@@ -189,7 +181,6 @@ function closeDetail() {
 		</div>
 	{/if}
 
-	<!-- 分页 -->
 	<ClientPagination
 		totalItems={filteredItems().length}
 		{itemsPerPage}

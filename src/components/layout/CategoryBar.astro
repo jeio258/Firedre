@@ -345,14 +345,12 @@ function initialActive(categoryName: string): {
     }
     scroll.dataset.featuresBound = "true";
 
-    // 鼠标滚轮横向滚动
     scroll.addEventListener("wheel", (e) => {
       if (scroll.scrollWidth <= scroll.clientWidth) return;
       e.preventDefault();
       scroll.scrollLeft += e.deltaY;
     }, { passive: false });
 
-    // 监听滚动更新提示图标
     scroll.addEventListener("scroll", updateScrollHint);
     window.addEventListener("resize", updateScrollHint);
     updateScrollHint();
@@ -382,7 +380,6 @@ function initialActive(categoryName: string): {
       fadeRight.removeAttribute("data-visible");
     }
 
-    // 分类溢出时显示"更多"按钮前的分割线
     const moreDivider = bar.querySelector<HTMLElement>(".more-divider");
     if (moreDivider) {
       if (hasOverflow) {

@@ -7,7 +7,6 @@
   let currentMessageContainer: HTMLDivElement | null = null;
   let hideMessageTimer: number | null = null;
 
-  // 消息显示函数
   export function showMessage(message: string, options: { containerId?: string; displayTime?: number } = {}) {
     // 防止空消息或重复调用
     if (!message || !message.trim()) {
@@ -34,25 +33,20 @@
       }
     });
 
-    // 检测暗色主题
     const isDarkMode =
       document.documentElement.classList.contains("dark") ||
       window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // 创建消息容器
     const messageContainer = document.createElement("div");
     messageContainer.className = "model-message-container";
 
-    // 创建消息元素
     const messageEl = document.createElement("div");
     messageEl.className = "model-message";
     messageEl.textContent = message;
 
-    // 创建箭头元素
     const arrowEl = document.createElement("div");
     arrowEl.className = "model-message-arrow";
 
-    // 设置容器样式
     Object.assign(messageContainer.style, {
       position: "fixed",
       zIndex: "1001",
@@ -108,20 +102,16 @@
       filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
     });
 
-    // 组装消息框元素
     messageEl.appendChild(arrowEl);
     messageContainer.appendChild(messageEl);
 
-    // 添加到页面并保存引用
     document.body.appendChild(messageContainer);
     currentMessageContainer = messageContainer;
 
-    // 将消息显示在模型头顶居中
     const container = document.getElementById(options.containerId || "model-container");
     if (container) {
       const rect = container.getBoundingClientRect();
 
-      // 消息框居中显示在模型上方
       const containerCenterX = rect.left + rect.width / 2;
 
       const estimatedMessageWidth = 240;                  
@@ -160,7 +150,6 @@
         messageY = maxY;
       }
 
-      // 设置位置
       messageContainer.style.left = messageX + "px";
       messageContainer.style.top = messageY + "px";
 
@@ -169,7 +158,6 @@
         const actualWidth = actualMessageRect.width;
         const actualHeight = actualMessageRect.height;
 
-        // 重新计算水平位置
         let adjustedX = containerCenterX;
         const actualMinX = screenPadding + actualWidth / 2;
         const actualMaxX = window.innerWidth - screenPadding - actualWidth / 2;
@@ -180,7 +168,6 @@
           adjustedX = actualMaxX;
         }
 
-        // 重新计算垂直位置
         let adjustedY = rect.top - actualHeight - 25;
         const actualMinY = screenPadding;
         const actualMaxY = window.innerHeight - actualHeight - screenPadding;
@@ -205,7 +192,6 @@
         );
 
         if (isAboveModel) {
-          // 消息框在模型上方，箭头向下
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "100%",
@@ -223,7 +209,6 @@
             filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))",
           });
         } else {
-          // 消息框在模型下方，箭头向上
           Object.assign(arrowEl.style, {
             position: "absolute",
             top: "0",
@@ -247,14 +232,12 @@
       }, 50); // 增加延迟确保消息框完全渲染
     }
 
-    // 显示动画
     setTimeout(() => {
       messageContainer.style.opacity = "1";
       messageContainer.style.transform =
         "translateY(0) translateX(-50%) scale(1)";
     }, 100);              
 
-    // 自动隐藏
     const displayTime = options.displayTime || 3000;
     hideMessageTimer = window.setTimeout(() => {
       messageContainer.style.opacity = "0";
@@ -264,7 +247,6 @@
         if (messageContainer.parentNode) {
           messageContainer.parentNode.removeChild(messageContainer);
         }
-        // 清除引用
         if (currentMessageContainer === messageContainer) {
           currentMessageContainer = null;
         }
@@ -272,7 +254,6 @@
     }, displayTime);
   }
 
-  // 清理消息函数
   export function clearMessage() {
     if (currentMessageContainer) {
       if (hideMessageTimer !== null) {
@@ -284,7 +265,6 @@
       currentMessageContainer = null;
     }
 
-    // 清理所有消息容器
     const existingMessages = document.querySelectorAll(
       ".model-message-container"
     );

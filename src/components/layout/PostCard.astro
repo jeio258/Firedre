@@ -83,11 +83,10 @@ const statsShowPublished = statsConfig.showPublished ?? true;
 const statsShowWords = statsConfig.showWords ?? true;
 const statsShowReadingTime = statsConfig.showReadingTime ?? true;
 
-// 标签显示位置
 const tagsPosition = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsPosition ?? "meta";
 const showTagsInMeta = metaShowTags && tagsPosition === "meta";
 const showTagsAtBottom = metaShowTags && tagsPosition === "bottom";
-// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
+	// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
 const bottomTagsAsText =
 	(((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsBottomStyle ?? "chip") === "text";
 const descriptionClampLines = String(descriptionLines);

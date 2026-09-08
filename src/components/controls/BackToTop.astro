@@ -16,7 +16,6 @@ import FloatingButton from "@/components/common/FloatingButton.astro";
     window.scroll({ top: 0, behavior: "smooth" });
   }
 
-  // 响应式返回顶部按钮管理器
   if (typeof window.BackToTopManager === "undefined") {
     window.BackToTopManager = class BackToTopManager {
       constructor() {
@@ -50,7 +49,6 @@ import FloatingButton from "@/components/common/FloatingButton.astro";
 
   if (!window.__backToTopInit) {
     window.__backToTopInit = true;
-    // 页面加载完成后初始化
     document.addEventListener("DOMContentLoaded", () => {
       new BackToTopManager();
     });
