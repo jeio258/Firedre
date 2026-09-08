@@ -22,7 +22,6 @@ import remarkDirective from "remark-directive";
 import remarkMath from "remark-math";
 import remarkSectionize from "remark-sectionize";
 import { siteConfig } from "../../src/config/index";
-import { plantumlConfig } from "../../src/config/plantumlConfig";
 import { GithubCardComponent } from "../../src/plugins/rehype-component-github-card.mjs";
 import { rehypeDiagramPanZoom } from "../../src/plugins/rehype-diagram-panzoom.mjs";
 import rehypeEmailProtection from "../../src/plugins/rehype-email-protection.mjs";
@@ -146,7 +145,7 @@ function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 		.use(remarkSectionize)
 		.use(parseDirectiveNode)
 		.use(remarkMermaid)
-		.use(remarkPlantuml, plantumlConfig)
+		.use(remarkPlantuml)
 		.use(remarkRehype, { allowDangerousHtml: true })
 		.use(rehypeRaw)
 		.use(rehypeSanitizeDangerous)

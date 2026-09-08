@@ -4,7 +4,7 @@ import {
 	getWallpaperConfig, getFooterConfig, getEffectsConfig, getPioConfig,
 	getLicenseConfig, getSponsorConfig, getDynamicConfig, getAnnouncementConfig,
 	getNavbarConfig, getSidebarConfig, getCoverConfig, getFontConfig,
-	getMermaidConfig, getAnalyticsConfig,
+	getMermaidConfig, getAnalyticsConfig, getPlantumlConfig,
 } from "../../src/config/runtime";
 import { settingsDefaults } from "../../src/config/settings-defaults";
 
@@ -30,6 +30,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	const cov = getCoverConfig(empty) as L;
 	const font = getFontConfig(empty) as L;
 	const mer = getMermaidConfig(empty) as L;
+	const plc = getPlantumlConfig(empty) as L;
 	const ana = getAnalyticsConfig(empty) as unknown as Record<string, any>;
 
 	const basic: L = {
@@ -104,6 +105,7 @@ export function flattenSettingsDefaults(): Record<string, L> {
 	const cover: L = { enable: cov.enable, defaultImage: cov.defaultImage, configurable: cov.configurable };
 	const fontL: L = { scale: font.fontScale };
 	const mermaid: L = { lightTheme: mer.lightTheme, darkTheme: mer.darkTheme };
+	const plantuml: L = { enable: plc.enable, server: plc.server, lightTheme: plc.lightTheme, darkTheme: plc.darkTheme };
 	const analytics: L = {
 		googleAnalyticsId: ana.googleAnalyticsId, microsoftClarityId: ana.microsoftClarityId,
 		umamiId: ana.umamiAnalytics?.websiteId, umamiUrl: ana.umamiAnalytics?.scriptUrl,
@@ -113,6 +115,6 @@ export function flattenSettingsDefaults(): Record<string, L> {
 		...settingsDefaults,
 		basic, profile, comment, music, theme, effects, footer: footerL, pio: pioL,
 		license, sponsor, dynamic, announcement, nav: navL, sidebar, cover,
-		font: fontL, mermaid, analytics,
+		font: fontL, mermaid, analytics, plantuml,
 	};
 }

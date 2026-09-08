@@ -23,7 +23,6 @@ import {
 	fontConfig,
 	fontsList,
 	mermaidConfig,
-	plantumlConfig,
 	siteConfig,
 } from "./src/config";
 import I18nKey from "./src/i18n/i18nKey";
@@ -194,7 +193,7 @@ export default defineConfig({
 				remarkSectionize,
 				parseDirectiveNode,
 				remarkMermaid,
-				[remarkPlantuml, plantumlConfig],
+				[remarkPlantuml],
 			],
 			rehypePlugins: [
 				[rehypeKatex, { katex }],

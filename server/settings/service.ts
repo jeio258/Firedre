@@ -27,6 +27,7 @@ export const SETTING_GROUPS = [
 	"ads",
 	"license",
 	"pio",
+	"plantuml",
 	"analytics",
 ] as const;
 export type SettingGroup = (typeof SETTING_GROUPS)[number];

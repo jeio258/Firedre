@@ -226,4 +226,10 @@ export const settingsDefaults = {
 		},
 	},
 	analytics: {},
+	plantuml: {
+		enable: true,
+		server: "https://www.plantuml.com/plantuml",
+		lightTheme: "",
+		darkTheme: "cyborg",
+	},
 } as const;

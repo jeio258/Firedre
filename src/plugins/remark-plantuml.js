@@ -1,17 +1,10 @@
 import { visit } from "unist-util-visit";
 import { buildUrl, encodePlantUML, injectTheme } from "./plantuml-encoder.js";
+import { getPlantumlRuntimeConfig } from "../config/plantumlRuntime";
 
-const DEFAULT_OPTIONS = {
-	enable: true,
-	server: "https://www.plantuml.com/plantuml",
-	lightTheme: "",
-	darkTheme: "",
-};
-
-export function remarkPlantuml(options = {}) {
-	const config = { ...DEFAULT_OPTIONS, ...options };
-
+export function remarkPlantuml() {
 	return (tree) => {
+		const config = getPlantumlRuntimeConfig();
 		if (config.enable === false) {
 			return;
 		}

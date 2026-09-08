@@ -18,6 +18,7 @@ import { sidebarLayoutConfig as staticSidebarConfig } from "./sidebarConfig";
 import { coverImageConfig as staticCoverConfig } from "./coverImageConfig";
 import { fontConfig as staticFontConfig } from "./fontConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
+import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
@@ -513,6 +514,18 @@ export function getMermaidConfig(locals: unknown) {
 		...staticMermaidConfig,
 		lightTheme: str(m.lightTheme, staticMermaidConfig.lightTheme),
 		darkTheme: str(m.darkTheme, staticMermaidConfig.darkTheme),
+	};
+}
+
+export function getPlantumlConfig(locals: unknown) {
+	const s = settingsOf(locals);
+	const p = groupOf(s, "plantuml");
+	return {
+		...staticPlantumlConfig,
+		enable: bool(p.enable, staticPlantumlConfig.enable),
+		server: str(p.server, staticPlantumlConfig.server),
+		lightTheme: str(p.lightTheme, staticPlantumlConfig.lightTheme),
+		darkTheme: str(p.darkTheme, staticPlantumlConfig.darkTheme),
 	};
 }
 

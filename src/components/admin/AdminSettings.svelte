@@ -469,6 +469,17 @@ const GROUPS: Group[] = [
 		fields: [{ name: "enabled", label: "启用", type: "boolean" }],
 	},
 	{
+		key: "plantuml",
+		title: "PlantUML 图表",
+		category: "功能配置",
+		fields: [
+			{ name: "enable", label: "启用", type: "boolean" },
+			{ name: "server", label: "服务地址", type: "text" },
+			{ name: "lightTheme", label: "浅色主题", type: "text" },
+			{ name: "darkTheme", label: "深色主题", type: "text" },
+		],
+	},
+	{
 		key: "bilibili",
 		title: "哔哩哔哩",
 		category: "页面配置",

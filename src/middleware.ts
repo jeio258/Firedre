@@ -1,4 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
+import { getPlantumlConfig } from "./config/runtime";
+import { setPlantumlRuntimeConfig } from "./config/plantumlRuntime";
 
 export interface SettingsLocals {
 	settings: import("../server/settings/service").SiteSettings;
@@ -136,6 +138,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	} catch {
 		(context.locals as unknown as SettingsLocals).settings = {};
 	}
+
+	setPlantumlRuntimeConfig(getPlantumlConfig(context.locals));
 
 	const response = await next();
 
