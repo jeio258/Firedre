@@ -29,13 +29,14 @@ function mergedFixture() {
 }
 
 describe("toClientSettings", () => {
-	it("仅下发客户端所需的五组配置", () => {
+	it("仅下发客户端白名单内的配置组", () => {
 		const result = toClientSettings(mergedFixture());
 
 		expect(Object.keys(result).sort()).toEqual(
 			[
 				"basic",
 				"effects",
+				"expressiveCode",
 				"mermaid",
 				"panel",
 				"theme",
