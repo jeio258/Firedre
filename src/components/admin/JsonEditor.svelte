@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { tick } from "svelte";
+
 	export let value: unknown = "";
 	export let placeholder: string = "";
 	export let fieldLabel: string = "";
@@ -7,8 +9,9 @@
 	let open = false;
 	let text = "";
 	let error = "";
+	let areaEl: HTMLTextAreaElement | undefined;
 
-	function openModal() {
+	async function openModal() {
 		try {
 			text = value == null || value === "" ? "" : JSON.stringify(value, null, 2);
 		} catch {
@@ -16,6 +19,12 @@
 		}
 		error = "";
 		open = true;
+		await tick();
+		areaEl?.focus();
+	}
+
+	function onKeydown(e: KeyboardEvent) {
+		if (open && e.key === "Escape") open = false;
 	}
 
 	function validate(): boolean {
@@ -59,6 +68,8 @@
 	})();
 </script>
 
+<svelte:window on:keydown={onKeydown} />
+
 <button type="button" class="je-trigger" on:click={openModal}>
 	<span class="je-prev">{preview}</span>
 	<span class="je-tag">编辑 JSON</span>
@@ -66,13 +77,14 @@
 
 {#if open}
 	<div class="je-mask" on:click={() => (open = false)} role="presentation">
-		<div class="je-modal" on:click|stopPropagation role="dialog" aria-modal="true">
+		<div class="je-modal" on:click|stopPropagation role="dialog" aria-modal="true" aria-labelledby="je-title">
 			<header class="je-hd">
-				<strong>{fieldLabel}</strong>
+				<strong id="je-title">{fieldLabel}</strong>
 				<button type="button" class="je-x" on:click={() => (open = false)} aria-label="关闭">✕</button>
 			</header>
 			<textarea
 				class="je-area"
+				bind:this={areaEl}
 				bind:value={text}
 				on:input={validate}
 				spellcheck="false"

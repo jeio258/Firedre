@@ -431,6 +431,8 @@
 								type="button"
 								class="sw"
 								class:on={hadEncrypted}
+								role="switch"
+								aria-checked={hadEncrypted}
 								aria-label="加密相册"
 								on:click={() => (hadEncrypted = !hadEncrypted)}
 							></button>

@@ -1,120 +1,33 @@
 import { describe, it, expect } from "vitest";
+import {
+	mergeSettings,
+	normalizeSettingValue,
+} from "../server/settings/merge";
 
-// 模拟 middleware 中的配置合并逻辑（提取为纯函数便于测试）
-function normalizeValue(v: unknown): unknown {
-	if (typeof v === "string") {
-		const t = v.trim();
-		if (
-			(t.startsWith("[") || t.startsWith("{")) &&
-			(t.endsWith("]") || t.endsWith("}"))
-		) {
-			try {
-				return JSON.parse(t);
-			} catch {
-				return v;
-			}
-		}
-	}
-	return v;
-}
-
-function assignFlat(
-	target: Record<string, unknown>,
-	g: Record<string, unknown>,
-): void {
-	for (const [k, v] of Object.entries(g)) {
-		if (v !== "" && v != null) target[k] = v;
-	}
-}
-
-function mergeSettings(
-	defaults: Record<string, unknown>,
-	dbSettings: Record<string, unknown>,
-): Record<string, unknown> {
-	const merged: Record<string, unknown> = {};
-
-	// 1. 先铺默认值（嵌套组 + 平铺标量）
-	for (const [groupKey, group] of Object.entries(defaults)) {
-		const g: Record<string, unknown> = {};
-		for (const [k, v] of Object.entries(group as Record<string, unknown> ?? {})) {
-			g[k] = normalizeValue(v);
-		}
-		merged[groupKey] = g;
-		assignFlat(merged, g);
-	}
-
-	// 2. 数据库值覆盖其上
-	for (const [groupKey, group] of Object.entries(dbSettings)) {
-		const g: Record<string, unknown> = {};
-		for (const [k, v] of Object.entries(group as Record<string, unknown> ?? {})) {
-			g[k] = normalizeValue(v);
-		}
-		merged[groupKey] = {
-			...(merged[groupKey] as Record<string, unknown> ?? {}),
-			...g,
-		};
-		assignFlat(merged, g);
-	}
-
-	return merged;
-}
-
-describe("normalizeValue", () => {
+describe("normalizeSettingValue", () => {
 	it("should parse valid JSON arrays", () => {
-		expect(normalizeValue('["a", "b"]')).toEqual(["a", "b"]);
+		expect(normalizeSettingValue('["a", "b"]')).toEqual(["a", "b"]);
 	});
 
 	it("should parse valid JSON objects", () => {
-		expect(normalizeValue('{"key": "value"}')).toEqual({ key: "value" });
+		expect(normalizeSettingValue('{"key": "value"}')).toEqual({ key: "value" });
 	});
 
 	it("should return non-JSON strings as-is", () => {
-		expect(normalizeValue("hello world")).toBe("hello world");
-		expect(normalizeValue("123")).toBe("123");
-		expect(normalizeValue("true")).toBe("true");
+		expect(normalizeSettingValue("hello world")).toBe("hello world");
+		expect(normalizeSettingValue("123")).toBe("123");
+		expect(normalizeSettingValue("true")).toBe("true");
 	});
 
 	it("should handle invalid JSON gracefully", () => {
-		expect(normalizeValue("[invalid")).toBe("[invalid");
-		expect(normalizeValue("{missing quotes}")).toBe("{missing quotes}");
-	});
-
-	it("should handle strings that look like JSON but aren't", () => {
-
-		expect(normalizeValue("[hello")).toBe("[hello");
-
-		expect(normalizeValue("{hello")).toBe("{hello");
+		expect(normalizeSettingValue("[invalid")).toBe("[invalid");
+		expect(normalizeSettingValue("{missing quotes}")).toBe("{missing quotes}");
 	});
 });
 
-describe("assignFlat", () => {
-	it("should assign non-empty values", () => {
-		const target: Record<string, unknown> = {};
-		assignFlat(target, { title: "My Blog", count: 0, enabled: true });
-		expect(target).toEqual({ title: "My Blog", count: 0, enabled: true });
-	});
+describe("mergeSettings（middleware 真实合并逻辑）", () => {
+	const groupNames = new Set<string>(["basic", "theme", "nav"]);
 
-	it("should skip empty strings", () => {
-		const target: Record<string, unknown> = { existing: "value" };
-		assignFlat(target, { title: "", description: null });
-
-		expect(target).toEqual({ existing: "value" });
-	});
-
-	it("should skip null values", () => {
-		const target: Record<string, unknown> = { title: "Original" };
-		assignFlat(target, { title: null });
-		expect(target).toEqual({ title: "Original" });
-	});
-
-	it("should overwrite with valid values", () => {
-		const target: Record<string, unknown> = { title: "Old" };
-		assignFlat(target, { title: "New" });
-		expect(target).toEqual({ title: "New" });
-	});
-});
-
-describe("mergeSettings", () => {
 	const defaults = {
 		basic: {
 			title: "Firefly",
@@ -128,48 +41,78 @@ describe("mergeSettings", () => {
 	};
 
 	it("should use defaults when no DB settings", () => {
-		const result = mergeSettings(defaults, {});
-		expect(result.basic).toEqual({ title: "Firefly", subtitle: "Demo site", hue: 165 });
+		const result = mergeSettings(defaults, {}, groupNames) as Record<
+			string,
+			Record<string, unknown>
+		>;
+		expect(result.basic).toEqual({
+			title: "Firefly",
+			subtitle: "Demo site",
+			hue: 165,
+		});
 		expect(result.theme).toEqual({ mode: "banner", playerEnable: true });
 	});
 
 	it("should override defaults with DB settings", () => {
-		const dbSettings = {
-			basic: { title: "My Custom Blog", hue: 200 },
-		};
-		const result = mergeSettings(defaults, dbSettings);
+		const db = { basic: { title: "My Custom Blog", hue: 200 } };
+		const result = mergeSettings(defaults, db, groupNames) as Record<
+			string,
+			Record<string, unknown>
+		>;
 		expect(result.basic?.title).toBe("My Custom Blog");
 		expect(result.basic?.hue).toBe(200);
 		expect(result.basic?.subtitle).toBe("Demo site"); // unchanged
 	});
 
-	it("should not let empty strings override defaults", () => {
-		const dbSettings = {
-			basic: { title: "" },
-		};
-		const result = mergeSettings(defaults, dbSettings);
-		// Empty string should not override
+	it("should not let empty strings override defaults (flat)", () => {
+		const db = { basic: { title: "" } };
+		const result = mergeSettings(defaults, db, groupNames) as Record<
+			string,
+			unknown
+		>;
 		expect(result.title).toBe("Firefly");
 	});
 
 	it("should parse JSON strings from DB", () => {
-		const dbSettings = {
-			nav: {
-				navItems: '[{"name":"Home","url":"/"}]',
-			},
-		};
-		const result = mergeSettings({}, dbSettings);
+		const db = { nav: { navItems: '[{"name":"Home","url":"/"}]' } };
+		const result = mergeSettings({}, db, groupNames) as Record<
+			string,
+			Record<string, unknown>
+		>;
 		expect(result.nav?.navItems).toEqual([{ name: "Home", url: "/" }]);
 	});
 
 	it("should merge nested groups correctly", () => {
-		const dbSettings = {
+		const db = {
 			basic: { title: "Updated" },
 			theme: { mode: "gradient" },
 		};
-		const result = mergeSettings(defaults, dbSettings);
+		const result = mergeSettings(defaults, db, groupNames) as Record<
+			string,
+			Record<string, unknown>
+		>;
 		expect(result.basic?.title).toBe("Updated");
 		expect(result.theme?.mode).toBe("gradient");
 		expect(result.theme?.playerEnable).toBe(true); // default preserved
+	});
+
+	it("should skip DB keys that collide with group names (flat pollution)", () => {
+		const db = { basic: { theme: "hacked", title: "ok" } };
+		const result = mergeSettings(defaults, db, groupNames) as Record<
+			string,
+			unknown
+		>;
+		expect(result.theme).toEqual({ mode: "banner", playerEnable: true });
+		expect(result.title).toBe("ok");
+	});
+
+	it("should skip keys defined in multiple default groups (conflicted flat keys)", () => {
+		const conflicting = {
+			alpha: { shared: "a", onlyA: 1 },
+			beta: { shared: "b" },
+		};
+		const db = { alpha: { shared: "from-db" } };
+		const result = mergeSettings(conflicting, db, new Set(["alpha", "beta"]));
+		expect(result.shared).toBeUndefined();
 	});
 });

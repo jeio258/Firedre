@@ -40,7 +40,8 @@ export const GET: APIRoute = async ({ request, url, locals }) => {
 		}
 
 		const page = Math.max(1, Number(url.searchParams.get("page")) || 1);
-		const results = Math.max(1, Number(url.searchParams.get("results")) || 100);
+		const rawResults = Number(url.searchParams.get("results")) || 100;
+		const results = Math.min(100, Math.max(1, Math.floor(rawResults)));
 
 		const data = await fetchVndbUlist({
 			apiUrl,

@@ -214,6 +214,8 @@
 						type="button"
 						class="sw"
 						class:on={formPinned}
+						role="switch"
+						aria-checked={formPinned}
 						aria-label="置顶开关"
 						on:click={() => (formPinned = !formPinned)}
 					></button>

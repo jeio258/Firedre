@@ -64,57 +64,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						// seed 失败不影响请求
 					}
 				})();
-		const [groups] = await Promise.all([getAllSettings(cfEnv), seedTask]);
+		const [groups, { mergeSettings }] = await Promise.all([
+			getAllSettings(cfEnv),
+			import("../server/settings/merge"),
+			seedTask,
+		]);
 
-		const merged: Record<string, unknown> = {};
 		const defaults = settingsDefaults as unknown as Record<string, Record<string, unknown>>;
-
 		const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
-
-		const normalize = (v: unknown): unknown => {
-			if (typeof v === "string") {
-				const t = v.trim();
-				const looksJson =
-					(t.startsWith("[") && t.endsWith("]")) ||
-					(t.startsWith("{") && t.endsWith("}"));
-				if (looksJson) {
-					try { return JSON.parse(t); } catch { return v; }
-				}
-			}
-			return v;
-		};
-
-		const fieldGroupCount = new Map<string, number>();
-		for (const [, group] of Object.entries(defaults)) {
-			for (const k of Object.keys(group ?? {})) {
-				fieldGroupCount.set(k, (fieldGroupCount.get(k) ?? 0) + 1);
-			}
-		}
-		const conflictedKeys = new Set<string>();
-		for (const [k, n] of fieldGroupCount) if (n > 1) conflictedKeys.add(k);
-
-		const assignFlat = (target: Record<string, unknown>, g: Record<string, unknown>) => {
-			for (const [k, v] of Object.entries(g)) {
-				if (groupNames.has(k)) continue;
-				if (conflictedKeys.has(k)) continue;
-				if (v === "" || v == null) continue;
-				target[k] = v;
-			}
-		};
-		// 1. 先铺默认值（嵌套组 + 平铺标量）
-		for (const [groupKey, group] of Object.entries(defaults)) {
-			const g: Record<string, unknown> = {};
-			for (const [k, v] of Object.entries(group ?? {})) g[k] = normalize(v);
-			merged[groupKey] = g;
-			assignFlat(merged, g);
-		}
-		// 2. 数据库值覆盖其上
-		for (const [groupKey, group] of Object.entries(groups)) {
-			const g: Record<string, unknown> = {};
-			for (const [k, v] of Object.entries(group ?? {})) g[k] = normalize(v);
-			merged[groupKey] = { ...(merged[groupKey] as Record<string, unknown> ?? {}), ...g };
-			assignFlat(merged, g);
-		}
+		const merged = mergeSettings(defaults, groups, groupNames);
 
 		const pageMap: Record<string, string> = {
 			pageFriends: "friends",
@@ -147,6 +105,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	response.headers.set("X-Content-Type-Options", "nosniff");
 	response.headers.set("X-Frame-Options", "SAMEORIGIN");
 	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	response.headers.set(
+		"Strict-Transport-Security",
+		"max-age=31536000; includeSubDomains",
+	);
+	response.headers.set(
+		"Permissions-Policy",
+		"camera=(), microphone=(), geolocation=(), payment=()",
+	);
+	response.headers.set(
+		"Content-Security-Policy-Report-Only",
+		"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+	);
 
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");

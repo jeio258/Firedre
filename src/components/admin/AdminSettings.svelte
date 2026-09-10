@@ -783,7 +783,7 @@ async function save() {
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 		clearDraft("站点设置");
 
-		applyHueToAdmin(groups["basic"]?.hue);
+		applyHueToAdmin(data["basic"]?.hue);
 	} catch {
 		message = "网络错误，修改尚未保存";
 	} finally {
@@ -856,6 +856,8 @@ onMount(async () => {
 										<button
 											class="sw"
 											class:on={data[group.key]?.[field.name] === true}
+											role="switch"
+											aria-checked={data[group.key]?.[field.name] === true}
 											aria-label={field.label}
 											on:click={() => cycleBool(group.key, field.name)}
 										></button>

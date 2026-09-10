@@ -9,47 +9,7 @@ import {
 	listSiteLinks,
 	updateSiteLink,
 } from "../server/siteLinks/service";
-
-interface D1Like {
-	prepare(sql: string): D1StmtLike;
-}
-interface D1StmtLike {
-	bind(...args: unknown[]): D1StmtLike;
-	run(): Promise<unknown>;
-	first<T = Record<string, unknown>>(): Promise<T | null>;
-	all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
-}
-
-function makeD1(db: DatabaseSync): D1Like {
-	return {
-		prepare(sql: string) {
-			let args: unknown[] = [];
-			const stmt = db.prepare(sql);
-			const bind = (...more: unknown[]) => {
-				args = [...args, ...more];
-				return chain;
-			};
-			const chain: D1StmtLike = {
-				bind,
-				run: async () => {
-					const res = (stmt as unknown as { run(...a: unknown[]): { changes: number; lastInsertRowid: number } }).run(...args);
-					return { meta: { last_row_id: res.lastInsertRowid, changes: res.changes } };
-				},
-				first: async <T>() =>
-					((stmt as unknown as { get(...a: unknown[]): unknown }).get(
-						...args,
-					) as T | undefined) ?? null,
-				all: async <T>() => {
-					const rows = (stmt as unknown as { all(...a: unknown[]): unknown[] }).all(
-						...args,
-					) as T[];
-					return { results: rows };
-				},
-			};
-			return chain;
-		},
-	};
-}
+import { makeD1 } from "./helpers/d1";
 
 let db: DatabaseSync;
 let env: { DB: D1Like };

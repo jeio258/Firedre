@@ -14,6 +14,14 @@ const UNSAFE_TAG_NAMES = new Set([
 	"frame",
 	"frameset",
 	"applet",
+	"math",
+	"mtext",
+	"mglyph",
+	"annotation-xml",
+	"input",
+	"textarea",
+	"select",
+	"keygen",
 ]);
 
 const URL_PROPERTY_NAMES = new Set([
@@ -21,11 +29,13 @@ const URL_PROPERTY_NAMES = new Set([
 	"src",
 	"srcset",
 	"xlink:href",
+	"xlinkhref",
 	"action",
 	"formaction",
 	"poster",
 	"cite",
 	"background",
+	"data",
 ]);
 
 function sanitizeSrcset(value: unknown): string | undefined {

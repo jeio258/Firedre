@@ -226,6 +226,8 @@
 									type="button"
 									class="sw"
 									class:on={Boolean(formValues[f.key])}
+									role="switch"
+									aria-checked={Boolean(formValues[f.key])}
 									aria-label={f.label}
 									on:click={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
 								></button>

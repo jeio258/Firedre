@@ -390,10 +390,11 @@
 		} catch (e) {}
 		checkAuth();
 		document.addEventListener("click", handleNav);
-		window.addEventListener("popstate", () => navigate(window.location.pathname));
+		const onPopState = () => navigate(window.location.pathname);
+		window.addEventListener("popstate", onPopState);
 		return () => {
 			document.removeEventListener("click", handleNav);
-			window.removeEventListener("popstate", () => navigate(window.location.pathname));
+			window.removeEventListener("popstate", onPopState);
 		};
 	});
 </script>

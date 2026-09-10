@@ -7,37 +7,7 @@ import {
 	createD1LoginRateLimit,
 } from "../server/auth/loginRateLimit";
 import { checkD1RateLimit } from "../server/utils/rateLimiter";
-
-function makeD1(db: DatabaseSync): D1Database {
-	return {
-		prepare(sql: string) {
-			const stmt = db.prepare(sql);
-			let args: unknown[] = [];
-			const chain = {
-				bind(...more: unknown[]) {
-					args = [...args, ...more];
-					return chain;
-				},
-				async run() {
-					const info = stmt.run(...(args as never[])) as {
-						changes?: number | bigint;
-					};
-					return {
-						success: true,
-						meta: { changes: Number(info.changes ?? 0) },
-					};
-				},
-				async first<T = Record<string, unknown>>() {
-					return (stmt.get(...(args as never[])) as T | undefined) ?? null;
-				},
-				async all<T = Record<string, unknown>>() {
-					return { results: stmt.all(...(args as never[])) as T[] };
-				},
-			};
-			return chain;
-		},
-	} as unknown as D1Database;
-}
+import { makeD1 } from "./helpers/d1";
 
 let db: DatabaseSync;
 

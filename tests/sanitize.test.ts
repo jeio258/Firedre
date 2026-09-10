@@ -91,6 +91,34 @@ describe("sanitizeHast", () => {
 		sanitizeHast(a);
 		expect(a.properties.href).toBeUndefined();
 	});
+
+	it("净化 rehype 驼峰属性 xlinkHref（原为绕过面）", () => {
+		const link = {
+			type: "element",
+			tagName: "svg",
+			properties: { xlinkHref: "javascript:alert(1)" },
+			children: [],
+		};
+		sanitizeHast(link);
+		expect(link.properties.xlinkHref).toBeUndefined();
+	});
+
+	it("移除 mXSS 向量标签（math/annotation-xml/input）", () => {
+		const tree = {
+			type: "root",
+			children: [
+				{ type: "element", tagName: "math", properties: {}, children: [] },
+				{ type: "element", tagName: "annotation-xml", properties: {}, children: [] },
+				{ type: "element", tagName: "input", properties: {}, children: [] },
+				{ type: "element", tagName: "p", properties: {}, children: [] },
+			],
+		};
+		sanitizeHast(tree);
+		const tags = (tree.children as Array<{ tagName?: string }>).map(
+			(c) => c.tagName,
+		);
+		expect(tags).toEqual(["p"]);
+	});
 });
 
 describe("sanitizeHast srcset（P2-1）", () => {

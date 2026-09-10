@@ -90,21 +90,6 @@ body {
 .btn-text:hover {
 	color: var(--danger);
 }
-.btn-secondary {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.4rem;
-	padding: 0.5rem 1rem;
-	font-size: 0.875rem;
-	font-weight: 500;
-	border-radius: var(--radius-medium);
-	border: 1px solid var(--line-color);
-	background: var(--card-bg);
-	color: var(--deep-text);
-	cursor: pointer;
-	transition: background 0.15s;
-}
 
 .card {
 	background: var(--card-bg);
@@ -835,15 +820,6 @@ body {
 	align-items: center;
 	gap: 0.8rem;
 }
-.friend-avatar {
-	width: 52px;
-	height: 52px;
-	border-radius: 0.75rem;
-	object-fit: contain;
-	padding: 4px;
-	background: color-mix(in oklch, var(--primary) 16%, transparent);
-	flex-shrink: 0;
-}
 .friend-name {
 	font-weight: 600;
 	font-size: 0.95rem;
@@ -905,18 +881,6 @@ body {
 	align-items: center;
 }
 
-.setbar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1rem;
-	flex-wrap: wrap;
-	margin-bottom: 1.1rem;
-}
-.set-note {
-	font-size: 0.78rem;
-	color: var(--text-muted);
-}
 .a2sws {
 	display: flex;
 	flex-direction: column;
@@ -1120,8 +1084,7 @@ body {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
-.a2f.w,
-.a2f.split {
+.a2f.w {
 	grid-column: 1 / -1;
 }
 .a2f label {
@@ -1144,39 +1107,6 @@ body {
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
-}
-.a2f .jh {
-	font-size: 0.68rem;
-	color: var(--text-muted);
-}
-.a2f.split .dual {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 0.7rem;
-	align-items: start;
-}
-.a2f.split .dual.dual-keep {
-	grid-template-columns: 1fr 1fr;
-}
-.a2f.split .dual input,
-.a2f.split .dual textarea {
-	height: 2.4rem;
-	resize: vertical;
-}
-.a2f.split .ds {
-	display: flex;
-	flex-direction: column;
-	gap: 0.25rem;
-	min-width: 0;
-}
-.a2f.split .ds > span {
-	font-size: 0.7rem;
-	color: var(--text-muted);
-}
-@media (max-width: 760px) {
-	.a2f.split .dual {
-		grid-template-columns: 1fr;
-	}
 }
 
 .editor-layout {
@@ -1212,63 +1142,6 @@ body {
 	border-radius: var(--radius-large);
 	background: var(--card-bg);
 	box-shadow: var(--shadow-card);
-}
-.ed-toolbar {
-	display: flex;
-	align-items: center;
-	gap: 0.2rem;
-	padding: 0.4rem 0.6rem;
-	border-bottom: 1px solid var(--line-divider);
-	flex-wrap: wrap;
-}
-.ed-toolbar button {
-	min-width: 1.8rem;
-	height: 1.7rem;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	background: transparent;
-	color: var(--text-muted);
-	border-radius: 0.35rem;
-	cursor: pointer;
-	font-size: 0.8rem;
-	padding: 0 0.4rem;
-}
-.ed-toolbar button:hover {
-	background: var(--btn-regular-bg);
-	color: var(--deep-text);
-}
-.ed-toolbar .sep {
-	width: 1px;
-	height: 1.1rem;
-	background: var(--line-divider);
-	margin: 0 0.25rem;
-}
-.cover-pick {
-	border: 1.5px dashed var(--line-color);
-	border-radius: 0.6rem;
-	min-height: 130px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	gap: 0.4rem;
-	color: var(--text-muted);
-	font-size: 0.8rem;
-	cursor: pointer;
-	background: color-mix(in oklch, var(--btn-regular-bg) 40%, transparent);
-	padding: 1rem;
-	text-align: center;
-}
-.cover-pick svg {
-	width: 20px;
-	height: 20px;
-}
-.vditor-wrapper {
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
 }
 
 .album-grid {
@@ -1333,16 +1206,6 @@ body {
 	color: #fff;
 	position: relative;
 	overflow: hidden;
-}
-.gal-add {
-	border: 1.5px dashed var(--line-color);
-	background: transparent;
-	color: var(--text-muted);
-	cursor: pointer;
-}
-.gal-add:hover {
-	border-color: var(--primary);
-	color: var(--primary);
 }
 
 .site-url-block {
@@ -1460,8 +1323,7 @@ body {
 	font-weight: 600;
 	color: var(--deep-text);
 }
-.a2f small,
-.a2f .jh {
+.a2f small {
 	font-size: 0.7rem;
 }
 .a2f select,

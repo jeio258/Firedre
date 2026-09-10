@@ -22,8 +22,8 @@
     "preinstall": "npx only-allow pnpm",
     "d1:migrate": "npx wrangler d1 migrations apply firedre-blog --remote",
     "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
-    "deploy": "wrangler pages deploy dist --project-name firedre --commit-dirty=true",
-    "deploy:dry": "wrangler pages deploy dist --project-name firedre --dry-run"
+    "deploy": "pnpm build && wrangler pages deploy dist --project-name firedre",
+    "deploy:dry": "pnpm build && wrangler pages deploy dist --project-name firedre --dry-run"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

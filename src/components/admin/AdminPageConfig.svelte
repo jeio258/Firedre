@@ -66,6 +66,8 @@
 			<button
 				class="sw"
 				class:on={enabled}
+				role="switch"
+				aria-checked={enabled}
 				aria-label={enableLabel}
 				on:click={toggle}
 				disabled={saving}

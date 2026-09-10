@@ -335,7 +335,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 							/>
 						</label>
 						<label class="check-line">
-							<button class="sw" class:on={pinned} aria-label="置顶开关" on:click={() => (pinned = !pinned)}></button>
+							<button class="sw" class:on={pinned} role="switch" aria-checked={pinned} aria-label="置顶开关" on:click={() => (pinned = !pinned)}></button>
 							<span class="check-text">置顶</span>
 						</label>
 					</div>
@@ -387,7 +387,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 							<input type="text" bind:value={passwordHint} />
 						</label>
 						<label class="check-line">
-							<button class="sw" class:on={comment} aria-label="评论开关" on:click={() => (comment = !comment)}></button>
+							<button class="sw" class:on={comment} role="switch" aria-checked={comment} aria-label="评论开关" on:click={() => (comment = !comment)}></button>
 							<span class="check-text">允许评论</span>
 						</label>
 					</div>

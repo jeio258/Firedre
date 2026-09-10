@@ -79,11 +79,11 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 		if (segments[0] === "search") {
 			const q = url.searchParams.get("q") || "";
-			const posts = await searchPosts(
-				cfEnv,
-				q,
-				Number(url.searchParams.get("limit") || 20),
-			);
+			const rawLimit = Number(url.searchParams.get("limit") || 20);
+			const limit = Number.isFinite(rawLimit)
+				? Math.min(50, Math.max(1, Math.floor(rawLimit)))
+				: 20;
+			const posts = await searchPosts(cfEnv, q, limit);
 			return json({ posts: isAdmin ? posts : posts.map(redactPostSecrets) });
 		}
 

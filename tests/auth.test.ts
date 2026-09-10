@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import bcrypt from "bcryptjs";
 import {
 	ADMIN_SESSION_COOKIE,
@@ -102,12 +102,18 @@ describe("createSessionToken & verifySessionToken", () => {
 		expect(user).toBeNull();
 	});
 
-	it("should expire tokens after max age", async () => {
-		// Use a secret that's valid
-		const token = await createSessionToken("admin", mockEnv);
-		// Token has 4h expiry by default
-		const user = await getSessionUser(token, mockEnv);
-		expect(user).toBe("admin");
+	it("should reject expired tokens (max age 4h)", async () => {
+		vi.useFakeTimers();
+		try {
+			vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+			const token = await createSessionToken("admin", mockEnv);
+			// 前进 5 小时（超过 4 小时有效期）
+			vi.setSystemTime(new Date("2026-01-01T05:00:00Z"));
+			const user = await getSessionUser(token, mockEnv);
+			expect(user).toBeNull();
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 
 	it("should return null for invalid token format", async () => {

@@ -90,7 +90,7 @@ async function submit(event: SubmitEvent) {
 			</label>
 			<div class="lg-row">
 				<label class="check-line" style="cursor:pointer">
-					<button type="button" class="sw" class:on={remember} aria-label="记住我开关" on:click={() => (remember = !remember)}></button>
+					<button type="button" class="sw" class:on={remember} role="switch" aria-checked={remember} aria-label="记住我开关" on:click={() => (remember = !remember)}></button>
 					<span class="check-text" style="font-size:.85rem">记住登录</span>
 				</label>
 				<a class="lg-link" href="/admin/setup/">忘记密码？</a>
