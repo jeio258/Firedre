@@ -1,14 +1,14 @@
 <script lang="ts">
 import { onMount } from "svelte";
 
-let checking = true;
-let alreadyConfigured = false;
-let username = "";
-let password = "";
-let confirm = "";
-let error = "";
-let loading = false;
-let done = false;
+let checking = $state(true);
+let alreadyConfigured = $state(false);
+let username = $state("");
+let password = $state("");
+let confirm = $state("");
+let error = $state("");
+let loading = $state(false);
+let done = $state(false);
 
 async function check() {
 	try {
@@ -82,7 +82,7 @@ onMount(() => {
 			{#if error}
 				<div class="error">{error}</div>
 			{/if}
-			<form on:submit={submit}>
+			<form onsubmit={submit}>
 				<label>
 					<span>用户名</span>
 					<input type="text" bind:value={username} autocomplete="username" />

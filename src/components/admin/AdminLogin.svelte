@@ -1,15 +1,21 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import Switch from "./Switch.svelte";
 
-export let username = "";
-export let error = "";
-export let loading = false;
-export let onSuccess: (() => void) | null = null;
+interface Props {
+	username?: string;
+	error?: string;
+	loading?: boolean;
+	onSuccess?: (() => void) | null;
+}
+let { onSuccess = null }: Props = $props();
 
-let user = "";
-let pass = "";
-let remember = true;
-let needsSetup = false;
+let user = $state("");
+let pass = $state("");
+let remember = $state(true);
+let needsSetup = $state(false);
+let error = $state("");
+let loading = $state(false);
 
 onMount(async () => {
 	const input = document.querySelector<HTMLInputElement>("#admin-username");
@@ -79,7 +85,7 @@ async function submit(event: SubmitEvent) {
 		{#if error}
 			<p class="lg-err">{error}</p>
 		{/if}
-		<form on:submit={submit}>
+		<form onsubmit={submit}>
 			<label class="lg-field">
 				<span>账号</span>
 				<input id="admin-username" type="text" autocomplete="username" bind:value={user} />
@@ -90,7 +96,7 @@ async function submit(event: SubmitEvent) {
 			</label>
 			<div class="lg-row">
 				<label class="check-line" style="cursor:pointer">
-					<button type="button" class="sw" class:on={remember} role="switch" aria-checked={remember} aria-label="记住我开关" on:click={() => (remember = !remember)}></button>
+					<Switch on={remember} label="记住我开关" toggle={() => (remember = !remember)} />
 					<span class="check-text" style="font-size:.85rem">记住登录</span>
 				</label>
 				<a class="lg-link" href="/admin/setup/">忘记密码？</a>

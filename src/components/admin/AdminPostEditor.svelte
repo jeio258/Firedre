@@ -3,10 +3,11 @@ import { onDestroy, onMount, tick } from "svelte";
 import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
-import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+import { createAdminVditor } from "@/lib/adminVditor";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
 import { getDraft, clearDraft } from "@/lib/adminDrafts";
+import Switch from "./Switch.svelte";
 
 function slugifyTitle(title: string): string {
 	if (!title) return "";
@@ -106,27 +107,15 @@ async function initEditor() {
 		return;
 	}
 
-	const { default: Vditor } = await import("vditor");
-	editor = new Vditor("vditor-editor", {
-		height: 560,
-		// 富文本（所见即所得）为默认编辑模式；可在编辑器内切换到 IR/分屏 Markdown
-		mode: "wysiwyg",
+	editor = await createAdminVditor("vditor-editor", {
 		value: rawContent,
-
-		cdn: "/vditor",
-		cache: { enable: false },
+		height: 560,
 		upload: {
 			url: "/api/admin/upload-image/",
 			fieldName: "file",
 			headers: {},
 		},
-		after: () => {
-			const root = document.querySelector<HTMLElement>(".vditor");
-			if (root) {
-				syncVditorTheme(root);
-				vditorThemeObserver = observeVditorTheme(root);
-			}
-		},
+		onThemeObserver: (mo) => (vditorThemeObserver = mo),
 	});
 }
 
@@ -286,10 +275,10 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 			{#if message}
 				<span class="pe-msg {messageKind}">{message}</span>
 			{/if}
-			<button class="btn btn-ghost" on:click={() => save(true)} disabled={saving}>
+			<button class="btn btn-ghost" onclick={() => save(true)} disabled={saving}>
 				保存草稿
 			</button>
-			<button class="btn btn-primary" on:click={() => save(false)} disabled={saving}>
+			<button class="btn btn-primary" onclick={() => save(false)} disabled={saving}>
 				{saving ? "保存中…" : "发布"}
 			</button>
 		</div>
@@ -302,7 +291,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 					<input
 						placeholder="文章标题（必填）"
 						bind:value={title}
-						on:input={() => {
+						oninput={() => {
 							if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
 						}}
 					/>
@@ -331,11 +320,11 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 								bind:value={slug}
 								disabled={!isNew}
 								placeholder="english-slug"
-								on:input={() => (slugManuallyEdited = true)}
+								oninput={() => (slugManuallyEdited = true)}
 							/>
 						</label>
 						<label class="check-line">
-							<button class="sw" class:on={pinned} role="switch" aria-checked={pinned} aria-label="置顶开关" on:click={() => (pinned = !pinned)}></button>
+							<Switch on={pinned} label="置顶开关" toggle={() => (pinned = !pinned)} />
 							<span class="check-text">置顶</span>
 						</label>
 					</div>
@@ -387,7 +376,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 							<input type="text" bind:value={passwordHint} />
 						</label>
 						<label class="check-line">
-							<button class="sw" class:on={comment} role="switch" aria-checked={comment} aria-label="评论开关" on:click={() => (comment = !comment)}></button>
+							<Switch on={comment} label="评论开关" toggle={() => (comment = !comment)} />
 							<span class="check-text">允许评论</span>
 						</label>
 					</div>

@@ -6,27 +6,27 @@
 
 	type Section = string;
 
-	let authed = false;
-	let checking = true;
-	let username = "";
-	let checkFailed = false;
-	let section: Section = "dashboard";
-	let sidebarOpen = false;
-	let View: unknown = null;
-	let viewProps: Record<string, unknown> = {};
-	let viewError = "";
-	let viewKey = "dashboard";
+	let authed = $state(false);
+	let checking = $state(true);
+	let username = $state("");
+	let checkFailed = $state(false);
+	let section = $state<Section>("dashboard");
+	let sidebarOpen = $state(false);
+	let View = $state<import("svelte").Component<any> | null>(null);
+	let viewProps = $state<Record<string, unknown>>({});
+	let viewError = $state("");
+	let viewKey = $state("dashboard");
 
-	let userMenuOpen = false;
-	let pwdPanelOpen = false;
-	let newPassword = "";
-	let pwdMsg = "";
-	let pwdError = "";
-	let pwdSaving = false;
+	let userMenuOpen = $state(false);
+	let pwdPanelOpen = $state(false);
+	let newPassword = $state("");
+	let pwdMsg = $state("");
+	let pwdError = $state("");
+	let pwdSaving = $state(false);
 
-	let collapsed = false;
-	let s3open = false;
-	let settingsCat = 0;
+	let collapsed = $state(false);
+	let s3open = $state(false);
+	let settingsCat = $state(0);
 
 	interface NavItem {
 		label: string;
@@ -362,8 +362,8 @@
 		}
 	}
 
-	let saveToast = "";
-	let saveToastKind: "ok" | "err" = "ok";
+	let saveToast = $state("");
+	let saveToastKind = $state<"ok" | "err">("ok");
 	let saveToastTimer: ReturnType<typeof setTimeout> | null = null;
 	function showToast(msg: string, kind: "ok" | "err" = "ok") {
 		saveToast = msg;
@@ -406,14 +406,14 @@
 {:else}
 	<div class="shell" class:collapsed={collapsed} data-no-swup>
 		{#if sidebarOpen}
-			<div class="backdrop open" on:click={() => (sidebarOpen = false)}></div>
+			<div class="backdrop open" onclick={() => (sidebarOpen = false)}></div>
 		{/if}
 
 		<aside class="sidebar" class:open={sidebarOpen}>
 			<div class="brand">
 				<img class="brand-logo" src="/favicon/firefly-32.png" alt="Firedre" />
 				<span class="brand-text">Firedre</span>
-				<button class="menu-close" aria-label="关闭菜单" on:click={() => (sidebarOpen = false)}>
+				<button class="menu-close" aria-label="关闭菜单" onclick={() => (sidebarOpen = false)}>
 					{@html iconSvg("close")}
 				</button>
 			</div>
@@ -428,7 +428,7 @@
 									href="/admin/settings/"
 									class="nav-item s3parent"
 									class:active={section === "settings"}
-									on:click={() => {
+									onclick={() => {
 										toggleS3();
 										if (section !== "settings") goSettings(0);
 									}}
@@ -443,7 +443,7 @@
 											type="button"
 											class="s3cat"
 											class:on={section === "settings" && settingsCat === ci}
-											on:click={() => goSettings(ci)}
+											onclick={() => goSettings(ci)}
 										>
 											{label}
 										</button>
@@ -483,7 +483,7 @@
 
 		<div class="body">
 			<header class="topbar">
-				<button class="menu-toggle" aria-label="菜单" on:click={toggleSidebar}>
+				<button class="menu-toggle" aria-label="菜单" onclick={toggleSidebar}>
 					{@html iconSvg("menu")}
 				</button>
 				<div class="crumb">
@@ -492,7 +492,7 @@
 					<h1 class="crumb-page">{title()}</h1>
 				</div>
 				<div class="top-actions">
-					<button class="btn btn-primary" on:click={saveAll}>
+					<button class="btn btn-primary" onclick={saveAll}>
 						{@html iconSvg("save")}<span class="btn-label">保存全部</span>
 					</button>
 				<a class="btn btn-primary" href="/admin/posts/new/">
@@ -503,21 +503,21 @@
 						{@html iconSvg("external")}
 					</a>
 					<div class="user-menu">
-						<button class="user-trigger" on:click={() => (userMenuOpen = !userMenuOpen)} aria-expanded={userMenuOpen}>
+						<button class="user-trigger" onclick={() => (userMenuOpen = !userMenuOpen)} aria-expanded={userMenuOpen}>
 							<img class="avatar" src="/favicon/firefly-32.png" alt="" />
 							<span class="user-name">{username || "admin"}</span>
 							<span class="caret">▾</span>
 						</button>
 						{#if userMenuOpen}
 							<div class="dropdown open">
-								<button class="dd-item" on:click={togglePwdPanel}>
+								<button class="dd-item" onclick={togglePwdPanel}>
 									{@html iconSvg("settings")} 修改密码
 								</button>
-								<button class="dd-item danger" on:click={logout}>
+								<button class="dd-item danger" onclick={logout}>
 									{@html iconSvg("logout")} 退出登录
 								</button>
 								{#if pwdPanelOpen}
-									<div class="pwd-panel open" on:click|stopPropagation>
+									<div class="pwd-panel open" onclick={(e) => e.stopPropagation()}>
 										<p class="pwd-current">当前管理员：{username || "—"}</p>
 										{#if pwdMsg}<p class="pwd-msg ok">{pwdMsg}</p>{/if}
 										{#if pwdError}<p class="pwd-msg err">{pwdError}</p>{/if}
@@ -527,7 +527,7 @@
 											bind:value={newPassword}
 											autocomplete="new-password"
 										/>
-										<button class="btn btn-primary" on:click={changePassword} disabled={pwdSaving}>
+										<button class="btn btn-primary" onclick={changePassword} disabled={pwdSaving}>
 											{pwdSaving ? "保存中…" : "保存密码"}
 										</button>
 									</div>
@@ -547,7 +547,7 @@
 					{#if viewError}
 						<div class="admin-error">{viewError}</div>
 					{:else if View}
-						<svelte:component this={View} {...viewProps} />
+						<View {...viewProps} />
 					{:else}
 						<div class="admin-loading">加载中…</div>
 					{/if}

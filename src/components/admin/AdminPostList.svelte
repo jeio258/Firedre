@@ -11,13 +11,13 @@ type PostItem = {
 	password?: string;
 };
 
-let posts: PostItem[] = [];
-let loading = true;
-let error = "";
-let search = "";
-let status = "all"; // all | published | draft
-let selected = new Set<string>();
-let deleting = false;
+let posts = $state<PostItem[]>([]);
+let loading = $state(true);
+let error = $state("");
+let search = $state("");
+let status = $state("all"); // all | published | draft
+let selected = $state(new Set<string>());
+let deleting = $state(false);
 
 async function load() {
 	loading = true;
@@ -79,17 +79,19 @@ function toggleAll() {
 
 onMount(load);
 
-$: filtered = posts.filter((p) => {
-	const hitSearch =
-		!search ||
-		p.title.toLowerCase().includes(search.toLowerCase()) ||
-		p.slug.toLowerCase().includes(search.toLowerCase());
-	const hitStatus =
-		status === "all" || (status === "published" ? p.published === 1 : p.published === 0);
-	return hitSearch && hitStatus;
-});
-$: publishedCount = posts.filter((p) => p.published === 1).length;
-$: draftCount = posts.length - publishedCount;
+let filtered = $derived(
+	posts.filter((p) => {
+		const hitSearch =
+			!search ||
+			p.title.toLowerCase().includes(search.toLowerCase()) ||
+			p.slug.toLowerCase().includes(search.toLowerCase());
+		const hitStatus =
+			status === "all" || (status === "published" ? p.published === 1 : p.published === 0);
+		return hitSearch && hitStatus;
+	}),
+);
+let publishedCount = $derived(posts.filter((p) => p.published === 1).length);
+let draftCount = $derived(posts.length - publishedCount);
 </script>
 
 <div class="crud-page">
@@ -112,12 +114,12 @@ $: draftCount = posts.length - publishedCount;
 				<input
 					type="checkbox"
 					checked={filtered.length > 0 && selected.size === filtered.length}
-					on:change={toggleAll}
+					onchange={toggleAll}
 				/>
 				全选
 			</label>
 			{#if selected.size > 0}
-				<button class="btn-danger-text" on:click={batchDelete} disabled={deleting}>
+				<button class="btn-danger-text" onclick={batchDelete} disabled={deleting}>
 					{deleting ? "删除中…" : `删除选中 (${selected.size})`}
 				</button>
 			{/if}
@@ -139,7 +141,7 @@ $: draftCount = posts.length - publishedCount;
 						<input
 							type="checkbox"
 							checked={selected.has(post.slug)}
-							on:change={() => toggle(post.slug)}
+							onchange={() => toggle(post.slug)}
 						/>
 					</label>
 					<div class="list-main">
@@ -156,7 +158,7 @@ $: draftCount = posts.length - publishedCount;
 					</span>
 					<div class="crud-row-actions">
 						<a class="btn-ghost" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
-						<button class="btn-danger-text" on:click={() => remove(post.slug)}>删除</button>
+						<button class="btn-danger-text" onclick={() => remove(post.slug)}>删除</button>
 					</div>
 				</div>
 			{/each}

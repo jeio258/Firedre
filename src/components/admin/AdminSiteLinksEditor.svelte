@@ -50,9 +50,9 @@
 		{ key: "enabled", label: "启用（显示在前台对应位置）", type: "checkbox" },
 	];
 
-	let siteUrl = "";
-	let siteUrlSaving = false;
-	let siteUrlMsg = "";
+	let siteUrl = $state("");
+	let siteUrlSaving = $state(false);
+	let siteUrlMsg = $state("");
 
 	async function loadSiteUrl() {
 		try {
@@ -115,7 +115,7 @@
 		<div class="site-url-block">
 			<div class="site-url-head">
 				<span>站点主域名</span>
-				<button class="btn btn-ghost" on:click={saveSiteUrl} disabled={siteUrlSaving}>
+				<button class="btn btn-ghost" onclick={saveSiteUrl} disabled={siteUrlSaving}>
 					{siteUrlSaving ? "保存中…" : "保存域名"}
 				</button>
 			</div>

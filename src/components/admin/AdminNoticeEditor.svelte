@@ -5,11 +5,11 @@
 	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
-	let title = "公告栏";
-	let content = "";
-	let loading = true;
-	let saving = false;
-	let message = "";
+	let title = $state("公告栏");
+	let content = $state("");
+	let loading = $state(true);
+	let saving = $state(false);
+	let message = $state("");
 
 	async function load() {
 		try {
@@ -77,7 +77,7 @@
 			{#if message}
 				<span class="crud-msg">{message}</span>
 			{/if}
-			<button class="btn-primary" on:click={save} disabled={saving}>
+			<button class="btn-primary" onclick={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>

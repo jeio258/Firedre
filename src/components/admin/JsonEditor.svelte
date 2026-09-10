@@ -1,15 +1,23 @@
 <script lang="ts">
 	import { tick } from "svelte";
 
-	export let value: unknown = "";
-	export let placeholder: string = "";
-	export let fieldLabel: string = "";
-	export let onChange: (v: unknown) => void = () => {};
+	interface Props {
+		value?: unknown;
+		placeholder?: string;
+		fieldLabel?: string;
+		onChange?: (v: unknown) => void;
+	}
+	let {
+		value = "",
+		placeholder = "",
+		fieldLabel = "",
+		onChange = () => {},
+	}: Props = $props();
 
-	let open = false;
-	let text = "";
-	let error = "";
-	let areaEl: HTMLTextAreaElement | undefined;
+	let open = $state(false);
+	let text = $state("");
+	let error = $state("");
+	let areaEl: HTMLTextAreaElement | undefined = $state();
 
 	async function openModal() {
 		try {
@@ -57,7 +65,7 @@
 		open = false;
 	}
 
-	$: preview = (() => {
+	let preview = $derived.by(() => {
 		if (value == null || value === "") return "（空）点击编辑";
 		try {
 			const s = JSON.stringify(value);
@@ -65,28 +73,38 @@
 		} catch {
 			return String(value);
 		}
-	})();
+	});
 </script>
 
-<svelte:window on:keydown={onKeydown} />
+<svelte:window onkeydown={onKeydown} />
 
-<button type="button" class="je-trigger" on:click={openModal}>
+<button type="button" class="je-trigger" onclick={openModal}>
 	<span class="je-prev">{preview}</span>
 	<span class="je-tag">编辑 JSON</span>
 </button>
 
 {#if open}
-	<div class="je-mask" on:click={() => (open = false)} role="presentation">
-		<div class="je-modal" on:click|stopPropagation role="dialog" aria-modal="true" aria-labelledby="je-title">
+	<div
+		class="je-mask"
+		onclick={() => (open = false)}
+		role="presentation"
+	>
+		<div
+			class="je-modal"
+			onclick={(e) => e.stopPropagation()}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="je-title"
+		>
 			<header class="je-hd">
 				<strong id="je-title">{fieldLabel}</strong>
-				<button type="button" class="je-x" on:click={() => (open = false)} aria-label="关闭">✕</button>
+				<button type="button" class="je-x" onclick={() => (open = false)} aria-label="关闭">✕</button>
 			</header>
 			<textarea
 				class="je-area"
 				bind:this={areaEl}
 				bind:value={text}
-				on:input={validate}
+				oninput={validate}
 				spellcheck="false"
 				placeholder={placeholder}
 			></textarea>
@@ -94,10 +112,10 @@
 				<p class="je-err">JSON 格式错误：{error}</p>
 			{/if}
 			<footer class="je-ft">
-				<button type="button" class="je-btn ghost" on:click={format}>格式化</button>
+				<button type="button" class="je-btn ghost" onclick={format}>格式化</button>
 				<span class="je-sp"></span>
-				<button type="button" class="je-btn" on:click={() => (open = false)}>取消</button>
-				<button type="button" class="je-btn primary" on:click={save} disabled={!!error}>保存</button>
+				<button type="button" class="je-btn" onclick={() => (open = false)}>取消</button>
+				<button type="button" class="je-btn primary" onclick={save} disabled={!!error}>保存</button>
 			</footer>
 		</div>
 	</div>

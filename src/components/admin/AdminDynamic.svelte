@@ -3,6 +3,7 @@
 	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
 	import { getDraft, clearDraft } from "@/lib/adminDrafts";
+	import Switch from "./Switch.svelte";
 	import AdminPageConfig from "./AdminPageConfig.svelte";
 
 	type DynamicItem = {
@@ -14,18 +15,18 @@
 		location?: string;
 	};
 
-	let items: DynamicItem[] = [];
-	let loading = true;
-	let saving = false;
-	let message = "";
-	let error = "";
+	let items = $state<DynamicItem[]>([]);
+	let loading = $state(true);
+	let saving = $state(false);
+	let message = $state("");
+	let error = $state("");
 
-	let editingId = "";
-	let formContent = "";
-	let formPinned = false;
-	let formLocation = "";
-	let formPublished = 0;
-	let showForm = false;
+	let editingId = $state("");
+	let formContent = $state("");
+	let formPinned = $state(false);
+	let formLocation = $state("");
+	let formPublished = $state(0);
+	let showForm = $state(false);
 
 	async function load() {
 		loading = true;
@@ -180,7 +181,7 @@
 				<span class="crud-msg">{message}</span>
 			{/if}
 			{#if !showForm}
-				<button class="btn-primary" on:click={openCreate}>+ 新增动态</button>
+				<button class="btn-primary" onclick={openCreate}>+ 新增动态</button>
 			{/if}
 		</div>
 	</div>
@@ -202,7 +203,7 @@
 		<div class="crud-card">
 			<div class="crud-form-head">
 				<h3>{editingId ? "编辑动态" : "新增动态"}</h3>
-				<button class="btn-text" on:click={cancelForm}>取消</button>
+				<button class="btn-text" onclick={cancelForm}>取消</button>
 			</div>
 			<div class="notice-form">
 				<label class="crud-field">
@@ -210,15 +211,7 @@
 					<textarea rows="5" placeholder="输入动态内容" bind:value={formContent}></textarea>
 				</label>
 				<label class="check-line">
-					<button
-						type="button"
-						class="sw"
-						class:on={formPinned}
-						role="switch"
-						aria-checked={formPinned}
-						aria-label="置顶开关"
-						on:click={() => (formPinned = !formPinned)}
-					></button>
+					<Switch on={formPinned} label="置顶开关" toggle={() => (formPinned = !formPinned)} />
 					<span class="check-text">置顶</span>
 				</label>
 				<label class="crud-field">
@@ -227,7 +220,7 @@
 				</label>
 			</div>
 			<div class="crud-form-actions">
-				<button class="btn-primary" on:click={submit} disabled={saving}>
+				<button class="btn-primary" onclick={submit} disabled={saving}>
 					{saving ? "保存中…" : "保存"}
 				</button>
 			</div>
@@ -251,8 +244,8 @@
 						</div>
 					</div>
 					<div class="crud-row-actions">
-						<button class="btn-ghost" on:click={() => openEdit(item)}>编辑</button>
-						<button class="btn-danger-text" on:click={() => remove(item)}>删除</button>
+						<button class="btn-ghost" onclick={() => openEdit(item)}>编辑</button>
+						<button class="btn-danger-text" onclick={() => remove(item)}>删除</button>
 					</div>
 				</div>
 			{/each}

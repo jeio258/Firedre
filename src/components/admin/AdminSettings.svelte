@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import JsonEditor from "./JsonEditor.svelte";
+import Switch from "./Switch.svelte";
 import { apiJson } from "@/lib/adminApi";
 import { registerSaveAll } from "@/lib/adminSave";
 import { getDraft, clearDraft } from "@/lib/adminDrafts";
@@ -657,29 +658,26 @@ const GROUPS: Group[] = [
 	},
 ];
 
-let data: Record<string, Record<string, unknown>> = {};
-let loading = true;
-let loadError = "";
-let saving = false;
-let message = "";
-let loaded = false;
+let data = $state<Record<string, Record<string, unknown>>>({});
+let loading = $state(true);
+let loadError = $state("");
+let saving = $state(false);
+let message = $state("");
+let loaded = $state(false);
 
-export let cat = 0;
-let activeCat: string = CATEGORIES[typeof cat === "number" ? cat : 0];
-let groups: Group[] = [];
-let activeGroup = "";
+let { cat = 0 }: { cat?: number } = $props();
+let activeCat = $derived(CATEGORIES[typeof cat === "number" ? cat : 0]);
+let groups = $derived(GROUPS.filter((g) => g.category === activeCat));
+let activeGroup = $state("");
 // 当前选中的评论类型（独立响应式变量，供显隐逻辑直接引用）
-let cmtTypeVal = "";
+let cmtTypeVal = $state("");
 
-$: {
-	const c = CATEGORIES[typeof cat === "number" ? cat : 0];
-	activeCat = c;
-	groups = GROUPS.filter((g) => g.category === c);
-	// 分类切换时，重置到该分类首分组
+// 分类切换时，重置到该分类首分组
+$effect(() => {
 	if (!groups.some((g) => g.key === activeGroup)) {
 		activeGroup = groups[0]?.key ?? "";
 	}
-}
+});
 
 async function load() {
 	try {
@@ -825,7 +823,7 @@ onMount(async () => {
 		</p>
 		<div class="settings-nav">
 			{#each groups as g (g.key)}
-				<button class="sn" class:on={activeGroup === g.key} on:click={() => (activeGroup = g.key)}>{g.title}</button>
+				<button class="sn" class:on={activeGroup === g.key} onclick={() => (activeGroup = g.key)}>{g.title}</button>
 			{/each}
 		</div>
 	</div>
@@ -853,14 +851,11 @@ onMount(async () => {
 								{#each group.fields.filter((f) => isFieldVisible(f, cmtTypeVal) && f.type === "boolean") as field (field.name)}
 									<label class="a2tr">
 										<span class="a2tx">{field.label}</span>
-										<button
-											class="sw"
-											class:on={data[group.key]?.[field.name] === true}
-											role="switch"
-											aria-checked={data[group.key]?.[field.name] === true}
-											aria-label={field.label}
-											on:click={() => cycleBool(group.key, field.name)}
-										></button>
+										<Switch
+											on={data[group.key]?.[field.name] === true}
+											label={field.label}
+											toggle={() => cycleBool(group.key, field.name)}
+										/>
 									</label>
 								{/each}
 							</div>
@@ -871,13 +866,13 @@ onMount(async () => {
 									<div class="a2f {field.wide ? 'w' : ''} {profileArea(group, field)}">
 										<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
 										{#if field.type === "select"}
-											<select on:change={(e) => { const v = e.currentTarget.value; data[group.key][field.name] = v; cmtTypeVal = v; markDirty(); }}>
+											<select onchange={(e) => { const v = e.currentTarget.value; data[group.key][field.name] = v; cmtTypeVal = v; markDirty(); }}>
 												{#each field.options ?? [] as opt}
 													<option value={opt.value} selected={((data[group.key]?.[field.name] as string) ?? "") === opt.value}>{opt.label}</option>
 												{/each}
 											</select>
 										{:else if field.type === "textarea"}
-											<textarea rows="3" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+											<textarea rows="3" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
 										{:else if field.type === "json"}
 											<JsonEditor
 												value={data[group.key]?.[field.name]}
@@ -886,11 +881,11 @@ onMount(async () => {
 												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
 											/>
 										{:else if field.type === "password"}
-											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
 										{:else if field.type === "number"}
-											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} on:input={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} oninput={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
 										{:else}
-											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} on:input={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
 										{/if}
 									</div>
 								{/each}

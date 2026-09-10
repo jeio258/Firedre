@@ -60,7 +60,7 @@
 		aria-label="切换主题"
 		aria-haspopup="menu"
 		aria-expanded={open}
-		on:click|stopPropagation={toggle}
+		onclick={(e) => { e.stopPropagation(); toggle(); }}
 	>
 		<svg
 			viewBox="0 0 24 24"
@@ -79,7 +79,7 @@
 					class="dd-item"
 					class:active={mode === opt.value}
 					role="menuitem"
-					on:click|stopPropagation={() => pick(opt.value)}
+					onclick={(e) => { e.stopPropagation(); pick(opt.value); }}
 				>
 					<svg
 						viewBox="0 0 24 24"

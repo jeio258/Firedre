@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { apiJson } from "@/lib/adminApi";
+	import Switch from "./Switch.svelte";
 
 	interface Props {
 		group: string;
@@ -63,15 +64,7 @@
 	<div class="mcin">
 		<label class="mctr">
 			<span>{enableLabel}</span>
-			<button
-				class="sw"
-				class:on={enabled}
-				role="switch"
-				aria-checked={enabled}
-				aria-label={enableLabel}
-				on:click={toggle}
-				disabled={saving}
-			></button>
+			<Switch on={enabled} label={enableLabel} toggle={toggle} disabled={saving} />
 		</label>
 		{#if titleField}
 			<div class="mcfg">

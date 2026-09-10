@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { registerSaveAll } from "@/lib/adminSave";
+	import Switch from "./Switch.svelte";
 
 	let { slug = "" } = $props();
 
@@ -310,9 +311,9 @@
 				<span class="crud-msg">{message}</span>
 			{/if}
 			{#if !isNew}
-				<button class="btn-danger-text" on:click={removeAlbum} disabled={saving}>删除相册</button>
+				<button class="btn-danger-text" onclick={removeAlbum} disabled={saving}>删除相册</button>
 			{/if}
-			<button class="btn-primary" on:click={save} disabled={saving}>
+			<button class="btn-primary" onclick={save} disabled={saving}>
 				{saving ? "保存中…" : isNew ? "创建" : "保存"}
 			</button>
 		</div>
@@ -344,7 +345,7 @@
 							<span class="imgbed-info">
 								图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
 							</span>
-							<button class="btn-primary" on:click={fetchFromImgbed} disabled={imgbedFetching}>
+							<button class="btn-primary" onclick={fetchFromImgbed} disabled={imgbedFetching}>
 								{imgbedFetching ? "拉取中…" : "从图床获取图片"}
 							</button>
 						</div>
@@ -364,11 +365,11 @@
 						<span>相册访问密码（存 D1，不写入文件）</span>
 						<div class="row-flex">
 							<input class="ctrl" type="password" bind:value={passwordInput} placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"} autocomplete="off" />
-							<button class="btn-primary" on:click={savePassword} disabled={passwordSaving}>
+							<button class="btn-primary" onclick={savePassword} disabled={passwordSaving}>
 								{passwordSaving ? "保存中…" : "保存密码"}
 							</button>
 							{#if hasPassword}
-								<button class="btn-ghost" on:click={clearPassword} disabled={passwordSaving}>清除密码</button>
+								<button class="btn-ghost" onclick={clearPassword} disabled={passwordSaving}>清除密码</button>
 							{/if}
 						</div>
 					</label>
@@ -376,7 +377,7 @@
 						<span>图床目录 ?dir=（留空=根目录）</span>
 						<div class="row-flex">
 							<input class="ctrl" type="text" bind:value={imgbedDir} placeholder="图床目录 ?dir=" autocomplete="off" />
-							<button class="btn-primary" on:click={saveImgbedDir} disabled={imgbedDirSaving}>
+							<button class="btn-primary" onclick={saveImgbedDir} disabled={imgbedDirSaving}>
 								{imgbedDirSaving ? "保存中…" : "保存目录"}
 							</button>
 						</div>
@@ -427,15 +428,7 @@
 							<textarea class="ctrl" rows="3" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
 						</label>
 						<label class="check-line">
-							<button
-								type="button"
-								class="sw"
-								class:on={hadEncrypted}
-								role="switch"
-								aria-checked={hadEncrypted}
-								aria-label="加密相册"
-								on:click={() => (hadEncrypted = !hadEncrypted)}
-							></button>
+							<Switch on={hadEncrypted} label="加密相册" toggle={() => (hadEncrypted = !hadEncrypted)} />
 							<span class="check-text">加密相册</span>
 						</label>
 					</div>

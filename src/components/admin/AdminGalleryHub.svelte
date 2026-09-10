@@ -113,7 +113,7 @@
 			{#if message}
 				<span class="crud-msg">{message}</span>
 			{/if}
-			<button class="btn-primary" on:click={create}>+ 新增相册</button>
+			<button class="btn-primary" onclick={create}>+ 新增相册</button>
 		</div>
 	</div>
 
@@ -138,9 +138,9 @@
 					class:dragging={dragIndex === index}
 					href={editHref(album.slug)}
 					draggable="true"
-					on:dragstart={() => onDragStart(index)}
-					on:dragover={(e) => onDragOver(e, index)}
-					on:drop={onDrop}
+					ondragstart={() => onDragStart(index)}
+					ondragover={(e) => onDragOver(e, index)}
+					ondrop={onDrop}
 				>
 					<div
 						class="thumb"
@@ -160,7 +160,7 @@
 						<button
 							type="button"
 							class="album-del"
-							on:click={(e) => {
+							onclick={(e) => {
 								e.preventDefault();
 								e.stopPropagation();
 								remove(album.slug);

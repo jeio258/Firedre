@@ -4,6 +4,7 @@
 	import { registerSaveAll } from "@/lib/adminSave";
 	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 	import { type Snippet } from "svelte";
+	import Switch from "./Switch.svelte";
 
 	export type CrudFieldType = "text" | "number" | "checkbox" | "select";
 
@@ -189,7 +190,7 @@
 				<span class="crud-msg">{message}</span>
 			{/if}
 			{#if !showForm}
-				<button class="btn-primary" on:click={openCreate}>{addLabel}</button>
+				<button class="btn-primary" onclick={openCreate}>{addLabel}</button>
 			{/if}
 		</div>
 	</div>
@@ -212,7 +213,7 @@
 		<div class="crud-card">
 			<div class="crud-form-head">
 				<h3>{editingId ? `编辑${entityName}` : `添加${entityName}`}</h3>
-				<button class="btn-text" on:click={cancelForm}>取消</button>
+				<button class="btn-text" onclick={cancelForm}>取消</button>
 			</div>
 			<div class="crud-form">
 				{#each fields as f}
@@ -222,15 +223,11 @@
 						{/if}
 						{#if f.type === "checkbox"}
 							<div class="check-line">
-								<button
-									type="button"
-									class="sw"
-									class:on={Boolean(formValues[f.key])}
-									role="switch"
-									aria-checked={Boolean(formValues[f.key])}
-									aria-label={f.label}
-									on:click={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
-								></button>
+								<Switch
+									on={Boolean(formValues[f.key])}
+									label={f.label}
+									toggle={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
+								/>
 								<span class="check-text">{f.label}</span>
 							</div>
 						{:else if f.type === "select"}
@@ -248,7 +245,7 @@
 				{/each}
 			</div>
 			<div class="crud-form-actions">
-				<button class="btn-primary" on:click={submit} disabled={saving}>
+				<button class="btn-primary" onclick={submit} disabled={saving}>
 					{saving ? "保存中…" : "保存"}
 				</button>
 			</div>
@@ -265,8 +262,8 @@
 						{@render children({ item, onEdit: () => openEdit(item), onRemove: () => remove(item) })}
 					</div>
 					<div class="crud-row-actions">
-						<button class="btn-ghost" on:click={() => openEdit(item)}>编辑</button>
-						<button class="btn-danger-text" on:click={() => remove(item)}>删除</button>
+						<button class="btn-ghost" onclick={() => openEdit(item)}>编辑</button>
+						<button class="btn-danger-text" onclick={() => remove(item)}>删除</button>
 					</div>
 				</div>
 			{/each}

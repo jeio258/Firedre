@@ -29,9 +29,9 @@
 		}[];
 	}
 
-	let stats: Stats = {};
-	let loading = true;
-	let loadError = "";
+	let stats = $state<Stats>({});
+	let loading = $state(true);
+	let loadError = $state("");
 
 	const S = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">`;
 	const iconArticle =
@@ -135,7 +135,7 @@
 					<p class="crud-sub" style="margin-top:.6rem">暂无内容</p>
 				{:else}
 					{#each stats.recent || [] as a (a.slug)}
-						<div class="list-row clickable" role="button" tabindex="0" on:click={() => gotoEditor(a.slug)} on:keydown={(e) => e.key === "Enter" && gotoEditor(a.slug)}>
+						<div class="list-row clickable" role="button" tabindex="0" onclick={() => gotoEditor(a.slug)} onkeydown={(e) => e.key === "Enter" && gotoEditor(a.slug)}>
 							<div class="list-main">
 								<div class="list-title">{a.title}</div>
 								<div class="list-sub">{fromNow(a.updated)} · {a.categories?.[0] || "未分类"}</div>

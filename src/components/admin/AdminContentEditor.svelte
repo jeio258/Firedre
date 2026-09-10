@@ -2,7 +2,7 @@
 	import { onDestroy, onMount, tick } from "svelte";
 	import "vditor/dist/index.css";
 	import type Vditor from "vditor";
-	import { observeVditorTheme, syncVditorTheme } from "@/lib/adminVditor";
+	import { createAdminVditor } from "@/lib/adminVditor";
 	import { registerSaveAll } from "@/lib/adminSave";
 	import { getDraft, clearDraft } from "@/lib/adminDrafts";
 
@@ -41,20 +41,10 @@
 			return;
 		}
 
-		const { default: Vditor } = await import("vditor");
-		editor = new Vditor("vditor-editor", {
-			cdn: "/vditor",
-			height: 520,
-			mode: "wysiwyg",
+		editor = await createAdminVditor("vditor-editor", {
 			value: rawContent,
-			cache: { enable: false },
-			after: () => {
-				const root = document.querySelector<HTMLElement>(".vditor");
-				if (root) {
-					syncVditorTheme(root);
-					vditorThemeObserver = observeVditorTheme(root);
-				}
-			},
+			height: 520,
+			onThemeObserver: (mo) => (vditorThemeObserver = mo),
 		});
 	}
 
@@ -112,7 +102,7 @@
 			{#if message}
 				<span class="crud-msg">{message}</span>
 			{/if}
-			<button class="btn-primary" on:click={save} disabled={saving}>
+			<button class="btn-primary" onclick={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>
