@@ -60,6 +60,10 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 }
 
 const VERSION_KEY = "__firedre_settings_version";
+const VERSION_CACHE_TTL_MS = 3000;
+const versionCacheScope = globalThis as {
+	__FIREDRE_VER_CACHE__?: { value: string; at: number };
+};
 
 export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
 	try {
@@ -73,6 +77,17 @@ export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
 
 	}
 	return "0";
+}
+
+export async function getSettingsVersionCached(
+	env: CloudflareEnv,
+): Promise<string> {
+	const cached = versionCacheScope.__FIREDRE_VER_CACHE__;
+	if (cached && Date.now() - cached.at < VERSION_CACHE_TTL_MS)
+		return cached.value;
+	const value = await getSettingsVersion(env);
+	versionCacheScope.__FIREDRE_VER_CACHE__ = { value, at: Date.now() };
+	return value;
 }
 
 async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
@@ -90,6 +105,11 @@ async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 	} catch {
 
 	}
+}
+
+export async function bumpContentVersion(env: CloudflareEnv): Promise<void> {
+	await bumpSettingsVersion(env);
+	versionCacheScope.__FIREDRE_VER_CACHE__ = undefined;
 }
 
 function groupOfKey(key: string): SettingGroup {
@@ -159,7 +179,7 @@ export async function saveSettingsGroups(
 		}
 	}
 
-	await bumpSettingsVersion(env);
+	await bumpContentVersion(env);
 }
 
 export async function saveSettingsGroup(

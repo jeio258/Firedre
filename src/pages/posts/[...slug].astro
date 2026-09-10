@@ -439,7 +439,7 @@ const seriesData = await getSeriesPosts(entry);
                       {
                         ((settings as any)?.["post"] ?? siteConfig.post).sharePoster && (
                           <SharePoster
-                            client:load
+                            client:idle
                             title={entry.data.title}
                             author={entry.data.author || ((settings as any)?.["name"] ?? profileConfig.name)}
                             description={entry.data.description || entry.data.title}
@@ -529,7 +529,7 @@ const seriesData = await getSeriesPosts(entry);
                       {
                         ((settings as any)?.["post"] ?? siteConfig.post).sharePoster && (
                           <SharePoster
-                            client:load
+                            client:idle
                             title={entry.data.title}
                             author={entry.data.author || ((settings as any)?.["name"] ?? profileConfig.name)}
                             description={entry.data.description || entry.data.title}

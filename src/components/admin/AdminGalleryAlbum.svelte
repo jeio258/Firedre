@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { parseAlbumSource, serializeAlbumMarkdown } from "../../../server/gallery/frontmatter";
 	import { registerSaveAll } from "@/lib/adminSave";
 
 	let { slug = "" } = $props();
@@ -246,13 +245,12 @@
 				return;
 			}
 		}
-		const fm = buildFrontmatter() as Parameters<typeof serializeAlbumMarkdown>[0];
-		const markdown = serializeAlbumMarkdown(fm, "");
+		const fm = buildFrontmatter();
 		try {
 			const resp = await fetch(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
 				method: "PUT",
-				headers: { "Content-Type": "text/markdown" },
-				body: markdown,
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ frontmatter: fm, content: "" }),
 			});
 			const data = await resp.json();
 			if (!resp.ok || !data.ok) {
@@ -290,7 +288,10 @@
 		}
 	}
 
-	onMount(load);
+	onMount(() => {
+		load();
+		return registerSaveAll("相册", save);
+	});
 </script>
 
 <div class="crud-page" style="max-width:none">

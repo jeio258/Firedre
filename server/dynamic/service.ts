@@ -1,6 +1,7 @@
 import type { DynamicItem, DynamicRecord } from "../../types/dynamic";
 import type { CloudflareEnv } from "../../types/env";
 import { renderMarkdown } from "../posts/render";
+import { bumpContentVersion } from "../settings/service";
 import { dynamicSearchText, extractDynamicImages } from "./plain";
 
 function recordToItem(
@@ -112,6 +113,7 @@ export async function upsertDynamic(
 		)
 		.run();
 
+	await bumpContentVersion(env);
 	return { id };
 }
 
@@ -119,5 +121,6 @@ export async function deleteDynamic(env: CloudflareEnv, id: string) {
 	const result = await env.DB.prepare("DELETE FROM dynamics WHERE id = ?")
 		.bind(id)
 		.run();
+	if (result.meta.changes > 0) await bumpContentVersion(env);
 	return result.meta.changes > 0;
 }

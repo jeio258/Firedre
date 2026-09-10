@@ -35,6 +35,9 @@ const dbStub = {
 					async first() {
 						return null;
 					},
+					async all() {
+						return { results: [] };
+					},
 					async run() {
 						return {};
 					},

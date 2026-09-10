@@ -48,17 +48,10 @@ function parseSource(raw: string): AlbumSource {
 	return raw === "webdav" ? "webdav" : "local";
 }
 
-export async function getAlbumFromD1(
-	env: CloudflareEnv,
-	slug: string,
-): Promise<AlbumD1Data | null> {
-	const row = await env.DB.prepare("SELECT * FROM albums WHERE slug = ?")
-		.bind(slug)
-		.first<AlbumRow>();
-	if (!row) return null;
-
-	const photos = await loadPhotos(env, slug);
-
+function buildAlbumFrontmatter(
+	row: AlbumRow,
+	photos: AlbumPhotoRow[],
+): AlbumDetailFrontmatter {
 	const frontmatter: AlbumDetailFrontmatter = {
 		title: row.title || undefined,
 		cover: row.cover || undefined,
@@ -81,8 +74,64 @@ export async function getAlbumFromD1(
 			...(p.poster ? { poster: p.poster } : {}),
 		}));
 	}
+	return frontmatter;
+}
 
-	return { frontmatter, content: row.content };
+export async function getAlbumFromD1(
+	env: CloudflareEnv,
+	slug: string,
+): Promise<AlbumD1Data | null> {
+	const row = await env.DB.prepare("SELECT * FROM albums WHERE slug = ?")
+		.bind(slug)
+		.first<AlbumRow>();
+	if (!row) return null;
+
+	const photos = await loadPhotos(env, slug);
+	return { frontmatter: buildAlbumFrontmatter(row, photos), content: row.content };
+}
+
+export async function getAlbumsFromD1Map(
+	env: CloudflareEnv,
+	slugs: string[],
+): Promise<Map<string, AlbumD1Data>> {
+	const map = new Map<string, AlbumD1Data>();
+	const valid = [...new Set(slugs.filter(Boolean))];
+	if (!valid.length) return map;
+
+	const rows: AlbumRow[] = [];
+	const photos: (AlbumPhotoRow & { album_slug: string })[] = [];
+	const CHUNK = 100;
+	for (let i = 0; i < valid.length; i += CHUNK) {
+		const chunk = valid.slice(i, i + CHUNK);
+		const placeholders = chunk.map(() => "?").join(",");
+		const albumRes = await env.DB.prepare(
+			`SELECT * FROM albums WHERE slug IN (${placeholders})`,
+		)
+			.bind(...chunk)
+			.all<AlbumRow>();
+		rows.push(...(albumRes.results || []));
+		const photoRes = await env.DB.prepare(
+			`SELECT album_slug, url, type, poster, date, sort_order FROM album_photos WHERE album_slug IN (${placeholders}) ORDER BY sort_order ASC, id ASC`,
+		)
+			.bind(...chunk)
+			.all<AlbumPhotoRow & { album_slug: string }>();
+		photos.push(...(photoRes.results || []));
+	}
+
+	const photosBySlug = new Map<string, AlbumPhotoRow[]>();
+	for (const p of photos) {
+		const list = photosBySlug.get(p.album_slug) ?? [];
+		list.push(p);
+		photosBySlug.set(p.album_slug, list);
+	}
+
+	for (const row of rows) {
+		map.set(row.slug, {
+			frontmatter: buildAlbumFrontmatter(row, photosBySlug.get(row.slug) ?? []),
+			content: row.content,
+		});
+	}
+	return map;
 }
 
 async function loadPhotos(

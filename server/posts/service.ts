@@ -13,6 +13,7 @@ import type {
 import { normalizePinOrder, sortPostsByPinOrder } from "../../utils/pinOrder";
 import { UserError } from "../utils/userError";
 import { runDbBatch } from "../utils/dbBatch";
+import { bumpContentVersion } from "../settings/service";
 import {
 	decodePostSlug,
 	encodePostPath,
@@ -450,6 +451,7 @@ export async function upsertPost(
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
+	await bumpContentVersion(env);
 
 	return { slug: decoded, r2Key };
 }
@@ -469,6 +471,7 @@ export async function deletePost(env: CloudflareEnv, slug: string) {
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
+	await bumpContentVersion(env);
 
 	return true;
 }

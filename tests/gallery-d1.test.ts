@@ -3,9 +3,10 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-	getAlbumFromD1,
-	upsertAlbumToD1,
 	deleteAlbumFromD1,
+	getAlbumFromD1,
+	getAlbumsFromD1Map,
+	upsertAlbumToD1,
 } from "../server/gallery/d1";
 
 interface D1Like {
@@ -125,5 +126,33 @@ describe("相册 D1 数据层", () => {
 
 	it("不存在的相册返回 null", async () => {
 		expect(await getAlbumFromD1(env, "does-not-exist")).toBeNull();
+	});
+
+	it("getAlbumsFromD1Map 批量读取与逐个一致", async () => {
+		await upsertAlbumToD1(
+			env,
+			"batch-a",
+			{ title: "A", source: "local", photos: [{ url: "https://x/a1.jpg" }] },
+			"A 正文",
+		);
+		await upsertAlbumToD1(
+			env,
+			"batch-b",
+			{
+				title: "B",
+				source: "local",
+				photos: [{ url: "https://x/b1.jpg" }, { url: "https://x/b2.jpg" }],
+			},
+			"B 正文",
+		);
+
+		const map = await getAlbumsFromD1Map(env as never, [
+			"batch-a",
+			"batch-b",
+			"missing",
+		]);
+		expect(map.has("missing")).toBe(false);
+		expect(map.get("batch-a")).toEqual(await getAlbumFromD1(env, "batch-a"));
+		expect(map.get("batch-b")).toEqual(await getAlbumFromD1(env, "batch-b"));
 	});
 });

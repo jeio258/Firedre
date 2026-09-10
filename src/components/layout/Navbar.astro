@@ -279,7 +279,7 @@ const logoVariants = await Promise.all(
                         </button>
                 )}
                 {                }
-                <LightDarkSwitch client:load></LightDarkSwitch>
+                <LightDarkSwitch client:idle></LightDarkSwitch>
                 <a
                   href="/admin/"
                   aria-label="后台管理"
@@ -299,7 +299,7 @@ const logoVariants = await Promise.all(
             </div>
         )}
         <NavMenuPanel links={links}></NavMenuPanel>
-        {isDisplaySettingsEnabled && <DisplaySettings client:load settings={pageSettings}></DisplaySettings>}
+        {isDisplaySettingsEnabled && <DisplaySettings client:idle settings={pageSettings}></DisplaySettings>}
     </div>
 </div>
 

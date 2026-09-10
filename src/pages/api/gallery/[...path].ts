@@ -18,6 +18,7 @@ import {
 	upsertGalleryAlbum,
 	upsertGalleryHub,
 } from "../../../../server/gallery/service";
+import { serializeAlbumMarkdown } from "../../../../server/gallery/frontmatter";
 import {
 	deleteAlbumWebDavConfig,
 	getAlbumWebDavConfig,
@@ -238,9 +239,20 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 		if (!slug || !isValidGallerySlug(slug))
 			return badRequest("相册 slug 格式无效");
-		const body = await request.text();
-		if (!body.trim()) return badRequest("内容不能为空");
-		const result = await upsertGalleryAlbum(cfEnv, slug, body);
+		let markdown: string;
+		if ((request.headers.get("Content-Type") || "").includes("application/json")) {
+			const body = (await request.json().catch(() => null)) as {
+				frontmatter?: Record<string, unknown>;
+				content?: string;
+			} | null;
+			if (!body || typeof body.frontmatter !== "object" || body.frontmatter === null)
+				return badRequest("请求体无效：需 { frontmatter, content }");
+			markdown = serializeAlbumMarkdown(body.frontmatter as never, body.content ?? "");
+		} else {
+			markdown = await request.text();
+		}
+		if (!markdown.trim()) return badRequest("内容不能为空");
+		const result = await upsertGalleryAlbum(cfEnv, slug, markdown);
 		return json({ ok: true, ...result });
 	} catch (error) {
 		return fromServiceError(error);

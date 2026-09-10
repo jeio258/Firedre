@@ -8,6 +8,7 @@ import type { CloudflareEnv } from "../../types/env";
 import type { GalleryAlbumDetail, GalleryHubDetail } from "../../types/gallery";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
+import { bumpContentVersion } from "../settings/service";
 import {
 	GALLERY_HUB_R2_KEY,
 	galleryAlbumR2Key,
@@ -25,40 +26,47 @@ import {
 import {
 	deleteAlbumPassword,
 	getAlbumPassword,
+	getAlbumPasswordsMap,
 	setAlbumPassword,
 } from "./password";
 import { getAlbumWebDavConfig } from "./webdavConfig";
 import {
 	deleteAlbumFromD1,
 	getAlbumFromD1,
+	getAlbumsFromD1Map,
 	upsertAlbumToD1,
 } from "./d1";
 
-async function loadAlbumSummary(
-	env: CloudflareEnv,
+function summarizeAlbum(
 	slug: string,
-): Promise<AlbumSummary | null> {
-
-	const d1 = await getAlbumFromD1(env, slug);
-	let frontmatter: AlbumDetailFrontmatter | undefined;
-	if (d1) {
-		frontmatter = d1.frontmatter;
-	} else {
-		const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
-		if (!object) return null;
-		const source = await object.text();
-		frontmatter = parseAlbumSource(source).frontmatter;
-	}
-
+	frontmatter: AlbumDetailFrontmatter,
+	hasPassword: boolean,
+): AlbumSummary {
 	const summary = toAlbumSummary(slug, frontmatter);
-
-	const hasPassword = (await getAlbumPassword(env, slug)) !== "";
 	if (hasPassword) {
 		summary.encrypted = true;
 		summary.cover = undefined;
 		summary.count = undefined;
 	}
 	return summary;
+}
+
+async function loadAlbumSummary(
+	env: CloudflareEnv,
+	slug: string,
+): Promise<AlbumSummary | null> {
+	const albumMap = await getAlbumsFromD1Map(env, [slug]);
+	const passwordMap = await getAlbumPasswordsMap(env, [slug]);
+	const d1 = albumMap.get(slug);
+	let frontmatter: AlbumDetailFrontmatter;
+	if (d1) {
+		frontmatter = d1.frontmatter;
+	} else {
+		const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
+		if (!object) return null;
+		frontmatter = parseAlbumSource(await object.text()).frontmatter;
+	}
+	return summarizeAlbum(slug, frontmatter, (passwordMap.get(slug) ?? "") !== "");
 }
 
 export async function getGalleryHub(
@@ -71,11 +79,25 @@ export async function getGalleryHub(
 	const source = await object.text();
 	const parsed = parseHubSource(source);
 	const slugs = normalizeAlbumSlugs(parsed.frontmatter.albums);
-	const summaries: AlbumSummary[] = [];
+	const [albumMap, passwordMap] = await Promise.all([
+		getAlbumsFromD1Map(env, slugs),
+		getAlbumPasswordsMap(env, slugs),
+	]);
 
+	const summaries: AlbumSummary[] = [];
 	for (const slug of slugs) {
-		const summary = await loadAlbumSummary(env, slug);
-		if (summary) summaries.push(summary);
+		const d1 = albumMap.get(slug);
+		let frontmatter: AlbumDetailFrontmatter;
+		if (d1) {
+			frontmatter = d1.frontmatter;
+		} else {
+			const albumObject = await env.BUCKET.get(galleryAlbumR2Key(slug));
+			if (!albumObject) continue;
+			frontmatter = parseAlbumSource(await albumObject.text()).frontmatter;
+		}
+		summaries.push(
+			summarizeAlbum(slug, frontmatter, (passwordMap.get(slug) ?? "") !== ""),
+		);
 	}
 
 	return {
@@ -203,6 +225,7 @@ export async function upsertGalleryHub(env: CloudflareEnv, source: string) {
 		if (summary) albums.push(summary);
 	}
 
+	await bumpContentVersion(env);
 	return {
 		r2Key: GALLERY_HUB_R2_KEY,
 		frontmatter: parsed.frontmatter,
@@ -283,6 +306,7 @@ export async function upsertGalleryAlbum(
 	// 创建相册：确保该相册进入前端/后台列表（自动追加到末尾）
 	await ensureAlbumInHub(env, slug);
 
+	await bumpContentVersion(env);
 	return {
 		r2Key: galleryAlbumR2Key(slug),
 		slug,
@@ -296,6 +320,7 @@ export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 	await deleteAlbumFromD1(env, slug);
 	await env.BUCKET.delete(galleryAlbumR2Key(slug));
 	await deleteAlbumPassword(env, slug);
+	await bumpContentVersion(env);
 
 	const hub = await getGalleryHub(env, { includeSource: true });
 	if (!hub?.source) return { slug, removedFromHub: false };
@@ -336,6 +361,7 @@ export async function setAlbumPhotos(
 	const d1 = await getAlbumFromD1(env, slug);
 	if (d1) {
 		await upsertAlbumToD1(env, slug, nextFrontmatter, d1.content);
+		await bumpContentVersion(env);
 		return;
 	}
 
@@ -355,6 +381,7 @@ export async function setAlbumPhotos(
 	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
 		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
 	});
+	await bumpContentVersion(env);
 }
 
 export async function getAlbumWebDavConfigFromR2(

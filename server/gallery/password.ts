@@ -13,6 +13,28 @@ export async function getAlbumPassword(
 	return row?.password ?? "";
 }
 
+export async function getAlbumPasswordsMap(
+	env: CloudflareEnv,
+	slugs: string[],
+): Promise<Map<string, string>> {
+	const map = new Map<string, string>();
+	const valid = [...new Set(slugs.filter(Boolean))];
+	if (!valid.length) return map;
+
+	const CHUNK = 100;
+	for (let i = 0; i < valid.length; i += CHUNK) {
+		const chunk = valid.slice(i, i + CHUNK);
+		const placeholders = chunk.map(() => "?").join(",");
+		const { results } = await env.DB.prepare(
+			`SELECT album_slug, password FROM album_passwords WHERE album_slug IN (${placeholders})`,
+		)
+			.bind(...chunk)
+			.all<{ album_slug: string; password: string }>();
+		for (const row of results || []) map.set(row.album_slug, row.password);
+	}
+	return map;
+}
+
 export async function setAlbumPassword(
 	env: CloudflareEnv,
 	slug: string,

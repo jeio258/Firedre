@@ -22,9 +22,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	let htmlCacheKey = "";
 	if (isHtmlPage) {
 		try {
-			const { getSettingsVersion } = await import("../server/settings/service");
+			const { getSettingsVersionCached } = await import("../server/settings/service");
 			const { cfEnv } = await import("./lib/api");
-			const version = await getSettingsVersion(cfEnv);
+			const version = await getSettingsVersionCached(cfEnv);
 
 			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${version}`;
 			const cached = await caches.default.match(htmlCacheKey);

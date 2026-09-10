@@ -9,6 +9,7 @@ const { defaultMode = "light", defaultHue = "165" } = Astro.props;
 const settings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 ---
 <FaviconLinks settings={settings} />
+<link rel="stylesheet" href="/admin/admin.css" />
 <style is:inline set:html={`html{--hue:${defaultHue}}`}></style>
 <script is:inline define:vars={{ defaultMode, defaultHue }}>
 	(function () {

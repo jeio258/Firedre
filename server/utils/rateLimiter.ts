@@ -67,7 +67,7 @@ export async function checkD1RateLimit(
 			.bind(key, windowStart, maxRequests)
 			.run();
 
-		if (info.success === false) {
+		if (!info.success) {
 			if (config.failOpen === false) {
 				return { allowed: false, retryAfterSec: 60 };
 			}

@@ -10,14 +10,25 @@ function makeD1Mock() {
 				bind: (...args: unknown[]) => {
 					const bound = { sql, args };
 					return {
-						first: async () => {
-							if (sql.includes("SELECT password FROM album_passwords")) {
-								const pwd = store.get(String(bound.args[0]));
-								return pwd ? { password: pwd } : null;
+						first: async () => null,
+						all: async () => {
+							if (sql.includes("FROM album_passwords")) {
+								const rows = [...store.entries()]
+									.filter(
+										([slug]) =>
+											bound.args.length === 0 ||
+											bound.args.includes(slug),
+									)
+									.map(([album_slug, password]) => ({
+										album_slug,
+										password,
+									}));
+								return { results: rows };
 							}
-							return null;
+							// albums / album_photos：D1 无数据 → 回退 R2
+							return { results: [] };
 						},
-						run: async () => ({ success: true }),
+						run: async () => ({ success: true, meta: { changes: 1 } }),
 					};
 				},
 			};
