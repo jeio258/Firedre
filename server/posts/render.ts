@@ -1,6 +1,5 @@
 
 
-import katex from "katex";
 import { toString } from "mdast-util-to-string";
 import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
@@ -11,28 +10,11 @@ import remarkSmartypants from "remark-smartypants";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import "katex/dist/contrib/mhchem.mjs"; // mhchem 扩展
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeCallouts from "rehype-callouts";
-import rehypeCodeGroup from "rehype-code-group";
-import rehypeComponents from "rehype-components";
-import rehypeKatex from "rehype-katex";
-import rehypeSlug from "rehype-slug";
-import remarkAdmonitionToBlockquoteCallout from "remark-admonition-to-blockquote-callout";
-import remarkDirective from "remark-directive";
-import remarkMath from "remark-math";
-import remarkSectionize from "remark-sectionize";
 import { siteConfig } from "../../src/config/index";
-import { GithubCardComponent } from "../../src/plugins/rehype-component-github-card.mjs";
-import { rehypeDiagramPanZoom } from "../../src/plugins/rehype-diagram-panzoom.mjs";
-import rehypeEmailProtection from "../../src/plugins/rehype-email-protection.mjs";
-import rehypeExternalLinks from "../../src/plugins/rehype-external-links.mjs";
-import rehypeFigure from "../../src/plugins/rehype-figure.mjs";
-import rehypeImageReferrerPolicy from "../../src/plugins/rehype-image-referrerpolicy.mjs";
-import { rehypePlantuml } from "../../src/plugins/rehype-plantuml.mjs";
-import { parseDirectiveNode } from "../../src/plugins/remark-directive-rehype.js";
-import { remarkImageGrid } from "../../src/plugins/remark-image-grid.js";
-import { remarkMermaid } from "../../src/plugins/remark-mermaid.js";
-import { remarkPlantuml } from "../../src/plugins/remark-plantuml.js";
+import {
+	sharedRehypePlugins,
+	sharedRemarkPlugins,
+} from "../../src/plugins/markdown-preset.mjs";
 import {
 	remarkWikiLinkRuntime,
 	type WikiLinkResolver,
@@ -130,49 +112,29 @@ function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 		.use(remarkParse)
 		.use(remarkGfm)
 		.use(remarkSmartypants)
-		.use(remarkAdmonitionToBlockquoteCallout)
-		.use(remarkMath)
-		.use(remarkReadingTimeLocal)
-		.use(remarkWikiLinkRuntime, {
-			resolve: (contentPath: string) =>
-				resolveWikiLink
-					? resolveWikiLink(contentPath)
-					: Promise.resolve(null),
-		})
-		.use(remarkImageGrid)
-		.use(remarkExcerptLocal)
-		.use(remarkDirective)
-		.use(remarkSectionize)
-		.use(parseDirectiveNode)
-		.use(remarkMermaid)
-		.use(remarkPlantuml)
+		.use(
+			sharedRemarkPlugins({
+				readingTime: remarkReadingTimeLocal,
+				wikiLink: [
+					remarkWikiLinkRuntime,
+					{
+						resolve: (contentPath: string) =>
+							resolveWikiLink
+								? resolveWikiLink(contentPath)
+								: Promise.resolve(null),
+					},
+				],
+				excerpt: remarkExcerptLocal,
+			}),
+		)
 		.use(remarkRehype, { allowDangerousHtml: true })
 		.use(rehypeRaw)
 		.use(rehypeSanitizeDangerous)
-		.use(rehypeKatex, { katex })
-		.use(rehypeCallouts, { theme: siteConfig.post.rehypeCallouts.theme })
-		.use(rehypeSlug)
-		.use(rehypeCodeGroup)
-		.use(rehypePlantuml)
-		.use(rehypeDiagramPanZoom)
-		.use(rehypeFigure)
-		.use(rehypeImageReferrerPolicy, {
-			domains: siteConfig.imageOptimization?.noReferrerDomains || [],
-		})
-		.use(rehypeExternalLinks, { siteUrl: siteConfig.site_url })
-		.use(rehypeEmailProtection, { method: "base64" })
-		.use(rehypeComponents, { components: { github: GithubCardComponent } })
-		.use(rehypeCollectHeadings)
-		.use(rehypeAutolinkHeadings, {
-			behavior: "append",
-			properties: { className: ["anchor"] },
-			content: {
-				type: "element",
-				tagName: "span",
-				properties: { className: ["anchor-icon"] },
-				children: [{ type: "text", value: "#" }],
-			},
-		})
+		.use(
+			sharedRehypePlugins(siteConfig, {
+				beforeAutolink: [rehypeCollectHeadings],
+			}),
+		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 }
 
