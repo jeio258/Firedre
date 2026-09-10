@@ -50,26 +50,10 @@ export async function checkD1RateLimit(
 	const windowStart = now - (now % windowMs);
 
 	try {
-		const row = await db
-			.prepare(
-				"SELECT window_started_at, count FROM rate_limits WHERE key = ? AND window_started_at = ?",
-			)
-			.bind(key, windowStart)
-			.first<{ window_started_at: number; count: number }>();
-
-		// 窗口内有记录且已达上限
-		if (row && row.count >= maxRequests) {
-			return {
-				allowed: false,
-				retryAfterSec: Math.ceil((windowStart + windowMs - now) / 1000),
-				resetAt: windowStart + windowMs,
-			};
-		}
-
-		await db
+		const info = await db
 			.prepare(`
         INSERT INTO rate_limits (key, kind, window_started_at, count, updated_at)
-        VALUES (?, 'window', ?, ?, datetime('now'))
+        VALUES (?, 'window', ?, 1, datetime('now'))
         ON CONFLICT(key) DO UPDATE SET
           window_started_at = excluded.window_started_at,
           count = CASE
@@ -77,20 +61,34 @@ export async function checkD1RateLimit(
             ELSE 1
           END,
           updated_at = datetime('now')
+        WHERE rate_limits.window_started_at <> excluded.window_started_at
+           OR rate_limits.count < ?
       `)
-			.bind(key, windowStart, 1)
+			.bind(key, windowStart, maxRequests)
 			.run();
+
+		if (info.success === false) {
+			if (config.failOpen === false) {
+				return { allowed: false, retryAfterSec: 60 };
+			}
+			return { allowed: true, remaining: maxRequests };
+		}
+
+		if (Number(info.meta?.changes ?? 0) <= 0) {
+			return {
+				allowed: false,
+				retryAfterSec: Math.ceil((windowStart + windowMs - now) / 1000),
+				resetAt: windowStart + windowMs,
+			};
+		}
 
 		void pruneExpiredWindows(db, now, windowMs).catch(() => {});
 
-		const newCount = (row?.count || 0) + 1;
 		return {
 			allowed: true,
-			remaining: Math.max(0, maxRequests - newCount),
 			resetAt: windowStart + windowMs,
 		};
 	} catch {
-
 		if (config.failOpen === false) {
 			return { allowed: false, retryAfterSec: 60 };
 		}

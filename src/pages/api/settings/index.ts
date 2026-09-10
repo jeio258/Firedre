@@ -53,7 +53,7 @@ export const PUT: APIRoute = async ({ request }) => {
 	return (await import("../../../../server/utils/rateLimiter")).withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 20, scope: "settings-write" },
+		{ windowMs: 60_000, maxRequests: 20, scope: "settings-write", failOpen: false },
 		async () => {
 			try {
 				const body = (await request.json().catch(() => null)) as Record<

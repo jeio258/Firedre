@@ -182,16 +182,17 @@ export async function getAuthenticatedAdminUsername(
 	if (!username) return null;
 
 	if (env?.DB) {
+		let row: { enabled: number } | null;
 		try {
-			const row = await env.DB.prepare(
+			row = await env.DB.prepare(
 				"SELECT enabled FROM admin_users WHERE username = ?",
 			)
 				.bind(username)
 				.first<{ enabled: number }>();
-			if (row && row.enabled !== 1) return null;
 		} catch {
-			// DB 查询失败不阻断
+			return null;
 		}
+		if (!row || row.enabled !== 1) return null;
 	}
 
 	return username;

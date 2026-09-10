@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import bcrypt from "bcryptjs";
 import {
+	ADMIN_SESSION_COOKIE,
 	authExports,
+	getAuthenticatedAdminUsername,
 	type AdminAuthEnv,
 } from "../server/auth/adminSession";
 
@@ -127,5 +129,58 @@ describe("buildSessionCookie", () => {
 	it("should include Secure flag when secure=true", () => {
 		const cookie = buildSessionCookie("test-token", true);
 		expect(cookie).toContain("Secure");
+	});
+});
+
+describe("getAuthenticatedAdminUsername fail-closed", () => {
+	const secret = "test-secret-key-for-hmac";
+
+	async function reqWithToken() {
+		const token = await createSessionToken("admin", { SESSION_SECRET: secret });
+		return new Request("https://example.com/admin", {
+			headers: { Cookie: `${ADMIN_SESSION_COOKIE}=${token}` },
+		});
+	}
+
+	function envWithDb(db: unknown) {
+		return { SESSION_SECRET: secret, DB: db } as never;
+	}
+
+	it("DB 查询异常 → 拒绝", async () => {
+		const db = {
+			prepare() {
+				throw new Error("D1 down");
+			},
+		};
+		expect(
+			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
+		).toBeNull();
+	});
+
+	it("管理员不存在 → 拒绝", async () => {
+		const db = {
+			prepare: () => ({ bind: () => ({ first: async () => null }) }),
+		};
+		expect(
+			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
+		).toBeNull();
+	});
+
+	it("管理员被禁用 → 拒绝", async () => {
+		const db = {
+			prepare: () => ({ bind: () => ({ first: async () => ({ enabled: 0 }) }) }),
+		};
+		expect(
+			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
+		).toBeNull();
+	});
+
+	it("管理员启用 → 通过", async () => {
+		const db = {
+			prepare: () => ({ bind: () => ({ first: async () => ({ enabled: 1 }) }) }),
+		};
+		expect(
+			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
+		).toBe("admin");
 	});
 });

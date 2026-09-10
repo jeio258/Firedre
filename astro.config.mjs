@@ -296,10 +296,6 @@ export default defineConfig({
 		resolve: {
 			alias: {
 				"@rehype-callouts-theme": `rehype-callouts/theme/${siteConfig.post.rehypeCallouts.theme}`,
-			// stub 掉 @astrojs/prism，规避 v12 workerd loader 与 rolldown 冲突
-			"@astrojs/prism/dist/highlighter": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
-				"@astrojs/prism/dist/loadLanguages-workerd": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
-				"@astrojs/prism": new URL("./src/lib/prism-stub.ts", import.meta.url).pathname,
 			},
 		},
 		optimizeDeps: {

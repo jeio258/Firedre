@@ -132,7 +132,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	return withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 10, scope: "posts-write" },
+		{ windowMs: 60_000, maxRequests: 10, scope: "posts-write", failOpen: false },
 		async () => {
 			try {
 				const body = await request.text();
@@ -158,7 +158,7 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	return withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 5, scope: "posts-write" },
+		{ windowMs: 60_000, maxRequests: 5, scope: "posts-write", failOpen: false },
 		async () => {
 			try {
 				const ok = await deletePost(cfEnv, slug);

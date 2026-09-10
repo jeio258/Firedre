@@ -12,6 +12,7 @@ import type {
 } from "../../types/posts";
 import { normalizePinOrder, sortPostsByPinOrder } from "../../utils/pinOrder";
 import { UserError } from "../utils/userError";
+import { runDbBatch } from "../utils/dbBatch";
 import {
 	decodePostSlug,
 	encodePostPath,
@@ -24,12 +25,12 @@ import {
 } from "./frontmatter";
 import { renderMarkdown, stripMarkdown } from "./render";
 import {
+	buildTaxonomyStatements,
 	categoryFilterSql,
 	listArchiveMonths,
 	listCategoryTree,
 	listTagCounts,
 	monthFilterSql,
-	syncPostTaxonomy,
 	tagFilterSql,
 } from "./taxonomy";
 
@@ -392,7 +393,7 @@ export async function upsertPost(
 		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
 	});
 
-	await env.DB.prepare(`
+	const postUpsert = env.DB.prepare(`
     INSERT INTO posts (
       slug, title, excerpt, description, date, updated, categories, tags, cover,
       pin_order, published, password, fm_json, words, minutes, r2_key, updated_at
@@ -432,20 +433,20 @@ export async function upsertPost(
 			words,
 			minutes,
 			r2Key,
-		)
-		.run();
+		);
 
-	await env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?")
-		.bind(decoded)
-		.run();
-	await env.DB.prepare(`
+	const ftsDelete = env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(decoded);
+	const ftsInsert = env.DB.prepare(`
     INSERT INTO posts_fts (slug, title, excerpt, content)
     VALUES (?, ?, ?, ?)
-  `)
-		.bind(decoded, String(frontmatter.title), mapped.excerpt || "", plain)
-		.run();
+  `).bind(decoded, String(frontmatter.title), mapped.excerpt || "", plain);
 
-	await syncPostTaxonomy(env, decoded, frontmatter);
+	await runDbBatch(env.DB, [
+		postUpsert,
+		ftsDelete,
+		ftsInsert,
+		...buildTaxonomyStatements(env.DB, decoded, frontmatter),
+	]);
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();

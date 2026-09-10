@@ -22,6 +22,7 @@ import {
 	formatLoginRateLimitMessage,
 	getRequestClientIp,
 } from "../../../../server/auth/loginRateLimit";
+import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import {
 	cfEnv,
 	json,
@@ -56,32 +57,39 @@ export const POST: APIRoute = async ({ params, request }) => {
 	try {
 		// 首次创建唯一管理员（注册）：仅当系统尚无管理员时允许。
 		if (action === "setup") {
-			const body = (await request.json().catch(() => null)) as {
-				username?: string;
-				password?: string;
-			} | null;
-			if (!body)
-				return json({ message: "请求体格式错误" }, 400);
-			const username = String(body.username || "").trim();
-			const password = String(body.password || "");
+			return withRateLimit(
+				cfEnv,
+				request,
+				{ windowMs: 60_000, maxRequests: 5, scope: "admin-setup", failOpen: false },
+				async () => {
+					const body = (await request.json().catch(() => null)) as {
+						username?: string;
+						password?: string;
+					} | null;
+					if (!body)
+						return json({ message: "请求体格式错误" }, 400);
+					const username = String(body.username || "").trim();
+					const password = String(body.password || "");
 
-			if (!username || !password)
-				return json({ message: "用户名与密码不能为空" }, 400);
-			if (password.length < 8)
-				return json({ message: "密码至少 8 位" }, 400);
+					if (!username || !password)
+						return json({ message: "用户名与密码不能为空" }, 400);
+					if (password.length < 8)
+						return json({ message: "密码至少 8 位" }, 400);
 
-			if (await hasAdminUser(cfEnv.DB))
-				return json({ message: "管理员已存在，无法重复创建" }, 409);
+					if (await hasAdminUser(cfEnv.DB))
+						return json({ message: "管理员已存在，无法重复创建" }, 409);
 
-			const result = await createAdminUser(cfEnv.DB, username, password);
-			if (!result.ok)
-				return json({ message: "创建失败或用户名已存在" }, 400);
+					const result = await createAdminUser(cfEnv.DB, username, password);
+					if (!result.ok)
+						return json({ message: "创建失败或用户名已存在" }, 400);
 
-			// 创建成功后直接登录
-			const token = await createSessionToken(username, adminEnv);
-			return jsonWithHeaders({ ok: true, username }, 200, {
-				"Set-Cookie": buildSessionCookie(token, secure),
-			});
+					// 创建成功后直接登录
+					const token = await createSessionToken(username, adminEnv);
+					return jsonWithHeaders({ ok: true, username }, 200, {
+						"Set-Cookie": buildSessionCookie(token, secure),
+					});
+				},
+			);
 		}
 
 		if (action === "login") {

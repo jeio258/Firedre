@@ -53,19 +53,14 @@ export async function createAdminUser(
 	const name = String(username || "").trim();
 	if (!name || !password) return { ok: false, conflict: false };
 
-	// 已有管理员 → 拒绝（单用户模型）
-	if (await hasAdminUser(db)) return { ok: false, conflict: true };
-
-	const existing = await getAdminUserByUsername(db, name);
-	if (existing) return { ok: false, conflict: true };
-
 	const hash = await hashPassword(password);
-	await db
+	const inserted = await db
 		.prepare(
-			"INSERT INTO admin_users (username, password_hash, enabled) VALUES (?, ?, 1)",
+			"INSERT INTO admin_users (username, password_hash, enabled) VALUES (?, ?, 1) ON CONFLICT DO NOTHING RETURNING id",
 		)
 		.bind(name, hash)
-		.run();
+		.first<{ id: number }>();
+	if (!inserted) return { ok: false, conflict: true };
 	return { ok: true };
 }
 

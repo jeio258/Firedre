@@ -60,25 +60,16 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 		},
 
 		async recordFailure(ip) {
-			const row = await db
-				.prepare("SELECT count AS fail_count FROM rate_limits WHERE key = ? AND kind = 'login'")
-				.bind(key(ip))
-				.first<{ fail_count: number }>();
-
-			const failCount = (row?.fail_count || 0) + 1;
-			const lockedUntil =
-				failCount >= LOGIN_MAX_ATTEMPTS ? futureLockIso() : null;
-
 			await db
 				.prepare(`
         INSERT INTO rate_limits (key, kind, count, locked_until, updated_at)
-        VALUES (?, 'login', ?, ?, datetime('now'))
+        VALUES (?, 'login', 1, NULL, datetime('now'))
         ON CONFLICT(key) DO UPDATE SET
-          count = excluded.count,
-          locked_until = excluded.locked_until,
+          count = rate_limits.count + 1,
+          locked_until = CASE WHEN rate_limits.count + 1 >= ? THEN ? ELSE rate_limits.locked_until END,
           updated_at = datetime('now')
       `)
-				.bind(key(ip), failCount, lockedUntil)
+				.bind(key(ip), LOGIN_MAX_ATTEMPTS, futureLockIso())
 				.run();
 		},
 

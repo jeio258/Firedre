@@ -6,6 +6,7 @@ import type {
 	TagCountItem,
 } from "../../types/posts";
 import { categoryPathFromFrontmatter, normalizeTags, resolveCategories } from "./frontmatter";
+import { runDbBatch } from "../utils/dbBatch";
 
 export type { ArchiveMonthItem, CategoryTreeNode, TagCountItem };
 
@@ -60,33 +61,41 @@ export function serializeCategoryTree(
 	return nodeToTree(map);
 }
 
+export function buildTaxonomyStatements(
+	db: D1Database,
+	slug: string,
+	frontmatter: PostFrontmatter,
+): D1PreparedStatement[] {
+	const resolvedCategories = resolveCategories(frontmatter);
+	const categoryPath = categoryPathFromFrontmatter(resolvedCategories);
+	const tags = normalizeTags(frontmatter.tags) || [];
+
+	const stmts: D1PreparedStatement[] = [
+		db.prepare("DELETE FROM post_taxonomy WHERE post_slug = ?").bind(slug),
+		db
+			.prepare(
+				"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'category', ?)",
+			)
+			.bind(slug, categoryPath),
+	];
+	for (const tag of tags) {
+		stmts.push(
+			db
+				.prepare(
+					"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'tag', ?)",
+				)
+				.bind(slug, tag),
+		);
+	}
+	return stmts;
+}
+
 export async function syncPostTaxonomy(
 	env: CloudflareEnv,
 	slug: string,
 	frontmatter: PostFrontmatter,
 ) {
-
-	const resolvedCategories = resolveCategories(frontmatter);
-	const categoryPath = categoryPathFromFrontmatter(resolvedCategories);
-	const tags = normalizeTags(frontmatter.tags) || [];
-
-	await env.DB.prepare("DELETE FROM post_taxonomy WHERE post_slug = ?")
-		.bind(slug)
-		.run();
-
-	await env.DB.prepare(
-		"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'category', ?)",
-	)
-		.bind(slug, categoryPath)
-		.run();
-
-	for (const tag of tags) {
-		await env.DB.prepare(
-			"INSERT INTO post_taxonomy (post_slug, type, value) VALUES (?, 'tag', ?)",
-		)
-			.bind(slug, tag)
-			.run();
-	}
+	await runDbBatch(env.DB, buildTaxonomyStatements(env.DB, slug, frontmatter));
 }
 
 export async function listCategoryTree(

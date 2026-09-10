@@ -5,6 +5,7 @@ import type {
 	AlbumSource,
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
+import { runDbBatch } from "../utils/dbBatch";
 
 interface AlbumRow {
 	slug: string;
@@ -107,7 +108,7 @@ export async function upsertAlbumToD1(
 		: null;
 	const source = frontmatter.source === "webdav" ? "webdav" : "local";
 
-	await env.DB.prepare(
+	const albumUpsert = env.DB.prepare(
 		`INSERT INTO albums (slug, title, desc, date, location, tags, cover, encrypted, password_hint, source, content)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(slug) DO UPDATE SET
@@ -122,41 +123,41 @@ export async function upsertAlbumToD1(
 		   source = excluded.source,
 		   content = excluded.content,
 		   updated_at = datetime('now')`,
-	)
-		.bind(
-			slug,
-			frontmatter.title || "",
-			frontmatter.desc || null,
-			frontmatter.date || null,
-			frontmatter.location || null,
-			tagsJson,
-			frontmatter.cover || null,
-			frontmatter.encrypted === true ? 1 : 0,
-			frontmatter.password || null,
-			source,
-			content,
-		)
-		.run();
+	).bind(
+		slug,
+		frontmatter.title || "",
+		frontmatter.desc || null,
+		frontmatter.date || null,
+		frontmatter.location || null,
+		tagsJson,
+		frontmatter.cover || null,
+		frontmatter.encrypted === true ? 1 : 0,
+		frontmatter.password || null,
+		source,
+		content,
+	);
 
-	await env.DB.prepare("DELETE FROM album_photos WHERE album_slug = ?")
-		.bind(slug)
-		.run();
+	const photoDelete = env.DB.prepare(
+		"DELETE FROM album_photos WHERE album_slug = ?",
+	).bind(slug);
 
 	const photos = Array.isArray(frontmatter.photos) ? frontmatter.photos : [];
-	for (let i = 0; i < photos.length; i++) {
-		const p = photos[i];
-		await env.DB.prepare(
+	const photoInserts = photos.map((p, i) =>
+		env.DB.prepare(
 			"INSERT INTO album_photos (album_slug, url, type, poster, date, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
-		)
-			.bind(
-				slug,
-				p.url,
-				p.type === "video" || p.type === "image" ? p.type : null,
-				p.poster || null,
-				p.date || null,
-				i,
-			)
-			.run();
+		).bind(
+			slug,
+			p.url,
+			p.type === "video" || p.type === "image" ? p.type : null,
+			p.poster || null,
+			p.date || null,
+			i,
+		),
+	);
+
+	const stmts = [albumUpsert, photoDelete, ...photoInserts];
+	for (let i = 0; i < stmts.length; i += 50) {
+		await runDbBatch(env.DB, stmts.slice(i, i + 50));
 	}
 
 	return { frontmatter: { ...frontmatter, source }, content };

@@ -10,7 +10,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check",
-    "build": "astro build",
+    "build": "astro build && node scripts/collapse-routes.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "astro check",
