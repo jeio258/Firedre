@@ -52,8 +52,8 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 		const group = groupOfKey(row.key);
 		try {
 			out[group] = { ...(out[group] ?? {}), ...JSON.parse(row.value) };
-		} catch {
-
+		} catch (e) {
+			console.warn("[settings] 设置值 JSON 解析失败 key=" + row.key, e);
 		}
 	}
 	return out;
@@ -73,8 +73,8 @@ export async function getSettingsVersion(env: CloudflareEnv): Promise<string> {
 			.bind(VERSION_KEY)
 			.first<{ value: string }>();
 		return row?.value || "0";
-	} catch {
-
+	} catch (e) {
+		console.warn("[settings] 配置版本读取失败", e);
 	}
 	return "0";
 }
@@ -102,8 +102,8 @@ async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 		`)
 			.bind(VERSION_KEY)
 			.run();
-	} catch {
-
+	} catch (e) {
+		console.warn("[settings] 配置版本自增失败", e);
 	}
 }
 

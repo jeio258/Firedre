@@ -93,7 +93,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 		merged.pages = { ...(merged.pages as Record<string, unknown> ?? {}), ...pagesOut };
 		(context.locals as unknown as SettingsLocals).settings = merged;
-	} catch {
+	} catch (e) {
+		console.warn("[middleware] 站点设置加载失败，本次请求以空配置渲染", e);
 		(context.locals as unknown as SettingsLocals).settings = {};
 	}
 

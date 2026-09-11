@@ -79,3 +79,38 @@ describe("album_passwords（相册密码 D1 存储）", () => {
 		expect(await getAlbumPassword(env, "b")).toBe("bbb");
 	});
 });
+
+describe("album_passwords（静态加密）", () => {
+	const SECRET = "unit-test-secret-0123456789abcdef0123456789abcdef";
+	let db: ReturnType<typeof makeDbMock>;
+	const env = { DB: {}, SESSION_SECRET: SECRET } as unknown as Parameters<
+		typeof getAlbumPassword
+	>[0];
+
+	beforeEach(() => {
+		db = makeDbMock();
+		(env as { DB: unknown }).DB = db;
+	});
+
+	it("配置 secret 后落库为密文而非明文", async () => {
+		await setAlbumPassword(env, "enc", "plain-pwd");
+		const stored = db.store.get("enc") ?? "";
+		expect(stored).not.toBe("plain-pwd");
+		expect(stored.startsWith("enc1:")).toBe(true);
+		expect(await getAlbumPassword(env, "enc")).toBe("plain-pwd");
+	});
+
+	it("历史明文值兼容读取", async () => {
+		db.store.set("legacy", "old-plain");
+		expect(await getAlbumPassword(env, "legacy")).toBe("old-plain");
+	});
+
+	it("不同 secret 无法解密（返回空串）", async () => {
+		await setAlbumPassword(env, "enc", "plain-pwd");
+		const otherEnv = {
+			DB: db,
+			SESSION_SECRET: "another-secret-0123456789abcdef0123456789abcd",
+		} as unknown as Parameters<typeof getAlbumPassword>[0];
+		expect(await getAlbumPassword(otherEnv, "enc")).toBe("");
+	});
+});

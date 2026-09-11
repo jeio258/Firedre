@@ -1,6 +1,7 @@
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { MalListItem, MalListResponse } from "@/types/mal";
+import { fetchWithRetry } from "../../server/utils/fetchRetry";
 
 // MAL 只返回请求中明确列出的字段，必须显式声明
 export const MAL_ANIME_FIELDS: string = [
@@ -61,14 +62,13 @@ export async function fetchMalList(
 		limit: String(options.limit),
 		offset: String(options.offset),
 	});
-	const response = await fetch(
+	const response = await fetchWithRetry(
 		`${options.apiUrl}/users/${encodeURIComponent(options.username)}/${endpoint}?${params.toString()}`,
 		{
 			headers: {
 				"X-MAL-CLIENT-ID": options.clientId,
 				Accept: "application/json",
 			},
-			signal: AbortSignal.timeout(10000),
 		},
 	);
 

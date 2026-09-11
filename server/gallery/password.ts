@@ -1,5 +1,85 @@
 import type { CloudflareEnv } from "../../types/env";
 
+// 口令静态保护：以 SESSION_SECRET 派生密钥做 AES-GCM 加密后落库，
+// D1 数据单独泄露不再直接暴露口令；历史明文值兼容读取（前缀区分），无 secret 时回退明文。
+const CIPHER_PREFIX = "enc1:";
+
+const keyCache = globalThis as {
+	__FIREDRE_ALBUM_KEY__?: { secret: string; key: Promise<CryptoKey> };
+};
+
+function getSessionSecret(env: CloudflareEnv): string | null {
+	const secret = (env as { SESSION_SECRET?: string }).SESSION_SECRET;
+	return typeof secret === "string" && secret.length >= 32 ? secret : null;
+}
+
+function getCipherKey(env: CloudflareEnv): Promise<CryptoKey | null> {
+	const secret = getSessionSecret(env);
+	if (!secret) return Promise.resolve(null);
+	const cached = keyCache.__FIREDRE_ALBUM_KEY__;
+	if (cached && cached.secret === secret) return cached.key;
+	const key = (async () => {
+		const material = new TextEncoder().encode(`album-pwd:${secret}`);
+		const digest = await crypto.subtle.digest("SHA-256", material);
+		return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, [
+			"encrypt",
+			"decrypt",
+		]);
+	})();
+	keyCache.__FIREDRE_ALBUM_KEY__ = { secret, key };
+	return key;
+}
+
+function toB64(buf: ArrayBuffer | Uint8Array): string {
+	const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+	let s = "";
+	for (const b of bytes) s += String.fromCharCode(b);
+	return btoa(s);
+}
+
+function fromB64(s: string): Uint8Array {
+	const raw = atob(s);
+	const out = new Uint8Array(raw.length);
+	for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+	return out;
+}
+
+async function encryptPassword(
+	env: CloudflareEnv,
+	plain: string,
+): Promise<string> {
+	const key = await getCipherKey(env);
+	if (!key) return plain;
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const ct = await crypto.subtle.encrypt(
+		{ name: "AES-GCM", iv },
+		key,
+		new TextEncoder().encode(plain),
+	);
+	return `${CIPHER_PREFIX}${toB64(iv)}:${toB64(ct)}`;
+}
+
+async function decryptPassword(
+	env: CloudflareEnv,
+	stored: string,
+): Promise<string> {
+	if (!stored.startsWith(CIPHER_PREFIX)) return stored;
+	const key = await getCipherKey(env);
+	if (!key) return "";
+	const [, ivB64, ctB64] = stored.split(":");
+	if (!ivB64 || !ctB64) return "";
+	try {
+		const plain = await crypto.subtle.decrypt(
+			{ name: "AES-GCM", iv: fromB64(ivB64) },
+			key,
+			fromB64(ctB64),
+		);
+		return new TextDecoder().decode(plain);
+	} catch {
+		return "";
+	}
+}
+
 export async function getAlbumPassword(
 	env: CloudflareEnv,
 	slug: string,
@@ -10,7 +90,7 @@ export async function getAlbumPassword(
 	)
 		.bind(slug)
 		.first<{ password: string }>();
-	return row?.password ?? "";
+	return decryptPassword(env, row?.password ?? "");
 }
 
 export async function getAlbumPasswordsMap(
@@ -30,7 +110,9 @@ export async function getAlbumPasswordsMap(
 		)
 			.bind(...chunk)
 			.all<{ album_slug: string; password: string }>();
-		for (const row of results || []) map.set(row.album_slug, row.password);
+		for (const row of results || []) {
+			map.set(row.album_slug, await decryptPassword(env, row.password));
+		}
 	}
 	return map;
 }
@@ -48,12 +130,13 @@ export async function setAlbumPassword(
 		).bind(slug).run();
 		return;
 	}
+	const stored = await encryptPassword(env, trimmed);
 	await env.DB.prepare(
 		`INSERT INTO album_passwords (album_slug, password, updated_at)
 		 VALUES (?, ?, datetime('now'))
 		 ON CONFLICT(album_slug) DO UPDATE SET password = excluded.password, updated_at = datetime('now')`,
 	)
-		.bind(slug, trimmed)
+		.bind(slug, stored)
 		.run();
 }
 

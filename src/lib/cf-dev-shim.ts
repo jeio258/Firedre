@@ -14,6 +14,7 @@ import { DatabaseSync } from "node:sqlite";
 const root = process.cwd();
 const stateDir = join(root, ".wrangler", "local-state");
 
+let devSessionSecret: string | undefined;
 try {
 	const devVarsPath = join(root, ".dev.vars");
 	if (!existsSync(devVarsPath)) {
@@ -25,8 +26,14 @@ try {
 		writeFileSync(devVarsPath, defaults);
 		console.log("[cf-dev-shim] 已生成 .dev.vars（会话签名密钥）");
 	}
+	// 与生产一致：secrets 通过 env 注入（loadAdminEnv 之外的模块也能取到）
+	for (const line of readFileSync(devVarsPath, "utf8").split("\n")) {
+		const m = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());
+		if (m && !m[1].startsWith("COMMENT")) process.env[m[1]] ??= m[2];
+	}
+	devSessionSecret = process.env.SESSION_SECRET;
 } catch {
-	// 生成失败不阻塞
+	// 生成/读取失败不阻塞
 }
 
 let db: DatabaseSync | null = null;
@@ -176,6 +183,7 @@ const BUCKET = {
 export const env = {
 	DB,
 	BUCKET,
+	SESSION_SECRET: devSessionSecret,
 };
 export const context = undefined;
 

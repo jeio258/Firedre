@@ -76,6 +76,28 @@
 		void saveOrder();
 	}
 
+	// 键盘替代：聚焦卡片后用 ←/→ 调整顺序
+	function moveAlbum(index: number, delta: number) {
+		const target = index + delta;
+		if (target < 0 || target >= albums.length) return;
+		const list = [...albums];
+		const [moved] = list.splice(index, 1);
+		list.splice(target, 0, moved);
+		albums = list;
+		dragIndex = target;
+		void saveOrder();
+	}
+
+	function onCardKeydown(event: KeyboardEvent, index: number) {
+		if (event.key === "ArrowLeft") {
+			event.preventDefault();
+			moveAlbum(index, -1);
+		} else if (event.key === "ArrowRight") {
+			event.preventDefault();
+			moveAlbum(index, 1);
+		}
+	}
+
 	async function saveOrder() {
 		if (savingOrder) return;
 		savingOrder = true;
@@ -130,7 +152,7 @@
 	{:else if albums.length === 0}
 		<div class="crud-empty">暂无相册，点击「新增相册」开始。</div>
 	{:else}
-		<p class="sort-hint">拖动卡片调整相册显示顺序，松开即保存。</p>
+		<p class="sort-hint">拖动卡片调整相册显示顺序，松开即保存；聚焦卡片后用 ←/→ 方向键同样可调整。</p>
 		<div class="album-grid">
 			{#each albums as album, index (album.slug)}
 				<a
@@ -141,6 +163,7 @@
 					ondragstart={() => onDragStart(index)}
 					ondragover={(e) => onDragOver(e, index)}
 					ondrop={onDrop}
+					onkeydown={(e) => onCardKeydown(e, index)}
 				>
 					<div
 						class="thumb"

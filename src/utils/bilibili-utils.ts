@@ -1,4 +1,5 @@
 import type { StandardizedAnime } from "@/types/bilibili";
+import { fetchWithRetry } from "../../server/utils/fetchRetry";
 
 export interface BilibiliItem {
 	media_id: number;
@@ -26,9 +27,9 @@ async function fetchBilibiliByType(
 	const items: BilibiliItem[] = [];
 	const vmid = encodeURIComponent(uid);
 	// 第一页，获取 total
-	const firstRes = await fetch(
+	const firstRes = await fetchWithRetry(
 		`${BILIBILI_API}?type=${type}&vmid=${vmid}&pn=1&ps=${PAGE_SIZE}`,
-		{ headers: { "User-Agent": BILIBILI_UA }, signal: AbortSignal.timeout(10000) },
+		{ headers: { "User-Agent": BILIBILI_UA } },
 	);
 	const firstJson = await firstRes.json();
 	if (firstJson.code !== 0 || !firstJson.data?.list?.length) return items;
@@ -42,9 +43,9 @@ async function fetchBilibiliByType(
 		const promises: Promise<BilibiliItem[]>[] = [];
 		for (let pn = 2; pn <= totalPages; pn++) {
 			promises.push(
-				fetch(
+				fetchWithRetry(
 					`${BILIBILI_API}?type=${type}&vmid=${vmid}&pn=${pn}&ps=${PAGE_SIZE}`,
-					{ headers: { "User-Agent": BILIBILI_UA }, signal: AbortSignal.timeout(10000) },
+					{ headers: { "User-Agent": BILIBILI_UA } },
 				)
 					.then((r) => r.json())
 					.then((j) => j.data?.list || []),

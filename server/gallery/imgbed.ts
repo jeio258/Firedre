@@ -3,6 +3,7 @@
 import type { AlbumPhoto } from "../../types/album";
 import { detectMediaTypeFromMime } from "../../utils/albumMedia";
 import { UserError } from "../utils/userError";
+import { fetchWithRetry } from "../utils/fetchRetry";
 
 export interface ImgbedListFile {
 	name: string;
@@ -42,9 +43,8 @@ export async function fetchImgbedPhotos(
 		? `${listUrl}?dir=${encodeURIComponent(dirName)}&count=-1`
 		: `${listUrl}?count=-1`;
 
-	const response = await fetch(reqUrl, {
+	const response = await fetchWithRetry(reqUrl, {
 		headers: { Authorization: `Bearer ${token}` },
-		signal: AbortSignal.timeout(10000),
 	});
 
 	if (!response.ok)
