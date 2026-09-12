@@ -84,6 +84,13 @@ function registerSwupHooks(): void {
 
 			document.documentElement.style.setProperty("--content-delay", "0ms");
 
+			// 软导航开始即关闭全部浮动面板，避免移动菜单等残留遮挡新页
+			document
+				.querySelectorAll<HTMLElement>("[data-floating-panel]")
+				.forEach((panel) => {
+					panel.classList.add("float-panel-closed");
+				});
+
 			// 同页链接点击不需要过渡保护
 			const targetHref = el.getAttribute("href") || "";
 			const targetPathname = (() => {
@@ -130,21 +137,6 @@ function registerSwupHooks(): void {
 				import("@/utils/icon-loader").then(({ initIconLoader }) => {
 			initIconLoader();
 		});
-
-		// 检查当前页面是否为文章页面（有TOC元素）
-		const tocWrapper = document.getElementById("toc-wrapper");
-		const isArticlePage = tocWrapper !== null;
-
-		// 只在文章页面重新初始化桌面端 TOC 组件
-		if (isArticlePage) {
-			const tocElement = document.querySelector("table-of-contents");
-			const tocInit = tocElement?.init;
-			if (tocElement && typeof tocInit === "function") {
-				setTimeout(() => {
-					tocInit();
-				}, 100);
-			}
-		}
 
 		const navbar = document.getElementById("navbar");
 		if (navbar) {
@@ -218,11 +210,6 @@ function registerSwupHooks(): void {
 		const heightExtend = document.getElementById("page-height-extend");
 		if (heightExtend) {
 			heightExtend.classList.remove("hidden");
-		}
-
-		const toc = document.getElementById("toc-wrapper");
-		if (toc) {
-			toc.classList.add("toc-not-ready");
 		}
 
 		const shouldUseSmoothScroll = window.innerWidth >= 768;
@@ -316,11 +303,6 @@ function registerSwupHooks(): void {
 			const heightExtend = document.getElementById("page-height-extend");
 			if (heightExtend) {
 				heightExtend.classList.add("hidden");
-			}
-
-						const toc = document.getElementById("toc-wrapper");
-			if (toc) {
-				toc.classList.remove("toc-not-ready");
 			}
 
 			// 移除页面切换保护，恢复过渡动画

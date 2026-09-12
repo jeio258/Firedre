@@ -9,7 +9,6 @@ import { updateSidebarStickySpacing } from "@/utils/grid-layout-utils";
 
 const stickyNavbar = siteConfig.navbar.stickyNavbar ?? false;
 const backToTopBtn = document.getElementById("back-to-top-btn");
-const toc = document.getElementById("toc-wrapper");
 const navbar = document.getElementById("navbar-wrapper");
 
 export function scrollFunction(): void {
@@ -32,16 +31,6 @@ export function scrollFunction(): void {
 				backToTopBtn.classList.remove("hide");
 			} else {
 				backToTopBtn.classList.add("hide");
-			}
-		});
-	}
-
-	if (isBannerMode() && toc) {
-		operations.push(() => {
-			if (scrollTop > bannerHeight) {
-				toc.classList.remove("toc-hide");
-			} else {
-				toc.classList.add("toc-hide");
 			}
 		});
 	}

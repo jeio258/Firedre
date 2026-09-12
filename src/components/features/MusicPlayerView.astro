@@ -672,11 +672,11 @@ window.__fireflyMusicViewConfig = viewConfigStr;
         ui.lrcContainer.addEventListener('wheel', function () {
             local.isUserScrolling = true;
             resetScrollTimeout();
-        });
+        }, { passive: true });
         ui.lrcContainer.addEventListener('touchstart', function () {
             local.isUserScrolling = true;
             resetScrollTimeout();
-        });
+        }, { passive: true });
 
         ui.cover.addEventListener('load', function () {
             ui.cover.classList.remove('opacity-0');

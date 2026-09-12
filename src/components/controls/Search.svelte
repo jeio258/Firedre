@@ -149,8 +149,8 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
         <Icon icon="material-symbols:search"
               class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
         <input placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
-               class="pl-10 absolute inset-0 text-sm bg-transparent outline-0
-               focus:w-60 text-black/50 dark:text-white/50"
+               class="pl-10 absolute inset-0 text-base bg-transparent outline-0
+               text-black/50 dark:text-white/50"
         >
     </div>
 

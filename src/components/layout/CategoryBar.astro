@@ -351,8 +351,17 @@ function initialActive(categoryName: string): {
       scroll.scrollLeft += e.deltaY;
     }, { passive: false });
 
-    scroll.addEventListener("scroll", updateScrollHint);
-    window.addEventListener("resize", updateScrollHint);
+    // scroll/resize 高频触发，rAF 合帧后再更新渐隐提示
+    let hintRaf = 0;
+    const scheduleHintUpdate = () => {
+      if (hintRaf) return;
+      hintRaf = requestAnimationFrame(() => {
+        hintRaf = 0;
+        updateScrollHint();
+      });
+    };
+    scroll.addEventListener("scroll", scheduleHintUpdate, { passive: true });
+    window.addEventListener("resize", scheduleHintUpdate);
     updateScrollHint();
   }
 

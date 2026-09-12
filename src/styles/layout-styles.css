@@ -324,18 +324,6 @@ html.is-page-transitioning .banner-home-text-overlay {
     animation-play-state: running;
 }
 
-@media (max-width: 1023px) {
-    }
-
-@media (max-width: 1023px) {
-    }
-
-@media (max-width: 480px) {
-    }
-
-@media (min-width: 768px) and (max-width: 1023px) {
-    }
-
 @media (max-width: 1023px) and (orientation: landscape) {
     #wallpaper-wrapper:not(.mobile-hide-banner) {
         top: 0 !important;                         
@@ -477,23 +465,8 @@ html.is-page-transitioning .banner-home-text-overlay {
 
 }
 
-#wallpaper-wrapper.wallpaper-overlay {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100vh !important;
-    height: 100lvh !important;
-    z-index: var(--overlay-z-index, 0) !important;
-    opacity: var(--overlay-opacity, 0.8) !important;
-    pointer-events: none !important;
-    overflow: hidden !important;
-    top: 0 !important;
-    min-height: unset !important;
-    max-height: unset !important;
-    transform: none !important;
-    transition: opacity 0.6s ease !important;
-}
-
+/* overlay 模式：类名（JS 切换）与 data 属性（SSR）两种命中方式，声明合并 */
+#wallpaper-wrapper.wallpaper-overlay,
 html[data-wallpaper-mode="overlay"] #wallpaper-wrapper {
     position: fixed !important;
     inset: 0 !important;
@@ -511,16 +484,7 @@ html[data-wallpaper-mode="overlay"] #wallpaper-wrapper {
     transition: opacity 0.6s ease !important;
 }
 
-#wallpaper-wrapper.wallpaper-overlay img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    object-position: center !important;
-    filter: blur(var(--overlay-blur, 0px));
-
-    transform: scale(1.05);
-}
-
+#wallpaper-wrapper.wallpaper-overlay img,
 html[data-wallpaper-mode="overlay"] #wallpaper-wrapper img {
     width: 100% !important;
     height: 100% !important;
@@ -547,17 +511,14 @@ html[data-wallpaper-mode="overlay"] #wallpaper-wrapper {
 
 #wallpaper-wrapper.wallpaper-overlay .banner-home-text-overlay,
 #wallpaper-wrapper.wallpaper-overlay .banner-page-title-overlay,
-#wallpaper-wrapper.wallpaper-overlay .banner-post-meta-overlay {
+#wallpaper-wrapper.wallpaper-overlay .banner-post-meta-overlay,
+html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-home-text-overlay,
+html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-page-title-overlay,
+html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-post-meta-overlay {
     display: none !important;
 }
 
 html[data-wallpaper-mode="none"] #wallpaper-wrapper {
-    display: none !important;
-}
-
-html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-home-text-overlay,
-html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-page-title-overlay,
-html[data-wallpaper-mode="overlay"] #wallpaper-wrapper .banner-post-meta-overlay {
     display: none !important;
 }
 
@@ -568,24 +529,7 @@ html[data-wallpaper-mode="overlay"] .absolute.w-full.z-30.pointer-events-none {
     min-height: calc(100vh - 5.5rem) !important;
 }
 
-#wallpaper-wrapper.wallpaper-fullscreen {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100vh !important;
-    height: 100lvh !important;
-    z-index: var(--overlay-z-index, 0) !important;
-
-    opacity: 1 !important;
-    pointer-events: none !important;
-    overflow: hidden !important;
-    top: 0 !important;
-    min-height: unset !important;
-    max-height: unset !important;
-    transform: none !important;
-    transition: opacity 0.6s ease !important;
-}
-
+#wallpaper-wrapper.wallpaper-fullscreen,
 html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper {
     position: fixed !important;
     inset: 0 !important;
@@ -593,6 +537,7 @@ html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper {
     height: 100vh !important;
     height: 100lvh !important;
     z-index: var(--overlay-z-index, 0) !important;
+
     opacity: 1 !important;
     pointer-events: none !important;
     overflow: hidden !important;

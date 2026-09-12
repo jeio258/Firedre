@@ -545,10 +545,20 @@ onMount(() => {
 			window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
 	}
 
-	window.addEventListener("resize", checkScreenSize);
+	// resize 高频触发，rAF 合帧避免连续重算布局状态
+	let resizeRaf = 0;
+	const onResize = () => {
+		if (resizeRaf) return;
+		resizeRaf = requestAnimationFrame(() => {
+			resizeRaf = 0;
+			checkScreenSize();
+		});
+	};
+	window.addEventListener("resize", onResize);
 
 	return () => {
-		window.removeEventListener("resize", checkScreenSize);
+		window.removeEventListener("resize", onResize);
+		if (resizeRaf) cancelAnimationFrame(resizeRaf);
 	};
 });
 

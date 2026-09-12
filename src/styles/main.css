@@ -294,7 +294,7 @@ html {
         @apply transition-colors duration-150 rounded-md p-1.5 -m-1.5 expand-animation;
     }
     .float-panel {
-        @apply top-21 rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150 shadow-xl border border-black/5 dark:border-white/10
+        @apply top-21 rounded-(--radius-large) overflow-hidden overscroll-contain bg-(--card-bg) transition-colors duration-150 shadow-xl border border-black/5 dark:border-white/10
     }
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none

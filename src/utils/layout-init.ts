@@ -28,14 +28,8 @@ export function initLayout(): void {
 
 	initializeFloatingPanels();
 
-	setClickOutsideToClose("display-setting", [
-		"display-setting",
-		"display-settings-switch",
-	]);
-	setClickOutsideToClose("nav-menu-panel", [
-		"nav-menu-panel",
-		"nav-menu-switch",
-	]);
+	// display-setting / nav-menu-panel / theme-mode-panel 的点击开合与外部关闭
+	// 已由 Navbar 的解析期委托统一处理；此处仅注册委托未覆盖的两个面板
 	setClickOutsideToClose("search-panel", [
 		"search-panel",
 		"search-bar",
@@ -44,10 +38,6 @@ export function initLayout(): void {
 	setClickOutsideToClose("wallpaper-mode-panel", [
 		"wallpaper-mode-panel",
 		"wallpaper-mode-switch",
-	]);
-	setClickOutsideToClose("theme-mode-panel", [
-		"theme-mode-panel",
-		"scheme-switch",
 	]);
 
 	setupSwupTransitions();

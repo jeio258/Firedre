@@ -2,10 +2,6 @@
 
 :root {
 
-  --breakpoint-mobile: 768px;
-  --breakpoint-tablet: 1024px;
-  --breakpoint-desktop: 1025px;
-
   --widget-gap-mobile: 0.75rem;
   --widget-gap-tablet: 1rem;
   --widget-gap-desktop: 1.25rem;
