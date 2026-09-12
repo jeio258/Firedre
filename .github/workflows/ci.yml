@@ -11,8 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with:
-          version: 11
+        # 版本由 package.json 的 packageManager 字段驱动（11.22.0）；
+        # 此处不得再声明 version，否则 action-setup 报 Multiple versions of pnpm specified
       - uses: actions/setup-node@v4
         with:
           node-version: 22
