@@ -11,10 +11,10 @@ import type {
 	PostsListResponse,
 } from "../../types/posts";
 import { normalizePinOrder, sortPostsByPinOrder } from "../../utils/pinOrder";
-import { UserError } from "../utils/userError";
-import { parseStringList } from "../utils/json";
-import { runDbBatch } from "../utils/dbBatch";
 import { bumpContentVersion } from "../settings/service";
+import { runDbBatch } from "../utils/dbBatch";
+import { parseStringList } from "../utils/json";
+import { UserError } from "../utils/userError";
 import {
 	decodePostSlug,
 	encodePostPath,
@@ -381,10 +381,6 @@ export async function upsertPost(
 		// 渲染失败不阻断保存
 	}
 
-	await env.BUCKET.put(r2Key, source, {
-		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
-	});
-
 	const postUpsert = env.DB.prepare(`
     INSERT INTO posts (
       slug, title, excerpt, description, date, updated, categories, tags, cover,
@@ -407,38 +403,44 @@ export async function upsertPost(
       minutes = excluded.minutes,
       r2_key = excluded.r2_key,
       updated_at = datetime('now')
-  `)
-		.bind(
-			decoded,
-			String(frontmatter.title),
-			mapped.excerpt || null,
-			mapped.description || null,
-			mapped.date,
-			mapped.updated || null,
-			categories.length ? JSON.stringify(categories) : null,
-			tags.length ? JSON.stringify(tags) : null,
-			mapped.cover || null,
-			pinOrder,
-			published,
-			mapped.password,
-			JSON.stringify(frontmatter),
-			words,
-			minutes,
-			r2Key,
-		);
+  `).bind(
+		decoded,
+		String(frontmatter.title),
+		mapped.excerpt || null,
+		mapped.description || null,
+		mapped.date,
+		mapped.updated || null,
+		categories.length ? JSON.stringify(categories) : null,
+		tags.length ? JSON.stringify(tags) : null,
+		mapped.cover || null,
+		pinOrder,
+		published,
+		mapped.password,
+		JSON.stringify(frontmatter),
+		words,
+		minutes,
+		r2Key,
+	);
 
-	const ftsDelete = env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(decoded);
+	const ftsDelete = env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(
+		decoded,
+	);
 	const ftsInsert = env.DB.prepare(`
     INSERT INTO posts_fts (slug, title, excerpt, content)
     VALUES (?, ?, ?, ?)
   `).bind(decoded, String(frontmatter.title), mapped.excerpt || "", plain);
 
+	// 先落 D1（元数据与正文索引），成功后再写 R2：失败时旧正文仍与旧 key 对应，避免元数据/正文错位
 	await runDbBatch(env.DB, [
 		postUpsert,
 		ftsDelete,
 		ftsInsert,
 		...buildTaxonomyStatements(env.DB, decoded, frontmatter),
 	]);
+
+	await env.BUCKET.put(r2Key, source, {
+		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
+	});
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
@@ -454,11 +456,12 @@ export async function deletePost(env: CloudflareEnv, slug: string) {
 		.first<{ r2_key: string }>();
 	if (!row) return false;
 
-	await env.BUCKET.delete(row.r2_key);
-	await env.DB.prepare("DELETE FROM posts WHERE slug = ?").bind(decoded).run();
-	await env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?")
-		.bind(decoded)
-		.run();
+	// 先删 D1 元数据与索引（单批），成功后清理 R2 正文：失败时仅残留孤儿对象，不影响列表与详情
+	await runDbBatch(env.DB, [
+		env.DB.prepare("DELETE FROM posts WHERE slug = ?").bind(decoded),
+		env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(decoded),
+	]);
+	await env.BUCKET.delete(row.r2_key).catch(() => {});
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();

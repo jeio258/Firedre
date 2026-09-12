@@ -5,6 +5,10 @@ import PageJump from "@/components/common/PageJump.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { url } from "@/utils/url-utils";
+import {
+	computePaginationPages,
+	PAGINATION_ELLIPSIS,
+} from "@/utils/pagination-window";
 
 interface Props {
 	page: Page;
@@ -14,38 +18,11 @@ interface Props {
 
 const { page, style } = Astro.props;
 
-const HIDDEN = -1;
+const HIDDEN = PAGINATION_ELLIPSIS;
 
 const className = Astro.props.class;
 
-const ADJ_DIST = 2;
-const VISIBLE = ADJ_DIST * 2 + 1;
-
-let count = 1;
-let l = page.currentPage;
-let r = page.currentPage;
-while (0 < l - 1 && r + 1 <= page.lastPage && count + 2 <= VISIBLE) {
-	count += 2;
-	l--;
-	r++;
-}
-while (0 < l - 1 && count < VISIBLE) {
-	count++;
-	l--;
-}
-while (r + 1 <= page.lastPage && count < VISIBLE) {
-	count++;
-	r++;
-}
-
-let pages: number[] = [];
-if (l > 1) pages.push(1);
-if (l === 3) pages.push(2);
-if (l > 3) pages.push(HIDDEN);
-for (let i = l; i <= r; i++) pages.push(i);
-if (r < page.lastPage - 2) pages.push(HIDDEN);
-if (r === page.lastPage - 2) pages.push(page.lastPage - 1);
-if (r < page.lastPage) pages.push(page.lastPage);
+const pages = computePaginationPages(page.currentPage, page.lastPage);
 
 const getPageUrl = (p: number) => {
 	if (p === 1) return "/";

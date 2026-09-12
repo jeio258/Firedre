@@ -1,4 +1,3 @@
-
 (() => {
 	if (window._diagramPanZoomInit) return;
 	window._diagramPanZoomInit = true;
@@ -17,7 +16,8 @@
 	}
 
 	function initInteraction(container) {
-		if (container.dataset.pzInit === "true") return;
+		// 重初始化（PlantUML 重试）时先解除旧监听，避免重复绑定
+		if (typeof container.__pzCleanup === "function") container.__pzCleanup();
 		container.dataset.pzInit = "true";
 
 		var targets = Array.from(
@@ -93,7 +93,7 @@
 		let sy = 0;
 		let stx = 0;
 		let sty = 0;
-		container.addEventListener("pointerdown", (e) => {
+		const onPointerDown = (e) => {
 			if (e.pointerType === "touch") return;
 			if (e.button !== 0) return;
 			if (e.target.closest(".diagram-controls")) return;
@@ -104,27 +104,38 @@
 			sty = state.ty;
 			container.setPointerCapture?.(e.pointerId);
 			container.style.cursor = "grabbing";
-		});
-		container.addEventListener("pointermove", (e) => {
+		};
+		const onPointerMove = (e) => {
 			if (!dragging) return;
 			state.tx = stx + (e.clientX - sx);
 			state.ty = sty + (e.clientY - sy);
 			apply();
-		});
+		};
 		const endDrag = (e) => {
 			if (!dragging) return;
 			dragging = false;
 			container.releasePointerCapture?.(e.pointerId);
 			container.style.cursor = "";
 		};
-		container.addEventListener("pointerup", endDrag);
-		container.addEventListener("pointercancel", endDrag);
-
-		container.addEventListener("dblclick", (e) => {
+		const onDblClick = (e) => {
 			if (e.target.closest(".diagram-controls")) return;
 			if (state.scale !== 1) reset();
 			else zoomBy(SCALE_STEP * SCALE_STEP, e.clientX, e.clientY);
-		});
+		};
+		container.addEventListener("pointerdown", onPointerDown);
+		container.addEventListener("pointermove", onPointerMove);
+		container.addEventListener("pointerup", endDrag);
+		container.addEventListener("pointercancel", endDrag);
+		container.addEventListener("dblclick", onDblClick);
+
+		// 记录清理函数：重初始化时解除旧监听，防止重复绑定
+		container.__pzCleanup = () => {
+			container.removeEventListener("pointerdown", onPointerDown);
+			container.removeEventListener("pointermove", onPointerMove);
+			container.removeEventListener("pointerup", endDrag);
+			container.removeEventListener("pointercancel", endDrag);
+			container.removeEventListener("dblclick", onDblClick);
+		};
 
 		apply();
 	}
@@ -178,6 +189,8 @@
 			overlay.remove();
 			overlays.delete(overlay);
 		};
+		// 暴露给 closeAll：确保 keydown 监听随 overlay 一并解除
+		overlay.__pzClose = close;
 		const onKey = (e) => {
 			if (e.key === "Escape") close();
 		};
@@ -306,7 +319,9 @@
 
 	function closeAll() {
 		overlays.forEach((o) => {
-			o.remove();
+			// 走各 overlay 的 close()，确保 keydown 监听一并解除
+			if (typeof o.__pzClose === "function") o.__pzClose();
+			else o.remove();
 		});
 		overlays.clear();
 	}
@@ -319,7 +334,6 @@
 
 	// 暴露 re-init 入口，供 PlantUML 重试等场景调用
 	window._diagramPanZoomReinit = (container) => {
-
 		const oldControls = container.querySelector(".diagram-controls");
 		if (oldControls) oldControls.remove();
 		container.dataset.pzInit = "false";

@@ -2,6 +2,10 @@
 import PageJump from "@/components/common/PageJump.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
+import {
+	computePaginationPages,
+	PAGINATION_ELLIPSIS,
+} from "@/utils/pagination-window";
 
 interface Props {
 	totalItems: number;
@@ -14,28 +18,7 @@ const { totalItems, itemsPerPage, currentPage, onPageChange }: Props = $props();
 
 const totalPages = $derived(Math.ceil(totalItems / itemsPerPage));
 
-function generatePageNumbers(
-	current: number,
-	total: number,
-): (number | string)[] {
-	if (total <= 7) {
-		return Array.from({ length: total }, (_, i) => i + 1);
-	}
-
-	const delta = 2;
-	const left = Math.max(2, current - delta);
-	const right = Math.min(total - 1, current + delta);
-	const pages: (number | string)[] = [1];
-
-	if (left > 2) pages.push("...");
-	for (let i = left; i <= right; i++) pages.push(i);
-	if (right < total - 1) pages.push("...");
-	if (total > 1) pages.push(total);
-
-	return pages;
-}
-
-const pageNumbers = $derived(generatePageNumbers(currentPage, totalPages));
+const pageNumbers = $derived(computePaginationPages(currentPage, totalPages));
 
 function goToPage(page: number) {
 	if (page >= 1 && page <= totalPages && page !== currentPage) {
@@ -87,7 +70,7 @@ function goToPage(page: number) {
       </button>
 
       {#each pageNumbers as pageItem}
-        {#if pageItem === "..."}
+        {#if pageItem === PAGINATION_ELLIPSIS}
           <PageJump variant="ellipsis" {currentPage} lastPage={totalPages} onJump={goToPage} />
         {:else}
           <button

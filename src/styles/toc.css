@@ -136,7 +136,7 @@
 	z-index: -1;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
 	.toc-item {
 		padding: 0.44rem 0.58rem;
 		border-radius: 0.78rem;

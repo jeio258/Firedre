@@ -32,12 +32,24 @@ function getCipherKey(env: CloudflareEnv): Promise<CryptoKey | null> {
 	const cached = keyCache.__FIREDRE_ALBUM_KEY__;
 	if (cached && cached.secret === secret) return cached.key;
 	const key = (async () => {
-		const material = new TextEncoder().encode(`album-pwd:${secret}`);
-		const digest = await crypto.subtle.digest("SHA-256", material);
-		return crypto.subtle.importKey("raw", digest, { name: "AES-GCM" }, false, [
-			"encrypt",
-			"decrypt",
-		]);
+		try {
+			const material = new TextEncoder().encode(`album-pwd:${secret}`);
+			const digest = await crypto.subtle.digest("SHA-256", material);
+			return await crypto.subtle.importKey(
+				"raw",
+				digest,
+				{ name: "AES-GCM" },
+				false,
+				["encrypt", "decrypt"],
+			);
+		} catch (e) {
+			// 派生失败不缓存 rejected Promise，避免后续请求恒败
+			if (keyCache.__FIREDRE_ALBUM_KEY__?.secret === secret) {
+				delete keyCache.__FIREDRE_ALBUM_KEY__;
+			}
+			console.warn("[gallery] 相册口令密钥派生失败", e);
+			return null;
+		}
 	})();
 	keyCache.__FIREDRE_ALBUM_KEY__ = { secret, key };
 	return key;

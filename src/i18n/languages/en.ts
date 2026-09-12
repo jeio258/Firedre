@@ -9,11 +9,7 @@ export const en: Translation = {
 	[Key.searchNoResults]: "No results found.",
 	[Key.searchTypeSomething]: "Type something to search...",
 	[Key.searchLoading]: "Searching...",
-	[Key.searchSummary]: "Summary",
-	[Key.searchContent]: "Content",
 	[Key.searchViewMore]: "View more results ({count} more)",
-	[Key.other]: "Other",
-
 	[Key.navArticles]: "Articles",
 	[Key.navSocial]: "Social",
 	[Key.navMine]: "Mine",
@@ -26,7 +22,6 @@ export const en: Translation = {
 	[Key.allCategories]: "All Categories",
 	[Key.allTags]: "All Tags",
 	[Key.allSeries]: "All Series",
-	[Key.recentPosts]: "Recent Posts",
 	[Key.postList]: "Post List",
 	[Key.tableOfContents]: "Table of Contents",
 	[Key.tocEmpty]: "No table of contents on this page",
@@ -40,10 +35,7 @@ export const en: Translation = {
 	[Key.dynamicNoResults]: "No matching moments found",
 	[Key.dynamicLoading]: "Loading moments",
 	[Key.dynamicAllYears]: "All years",
-	[Key.dynamicLoadMore]: "Load more",
-	[Key.dynamicBackToList]: "Back to moments",
 	[Key.dynamicProfile]: "View {name}'s profile",
-	[Key.dynamicPermalink]: "Permalink to this moment",
 	[Key.dynamicCollapseGallery]: "Collapse",
 	[Key.dynamicViewOriginal]: "View full size",
 	[Key.dynamicPreviousImage]: "Previous image",
@@ -67,8 +59,6 @@ export const en: Translation = {
 	[Key.musicProgress]: "Playback Progress",
 	[Key.musicCover]: "Cover",
 	[Key.musicNoCover]: "No cover available",
-	[Key.musicAudioPlayer]: "Audio Player",
-
 	[Key.announcement]: "Announcement",
 	[Key.announcementClose]: "Close",
 
@@ -91,7 +81,6 @@ export const en: Translation = {
 	[Key.guestbook]: "Guestbook",
 	[Key.guestbookDescription]:
 		"Welcome to leave your mark here, share your thoughts and suggestions",
-	[Key.untitled]: "Untitled",
 	[Key.uncategorized]: "Uncategorized",
 	[Key.noTags]: "No Tags",
 
@@ -120,7 +109,6 @@ export const en: Translation = {
 	[Key.license]: "License",
 	[Key.bangumi]: "Bangumi",
 
-	[Key.bangumiTitle]: "My Bangumi",
 	[Key.bangumiSubtitle]: "Record my ACG journey",
 	[Key.bangumiFilterAll]: "All",
 	[Key.bangumiFilterWatched]: "Watched",
@@ -154,31 +142,14 @@ export const en: Translation = {
 	[Key.bangumiStatusUnknown]: "Unknown",
 	[Key.bangumiNoData]: "No Data",
 	[Key.bangumiNoDataDescription]: "No items in this category",
-	[Key.bangumiEmpty]: "No Data",
-	[Key.bangumiEmptyReason]:
-		"Possible reasons: username does not exist, network connection issue, or API limit",
 	[Key.bangumiFetchError]: "Bangumi Data Fetch Failed",
 	[Key.bangumiFetchErrorDesc]:
 		"Failed to fetch data from Bangumi API during build. This page is temporarily unavailable.",
-	[Key.bangumiUsername]: "Username",
-	[Key.bangumiApi]: "API",
-	[Key.bangumiConfigTip]:
-		"Tip: Please set the correct Bangumi username in the page configuration",
-	[Key.bangumiPrevPage]: "Previous",
-	[Key.bangumiNextPage]: "Next",
-	[Key.bangumiCurrentPage]: "Page",
-	[Key.bangumiTotalPages]: "of",
-	[Key.bangumiPage]: "page",
-
 	[Key.bangumiCategoryBook]: "Book",
 	[Key.bangumiCategoryAnime]: "Anime",
 	[Key.bangumiCategoryMusic]: "Music",
 	[Key.bangumiCategoryGame]: "Game",
 	[Key.bangumiCategoryReal]: "Real",
-
-	[Key.bangumiLastUpdated]: "Data updated at",
-	[Key.bangumiUpdatedAt]: "Build time",
-	[Key.bangumiDataStatic]: "Static data",
 
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "My visual novel list from VNDB",
@@ -194,16 +165,12 @@ export const en: Translation = {
 	[Key.vndbStatusUnknown]: "Unknown",
 	[Key.vndbNoData]: "No Data",
 	[Key.vndbNoDataDescription]: "No items in this category",
-	[Key.vndbEmpty]: "No Data",
-	[Key.vndbEmptyReason]:
-		"Possible reasons: user ID does not exist, list is private, network issue, or API limit",
 	[Key.vndbFetchError]: "VNDB Data Fetch Failed",
 	[Key.vndbFetchErrorDesc]:
 		"Failed to fetch data from VNDB API during build. This page is temporarily unavailable.",
 	[Key.vndbNotConfigured]: "VNDB User ID Not Configured",
 	[Key.vndbNotConfiguredDesc]:
 		"Please configure your VNDB user ID in src/config/siteConfig.ts",
-	[Key.vndbLastUpdated]: "Data updated at",
 	[Key.vndbVotes]: "votes",
 	[Key.vndbLengthVeryShort]: "Very short",
 	[Key.vndbLengthShort]: "Short",
@@ -218,27 +185,19 @@ export const en: Translation = {
 		"Configure bilibili.uid in src/config/siteConfig.ts",
 
 	[Key.animeTotal]: "Total",
-	[Key.animeAverageRating]: "Avg Rating",
 	[Key.animeSearch]: "Search anime...",
-	[Key.animeAllTypes]: "All",
-	[Key.animeTV]: "TV Anime",
-	[Key.animeMovie]: "Movie",
 	[Key.animeRatingDesc]: "Highest Rating",
 	[Key.animeRatingAsc]: "Lowest Rating",
 	[Key.animeDateDesc]: "Newest",
 	[Key.animeDateAsc]: "Oldest",
 	[Key.animeNoResults]: "No matching anime found",
 	[Key.animeLastUpdated]: "Data updated at",
-	[Key.animeEpStatus]: "Progress",
 	[Key.animeViewDetails]: "View Details",
 	[Key.animeBilibiliAvg]: "Bilibili Avg",
 	[Key.animeNoOverview]: "No synopsis available",
 	[Key.animeClose]: "Close",
 	[Key.animeSynopsis]: "Synopsis",
 	[Key.animeWatchNow]: "Watch Now",
-	[Key.animeAllWithCount]: "All ({count})",
-	[Key.animeTVWithCount]: "TV ({count})",
-	[Key.animeMovieWithCount]: "Movie ({count})",
 	[Key.animeTypeAnime]: "Anime",
 	[Key.animeTypeMovie]: "Movie",
 	[Key.animeTypeDocumentary]: "Documentary",
@@ -275,14 +234,9 @@ export const en: Translation = {
 	[Key.malSeasonSummer]: "Summer",
 	[Key.malSeasonFall]: "Fall",
 
-	[Key.paginationFirst]: "First",
 	[Key.paginationPrev]: "Previous",
 	[Key.paginationNext]: "Next",
-	[Key.paginationLast]: "Last",
 	[Key.paginationPage]: "Page",
-	[Key.paginationOf]: "of",
-	[Key.paginationTotal]: ", Total",
-	[Key.paginationRecords]: " records",
 	[Key.paginationJump]: "Jump to page",
 
 	[Key.notFound]: "404",
@@ -316,16 +270,8 @@ export const en: Translation = {
 	[Key.lastModifiedOutdated]: "Some content may be outdated",
 	[Key.lastModifiedDaysAgo]: "{days} days ago",
 	[Key.year]: "year",
-	[Key.month]: "month",
-	[Key.day]: "day",
-	[Key.hour]: "hour",
-	[Key.minute]: "minute",
-	[Key.second]: "second",
-
 	[Key.pageViews]: "Views",
 	[Key.pageViewsLoading]: "Loading...",
-	[Key.pageViewsError]: "Stats unavailable",
-
 	[Key.pinned]: "Pinned",
 
 	[Key.relatedPosts]: "Related Posts",
@@ -377,13 +323,8 @@ export const en: Translation = {
 	[Key.sponsorTitle]: "Support Me",
 	[Key.sponsorDescription]:
 		"If my content has been helpful to you, welcome to sponsor me through the following methods. Your support is the driving force for my continued creation!",
-	[Key.sponsorMethods]: "Payment Methods",
 	[Key.sponsorList]: "Sponsors",
 	[Key.sponsorEmpty]: "No sponsors yet",
-	[Key.sponsorAmount]: "Amount",
-	[Key.sponsorDate]: "Date",
-	[Key.sponsorMessage]: "Message",
-	[Key.sponsorAnonymous]: "Anonymous",
 	[Key.scanToSponsor]: "Scan to Sponsor",
 	[Key.sponsorGoTo]: "Go to Sponsor",
 	[Key.sponsorButton]: "Support & Share",
@@ -396,7 +337,6 @@ export const en: Translation = {
 
 	[Key.siteStats]: "Site Statistics",
 	[Key.siteStatsPostCount]: "Posts",
-	[Key.siteStatsDynamicCount]: "Moments",
 	[Key.siteStatsCategoryCount]: "Categories",
 	[Key.siteStatsTagCount]: "Tags",
 	[Key.siteStatsTotalWords]: "Total Words",
@@ -449,15 +389,9 @@ export const en: Translation = {
 	[Key.savePoster]: "Save Poster",
 	[Key.scanToRead]: "Scan to Read",
 
-	[Key.codeCollapsibleShowMore]: "Show more",
-	[Key.codeCollapsibleShowLess]: "Show less",
-	[Key.codeCollapsibleExpanded]: "Code block expanded",
-	[Key.codeCollapsibleCollapsed]: "Code block collapsed",
-
 	[Key.gallery]: "Gallery",
 	[Key.galleryDescription]: "Capturing beautiful moments in life",
 	[Key.galleryPhotos]: "photos",
-	[Key.galleryAlbums]: "albums",
 	[Key.galleryNoAlbums]: "No albums yet",
 	[Key.galleryBackToAlbums]: "Back to albums",
 	[Key.searchAlbums]: "Search albums...",
@@ -469,9 +403,6 @@ export const en: Translation = {
 	[Key.passwordPlaceholder]: "Enter password",
 	[Key.passwordSubmit]: "Unlock",
 	[Key.passwordError]: "Incorrect password, please try again.",
-	[Key.passwordProtectedRss]:
-		"This article is encrypted. Please visit the website to view it.",
-
 	[Key.videoPlay]: "Play background video",
 	[Key.videoPause]: "Pause background video",
 	[Key.videoPrev]: "Previous video",

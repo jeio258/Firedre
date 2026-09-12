@@ -787,7 +787,7 @@ body.wallpaper-transparent .dynamic-year-select select option {
 	background: var(--card-bg);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
 	.dynamic-content,
 	.dynamic-gallery,
 	.dynamic-inline-comments {

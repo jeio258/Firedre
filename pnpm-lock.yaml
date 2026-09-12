@@ -53,9 +53,6 @@ importers:
       '@mermanjs/web':
         specifier: 0.8.0-alpha.3
         version: 0.8.0-alpha.3
-      '@napi-rs/wasm-runtime':
-        specifier: ^1.2.2
-        version: 1.2.3(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)
       '@swup/astro':
         specifier: ^1.8.0
         version: 1.8.0(rolldown@1.2.5)(supports-color@10.2.2)
@@ -7775,6 +7772,7 @@ snapshots:
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
       tslib: 2.8.1
+    optional: true
 
   '@emnapi/runtime@1.11.1':
     dependencies:
@@ -7784,10 +7782,12 @@ snapshots:
   '@emnapi/runtime@1.11.3':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@emnapi/wasi-threads@1.2.2':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@esbuild/aix-ppc64@0.25.12':
     optional: true
@@ -8517,6 +8517,7 @@ snapshots:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.3
       '@tybys/wasm-util': 0.10.3
+    optional: true
 
   '@nodable/entities@3.0.0': {}
 
@@ -9042,6 +9043,7 @@ snapshots:
   '@tybys/wasm-util@0.10.3':
     dependencies:
       tslib: 2.8.1
+    optional: true
 
   '@types/chai@5.2.3':
     dependencies:

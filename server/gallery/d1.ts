@@ -1,12 +1,7 @@
-
-
-import type {
-	AlbumDetailFrontmatter,
-	AlbumSource,
-} from "../../types/album";
+import type { AlbumDetailFrontmatter, AlbumSource } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
-import { runDbBatch } from "../utils/dbBatch";
 import { chunkArray, uniqueNonEmpty } from "../utils/collections";
+import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
 
 interface AlbumRow {
@@ -79,7 +74,10 @@ export async function getAlbumFromD1(
 	if (!row) return null;
 
 	const photos = await loadPhotos(env, slug);
-	return { frontmatter: buildAlbumFrontmatter(row, photos), content: row.content };
+	return {
+		frontmatter: buildAlbumFrontmatter(row, photos),
+		content: row.content,
+	};
 }
 
 export async function getAlbumsFromD1Map(
@@ -195,8 +193,10 @@ export async function upsertAlbumToD1(
 	);
 
 	const stmts = [albumUpsert, photoDelete, ...photoInserts];
-	for (let i = 0; i < stmts.length; i += 50) {
-		await runDbBatch(env.DB, stmts.slice(i, i + 50));
+	// D1 batch 原子性以单次 batch 为界：分片越小，跨片失败造成照片残缺的窗口越大；
+	// 100 条（覆盖约 98 张照片的相册）可在单 batch 内完成删除+重建
+	for (let i = 0; i < stmts.length; i += 100) {
+		await runDbBatch(env.DB, stmts.slice(i, i + 100));
 	}
 
 	return { frontmatter: { ...frontmatter, source }, content };

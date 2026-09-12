@@ -1,12 +1,29 @@
+import type { CloudflareEnv } from "../../types/env";
+import { createCrudService } from "../utils/crud";
 import { safeUrlScheme } from "../utils/safeUrl";
 import { UserError } from "../utils/userError";
-import { createCrudService } from "../utils/crud";
-import type { CloudflareEnv } from "../../types/env";
-import type { SiteLinkInput, SiteLinkKind, SiteLinkLocation, SiteLinkRecord, SiteLinkView } from "./types";
+import type {
+	SiteLinkInput,
+	SiteLinkKind,
+	SiteLinkLocation,
+	SiteLinkRecord,
+	SiteLinkView,
+} from "./types";
 
-export type { SiteLinkInput, SiteLinkKind, SiteLinkLocation, SiteLinkRecord, SiteLinkView } from "./types";
+export type {
+	SiteLinkInput,
+	SiteLinkKind,
+	SiteLinkLocation,
+	SiteLinkRecord,
+	SiteLinkView,
+} from "./types";
 
-const VALID_LOCATIONS: SiteLinkLocation[] = ["navbar", "footer", "profile", "sponsor"];
+const VALID_LOCATIONS: SiteLinkLocation[] = [
+	"navbar",
+	"footer",
+	"profile",
+	"sponsor",
+];
 const VALID_KINDS: SiteLinkKind[] = ["link", "qr"];
 
 function toView(row: SiteLinkRecord): SiteLinkView {
@@ -40,12 +57,16 @@ function normalizeInput(raw: SiteLinkInput): SiteLinkNormalized {
 	const name = String(raw.name || "").trim();
 	const url = String(raw.url || "").trim();
 	const icon = String(raw.icon || "").trim();
-	const location = (VALID_LOCATIONS.includes(raw.location as SiteLinkLocation)
-		? (raw.location as SiteLinkLocation)
-		: "navbar") as SiteLinkLocation;
-	const kind = (VALID_KINDS.includes(raw.kind as SiteLinkKind)
-		? (raw.kind as SiteLinkKind)
-		: "link") as SiteLinkKind;
+	const location = (
+		VALID_LOCATIONS.includes(raw.location as SiteLinkLocation)
+			? (raw.location as SiteLinkLocation)
+			: "navbar"
+	) as SiteLinkLocation;
+	const kind = (
+		VALID_KINDS.includes(raw.kind as SiteLinkKind)
+			? (raw.kind as SiteLinkKind)
+			: "link"
+	) as SiteLinkKind;
 	const sortOrder = Number.isFinite(Number(raw.sortOrder))
 		? Math.max(0, Math.round(Number(raw.sortOrder)))
 		: 0;
@@ -59,13 +80,29 @@ function normalizeInput(raw: SiteLinkInput): SiteLinkNormalized {
 	return { name, url, icon, location, kind, sortOrder, enabled };
 }
 
-const service = createCrudService<SiteLinkRecord, SiteLinkInput, SiteLinkNormalized, SiteLinkView>({
+const service = createCrudService<
+	SiteLinkRecord,
+	SiteLinkInput,
+	SiteLinkNormalized,
+	SiteLinkView
+>({
 	table: "site_links",
 	columns: ["name", "url", "icon", "location", "kind", "sort_order", "enabled"],
 	normalize: normalizeInput,
-	toParams: (i) => [i.name, i.url, i.icon, i.location, i.kind, i.sortOrder, i.enabled],
+	toParams: (i) => [
+		i.name,
+		i.url,
+		i.icon,
+		i.location,
+		i.kind,
+		i.sortOrder,
+		i.enabled,
+	],
 	toView,
-	orderBy: { list: "location ASC, sort_order ASC, id ASC", enabled: "location ASC, sort_order ASC, id ASC" },
+	orderBy: {
+		list: "location ASC, sort_order ASC, id ASC",
+		enabled: "location ASC, sort_order ASC, id ASC",
+	},
 	enabledFilter: (raw) =>
 		VALID_LOCATIONS.includes(raw as SiteLinkLocation)
 			? { sql: " AND location = ?", bind: [raw] }
@@ -93,7 +130,9 @@ export async function listEnabledSiteLinks(
 		const all = await service.listEnabled(env);
 		for (const l of all) {
 			if (!store[l.location]) store[l.location] = [];
-			if (!store[l.location].some((x) => x.name === l.name)) store[l.location].push(l);
+			// 按行 id 去重：防历史重复行缺陷复发，且不误删同名不同址的合法链接
+			if (!store[l.location].some((x) => x.id === l.id))
+				store[l.location].push(l);
 		}
 		store.__all = all;
 		return store[key] ?? [];

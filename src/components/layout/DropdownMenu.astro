@@ -1,8 +1,8 @@
 ---
 import { Icon } from "astro-icon/components";
-import SafeIcon from "@/components/common/SafeIcon.astro";
 import DropdownItem from "@/components/common/DropdownItem.astro";
 import DropdownPanel from "@/components/common/DropdownPanel.astro";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import type { NavBarLink } from "@/types/config";
 import { url } from "@/utils/url-utils";
 
@@ -91,7 +91,7 @@ const hasChildren = processedLink.children && processedLink.children.length > 0;
 		@apply rotate-180;
 	}
 
-	@media (max-width: 768px) {
+	@media (max-width: 767.98px) {
 		.dropdown-container {
 			@apply hidden;
 		}

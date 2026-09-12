@@ -9,11 +9,7 @@ export const ko: Translation = {
 	[Key.searchNoResults]: "검색 결과가 없습니다.",
 	[Key.searchTypeSomething]: "검색어를 입력하세요...",
 	[Key.searchLoading]: "검색 중...",
-	[Key.searchSummary]: "요약",
-	[Key.searchContent]: "내용",
 	[Key.searchViewMore]: "더 많은 결과 보기 ({count}개 더)",
-	[Key.other]: "기타",
-
 	[Key.navArticles]: "글",
 	[Key.navSocial]: "소셜",
 	[Key.navMine]: "마이",
@@ -26,7 +22,6 @@ export const ko: Translation = {
 	[Key.allCategories]: "모든 카테고리",
 	[Key.allTags]: "모든 태그",
 	[Key.allSeries]: "모든 시리즈",
-	[Key.recentPosts]: "최근 게시글",
 	[Key.postList]: "게시글 목록",
 	[Key.tableOfContents]: "목차",
 	[Key.tocEmpty]: "이 페이지에는 목차가 없습니다",
@@ -40,10 +35,7 @@ export const ko: Translation = {
 	[Key.dynamicNoResults]: "일치하는 일상이 없습니다",
 	[Key.dynamicLoading]: "일상을 불러오는 중",
 	[Key.dynamicAllYears]: "모든 연도",
-	[Key.dynamicLoadMore]: "더 보기",
-	[Key.dynamicBackToList]: "일상 목록으로",
 	[Key.dynamicProfile]: "{name}님의 프로필 보기",
-	[Key.dynamicPermalink]: "이 일상의 고유 링크",
 	[Key.dynamicCollapseGallery]: "접기",
 	[Key.dynamicViewOriginal]: "크게 보기",
 	[Key.dynamicPreviousImage]: "이전 이미지",
@@ -67,8 +59,6 @@ export const ko: Translation = {
 	[Key.musicProgress]: "재생 진행률",
 	[Key.musicCover]: "커버",
 	[Key.musicNoCover]: "커버 이미지 없음",
-	[Key.musicAudioPlayer]: "오디오 플레이어",
-
 	[Key.announcement]: "공지사항",
 	[Key.announcementClose]: "닫기",
 
@@ -90,7 +80,6 @@ export const ko: Translation = {
 	[Key.guestbook]: "방명록",
 	[Key.guestbookDescription]:
 		"이곳에 흔적을 남기고 생각과 제안을 공유해 주세요",
-	[Key.untitled]: "제목 없음",
 	[Key.uncategorized]: "미분류",
 	[Key.noTags]: "태그 없음",
 
@@ -119,7 +108,6 @@ export const ko: Translation = {
 	[Key.license]: "라이선스",
 	[Key.bangumi]: "Bangumi",
 
-	[Key.bangumiTitle]: "나의 Bangumi",
 	[Key.bangumiSubtitle]: "나의 ACG 기록",
 	[Key.bangumiFilterAll]: "전체",
 	[Key.bangumiFilterWatched]: "시청 완료",
@@ -153,31 +141,14 @@ export const ko: Translation = {
 	[Key.bangumiStatusUnknown]: "알 수 없음",
 	[Key.bangumiNoData]: "데이터 없음",
 	[Key.bangumiNoDataDescription]: "이 카테고리에는 항목이 없습니다",
-	[Key.bangumiEmpty]: "데이터 없음",
-	[Key.bangumiEmptyReason]:
-		"가능한 원인: 사용자 이름이 존재하지 않음, 네트워크 연결 문제, 또는 API 호출 제한",
 	[Key.bangumiFetchError]: "반구미 데이터 가져오기 실패",
 	[Key.bangumiFetchErrorDesc]:
 		"빌드 중 반구미 API에서 데이터를 가져오지 못했습니다. 이 페이지는 일시적으로 사용할 수 없습니다.",
-	[Key.bangumiUsername]: "사용자 이름",
-	[Key.bangumiApi]: "API",
-	[Key.bangumiConfigTip]:
-		"팁: 페이지 설정에서 올바른 반구미 사용자 이름을 설정하세요",
-	[Key.bangumiPrevPage]: "이전",
-	[Key.bangumiNextPage]: "다음",
-	[Key.bangumiCurrentPage]: "페이지",
-	[Key.bangumiTotalPages]: "/",
-	[Key.bangumiPage]: "페이지",
-
 	[Key.bangumiCategoryBook]: "책",
 	[Key.bangumiCategoryAnime]: "애니메이션",
 	[Key.bangumiCategoryMusic]: "음악",
 	[Key.bangumiCategoryGame]: "게임",
 	[Key.bangumiCategoryReal]: "실사",
-
-	[Key.bangumiLastUpdated]: "데이터 업데이트 시각",
-	[Key.bangumiUpdatedAt]: "빌드 시각",
-	[Key.bangumiDataStatic]: "정적 데이터",
 
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "내 VNDB 비주얼 노벨 목록",
@@ -193,16 +164,12 @@ export const ko: Translation = {
 	[Key.vndbStatusUnknown]: "알 수 없음",
 	[Key.vndbNoData]: "데이터 없음",
 	[Key.vndbNoDataDescription]: "이 카테고리에는 항목이 없습니다",
-	[Key.vndbEmpty]: "데이터 없음",
-	[Key.vndbEmptyReason]:
-		"가능한 원인: 사용자 ID가 존재하지 않음, 목록이 비공개, 네트워크 연결 문제, 또는 API 호출 제한",
 	[Key.vndbFetchError]: "VNDB 데이터 가져오기 실패",
 	[Key.vndbFetchErrorDesc]:
 		"빌드 중 VNDB API에서 데이터를 가져오지 못했습니다. 이 페이지는 일시적으로 사용할 수 없습니다.",
 	[Key.vndbNotConfigured]: "VNDB 사용자 ID가 설정되지 않았습니다",
 	[Key.vndbNotConfiguredDesc]:
 		"src/config/siteConfig.ts에서 VNDB 사용자 ID를 설정하세요",
-	[Key.vndbLastUpdated]: "데이터 업데이트 시각",
 	[Key.vndbVotes]: "표",
 	[Key.vndbLengthVeryShort]: "매우 짧음",
 	[Key.vndbLengthShort]: "짧음",
@@ -217,27 +184,19 @@ export const ko: Translation = {
 		"src/config/siteConfig.ts에서 bilibili.uid를 설정하세요",
 
 	[Key.animeTotal]: "총계",
-	[Key.animeAverageRating]: "평균 평점",
 	[Key.animeSearch]: "애니메이션 검색...",
-	[Key.animeAllTypes]: "전체",
-	[Key.animeTV]: "TV 애니메이션",
-	[Key.animeMovie]: "극장판",
 	[Key.animeRatingDesc]: "평점 높은 순",
 	[Key.animeRatingAsc]: "평점 낮은 순",
 	[Key.animeDateDesc]: "최신순",
 	[Key.animeDateAsc]: "오래된 순",
 	[Key.animeNoResults]: "일치하는 애니메이션이 없습니다",
 	[Key.animeLastUpdated]: "데이터 업데이트 시각",
-	[Key.animeEpStatus]: "진행 상황",
 	[Key.animeViewDetails]: "상세 보기",
 	[Key.animeBilibiliAvg]: "Bilibili 평균",
 	[Key.animeNoOverview]: "줄거리 정보 없음",
 	[Key.animeClose]: "닫기",
 	[Key.animeSynopsis]: "줄거리",
 	[Key.animeWatchNow]: "지금 시청하기",
-	[Key.animeAllWithCount]: "전체 ({count})",
-	[Key.animeTVWithCount]: "TV ({count})",
-	[Key.animeMovieWithCount]: "극장판 ({count})",
 	[Key.animeTypeAnime]: "애니메이션",
 	[Key.animeTypeMovie]: "극장판",
 	[Key.animeTypeDocumentary]: "다큐멘터리",
@@ -274,14 +233,9 @@ export const ko: Translation = {
 	[Key.malSeasonSummer]: "여름",
 	[Key.malSeasonFall]: "가을",
 
-	[Key.paginationFirst]: "처음",
 	[Key.paginationPrev]: "이전",
 	[Key.paginationNext]: "다음",
-	[Key.paginationLast]: "마지막",
 	[Key.paginationPage]: "페이지",
-	[Key.paginationOf]: "/",
-	[Key.paginationTotal]: ", 총",
-	[Key.paginationRecords]: "개",
 	[Key.paginationJump]: "지정한 페이지로 이동",
 
 	[Key.notFound]: "404",
@@ -314,16 +268,8 @@ export const ko: Translation = {
 	[Key.lastModifiedOutdated]: "일부 내용이 오래되었을 수 있습니다",
 	[Key.lastModifiedDaysAgo]: "{days}일 전",
 	[Key.year]: "년",
-	[Key.month]: "월",
-	[Key.day]: "일",
-	[Key.hour]: "시간",
-	[Key.minute]: "분",
-	[Key.second]: "초",
-
 	[Key.pageViews]: "조회수",
 	[Key.pageViewsLoading]: "불러오는 중...",
-	[Key.pageViewsError]: "통계를 불러올 수 없습니다",
-
 	[Key.pinned]: "고정됨",
 
 	[Key.relatedPosts]: "관련 게시글",
@@ -375,13 +321,8 @@ export const ko: Translation = {
 	[Key.sponsorTitle]: "저를 후원해 주세요",
 	[Key.sponsorDescription]:
 		"제 콘텐츠가 도움이 되셨다면 아래 방법으로 후원해 주세요. 여러분의 후원은 계속 창작할 수 있는 원동력이 됩니다!",
-	[Key.sponsorMethods]: "결제 방법",
 	[Key.sponsorList]: "후원자",
 	[Key.sponsorEmpty]: "아직 후원자가 없습니다",
-	[Key.sponsorAmount]: "금액",
-	[Key.sponsorDate]: "날짜",
-	[Key.sponsorMessage]: "메시지",
-	[Key.sponsorAnonymous]: "익명",
 	[Key.scanToSponsor]: "스캔하여 후원하기",
 	[Key.sponsorGoTo]: "후원하러 가기",
 	[Key.sponsorButton]: "응원 & 공유",
@@ -393,7 +334,6 @@ export const ko: Translation = {
 
 	[Key.siteStats]: "사이트 통계",
 	[Key.siteStatsPostCount]: "게시글",
-	[Key.siteStatsDynamicCount]: "일상",
 	[Key.siteStatsCategoryCount]: "카테고리",
 	[Key.siteStatsTagCount]: "태그",
 	[Key.siteStatsTotalWords]: "총 단어 수",
@@ -446,15 +386,9 @@ export const ko: Translation = {
 	[Key.savePoster]: "포스터 저장",
 	[Key.scanToRead]: "스캔하여 읽기",
 
-	[Key.codeCollapsibleShowMore]: "더 보기",
-	[Key.codeCollapsibleShowLess]: "간략히 보기",
-	[Key.codeCollapsibleExpanded]: "코드 블록 펼쳐짐",
-	[Key.codeCollapsibleCollapsed]: "코드 블록 접힘",
-
 	[Key.gallery]: "갤러리",
 	[Key.galleryDescription]: "삶의 아름다운 순간을 담다",
 	[Key.galleryPhotos]: "장",
-	[Key.galleryAlbums]: "앨범",
 	[Key.galleryNoAlbums]: "아직 앨범이 없습니다",
 	[Key.galleryBackToAlbums]: "앨범으로 돌아가기",
 	[Key.searchAlbums]: "앨범 검색...",
@@ -466,9 +400,6 @@ export const ko: Translation = {
 	[Key.passwordPlaceholder]: "비밀번호 입력",
 	[Key.passwordSubmit]: "잠금 해제",
 	[Key.passwordError]: "비밀번호가 올바르지 않습니다. 다시 시도해 주세요.",
-	[Key.passwordProtectedRss]:
-		"이 글은 암호화되어 있습니다. 웹사이트에서 확인해 주세요.",
-
 	[Key.videoPlay]: "배경 영상 재생",
 	[Key.videoPause]: "배경 영상 일시정지",
 	[Key.videoPrev]: "이전 영상",

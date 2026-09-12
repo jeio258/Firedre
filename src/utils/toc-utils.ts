@@ -1,5 +1,3 @@
-
-
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import {
@@ -23,6 +21,9 @@ export class TOCManager {
 	private contentId: string;
 	private indicatorId: string;
 	private scrollOffset: number;
+	// 复用同一 bind 引用：addEventListener 对相同引用幂等，避免 attach 多次触发叠加
+	private boundClickHandler: (event: Event) => void = (event) =>
+		this.handleClick(event);
 
 	constructor(config: TOCConfig) {
 		this.contentId = config.contentId;
@@ -302,7 +303,7 @@ export class TOCManager {
 
 	public bindClickEvents(): void {
 		this.tocItems.forEach((item) => {
-			item.addEventListener("click", this.handleClick.bind(this));
+			item.addEventListener("click", this.boundClickHandler);
 		});
 	}
 
@@ -311,6 +312,9 @@ export class TOCManager {
 			this.observer.disconnect();
 			this.observer = null;
 		}
+		this.tocItems.forEach((item) => {
+			item.removeEventListener("click", this.boundClickHandler);
+		});
 		if (this.scrollTimeout) {
 			clearTimeout(this.scrollTimeout);
 			this.scrollTimeout = null;

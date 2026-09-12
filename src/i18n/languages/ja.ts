@@ -9,11 +9,7 @@ export const ja: Translation = {
 	[Key.searchNoResults]: "結果が見つかりません。",
 	[Key.searchTypeSomething]: "検索キーワードを入力してください。",
 	[Key.searchLoading]: "検索中...",
-	[Key.searchSummary]: "摘要",
-	[Key.searchContent]: "内容",
 	[Key.searchViewMore]: "さらに結果を表示 ({count} 件)",
-	[Key.other]: "その他",
-
 	[Key.navArticles]: "記事",
 	[Key.navSocial]: "ソーシャル",
 	[Key.navMine]: "マイ",
@@ -26,7 +22,6 @@ export const ja: Translation = {
 	[Key.allCategories]: "すべてのカテゴリ",
 	[Key.allTags]: "すべてのタグ",
 	[Key.allSeries]: "すべてのシリーズ",
-	[Key.recentPosts]: "最近の投稿",
 	[Key.postList]: "投稿リスト",
 	[Key.tableOfContents]: "目次",
 	[Key.tocEmpty]: "このページには目次がありません",
@@ -40,10 +35,7 @@ export const ja: Translation = {
 	[Key.dynamicNoResults]: "一致する投稿がありません",
 	[Key.dynamicLoading]: "投稿を読み込んでいます",
 	[Key.dynamicAllYears]: "すべての年",
-	[Key.dynamicLoadMore]: "さらに読み込む",
-	[Key.dynamicBackToList]: "投稿一覧へ戻る",
 	[Key.dynamicProfile]: "{name}のプロフィールを見る",
-	[Key.dynamicPermalink]: "この投稿への固定リンク",
 	[Key.dynamicCollapseGallery]: "閉じる",
 	[Key.dynamicViewOriginal]: "拡大表示",
 	[Key.dynamicPreviousImage]: "前の画像",
@@ -67,8 +59,6 @@ export const ja: Translation = {
 	[Key.musicProgress]: "再生の進捗",
 	[Key.musicCover]: "カバー",
 	[Key.musicNoCover]: "カバーなし",
-	[Key.musicAudioPlayer]: "オーディオプレーヤー",
-
 	[Key.announcement]: "お知らせ",
 	[Key.announcementClose]: "閉じる",
 
@@ -90,7 +80,6 @@ export const ja: Translation = {
 	[Key.guestbook]: "ゲストブック",
 	[Key.guestbookDescription]:
 		"ここに足跡を残して、あなたの考えや提案を共有してください",
-	[Key.untitled]: "無題",
 	[Key.uncategorized]: "未分類",
 	[Key.noTags]: "タグなし",
 
@@ -119,7 +108,6 @@ export const ja: Translation = {
 	[Key.license]: "ライセンス",
 	[Key.bangumi]: "Bangumi",
 
-	[Key.bangumiTitle]: "私のBangumi",
 	[Key.bangumiSubtitle]: "私の二次元の旅を記録する",
 	[Key.bangumiFilterAll]: "すべて",
 	[Key.bangumiFilterWatched]: "見た",
@@ -153,31 +141,14 @@ export const ja: Translation = {
 	[Key.bangumiStatusUnknown]: "不明",
 	[Key.bangumiNoData]: "データなし",
 	[Key.bangumiNoDataDescription]: "このカテゴリに項目がありません",
-	[Key.bangumiEmpty]: "データなし",
-	[Key.bangumiEmptyReason]:
-		"考えられる理由：ユーザー名が存在しない、ネットワーク接続の問題、またはAPI制限",
 	[Key.bangumiFetchError]: "Bangumi データ取得失敗",
 	[Key.bangumiFetchErrorDesc]:
 		"ビルド時に Bangumi API からのデータ取得に失敗しました。このページは一時的に利用できません。",
-	[Key.bangumiUsername]: "ユーザー名",
-	[Key.bangumiApi]: "API",
-	[Key.bangumiConfigTip]:
-		"ヒント：ページ設定で正しいBangumiユーザー名を設定してください",
-	[Key.bangumiPrevPage]: "前へ",
-	[Key.bangumiNextPage]: "次へ",
-	[Key.bangumiCurrentPage]: "ページ",
-	[Key.bangumiTotalPages]: "の",
-	[Key.bangumiPage]: "ページ",
-
 	[Key.bangumiCategoryBook]: "本",
 	[Key.bangumiCategoryAnime]: "アニメ",
 	[Key.bangumiCategoryMusic]: "音楽",
 	[Key.bangumiCategoryGame]: "ゲーム",
 	[Key.bangumiCategoryReal]: "実写",
-
-	[Key.bangumiLastUpdated]: "データ更新",
-	[Key.bangumiUpdatedAt]: "ビルド時間",
-	[Key.bangumiDataStatic]: "静的データ",
 
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "私のビジュアルノベルリスト",
@@ -193,16 +164,12 @@ export const ja: Translation = {
 	[Key.vndbStatusUnknown]: "不明",
 	[Key.vndbNoData]: "データなし",
 	[Key.vndbNoDataDescription]: "このカテゴリに項目がありません",
-	[Key.vndbEmpty]: "データなし",
-	[Key.vndbEmptyReason]:
-		"考えられる理由：ユーザーIDが存在しない、リストが非公開、ネットワーク接続の問題、またはAPI制限",
 	[Key.vndbFetchError]: "VNDB データ取得失敗",
 	[Key.vndbFetchErrorDesc]:
 		"ビルド時に VNDB API からのデータ取得に失敗しました。このページは一時的に利用できません。",
 	[Key.vndbNotConfigured]: "VNDB ユーザーIDが未設定です",
 	[Key.vndbNotConfiguredDesc]:
 		"src/config/siteConfig.ts で VNDB ユーザーIDを設定してください",
-	[Key.vndbLastUpdated]: "データ更新",
 	[Key.vndbVotes]: "票",
 	[Key.vndbLengthVeryShort]: "非常に短い",
 	[Key.vndbLengthShort]: "短い",
@@ -217,27 +184,19 @@ export const ja: Translation = {
 		"src/config/siteConfig.ts で bilibili.uid を設定してください",
 
 	[Key.animeTotal]: "合計",
-	[Key.animeAverageRating]: "平均評価",
 	[Key.animeSearch]: "アニメを検索...",
-	[Key.animeAllTypes]: "すべて",
-	[Key.animeTV]: "TV アニメ",
-	[Key.animeMovie]: "映画",
 	[Key.animeRatingDesc]: "評価が高い順",
 	[Key.animeRatingAsc]: "評価が低い順",
 	[Key.animeDateDesc]: "新しい順",
 	[Key.animeDateAsc]: "古い順",
 	[Key.animeNoResults]: "一致するアニメが見つかりません",
 	[Key.animeLastUpdated]: "データ更新",
-	[Key.animeEpStatus]: "進捗",
 	[Key.animeViewDetails]: "詳細を見る",
 	[Key.animeBilibiliAvg]: "Bilibili 平均",
 	[Key.animeNoOverview]: "あらすじなし",
 	[Key.animeClose]: "閉じる",
 	[Key.animeSynopsis]: "あらすじ",
 	[Key.animeWatchNow]: "今すぐ視聴",
-	[Key.animeAllWithCount]: "すべて ({count})",
-	[Key.animeTVWithCount]: "TV ({count})",
-	[Key.animeMovieWithCount]: "映画 ({count})",
 	[Key.animeTypeAnime]: "アニメ",
 	[Key.animeTypeMovie]: "映画",
 	[Key.animeTypeDocumentary]: "ドキュメンタリー",
@@ -274,14 +233,9 @@ export const ja: Translation = {
 	[Key.malSeasonSummer]: "夏",
 	[Key.malSeasonFall]: "秋",
 
-	[Key.paginationFirst]: "最初",
 	[Key.paginationPrev]: "前へ",
 	[Key.paginationNext]: "次へ",
-	[Key.paginationLast]: "最後",
 	[Key.paginationPage]: "",
-	[Key.paginationOf]: "ページ、全",
-	[Key.paginationTotal]: "ページ、合計",
-	[Key.paginationRecords]: "件",
 	[Key.paginationJump]: "指定ページへ移動",
 
 	[Key.notFound]: "404",
@@ -314,16 +268,8 @@ export const ja: Translation = {
 	[Key.lastModifiedOutdated]: "一部の内容が古くなっている可能性があります",
 	[Key.lastModifiedDaysAgo]: "{days}日前",
 	[Key.year]: "年",
-	[Key.month]: "月",
-	[Key.day]: "日",
-	[Key.hour]: "時",
-	[Key.minute]: "分",
-	[Key.second]: "秒",
-
 	[Key.pageViews]: "閲覧数",
 	[Key.pageViewsLoading]: "読み込み中...",
-	[Key.pageViewsError]: "統計利用不可",
-
 	[Key.pinned]: "ピン留め",
 
 	[Key.relatedPosts]: "関連記事",
@@ -375,13 +321,8 @@ export const ja: Translation = {
 	[Key.sponsorTitle]: "サポート",
 	[Key.sponsorDescription]:
 		"私のコンテンツがあなたの役に立ったなら、以下の方法で私をスポンサーしてください。あなたのサポートは私の継続的な創作の原動力です！",
-	[Key.sponsorMethods]: "支払い方法",
 	[Key.sponsorList]: "スポンサーリスト",
 	[Key.sponsorEmpty]: "スポンサー記録なし",
-	[Key.sponsorAmount]: "金額",
-	[Key.sponsorDate]: "日付",
-	[Key.sponsorMessage]: "メッセージ",
-	[Key.sponsorAnonymous]: "匿名",
 	[Key.scanToSponsor]: "スキャンしてスポンサー",
 	[Key.sponsorGoTo]: "スポンサーへ",
 	[Key.sponsorButton]: "サポートと共有",
@@ -394,7 +335,6 @@ export const ja: Translation = {
 
 	[Key.siteStats]: "サイト統計",
 	[Key.siteStatsPostCount]: "記事",
-	[Key.siteStatsDynamicCount]: "投稿",
 	[Key.siteStatsCategoryCount]: "カテゴリー",
 	[Key.siteStatsTagCount]: "タグ",
 	[Key.siteStatsTotalWords]: "総文字数",
@@ -447,15 +387,9 @@ export const ja: Translation = {
 	[Key.savePoster]: "ポスターを保存",
 	[Key.scanToRead]: "QRコードで読む",
 
-	[Key.codeCollapsibleShowMore]: "展開する",
-	[Key.codeCollapsibleShowLess]: "折りたたむ",
-	[Key.codeCollapsibleExpanded]: "コードブロックが展開されました",
-	[Key.codeCollapsibleCollapsed]: "コードブロックが折りたたまれました",
-
 	[Key.gallery]: "ギャラリー",
 	[Key.galleryDescription]: "人生の美しい瞬間を記録する",
 	[Key.galleryPhotos]: "枚の写真",
-	[Key.galleryAlbums]: "冊のアルバム",
 	[Key.galleryNoAlbums]: "アルバムがありません",
 	[Key.galleryBackToAlbums]: "アルバム一覧に戻る",
 	[Key.searchAlbums]: "アルバムを検索...",
@@ -467,9 +401,6 @@ export const ja: Translation = {
 	[Key.passwordPlaceholder]: "パスワードを入力",
 	[Key.passwordSubmit]: "ロック解除",
 	[Key.passwordError]: "パスワードが間違っています。もう一度お試しください。",
-	[Key.passwordProtectedRss]:
-		"この記事は暗号化されています。ウェブサイトにアクセスしてご覧ください。",
-
 	[Key.videoPlay]: "背景動画を再生",
 	[Key.videoPause]: "背景動画を一時停止",
 	[Key.videoPrev]: "前の動画",

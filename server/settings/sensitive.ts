@@ -1,5 +1,5 @@
 export const SENSITIVE_SETTING_KEY =
-	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey|adsense)/i;
+	/(auth|token|secret|password|apikey|api_?key|customcode|accesskey|adsense|clientid|username|webdav|endpoint|imgdir|imghost)/i;
 
 export function redactSensitive<T>(input: T): T {
 	if (Array.isArray(input))

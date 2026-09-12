@@ -9,11 +9,7 @@ export const ru: Translation = {
 	[Key.searchNoResults]: "Результаты не найдены.",
 	[Key.searchTypeSomething]: "Введите ключевое слово для поиска...",
 	[Key.searchLoading]: "Поиск...",
-	[Key.searchSummary]: "Резюме",
-	[Key.searchContent]: "Содержание",
 	[Key.searchViewMore]: "Показать еще ({count} шт)",
-	[Key.other]: "Прочее",
-
 	[Key.navArticles]: "Статьи",
 	[Key.navSocial]: "Соцсети",
 	[Key.navMine]: "Моё",
@@ -26,7 +22,6 @@ export const ru: Translation = {
 	[Key.allCategories]: "Все категории",
 	[Key.allTags]: "Все теги",
 	[Key.allSeries]: "Все серии",
-	[Key.recentPosts]: "Последние посты",
 	[Key.postList]: "Список постов",
 	[Key.tableOfContents]: "Содержание",
 	[Key.tocEmpty]: "На этой странице нет оглавления",
@@ -40,10 +35,7 @@ export const ru: Translation = {
 	[Key.dynamicNoResults]: "Подходящие публикации не найдены",
 	[Key.dynamicLoading]: "Загрузка публикаций",
 	[Key.dynamicAllYears]: "Все годы",
-	[Key.dynamicLoadMore]: "Загрузить ещё",
-	[Key.dynamicBackToList]: "Назад к публикациям",
 	[Key.dynamicProfile]: "Открыть профиль {name}",
-	[Key.dynamicPermalink]: "Постоянная ссылка на публикацию",
 	[Key.dynamicCollapseGallery]: "Свернуть",
 	[Key.dynamicViewOriginal]: "Открыть оригинал",
 	[Key.dynamicPreviousImage]: "Предыдущее изображение",
@@ -67,8 +59,6 @@ export const ru: Translation = {
 	[Key.musicProgress]: "Прогресс воспроизведения",
 	[Key.musicCover]: "Обложка",
 	[Key.musicNoCover]: "Нет обложки",
-	[Key.musicAudioPlayer]: "Аудиоплеер",
-
 	[Key.announcement]: "Объявление",
 	[Key.announcementClose]: "Закрыть",
 
@@ -91,7 +81,6 @@ export const ru: Translation = {
 	[Key.guestbook]: "Гостевая книга",
 	[Key.guestbookDescription]:
 		"Добро пожаловать, оставьте свой след здесь, поделитесь своими мыслями и предложениями",
-	[Key.untitled]: "Без названия",
 	[Key.uncategorized]: "Без категории",
 	[Key.noTags]: "Нет тегов",
 
@@ -120,7 +109,6 @@ export const ru: Translation = {
 	[Key.license]: "Лицензия",
 	[Key.bangumi]: "Bangumi",
 
-	[Key.bangumiTitle]: "Мой Bangumi",
 	[Key.bangumiSubtitle]: "Запись моего аниме путешествия",
 	[Key.bangumiFilterAll]: "Все",
 	[Key.bangumiFilterWatched]: "Просмотрено",
@@ -154,31 +142,14 @@ export const ru: Translation = {
 	[Key.bangumiStatusUnknown]: "Неизвестно",
 	[Key.bangumiNoData]: "Нет данных",
 	[Key.bangumiNoDataDescription]: "В этой категории нет элементов",
-	[Key.bangumiEmpty]: "Нет данных",
-	[Key.bangumiEmptyReason]:
-		"Возможные причины: имя пользователя не существует, проблема с подключением к сети или ограничение API",
 	[Key.bangumiFetchError]: "Ошибка загрузки данных Bangumi",
 	[Key.bangumiFetchErrorDesc]:
 		"Не удалось загрузить данные из Bangumi API при сборке. Эта страница временно недоступна.",
-	[Key.bangumiUsername]: "Имя пользователя",
-	[Key.bangumiApi]: "API",
-	[Key.bangumiConfigTip]:
-		"Подсказка: установите правильное имя пользователя Bangumi в конфигурации страницы",
-	[Key.bangumiPrevPage]: "Предыдущая",
-	[Key.bangumiNextPage]: "Следующая",
-	[Key.bangumiCurrentPage]: "Страница",
-	[Key.bangumiTotalPages]: "из",
-	[Key.bangumiPage]: "страница",
-
 	[Key.bangumiCategoryBook]: "Книга",
 	[Key.bangumiCategoryAnime]: "Аниме",
 	[Key.bangumiCategoryMusic]: "Музыка",
 	[Key.bangumiCategoryGame]: "Игра",
 	[Key.bangumiCategoryReal]: "Реальный",
-
-	[Key.bangumiLastUpdated]: "Данные обновлены",
-	[Key.bangumiUpdatedAt]: "Время сборки",
-	[Key.bangumiDataStatic]: "Статические данные",
 
 	[Key.vndb]: "VNDB",
 	[Key.vndbSubtitle]: "Мой список визуальных новелл VNDB",
@@ -194,16 +165,12 @@ export const ru: Translation = {
 	[Key.vndbStatusUnknown]: "Неизвестно",
 	[Key.vndbNoData]: "Нет данных",
 	[Key.vndbNoDataDescription]: "В этой категории нет элементов",
-	[Key.vndbEmpty]: "Нет данных",
-	[Key.vndbEmptyReason]:
-		"Возможные причины: ID пользователя не существует, список закрыт, проблемы с сетью или ограничение API",
 	[Key.vndbFetchError]: "Ошибка загрузки данных VNDB",
 	[Key.vndbFetchErrorDesc]:
 		"Не удалось загрузить данные из VNDB API при сборке. Эта страница временно недоступна.",
 	[Key.vndbNotConfigured]: "ID пользователя VNDB не настроен",
 	[Key.vndbNotConfiguredDesc]:
 		"Укажите ID пользователя VNDB в src/config/siteConfig.ts",
-	[Key.vndbLastUpdated]: "Данные обновлены",
 	[Key.vndbVotes]: "голосов",
 	[Key.vndbLengthVeryShort]: "Очень короткая",
 	[Key.vndbLengthShort]: "Короткая",
@@ -218,27 +185,19 @@ export const ru: Translation = {
 		"Настройте bilibili.uid в src/config/siteConfig.ts",
 
 	[Key.animeTotal]: "Всего",
-	[Key.animeAverageRating]: "Средний рейтинг",
 	[Key.animeSearch]: "Поиск аниме...",
-	[Key.animeAllTypes]: "Все",
-	[Key.animeTV]: "TV Аниме",
-	[Key.animeMovie]: "Фильм",
 	[Key.animeRatingDesc]: "По рейтингу ↓",
 	[Key.animeRatingAsc]: "По рейтингу ↑",
 	[Key.animeDateDesc]: "Сначала новые",
 	[Key.animeDateAsc]: "Сначала старые",
 	[Key.animeNoResults]: "Аниме не найдено",
 	[Key.animeLastUpdated]: "Данные обновлены",
-	[Key.animeEpStatus]: "Прогресс",
 	[Key.animeViewDetails]: "Подробнее",
 	[Key.animeBilibiliAvg]: "Bilibili ср.",
 	[Key.animeNoOverview]: "Нет описания",
 	[Key.animeClose]: "Закрыть",
 	[Key.animeSynopsis]: "Описание",
 	[Key.animeWatchNow]: "Смотреть",
-	[Key.animeAllWithCount]: "Все ({count})",
-	[Key.animeTVWithCount]: "ТВ ({count})",
-	[Key.animeMovieWithCount]: "Фильм ({count})",
 	[Key.animeTypeAnime]: "Аниме",
 	[Key.animeTypeMovie]: "Фильм",
 	[Key.animeTypeDocumentary]: "Документальный",
@@ -275,14 +234,9 @@ export const ru: Translation = {
 	[Key.malSeasonSummer]: "Лето",
 	[Key.malSeasonFall]: "Осень",
 
-	[Key.paginationFirst]: "Первая",
 	[Key.paginationPrev]: "Предыдущая",
 	[Key.paginationNext]: "Следующая",
-	[Key.paginationLast]: "Последняя",
 	[Key.paginationPage]: "Страница",
-	[Key.paginationOf]: "из",
-	[Key.paginationTotal]: ", всего",
-	[Key.paginationRecords]: " записей",
 	[Key.paginationJump]: "Перейти к странице",
 
 	[Key.notFound]: "404",
@@ -317,16 +271,8 @@ export const ru: Translation = {
 	[Key.lastModifiedOutdated]: "Некоторый контент может быть устаревшим",
 	[Key.lastModifiedDaysAgo]: "{days} дней назад",
 	[Key.year]: "год",
-	[Key.month]: "месяц",
-	[Key.day]: "день",
-	[Key.hour]: "час",
-	[Key.minute]: "минута",
-	[Key.second]: "секунда",
-
 	[Key.pageViews]: "Просмотры",
 	[Key.pageViewsLoading]: "Загрузка...",
-	[Key.pageViewsError]: "Статистика недоступна",
-
 	[Key.pinned]: "Закреплено",
 
 	[Key.relatedPosts]: "Похожие статьи",
@@ -378,13 +324,8 @@ export const ru: Translation = {
 	[Key.sponsorTitle]: "Поддержать меня",
 	[Key.sponsorDescription]:
 		"Если мой контент был полезен для вас, добро пожаловать поддержать меня следующими способами. Ваша поддержка - это движущая сила моего постоянного творчества!",
-	[Key.sponsorMethods]: "Способы оплаты",
 	[Key.sponsorList]: "Спонсоры",
 	[Key.sponsorEmpty]: "Пока нет спонсоров",
-	[Key.sponsorAmount]: "Сумма",
-	[Key.sponsorDate]: "Дата",
-	[Key.sponsorMessage]: "Сообщение",
-	[Key.sponsorAnonymous]: "Анонимно",
 	[Key.scanToSponsor]: "Сканировать для поддержки",
 	[Key.sponsorGoTo]: "Перейти к спонсору",
 	[Key.sponsorButton]: "Поддержка и Поделиться",
@@ -397,7 +338,6 @@ export const ru: Translation = {
 
 	[Key.siteStats]: "Статистика сайта",
 	[Key.siteStatsPostCount]: "Статьи",
-	[Key.siteStatsDynamicCount]: "Публикации",
 	[Key.siteStatsCategoryCount]: "Категории",
 	[Key.siteStatsTagCount]: "Теги",
 	[Key.siteStatsTotalWords]: "Всего слов",
@@ -450,15 +390,9 @@ export const ru: Translation = {
 	[Key.savePoster]: "Сохранить постер",
 	[Key.scanToRead]: "Сканируйте, чтобы прочитать",
 
-	[Key.codeCollapsibleShowMore]: "Развернуть",
-	[Key.codeCollapsibleShowLess]: "Свернуть",
-	[Key.codeCollapsibleExpanded]: "Блок кода развернут",
-	[Key.codeCollapsibleCollapsed]: "Блок кода свернут",
-
 	[Key.gallery]: "Галерея",
 	[Key.galleryDescription]: "Запечатлеть прекрасные моменты жизни",
 	[Key.galleryPhotos]: "фото",
-	[Key.galleryAlbums]: "альбомов",
 	[Key.galleryNoAlbums]: "Пока нет альбомов",
 	[Key.galleryBackToAlbums]: "Вернуться к альбомам",
 	[Key.searchAlbums]: "Поиск альбомов...",
@@ -470,9 +404,6 @@ export const ru: Translation = {
 	[Key.passwordPlaceholder]: "Введите пароль",
 	[Key.passwordSubmit]: "Разблокировать",
 	[Key.passwordError]: "Неверный пароль, попробуйте снова.",
-	[Key.passwordProtectedRss]:
-		"Эта статья зашифрована. Пожалуйста, посетите сайт для просмотра.",
-
 	[Key.videoPlay]: "Воспроизвести фоновое видео",
 	[Key.videoPause]: "Пауза фонового видео",
 	[Key.videoPrev]: "Предыдущее видео",

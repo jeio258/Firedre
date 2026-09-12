@@ -84,7 +84,13 @@ export async function verifySessionToken(token: string, env: AdminAuthEnv) {
 }
 
 export async function getSessionUser(token: string, env: AdminAuthEnv) {
-	const secret = getSecret(env);
+	let secret: string;
+	try {
+		secret = getSecret(env);
+	} catch {
+		// secret 缺失时 GET 侧降级为未认证，避免公开路由 500；登录侧保留显式报错
+		return null;
+	}
 	if (!secret || !token) return null;
 
 	const [payload, sig] = token.split(".");
