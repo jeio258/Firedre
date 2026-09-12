@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { constantTimeEqual } from "../server/utils/timingSafe";
 import { assertTargetInWebDavScope } from "../server/albumWebdavEnv";
-import { verifyAlbumAccess, verifyAlbumPassword } from "../utils/albumAuth";
+import { verifyAlbumAccess } from "../utils/albumAuth";
 
 describe("constantTimeEqual", () => {
 	it("returns true for identical strings", () => {
@@ -50,17 +50,6 @@ describe("verifyAlbumAccess", () => {
 				accessPassword: "correct",
 			}),
 		).toBe(true);
-	});
-});
-
-describe("verifyAlbumPassword", () => {
-	it("rejects when no configured password", () => {
-		expect(verifyAlbumPassword("x", undefined)).toBe(false);
-	});
-
-	it("compares in constant time", () => {
-		expect(verifyAlbumPassword("pw", "pw")).toBe(true);
-		expect(verifyAlbumPassword("pw", "pwx")).toBe(false);
 	});
 });
 

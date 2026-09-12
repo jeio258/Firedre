@@ -736,23 +736,17 @@ function profileArea(group: Group, field: Field): string {
 	return "";
 }
 
+const jsonFields = new Set(
+	GROUPS.flatMap((g) =>
+		g.fields.filter((f) => f.type === "json").map((f) => f.name),
+	),
+);
+
 async function save() {
 	saving = true;
 	message = "";
 	try {
 		const out: Record<string, Record<string, unknown>> = {};
-
-		const jsonFields = new Set([
-			"links",
-			"homeSubtitles",
-			"metingFallbackApis",
-			"localPlaylist",
-			"sections",
-			"groups",
-			"favicon",
-			"randomCoverImage",
-			"sponsors",
-		]);
 
 		for (const g of GROUPS) {
 			const payload = { ...(data[g.key] ?? {}) };

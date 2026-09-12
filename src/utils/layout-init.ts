@@ -59,30 +59,19 @@ export function initLayout(): void {
 	initScroll();
 	initTouchCodeCopyReveal();
 
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", () => {
-			scheduleContentOverflowEnhancements();
-		});
-	} else {
+	const onReady = () => {
 		scheduleContentOverflowEnhancements();
-	}
-
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", () => {
-			updateMainGridCols();
-			updateSidebarComponentsVisibility();
-			initWallpaperMode();
-			initThemeListener();
-			initIconLoader();
-			syncFullscreenStateAfterInit();
-		});
-	} else {
 		updateMainGridCols();
 		updateSidebarComponentsVisibility();
 		initWallpaperMode();
 		initThemeListener();
 		initIconLoader();
 		syncFullscreenStateAfterInit();
+	};
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", onReady);
+	} else {
+		onReady();
 	}
 
 	initImageLoadFadeIn();

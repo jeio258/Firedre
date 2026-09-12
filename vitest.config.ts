@@ -16,9 +16,14 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],
-			include: ["server/**/*.ts", "src/utils/*.ts"],
-			exclude: [
-				"server/auth/adminSession.ts", // 需要 Cloudflare 环境
+			// 仅统计实际被测覆盖的模块，避免纯浏览器 utils 长期拉低报告
+			include: [
+				"server/**/*.ts",
+				"src/utils/client-settings.ts",
+				"src/utils/schema-utils.ts",
+				"src/utils/setting-utils.ts",
+				"src/config/**/*.ts",
+				"utils/**/*.ts",
 			],
 		},
 	},

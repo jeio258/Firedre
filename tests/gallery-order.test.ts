@@ -3,51 +3,14 @@ import {
 	updateGalleryAlbumOrder,
 	upsertGalleryAlbum,
 } from "../server/gallery/service";
+import { makeNullD1 } from "./helpers/d1";
+import { makeR2, type R2Stub } from "./helpers/r2";
 
 const HUB_KEY = "gallery/index.md";
 
-interface R2Like {
-	store: Map<string, string>;
-	get(key: string): Promise<{ text(): Promise<string> } | null>;
-	put(key: string, body: string): Promise<void>;
-}
+type R2Like = R2Stub;
 
-function makeR2(initial: Record<string, string>): R2Like {
-	const store = new Map(Object.entries(initial));
-	return {
-		store,
-		async get(key: string) {
-			const v = store.get(key);
-			if (!v) return null;
-			return { text: async () => v };
-		},
-		async put(key: string, body: string) {
-			store.set(key, body);
-		},
-	};
-}
-
-const dbStub = {
-	prepare() {
-		return {
-			bind() {
-				return {
-					async first() {
-						return null;
-					},
-					async all() {
-						return { results: [] };
-					},
-					async run() {
-						return {};
-					},
-				};
-			},
-		};
-	},
-};
-
-const envFor = (r2: R2Like) => ({ BUCKET: r2, DB: dbStub });
+const envFor = (r2: R2Like) => ({ BUCKET: r2, DB: makeNullD1() });
 
 const hubSource = `---
 layout: gallery

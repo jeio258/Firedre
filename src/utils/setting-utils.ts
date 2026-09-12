@@ -38,14 +38,19 @@ interface BooleanSettingOpts {
 	key: string;
 	getDefault: () => boolean;
 
+	shouldGet?: () => boolean;
+
 	shouldStore?: () => boolean;
 
 	afterStore?: (value: boolean) => void;
 }
 
-function createStoredBoolean({ key, getDefault, shouldStore, afterStore }: BooleanSettingOpts) {
+function createStoredBoolean({ key, getDefault, shouldGet, shouldStore, afterStore }: BooleanSettingOpts) {
 	return {
 		getStored(): boolean {
+			if (shouldGet && !shouldGet()) {
+				return getDefault();
+			}
 			if (
 				typeof localStorage === "undefined" ||
 				typeof localStorage.getItem !== "function"
@@ -696,45 +701,32 @@ export function getStoredBannerTitleEnabled(): boolean {
 	return bannerTitleSetting.getStored();
 }
 
+const bannerCarouselSetting = createStoredBoolean({
+	key: "bannerCarouselEnabled",
+	getDefault: getDefaultBannerCarouselEnabled,
+	shouldGet: () => getPanelConfigFromWindow().bannerCarouselSwitchable,
+	shouldStore: () => getPanelConfigFromWindow().bannerCarouselSwitchable,
+	afterStore: (value) => {
+		applyBannerCarouselEnabledToDocument(value);
+		if (typeof window !== "undefined") {
+			window.dispatchEvent(
+				new CustomEvent("bannerCarouselChange", {
+					detail: { enabled: value },
+				}),
+			);
+		}
+	},
+});
+
 export function getStoredBannerCarouselEnabled(): boolean {
-	const isSwitchable = getPanelConfigFromWindow().bannerCarouselSwitchable;
-	if (!isSwitchable) {
-		return getDefaultBannerCarouselEnabled();
-	}
-	if (
-		typeof localStorage === "undefined" ||
-		typeof localStorage.getItem !== "function"
-	) {
-		return getDefaultBannerCarouselEnabled();
-	}
-	const stored = localStorage.getItem("bannerCarouselEnabled");
-	if (stored === null) {
-		return getDefaultBannerCarouselEnabled();
-	}
-	return stored === "true";
+	return bannerCarouselSetting.getStored();
 }
 
 export function setBannerTitleEnabled(enabled: boolean): void {
 	bannerTitleSetting.set(enabled);
 }
 export function setBannerCarouselEnabled(enabled: boolean): void {
-	const safeEnabled = !!enabled;
-	const isSwitchable = getPanelConfigFromWindow().bannerCarouselSwitchable;
-	if (
-		isSwitchable &&
-		typeof localStorage !== "undefined" &&
-		typeof localStorage.setItem === "function"
-	) {
-		localStorage.setItem("bannerCarouselEnabled", String(safeEnabled));
-	}
-	applyBannerCarouselEnabledToDocument(safeEnabled);
-	if (typeof window !== "undefined") {
-		window.dispatchEvent(
-			new CustomEvent("bannerCarouselChange", {
-				detail: { enabled: safeEnabled },
-			}),
-		);
-	}
+	bannerCarouselSetting.set(Boolean(enabled));
 }
 
 function applyBannerTitleEnabledToDocument(enabled: boolean): void {

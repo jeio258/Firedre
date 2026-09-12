@@ -53,12 +53,4 @@ export type FontSelectionConfig = {
 	navbarTitleFont?: string;
 
 	codeFont?: string;
-
-	subsetFonts?: Record<
-		string,
-		{
-
-			extraChars?: string;
-		}
-	>;
 };

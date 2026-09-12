@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import {
 	syncPostTaxonomy,
 	listCategoryTree,
@@ -11,19 +9,14 @@ import {
 } from "../server/posts/taxonomy";
 import type { PostFrontmatter } from "../types/posts";
 import { makeD1 } from "./helpers/d1";
+import { applyMigrations } from "./helpers/migrations";
 
 describe("D1 迁移：post_taxonomy 表统一（post_categories + post_tags 合并）", () => {
 	let db: DatabaseSync;
 
 	beforeAll(() => {
 		db = new DatabaseSync(":memory:");
-		const migDir = join(process.cwd(), "migrations");
-		const files = readdirSync(migDir)
-			.filter((f) => f.endsWith(".sql"))
-			.sort();
-		for (const file of files) {
-			db.exec(readFileSync(join(migDir, file), "utf8"));
-		}
+		applyMigrations(db);
 		// 造两篇已发布文章（posts 表有多个 NOT NULL 列需齐全）
 		db.prepare(
 			"INSERT INTO posts (slug, title, date, r2_key, published) VALUES ('a','A','2026-01-01','r2/a',1)",

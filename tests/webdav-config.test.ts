@@ -1,25 +1,18 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import {
 	getAlbumWebDavConfig,
 	setAlbumWebDavConfig,
 	deleteAlbumWebDavConfig,
 } from "../server/gallery/webdavConfig";
 import { makeD1 } from "./helpers/d1";
+import { applyMigrations } from "./helpers/migrations";
 
 let db: DatabaseSync;
 
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
-	const migDir = join(process.cwd(), "migrations");
-	const files = readdirSync(migDir)
-		.filter((f) => f.endsWith(".sql"))
-		.sort();
-	for (const file of files) {
-		db.exec(readFileSync(join(migDir, file), "utf8"));
-	}
+	applyMigrations(db);
 });
 
 const env = () => ({ DB: makeD1(db) });

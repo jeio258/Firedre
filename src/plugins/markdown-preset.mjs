@@ -21,8 +21,7 @@ import { remarkImageGrid } from "./remark-image-grid.js";
 import { remarkMermaid } from "./remark-mermaid.js";
 import { remarkPlantuml } from "./remark-plantuml.js";
 
-// 两条 markdown 渲染链（构建期 astro.config / 运行时 server/posts/render.ts）
-// 共享的插件集合；差异项（wikiLink/readingTime/excerpt/mermaid/collectHeadings 等）由调用方注入。
+// 运行时渲染链（server/posts/render.ts）的共享插件集合；差异项由调用方注入。
 
 export function sharedRemarkPlugins({
 	admonition = true,

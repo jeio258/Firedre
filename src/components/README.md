@@ -67,8 +67,6 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 - `ImageWrapper.astro` - 图片包装器（支持本地和远程图片）
 - `Markdown.astro` - Markdown 内容样式包装器
 - `PioMessageBox.astro` - 消息框组件（Live2D/Spine 消息显示）
-- `Timeline.astro` / `TimelineItem.astro` - MDX 时间线组件（左侧竖线节点，条目支持日期/标题/正文 Markdown、节点换色和内置图标）
-- `Steps.astro` / `StepItem.astro` / `Badge.astro`  - MDX 内容组件（编号步骤条、内联徽章）
 
 **分页组件**
 - `ClientPagination.svelte` - 客户端分页（JavaScript 控制）

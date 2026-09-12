@@ -2,19 +2,15 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import bcrypt from "bcryptjs";
 import {
 	ADMIN_SESSION_COOKIE,
-	authExports,
-	getAuthenticatedAdminUsername,
-	type AdminAuthEnv,
-} from "../server/auth/adminSession";
-
-const {
-	getSecret,
-	isBcryptHash,
-	createSessionToken,
-	verifySessionToken,
-	getSessionUser,
 	buildSessionCookie,
-} = authExports;
+	createSessionToken,
+	getAuthenticatedAdminUsername,
+	getSecret,
+	getSessionUser,
+	isBcryptHash,
+	type AdminAuthEnv,
+	verifySessionToken,
+} from "../server/auth/adminSession";
 
 describe("isBcryptHash", () => {
 	it("should return true for valid bcrypt hashes", async () => {

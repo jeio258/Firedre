@@ -23,7 +23,6 @@ export default defineConfig({
 	// Firedre：全站 SSR（纯动态），Cloudflare Workers + Static Assets
 	output: "server",
 
-	base: "/",
 	trailingSlash: "always",
 
 	// 使用自有 Cookie 会话，禁用 Astro Sessions 的 KV 自动供给
@@ -71,12 +70,6 @@ export default defineConfig({
 	})(),
 
 	adapter,
-
-	// 图像优化配置
-	image: {
-		// 组件可自行传入 layout/widths；这里只控制 Markdown 正文图片
-		layout: "none",
-	},
 
 	integrations: [
 		swup({
@@ -198,11 +191,10 @@ export default defineConfig({
 			include: ["vditor"],
 		},
 		build: {
-			sourcemap: false,
 			reportCompressedSize: false,
+			// Vite 8（rolldown）默认 minify 与 esbuild 不同，显式指定以保持产物一致
 			minify: "esbuild",
 			esbuildOptions: {
-				minify: true,
 				// 删除 debugger 语句；console.log / console.debug 无副作用，未使用返回值时会被 dead code elimination 移除，
 				// console.warn / console.error 保留，确保生产环境出错时仍有日志可查
 				drop: ["debugger"],
@@ -220,10 +212,6 @@ export default defineConfig({
 					warn(warning);
 				},
 			},
-			// CSS 优化
-			cssCodeSplit: true,
-			cssMinify: "esbuild",
-			assetsInlineLimit: 4096,
 		},
 	},
 });

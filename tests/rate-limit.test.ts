@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
 	LOGIN_MAX_ATTEMPTS,
@@ -8,18 +6,13 @@ import {
 } from "../server/auth/loginRateLimit";
 import { checkD1RateLimit } from "../server/utils/rateLimiter";
 import { makeD1 } from "./helpers/d1";
+import { applyMigrations } from "./helpers/migrations";
 
 let db: DatabaseSync;
 
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
-	const migDir = join(process.cwd(), "migrations");
-	const files = readdirSync(migDir)
-		.filter((f) => f.endsWith(".sql"))
-		.sort();
-	for (const file of files) {
-		db.exec(readFileSync(join(migDir, file), "utf8"));
-	}
+	applyMigrations(db);
 });
 
 beforeEach(() => {

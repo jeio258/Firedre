@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 import {
 	deletePost,
 	getPostBySlug,
@@ -10,35 +8,15 @@ import {
 	upsertPost,
 } from "../server/posts/service";
 import { makeD1 } from "./helpers/d1";
-
-function makeR2() {
-	const store = new Map<string, string>();
-	return {
-		store,
-		async get(key: string) {
-			const v = store.get(key);
-			return v === undefined
-				? null
-				: { text: async () => v };
-		},
-		async put(key: string, body: string) {
-			store.set(key, body);
-		},
-		async delete(key: string) {
-			store.delete(key);
-		},
-	};
-}
+import { applyMigrations } from "./helpers/migrations";
+import { makeR2 } from "./helpers/r2";
 
 let db: DatabaseSync;
 let env: { DB: unknown; BUCKET: ReturnType<typeof makeR2> };
 
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
-	const migDir = join(process.cwd(), "migrations");
-	for (const f of readdirSync(migDir).filter((x) => x.endsWith(".sql")).sort()) {
-		db.exec(readFileSync(join(migDir, f), "utf8"));
-	}
+	applyMigrations(db);
 });
 
 beforeEach(() => {

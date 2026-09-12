@@ -63,10 +63,4 @@ export const fontConfig: FontSelectionConfig = {
 	bannerSubtitleFont: "--font-inter",
 	navbarTitleFont: "",
 	codeFont: "--font-jetbrains-mono",
-
-	subsetFonts: {
-		"--font-greatvibes": {
-			extraChars: "",
-		},
-	},
 };

@@ -1,42 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { setAlbumPhotos } from "../server/gallery/service";
+import { makeNullD1 } from "./helpers/d1";
+import { makeR2 as makeSharedR2, type R2Stub } from "./helpers/r2";
 
-interface R2Like {
-	store: Map<string, string>;
-	get(key: string): Promise<{ text(): Promise<string> } | null>;
-	put(key: string, body: string): Promise<void>;
-}
+type R2Like = R2Stub;
 
-function makeR2(source: string | null): R2Like {
-	const store = new Map<string, string>();
-	if (source !== null) store.set("gallery/x/index.md", source);
-	return {
-		store,
-		async get(key: string) {
-			const v = store.get(key);
-			if (!v) return null;
-			return { text: async () => v };
-		},
-		async put(key: string, body: string) {
-			store.set(key, body);
-		},
-	};
-}
+const makeR2 = (source: string | null): R2Like =>
+	makeSharedR2(source === null ? undefined : { "gallery/x/index.md": source });
 
-const emptyDb = () => ({
-	prepare() {
-		return {
-			bind() {
-				return this;
-			},
-			run: async () => ({}),
-			first: async () => null,
-			all: async () => ({ results: [] }),
-		};
-	},
-});
-
-const envFor = (r2: R2Like) => ({ BUCKET: r2, DB: emptyDb() as unknown });
+const envFor = (r2: R2Like) => ({ BUCKET: r2, DB: makeNullD1() as unknown });
 
 describe("setAlbumPhotos", () => {
 	it("把图床直链写入 photos，保留其他字段，source 保持 local", async () => {

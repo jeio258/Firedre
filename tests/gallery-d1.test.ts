@@ -1,7 +1,5 @@
 import { describe, expect, it, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import {
 	deleteAlbumFromD1,
 	getAlbumFromD1,
@@ -9,6 +7,7 @@ import {
 	upsertAlbumToD1,
 } from "../server/gallery/d1";
 import { makeD1 } from "./helpers/d1";
+import { applyMigrations } from "./helpers/migrations";
 
 let db: DatabaseSync;
 let env: { DB: D1Like };
@@ -16,11 +15,7 @@ let env: { DB: D1Like };
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
 	db.exec("PRAGMA foreign_keys = ON");
-	const migDir = join(process.cwd(), "migrations");
-	const files = ["0006_album_webdav.sql", "0007_albums.sql"];
-	for (const f of files) {
-		db.exec(readFileSync(join(migDir, f), "utf8"));
-	}
+	applyMigrations(db, ["0006_album_webdav.sql", "0007_albums.sql"]);
 	env = { DB: makeD1(db) };
 });
 

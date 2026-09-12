@@ -16,7 +16,7 @@ export interface AdminAuthEnv {
 	SESSION_SECRET?: string;
 }
 
-function getSecret(env: AdminAuthEnv): string {
+export function getSecret(env: AdminAuthEnv): string {
 	const secret = env.SESSION_SECRET?.trim();
 	if (!secret) {
 		throw new Error(
@@ -204,13 +204,3 @@ export async function verifyAdminRequest(
 ) {
 	return Boolean(await getAuthenticatedAdminUsername(request, env));
 }
-
-export const authExports = {
-	getSecret,
-	isBcryptHash,
-	createSessionToken,
-	verifySessionToken,
-	getSessionUser,
-	buildSessionCookie,
-	buildClearSessionCookie,
-};

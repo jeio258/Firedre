@@ -14,8 +14,7 @@ export interface D1StmtLike {
 	all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
 }
 
-/** node:sqlite 之上的 D1 兼容桩：run() 返回 D1Result 形状的 meta.changes */
-export function makeD1(db: DatabaseSync): D1Like {
+/** node:sqlite 之上的 D1 兼容桩：run() 返回 D1Result 形状的 meta.changes */export function makeD1(db: DatabaseSync): D1Like {
 	return {
 		prepare(sql: string) {
 			const stmt = db.prepare(sql);
@@ -48,4 +47,17 @@ export function makeD1(db: DatabaseSync): D1Like {
 			return chain;
 		},
 	};
+}
+
+/** 无数据的 D1 桩：所有查询返回空、写入成功 */
+export function makeNullD1() {
+	const stmt: Record<string, unknown> = {};
+	stmt.bind = () => stmt;
+	stmt.first = async () => null;
+	stmt.all = async () => ({ results: [] });
+	stmt.run = async () => ({
+		success: true,
+		meta: { changes: 0, last_row_id: 0 },
+	});
+	return { prepare: () => stmt };
 }

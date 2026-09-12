@@ -94,8 +94,6 @@ describe("upsertGalleryAlbum 不应清除 D1 相册密码（P1 回归）", () =>
 });
 
 describe("unlockGalleryAlbum 锁门判定以 D1 密码为准（R1 两套真相源修复）", () => {
-	beforeEach(() => {});
-
 	it("无 D1 密码时即使 frontmatter encrypted=false 也放行（未锁定）", async () => {
 		const env = buildEnv({ a: UNENCRYPTED_ALBUM }, {});
 		const result = await unlockGalleryAlbum(env, "a", "");

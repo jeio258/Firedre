@@ -16,9 +16,3 @@ export function verifyAlbumAccess(params: AlbumAccessParams) {
 
   return constantTimeEqual(String(params.accessPassword ?? ''), expected)
 }
-
-export function verifyAlbumPassword(input: string, configured?: string) {
-  if (!configured)
-    return false
-  return constantTimeEqual(input, configured)
-}

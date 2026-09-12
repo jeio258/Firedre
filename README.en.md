@@ -188,7 +188,6 @@ src/
 │   ├── fontConfig.ts             # Font configuration
 │   ├── footerConfig.ts           # Footer configuration
 │   ├── friendsConfig.ts          # Friend links configuration
-│   ├── galleryConfig.ts          # Gallery configuration
 │   ├── licenseConfig.ts          # License configuration
 │   ├── musicConfig.ts            # Music player configuration
 │   ├── navBarConfig.ts           # Navbar configuration
@@ -220,23 +219,7 @@ comment: true    # Enable comments
 
 ## Moments
 
-Moment files are stored in `src/content/dynamic/`, with one Markdown file per moment. Create one with:
-
-```bash
-pnpm new-d The weather is lovely today
-```
-
-`pnpm new-dynamic <content>` is the equivalent full command.
-
-```yaml
----
-published: 2026-07-15 16:15:29
-pinned: true  # Pin article
-location: China # Location
----
-
-Moment content supports Markdown.
-```
+Moments are stored in Cloudflare D1 and managed from the admin panel (`/admin/`).
 
 Also supports [Memos](https://www.usememos.com/) as a data source. Configure the `memos` option in `src/config/dynamicConfig.ts` to fetch Memos moments in real-time, with pinned sync and image attachment support. See [Moments documentation](https://docs-firefly.cuteleaf.cn/en/guide/dynamic.html).
 
@@ -246,7 +229,7 @@ In addition to the default [GitHub Flavored Markdown](https://github.github.com/
 
 - Admonitions - Supports configuration for GitHub, Obsidian, VitePress, and Docusaurus themes ([Preview and Usage](https://firefly.cuteleaf.cn/posts/markdown-extended/))
 - GitHub Repository Cards ([Preview and Usage](https://firefly.cuteleaf.cn/posts/markdown-extended/))
-- Enhanced Code Blocks based on Expressive Code ([Preview](http://firefly.cuteleaf.cn/posts/code-examples/) / [Documentation](https://expressive-code.com/))
+- Enhanced Code Blocks with client-side highlight.js
 
 ## 🧞 Commands
 
