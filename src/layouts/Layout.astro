@@ -24,6 +24,7 @@ import {
 	siteConfig,
 } from "@/config";
 import { getExpressiveCodeConfig } from "@/config/runtime";
+import { getTranslation } from "@i18n/translation";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -297,6 +298,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         PAGE_WIDTH,
         configHue,
         settingsVersion: (Astro.locals as { settingsVersion?: string }).settingsVersion ?? "",
+        i18nMap: getTranslation(siteConfig.lang),
         defaultMode: settings.defaultMode || ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
         defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
@@ -312,6 +314,9 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       const LIGHT_MODE = "light";
       const DARK_MODE = "dark";
       const SYSTEM_MODE = "system";
+
+      // 注入当前语言翻译表：客户端 i18n 直接读取，六语言全量不进 bundle
+      window.__FIREDRE_I18N__ = i18nMap;
 
       // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置
       var PREF_KEYS = ["hue","wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];

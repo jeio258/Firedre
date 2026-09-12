@@ -1,4 +1,6 @@
 ---
-// KaTeX CSS - 直接在文章页加载
-import "katex/dist/katex.min.css";
+// KaTeX 样式：vendor 到 /katex/（含字体），仅文章页以 link 按需加载，不进全站共享 CSS
+import { url } from "@/utils/url-utils";
 ---
+
+<link rel="stylesheet" href={url("/katex/katex.min.css")} />

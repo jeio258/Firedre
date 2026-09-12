@@ -226,12 +226,23 @@ function serializeMenus(menus: Props["config"]["menus"]) {
 		}
 	}
 
-	// 确保只初始化一次
-	if (document.readyState === "loading") {
-		document.addEventListener("DOMContentLoaded", initWidget);
-	} else {
-		initWidget();
+	// 确保只初始化一次；空闲时再加载 647KB 的 l2d-widget，移出关键路径
+	var live2dScheduled = false;
+	function scheduleInit() {
+		if (live2dScheduled) return;
+		live2dScheduled = true;
+		var run = function () {
+			requestIdleCallback
+				? requestIdleCallback(initWidget, { timeout: 3000 })
+				: setTimeout(initWidget, 1200);
+		};
+		if (document.readyState === "loading") {
+			document.addEventListener("DOMContentLoaded", run);
+		} else {
+			run();
+		}
 	}
+	scheduleInit();
 
 	// 响应式处理：窗口大小变化时显示/隐藏
 	function handleResponsive() {
