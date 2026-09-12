@@ -4,6 +4,7 @@ import { setPlantumlRuntimeConfig } from "./config/plantumlRuntime";
 
 export interface SettingsLocals {
 	settings: import("../server/settings/service").SiteSettings;
+	settingsVersion?: string;
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -20,13 +21,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		!url.pathname.startsWith("/api");
 
 	let htmlCacheKey = "";
+	let settingsVersion = "";
 	if (isHtmlPage) {
 		try {
 			const { getSettingsVersionCached } = await import("../server/settings/service");
 			const { cfEnv } = await import("./lib/api");
-			const version = await getSettingsVersionCached(cfEnv);
+			settingsVersion = await getSettingsVersionCached(cfEnv);
 
-			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${version}`;
+			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${settingsVersion}`;
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
 				return new Response(await cached.text(), {
@@ -93,6 +95,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 		merged.pages = { ...(merged.pages as Record<string, unknown> ?? {}), ...pagesOut };
 		(context.locals as unknown as SettingsLocals).settings = merged;
+		if (settingsVersion) {
+			(context.locals as unknown as SettingsLocals).settingsVersion = settingsVersion;
+		}
 	} catch (e) {
 		console.warn("[middleware] 站点设置加载失败，本次请求以空配置渲染", e);
 		(context.locals as unknown as SettingsLocals).settings = {};

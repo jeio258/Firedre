@@ -296,6 +296,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       define:vars={{
         PAGE_WIDTH,
         configHue,
+        settingsVersion: (Astro.locals as { settingsVersion?: string }).settingsVersion ?? "",
         defaultMode: settings.defaultMode || ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
         defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
@@ -311,6 +312,15 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       const LIGHT_MODE = "light";
       const DARK_MODE = "dark";
       const SYSTEM_MODE = "system";
+
+      // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置
+      var PREF_KEYS = ["hue","wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
+      try {
+        if (localStorage.getItem("settingsVersion") !== String(settingsVersion)) {
+          for (var pi = 0; pi < PREF_KEYS.length; pi++) localStorage.removeItem(PREF_KEYS[pi]);
+          localStorage.setItem("settingsVersion", String(settingsVersion));
+        }
+      } catch (e) {}
 
       // 获取存储的主题，如果没有则使用默认值
       const theme = localStorage.getItem("theme") || defaultMode;

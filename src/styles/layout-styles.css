@@ -281,7 +281,8 @@ html.is-page-transitioning .banner-home-text-overlay {
 .slide-item.active {
     opacity: 1;
     z-index: 10;
-    pointer-events: auto;
+    /* 壁纸为纯视觉层：激活页保持 pointer-events:none，避免遮挡导航栏等交互区 */
+    pointer-events: none;
 }
 
 .effect-fade .slide-item {
