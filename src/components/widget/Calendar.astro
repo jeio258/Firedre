@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 import { siteConfig } from "@/config/siteConfig";
@@ -595,7 +596,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
   if (!window.__calendarInit) {
     window.__calendarInit = true;
-    document.addEventListener("swup:contentReplaced", () => {
+    document.addEventListener("astro:page-load", () => {
       setTimeout(initCalendar, 100);
     });
   }

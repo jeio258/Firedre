@@ -1,5 +1,8 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { unlockGalleryAlbum, upsertGalleryAlbum } from "../server/gallery/service";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+	unlockGalleryAlbum,
+	upsertGalleryAlbum,
+} from "../server/gallery/service";
 
 function makeBucketMock(sourceBySlug: Record<string, string>) {
 	return {
@@ -26,14 +29,11 @@ function makeDbMock(passwords: Record<string, string>) {
 						first: async () => {
 							if (sql.includes("SELECT password FROM album_passwords")) {
 								const slug = String(bound.args[0]);
-								return passwords[slug]
-									? { password: passwords[slug] }
-									: null;
+								return passwords[slug] ? { password: passwords[slug] } : null;
 							}
 							return null;
 						},
 						run: async () => {
-
 							if (sql.includes("INSERT INTO album_passwords")) {
 								const slug = String(bound.args[0]);
 								const pwd = String(bound.args[1]);
@@ -52,7 +52,10 @@ function makeDbMock(passwords: Record<string, string>) {
 	};
 }
 
-function buildEnv(sourceBySlug: Record<string, string>, passwords: Record<string, string>) {
+function buildEnv(
+	sourceBySlug: Record<string, string>,
+	passwords: Record<string, string>,
+) {
 	return {
 		BUCKET: makeBucketMock(sourceBySlug),
 		DB: makeDbMock(passwords),
@@ -102,7 +105,6 @@ describe("unlockGalleryAlbum 锁门判定以 D1 密码为准（R1 两套真相�
 	});
 
 	it("有 D1 密码但 frontmatter 无 encrypted 标记时仍视为锁定（防相册实际公开）", async () => {
-
 		const env = buildEnv({ a: UNENCRYPTED_ALBUM }, { a: "secret123" });
 		const wrong = await unlockGalleryAlbum(env, "a", "wrong");
 		expect(wrong.ok).toBe(false);
@@ -121,6 +123,23 @@ describe("unlockGalleryAlbum 锁门判定以 D1 密码为准（R1 两套真相�
 	it("frontmatter encrypted=true 但 D1 无密码：按未锁定放行（与页面用 D1 判定一致）", async () => {
 		const env = buildEnv({ b: ENCRYPTED_ALBUM }, {});
 		const result = await unlockGalleryAlbum(env, "b", "");
+		expect(result.ok).toBe(true);
+		if (result.ok) expect(result.photos.length).toBe(1);
+	});
+});
+
+describe("unlockGalleryAlbum 解密失败 fail-closed（防静默解锁）", () => {
+	it("密文损坏（enc1 前缀但无法解密）→ 拒绝解锁", async () => {
+		const passwords: Record<string, string> = { b: "enc1:corrupt:corrupt" };
+		const env = buildEnv({ b: ENCRYPTED_ALBUM }, passwords);
+		const result = await unlockGalleryAlbum(env, "b", "whatever");
+		expect(result.ok).toBe(false);
+	});
+
+	it("历史明文口令不受哨兵影响，仍可正常解锁", async () => {
+		const passwords: Record<string, string> = { b: "legacy-pass" };
+		const env = buildEnv({ b: ENCRYPTED_ALBUM }, passwords);
+		const result = await unlockGalleryAlbum(env, "b", "legacy-pass");
 		expect(result.ok).toBe(true);
 		if (result.ok) expect(result.photos.length).toBe(1);
 	});

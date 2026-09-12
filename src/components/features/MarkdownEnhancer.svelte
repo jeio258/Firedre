@@ -20,7 +20,11 @@ function loadHighlightJs(): Promise<void> {
 		script.onerror = () => resolve();
 		document.head.appendChild(script);
 		// 与脚本同时注入高亮样式（仅按需时加载，避免无代码块页面白耗）
-		if (!document.querySelector('link[href="/assets/css/highlight-github-dark.min.css"]')) {
+		if (
+			!document.querySelector(
+				'link[href="/assets/css/highlight-github-dark.min.css"]',
+			)
+		) {
 			const link = document.createElement("link");
 			link.rel = "stylesheet";
 			link.href = "/assets/css/highlight-github-dark.min.css";
@@ -104,12 +108,10 @@ const onContentReplaced = () => {
 onMount(() => {
 	renderMermaid(document);
 	highlight(document);
-	document.addEventListener("swup:contentReplaced", onContentReplaced);
-	document.addEventListener("swup:content:replace", onContentReplaced);
+	document.addEventListener("astro:page-load", onContentReplaced);
 
 	return () => {
-		document.removeEventListener("swup:contentReplaced", onContentReplaced);
-		document.removeEventListener("swup:content:replace", onContentReplaced);
+		document.removeEventListener("astro:page-load", onContentReplaced);
 	};
 });
 </script>

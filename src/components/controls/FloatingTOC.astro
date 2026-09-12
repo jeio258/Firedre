@@ -323,10 +323,6 @@ const hideSidebarOnPostPage =
   if (typeof window !== "undefined" && !window.floatingTOCListenersInitialized) {
     window.floatingTOCListenersInitialized = true;
 
-    document.addEventListener("swup:contentReplaced", () => {
-      setTimeout(initFloatingTOC, 100);
-    });
-
     document.addEventListener("astro:page-load", () => {
       setTimeout(initFloatingTOC, 100);
     });

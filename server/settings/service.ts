@@ -92,7 +92,6 @@ export async function getSettingsVersionCached(
 
 async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 	try {
-
 		await env.DB.prepare(`
 			INSERT INTO site_settings (key, value, updated_at)
 			VALUES (?, '1', datetime('now'))
@@ -103,7 +102,9 @@ async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 			.bind(VERSION_KEY)
 			.run();
 	} catch (e) {
+		// 版本号不递增会导致前台命中旧 HTML 缓存，必须让调用方感知失败
 		console.warn("[settings] 配置版本自增失败", e);
+		throw e;
 	}
 }
 
@@ -146,7 +147,10 @@ export async function saveSettingsGroups(
 	env: CloudflareEnv,
 	groups: Partial<Record<SettingGroup, Record<string, unknown>>>,
 ): Promise<void> {
-	const entries = Object.entries(groups) as [SettingGroup, Record<string, unknown>][];
+	const entries = Object.entries(groups) as [
+		SettingGroup,
+		Record<string, unknown>,
+	][];
 	if (entries.length === 0) return;
 
 	// 合并下沉到 SQL：json_patch 递归合并现有值与传入值，避免部分更新清空同组其余字段（含嵌套子字段/跨编辑器保全），且原子无额外读
@@ -226,7 +230,12 @@ export interface SettingsShape {
 	comment?: { enabled?: boolean; type?: string };
 	license?: { enabled?: boolean; type?: string; url?: string };
 	announcement?: { enabled?: boolean; content?: string };
-	analytics?: { googleAnalyticsId?: string; microsoftClarityId?: string; umamiId?: string; umamiUrl?: string };
+	analytics?: {
+		googleAnalyticsId?: string;
+		microsoftClarityId?: string;
+		umamiId?: string;
+		umamiUrl?: string;
+	};
 	ads?: { enabled?: boolean; adSenseId?: string; customCode?: string };
 	keywords?: string;
 	defaultMode?: string;

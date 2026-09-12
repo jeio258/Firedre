@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
+	ALBUM_PASSWORD_DECRYPT_FAILED,
+	deleteAlbumPassword,
 	getAlbumPassword,
 	setAlbumPassword,
-	deleteAlbumPassword,
 } from "../server/gallery/password";
 
 function makeDbMock() {
@@ -105,12 +106,14 @@ describe("album_passwords（静态加密）", () => {
 		expect(await getAlbumPassword(env, "legacy")).toBe("old-plain");
 	});
 
-	it("不同 secret 无法解密（返回空串）", async () => {
+	it("不同 secret 无法解密（返回失败哨兵，调用方按上锁处理）", async () => {
 		await setAlbumPassword(env, "enc", "plain-pwd");
 		const otherEnv = {
 			DB: db,
 			SESSION_SECRET: "another-secret-0123456789abcdef0123456789abcd",
 		} as unknown as Parameters<typeof getAlbumPassword>[0];
-		expect(await getAlbumPassword(otherEnv, "enc")).toBe("");
+		expect(await getAlbumPassword(otherEnv, "enc")).toBe(
+			ALBUM_PASSWORD_DECRYPT_FAILED,
+		);
 	});
 });

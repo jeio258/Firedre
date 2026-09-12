@@ -5,6 +5,18 @@ import { chunkArray, uniqueNonEmpty } from "../utils/collections";
 // D1 数据单独泄露不再直接暴露口令；历史明文值兼容读取（前缀区分），无 secret 时回退明文。
 const CIPHER_PREFIX = "enc1:";
 
+// 解密失败哨兵（密钥缺失/密文损坏）：读取方按“已上锁”处理，避免静默放行
+export const ALBUM_PASSWORD_DECRYPT_FAILED = "__firedre_decrypt_failed__";
+
+let decryptFailureWarned = false;
+function warnDecryptFailure(): void {
+	if (decryptFailureWarned) return;
+	decryptFailureWarned = true;
+	console.warn(
+		"[gallery] 相册口令解密失败，已按上锁处理：请检查 SESSION_SECRET 配置或密文数据",
+	);
+}
+
 const keyCache = globalThis as {
 	__FIREDRE_ALBUM_KEY__?: { secret: string; key: Promise<CryptoKey> };
 };
@@ -66,9 +78,15 @@ async function decryptPassword(
 ): Promise<string> {
 	if (!stored.startsWith(CIPHER_PREFIX)) return stored;
 	const key = await getCipherKey(env);
-	if (!key) return "";
+	if (!key) {
+		warnDecryptFailure();
+		return ALBUM_PASSWORD_DECRYPT_FAILED;
+	}
 	const [, ivB64, ctB64] = stored.split(":");
-	if (!ivB64 || !ctB64) return "";
+	if (!ivB64 || !ctB64) {
+		warnDecryptFailure();
+		return ALBUM_PASSWORD_DECRYPT_FAILED;
+	}
 	try {
 		const plain = await crypto.subtle.decrypt(
 			{ name: "AES-GCM", iv: fromB64(ivB64) },
@@ -77,7 +95,8 @@ async function decryptPassword(
 		);
 		return new TextDecoder().decode(plain);
 	} catch {
-		return "";
+		warnDecryptFailure();
+		return ALBUM_PASSWORD_DECRYPT_FAILED;
 	}
 }
 
@@ -124,9 +143,9 @@ export async function setAlbumPassword(
 	if (!slug) return;
 	const trimmed = String(password || "").trim();
 	if (!trimmed) {
-		await env.DB.prepare(
-			"DELETE FROM album_passwords WHERE album_slug = ?",
-		).bind(slug).run();
+		await env.DB.prepare("DELETE FROM album_passwords WHERE album_slug = ?")
+			.bind(slug)
+			.run();
 		return;
 	}
 	const stored = await encryptPassword(env, trimmed);
@@ -144,7 +163,7 @@ export async function deleteAlbumPassword(
 	slug: string,
 ): Promise<void> {
 	if (!slug) return;
-	await env.DB.prepare(
-		"DELETE FROM album_passwords WHERE album_slug = ?",
-	).bind(slug).run();
+	await env.DB.prepare("DELETE FROM album_passwords WHERE album_slug = ?")
+		.bind(slug)
+		.run();
 }

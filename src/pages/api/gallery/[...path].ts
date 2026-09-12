@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { isValidGallerySlug } from "../../../../server/gallery/constants";
+import { serializeAlbumMarkdown } from "../../../../server/gallery/frontmatter";
 import {
 	deleteAlbumPassword,
 	getAlbumPassword,
@@ -19,7 +19,6 @@ import {
 	upsertGalleryAlbum,
 	upsertGalleryHub,
 } from "../../../../server/gallery/service";
-import { serializeAlbumMarkdown } from "../../../../server/gallery/frontmatter";
 import {
 	deleteAlbumWebDavConfig,
 	getAlbumWebDavConfig,
@@ -35,6 +34,7 @@ import {
 	notFound,
 	unauthorized,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
@@ -67,7 +67,6 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 
 		if (segments[1] === "unlock" && request.method === "GET") {
-
 			return withRateLimit(
 				cfEnv,
 				request,
@@ -82,7 +81,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 						new URL(request.url).searchParams.get("password") || "";
 					const result = await unlockGalleryAlbum(cfEnv, slug, password);
 					if (!result.ok) return json({ message: "密码错误" }, 403);
-					return json({ ok: true, photos: result.photos });
+					return json({ ok: true, photos: result.photos }, 200, "private");
 				},
 			);
 		}
@@ -177,7 +176,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 				String(body.password || ""),
 			);
 			if (!result.ok) return json({ message: "密码错误" }, 403);
-			return json({ ok: true, photos: result.photos });
+			return json({ ok: true, photos: result.photos }, 200, "private");
 		},
 	);
 };
@@ -241,14 +240,23 @@ export const PUT: APIRoute = async ({ params, request }) => {
 		if (!slug || !isValidGallerySlug(slug))
 			return badRequest("相册 slug 格式无效");
 		let markdown: string;
-		if ((request.headers.get("Content-Type") || "").includes("application/json")) {
+		if (
+			(request.headers.get("Content-Type") || "").includes("application/json")
+		) {
 			const body = (await request.json().catch(() => null)) as {
 				frontmatter?: Record<string, unknown>;
 				content?: string;
 			} | null;
-			if (!body || typeof body.frontmatter !== "object" || body.frontmatter === null)
+			if (
+				!body ||
+				typeof body.frontmatter !== "object" ||
+				body.frontmatter === null
+			)
 				return badRequest("请求体无效：需 { frontmatter, content }");
-			markdown = serializeAlbumMarkdown(body.frontmatter as never, body.content ?? "");
+			markdown = serializeAlbumMarkdown(
+				body.frontmatter as never,
+				body.content ?? "",
+			);
 		} else {
 			markdown = await request.text();
 		}
@@ -270,7 +278,6 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	if (!isAdmin) return unauthorized();
 
 	try {
-
 		if (segments[1] === "password") {
 			await deleteAlbumPassword(cfEnv, slug);
 			// 同步清除 R2 frontmatter 的 encrypted 标记

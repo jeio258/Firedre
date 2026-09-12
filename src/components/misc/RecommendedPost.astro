@@ -219,6 +219,6 @@ renderRandomPosts();
 
 if (!window.__recommendedPostInit) {
   window.__recommendedPostInit = true;
-  document.addEventListener('swup:contentReplaced', renderRandomPosts);
+  document.addEventListener('astro:page-load', renderRandomPosts);
 }
 </script>

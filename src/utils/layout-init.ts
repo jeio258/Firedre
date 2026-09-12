@@ -23,7 +23,6 @@ import { setupSwupTransitions } from "@/utils/swup-transitions";
 import { initTouchCodeCopyReveal } from "@/utils/touch-copy-utils";
 
 export function initLayout(): void {
-
 	if (window.__fireflyLayoutInit) return;
 	window.__fireflyLayoutInit = true;
 
@@ -77,9 +76,6 @@ export function initLayout(): void {
 	initImageLoadFadeIn();
 
 	document.addEventListener("astro:page-load", () => {
-		requestAnimationFrame(initImageLoadFadeIn);
-	});
-	document.addEventListener("swup:contentReplaced", () => {
 		requestAnimationFrame(initImageLoadFadeIn);
 	});
 }

@@ -1,14 +1,15 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
 import bcrypt from "bcryptjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	ADMIN_SESSION_COOKIE,
+	type AdminAuthEnv,
 	buildSessionCookie,
 	createSessionToken,
 	getAuthenticatedAdminUsername,
+	getCookieValue,
 	getSecret,
 	getSessionUser,
 	isBcryptHash,
-	type AdminAuthEnv,
 	verifySessionToken,
 } from "../server/auth/adminSession";
 
@@ -25,7 +26,6 @@ describe("isBcryptHash", () => {
 	});
 
 	it("should return false for truncated or malformed hashes", () => {
-
 		expect(isBcryptHash("$2b$10$abcdefghijklmnopqrstuv")).toBe(false);
 		expect(isBcryptHash("$2b$10$x")).toBe(false);
 	});
@@ -48,9 +48,7 @@ describe("getSecret", () => {
 
 	it("should throw when SESSION_SECRET is missing", () => {
 		const env: AdminAuthEnv = { ...testEnv };
-		expect(() => getSecret(env)).toThrow(
-			"SESSION_SECRET 未配置",
-		);
+		expect(() => getSecret(env)).toThrow("SESSION_SECRET 未配置");
 	});
 
 	it("should throw when SESSION_SECRET is empty string", () => {
@@ -170,7 +168,9 @@ describe("getAuthenticatedAdminUsername fail-closed", () => {
 
 	it("管理员被禁用 → 拒绝", async () => {
 		const db = {
-			prepare: () => ({ bind: () => ({ first: async () => ({ enabled: 0 }) }) }),
+			prepare: () => ({
+				bind: () => ({ first: async () => ({ enabled: 0 }) }),
+			}),
 		};
 		expect(
 			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
@@ -179,10 +179,38 @@ describe("getAuthenticatedAdminUsername fail-closed", () => {
 
 	it("管理员启用 → 通过", async () => {
 		const db = {
-			prepare: () => ({ bind: () => ({ first: async () => ({ enabled: 1 }) }) }),
+			prepare: () => ({
+				bind: () => ({ first: async () => ({ enabled: 1 }) }),
+			}),
 		};
 		expect(
 			await getAuthenticatedAdminUsername(await reqWithToken(), envWithDb(db)),
 		).toBe("admin");
+	});
+});
+
+describe("getCookieValue 容错", () => {
+	it("解析正常编码的值", () => {
+		expect(
+			getCookieValue(`${ADMIN_SESSION_COOKIE}=abc123`, ADMIN_SESSION_COOKIE),
+		).toBe("abc123");
+	});
+
+	it("非法百分号序列回退原值而不抛异常", () => {
+		expect(() =>
+			getCookieValue(`${ADMIN_SESSION_COOKIE}=%zz`, ADMIN_SESSION_COOKIE),
+		).not.toThrow();
+		expect(
+			getCookieValue(`${ADMIN_SESSION_COOKIE}=%zz`, ADMIN_SESSION_COOKIE),
+		).toBe("%zz");
+	});
+
+	it("其他 Cookie 异常值不影响目标读取", () => {
+		expect(
+			getCookieValue(
+				`other=%zz; ${ADMIN_SESSION_COOKIE}=tok`,
+				ADMIN_SESSION_COOKIE,
+			),
+		).toBe("tok");
 	});
 });

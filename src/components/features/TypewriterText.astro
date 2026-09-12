@@ -166,7 +166,6 @@ const textData = Array.isArray(text) ? JSON.stringify(text) : text;
       runInitWithDelay();
     }
 
-    document.addEventListener("swup:contentReplaced", runInitWithDelay);
     document.addEventListener("swup:content:replace", runInitWithDelay);
     document.addEventListener("swup:page:view", runInitWithDelay);
 

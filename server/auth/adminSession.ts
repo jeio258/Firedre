@@ -1,5 +1,3 @@
-
-
 import bcrypt from "bcryptjs";
 import type { CloudflareEnv } from "../../types/env";
 import { constantTimeEqual } from "../utils/timingSafe";
@@ -12,7 +10,6 @@ export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 4; // 4 hours
 export const BCRYPT_ROUNDS = 10;
 
 export interface AdminAuthEnv {
-
 	SESSION_SECRET?: string;
 }
 
@@ -116,7 +113,14 @@ export function getCookieValue(
 
 	for (const part of cookieHeader.split(";")) {
 		const [rawKey, ...rest] = part.trim().split("=");
-		if (rawKey === name) return decodeURIComponent(rest.join("="));
+		if (rawKey !== name) continue;
+		const raw = rest.join("=");
+		try {
+			return decodeURIComponent(raw);
+		} catch {
+			// 非法编码序列回退原值，避免坏 Cookie 触发 500
+			return raw;
+		}
 	}
 
 	return null;

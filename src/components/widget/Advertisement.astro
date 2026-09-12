@@ -176,7 +176,7 @@ const useContentPadding = !adConfig.padding;
 
   if (!window.__advertisementInit) {
     window.__advertisementInit = true;
-    document.addEventListener("swup:contentReplaced", function () {
+    document.addEventListener("astro:page-load", function () {
       setTimeout(initAd, 100);
     });
   }

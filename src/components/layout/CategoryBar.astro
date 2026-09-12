@@ -400,7 +400,7 @@ function initialActive(categoryName: string): {
       updateCategoryBar();
       initScrollFeatures();
     });
-    document.addEventListener("swup:contentReplaced", () => {
+    document.addEventListener("astro:page-load", () => {
       updateCategoryBar();
 
       requestAnimationFrame(() => {

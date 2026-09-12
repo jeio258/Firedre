@@ -5,14 +5,20 @@ import type {
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
 import type { GalleryAlbumDetail, GalleryHubDetail } from "../../types/gallery";
+import { bumpContentVersion } from "../settings/service";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
-import { bumpContentVersion } from "../settings/service";
 import {
 	GALLERY_HUB_R2_KEY,
 	galleryAlbumR2Key,
 	isValidGallerySlug,
 } from "./constants";
+import {
+	deleteAlbumFromD1,
+	getAlbumFromD1,
+	getAlbumsFromD1Map,
+	upsertAlbumToD1,
+} from "./d1";
 import {
 	normalizeAlbumSlugs,
 	parseAlbumSource,
@@ -24,18 +30,13 @@ import {
 	toAlbumSummary,
 } from "./frontmatter";
 import {
+	ALBUM_PASSWORD_DECRYPT_FAILED,
 	deleteAlbumPassword,
 	getAlbumPassword,
 	getAlbumPasswordsMap,
 	setAlbumPassword,
 } from "./password";
 import { getAlbumWebDavConfig } from "./webdavConfig";
-import {
-	deleteAlbumFromD1,
-	getAlbumFromD1,
-	getAlbumsFromD1Map,
-	upsertAlbumToD1,
-} from "./d1";
 
 function summarizeAlbum(
 	slug: string,
@@ -66,7 +67,11 @@ async function loadAlbumSummary(
 		if (!object) return null;
 		frontmatter = parseAlbumSource(await object.text()).frontmatter;
 	}
-	return summarizeAlbum(slug, frontmatter, (passwordMap.get(slug) ?? "") !== "");
+	return summarizeAlbum(
+		slug,
+		frontmatter,
+		(passwordMap.get(slug) ?? "") !== "",
+	);
 }
 
 export async function getGalleryHub(
@@ -170,10 +175,24 @@ async function updateAlbumFrontmatter(
 	) => Record<string, unknown> | null,
 ): Promise<void> {
 	if (!isValidGallerySlug(slug)) return;
-	const detail = await getGalleryAlbumDetail(env, slug);
-	if (!detail?.source) return;
 
-	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
+	// D1 相册回写 D1；仅 R2 存量的相册回写 R2 frontmatter
+	const d1 = await getAlbumFromD1(env, slug);
+	if (d1) {
+		const next = apply(d1.frontmatter as Record<string, unknown>);
+		if (!next) return;
+		await upsertAlbumToD1(
+			env,
+			slug,
+			next as unknown as AlbumDetailFrontmatter,
+			d1.content,
+		);
+		return;
+	}
+
+	const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
+	if (!object) return;
+	const { frontmatter, content } = splitGalleryMarkdown(await object.text());
 	const next = apply(frontmatter);
 	if (!next) return;
 
@@ -389,6 +408,7 @@ export async function getAlbumWebDavConfigFromR2(
 	const url = d1?.url || album.frontmatter.webdav?.url;
 	if (!url) return null;
 
+	const albumPassword = await getAlbumPassword(env, slug);
 	return {
 		url,
 		...(d1?.username || album.frontmatter.webdav?.username
@@ -397,7 +417,10 @@ export async function getAlbumWebDavConfigFromR2(
 				}
 			: {}),
 		encrypted: album.frontmatter.encrypted === true,
-		albumPassword: (await getAlbumPassword(env, slug)) || undefined,
+		albumPassword:
+			albumPassword === ALBUM_PASSWORD_DECRYPT_FAILED
+				? undefined
+				: albumPassword || undefined,
 	};
 }
 
