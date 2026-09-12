@@ -227,9 +227,7 @@ html.is-page-transitioning .banner-home-text-overlay {
     .slide-item img {
         transition: transform 0.5s ease-out !important;
     }
-}
 
-@media (max-width: 1023px) {
     #wallpaper-wrapper {
         transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease-out;
         transform-origin: top center;
@@ -241,9 +239,6 @@ html.is-page-transitioning .banner-home-text-overlay {
         -webkit-transform: translateZ(0);
     }
 
-    }
-
-@media (max-width: 1023px) {
     .carousel-item {
 
         transform: translateZ(0);

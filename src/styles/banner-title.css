@@ -40,10 +40,12 @@
     fill: currentColor;
 }
 
-.banner-link:hover {
-    background: rgba(255, 255, 255, 0.26);
-    color: #fff;
-    transform: translateY(-2px) scale(1.05);
+@media (hover: hover) {
+    .banner-link:hover {
+        background: rgba(255, 255, 255, 0.26);
+        color: #fff;
+        transform: translateY(-2px) scale(1.05);
+    }
 }
 
 .banner-link-text {

@@ -165,6 +165,8 @@ function initialActive(categoryName: string): {
 </style>
 
 <script>
+  import { isTabletOrBelowViewport } from "@/utils/breakpoints";
+
   let delayedCategoryBarScrollTimer: number | undefined;
 
   function getCategoryBarState(bar: HTMLElement, currentUrl: URL) {
@@ -254,7 +256,7 @@ function initialActive(categoryName: string): {
 
   function shouldDeferCategoryScroll(bar: HTMLElement, currentUrl: URL) {
     const { isHome } = getCategoryBarState(bar, currentUrl);
-    const isMobile = window.innerWidth < 1024;
+    const isMobile = isTabletOrBelowViewport();
     const isBannerMode =
       document.documentElement.getAttribute("data-wallpaper-mode") === "banner";
     return isMobile && isBannerMode && !isHome;

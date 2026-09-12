@@ -225,8 +225,10 @@ dynamic-feed {
 	text-decoration: none;
 }
 
-.dynamic-author:hover {
-	color: var(--primary);
+@media (hover: hover) {
+	.dynamic-author:hover {
+		color: var(--primary);
+	}
 }
 
 .dynamic-identity strong {
@@ -255,8 +257,10 @@ dynamic-feed {
 	text-decoration: none;
 }
 
-.dynamic-time:hover {
-	color: var(--primary);
+@media (hover: hover) {
+	.dynamic-time:hover {
+		color: var(--primary);
+	}
 }
 
 .dynamic-location {
@@ -617,11 +621,16 @@ dynamic-feed {
 	font-size: 0.85rem;
 }
 
-.dynamic-comment-toggle:hover,
 .dynamic-comment-toggle:focus-visible,
 .dynamic-inline-comments[data-expanded="true"] .dynamic-comment-toggle {
 	background: transparent;
 	color: var(--primary);
+}
+@media (hover: hover) {
+	.dynamic-comment-toggle:hover {
+		background: transparent;
+		color: var(--primary);
+	}
 }
 
 .dynamic-comment-chevron {
@@ -748,8 +757,10 @@ dynamic-feed {
 	color: rgb(255 255 255 / 90%);
 }
 
-:root.dark .dynamic-author:hover {
-	color: var(--primary);
+@media (hover: hover) {
+	:root.dark .dynamic-author:hover {
+		color: var(--primary);
+	}
 }
 
 :root.dark .dynamic-search input,

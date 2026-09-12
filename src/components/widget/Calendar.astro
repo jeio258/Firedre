@@ -608,8 +608,10 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     min-height: 32px;
   }
 
-  :global(.calendar-day[data-has-post="true"]:hover) {
-    transform: translateY(-2px);
+  @media (hover: hover) {
+    :global(.calendar-day[data-has-post="true"]:hover) {
+      transform: translateY(-2px);
+    }
   }
 
   :global(.calendar-day-selected) {
@@ -625,7 +627,9 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     margin: auto;
     transition: box-shadow 0.15s ease;
   }
-  :global(.heatmap-cell:hover) {
-    box-shadow: 0 0 1px 1.5px var(--primary, oklch(0.55 0.15 250));
+  @media (hover: hover) {
+    :global(.heatmap-cell:hover) {
+      box-shadow: 0 0 1px 1.5px var(--primary, oklch(0.55 0.15 250));
+    }
   }
 </style>

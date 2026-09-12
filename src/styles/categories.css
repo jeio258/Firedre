@@ -19,10 +19,12 @@
   color: var(--primary);
   background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
-.category-pill:hover {
-  color: var(--primary);
-  background: color-mix(in srgb, var(--primary) 15%, transparent);
-  border-color: color-mix(in srgb, var(--primary) 25%, transparent);
+@media (hover: hover) {
+  .category-pill:hover {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    border-color: color-mix(in srgb, var(--primary) 25%, transparent);
+  }
 }
 .category-pill[data-active] {
   background: var(--primary);
@@ -38,22 +40,35 @@
   color: color-mix(in srgb, var(--primary) 90%, var(--btn-content));
   font-weight: 600;
 }
-.category-pill[data-soft-active]:hover {
+@media (hover: hover) {
+  .category-pill[data-soft-active]:hover {
+    background: color-mix(in srgb, var(--primary) 25%, transparent);
+    color: color-mix(in srgb, var(--primary) 100%, var(--btn-content));
+  }
+}
+.category-pill[data-soft-active][data-active] {
   background: color-mix(in srgb, var(--primary) 25%, transparent);
   color: color-mix(in srgb, var(--primary) 100%, var(--btn-content));
 }
-.category-pill[data-soft-active][data-active],
-.category-pill[data-soft-active][data-active]:hover {
-  background: color-mix(in srgb, var(--primary) 25%, transparent);
-  color: color-mix(in srgb, var(--primary) 100%, var(--btn-content));
+@media (hover: hover) {
+  .category-pill[data-soft-active][data-active]:hover {
+    background: color-mix(in srgb, var(--primary) 25%, transparent);
+    color: color-mix(in srgb, var(--primary) 100%, var(--btn-content));
+  }
 }
-.category-pill[data-active]:hover {
-  background: var(--primary);
-  opacity: 0.9;
+@media (hover: hover) {
+  .category-pill[data-active]:hover {
+    background: var(--primary);
+    opacity: 0.9;
+  }
 }
-.category-pill[data-category-name=""][data-active],
-.category-pill[data-category-name=""][data-active]:hover {
+.category-pill[data-category-name=""][data-active] {
   color: white;
+}
+@media (hover: hover) {
+  .category-pill[data-category-name=""][data-active]:hover {
+    color: white;
+  }
 }
 
 html[data-category-style="rectangle"] .category-bar .category-pill {

@@ -5,9 +5,11 @@
     background: color-mix(in srgb, var(--btn-content) 8%, transparent);
     color: var(--btn-content);
 }
-.tag-item:hover {
-    background: color-mix(in srgb, var(--btn-content) 18%, transparent);
-    color: var(--primary);
+@media (hover: hover) {
+    .tag-item:hover {
+        background: color-mix(in srgb, var(--btn-content) 18%, transparent);
+        color: var(--primary);
+    }
 }
 .tag-item:active {
     background: color-mix(in srgb, var(--btn-content) 24%, transparent);
@@ -18,19 +20,26 @@
     color: inherit;
 }
 
-.tag-item.tag-item-static,
-.tag-item.tag-item-static:hover {
+.tag-item.tag-item-static {
     background: color-mix(in srgb, var(--btn-content) 8%, transparent);
     color: var(--btn-content);
+}
+@media (hover: hover) {
+    .tag-item.tag-item-static:hover {
+        background: color-mix(in srgb, var(--btn-content) 8%, transparent);
+        color: var(--btn-content);
+    }
 }
 
 html[data-tag-style="pill-gray"] .tag-item {
     background: rgba(0, 0, 0, 0.05);
     color: rgb(115, 115, 115);
 }
-html[data-tag-style="pill-gray"] .tag-item:hover {
-    background: var(--btn-regular-bg);
-    color: var(--btn-content);
+@media (hover: hover) {
+    html[data-tag-style="pill-gray"] .tag-item:hover {
+        background: var(--btn-regular-bg);
+        color: var(--btn-content);
+    }
 }
 html[data-tag-style="pill-gray"] .tag-item:active {
     background: rgba(0, 0, 0, 0.1);
@@ -39,9 +48,11 @@ html[data-tag-style="pill-gray"].dark .tag-item {
     background: rgba(255, 255, 255, 0.1);
     color: rgb(163, 163, 163);
 }
-html[data-tag-style="pill-gray"].dark .tag-item:hover {
-    background: var(--btn-regular-bg);
-    color: var(--btn-content);
+@media (hover: hover) {
+    html[data-tag-style="pill-gray"].dark .tag-item:hover {
+        background: var(--btn-regular-bg);
+        color: var(--btn-content);
+    }
 }
 html[data-tag-style="pill-gray"].dark .tag-item:active {
     background: rgba(255, 255, 255, 0.2);
@@ -54,15 +65,25 @@ html[data-tag-style="pill-gray"].dark .tag-item .tag-count-badge {
     background: rgba(255, 255, 255, 0.15);
     color: rgb(163, 163, 163);
 }
-html[data-tag-style="pill-gray"] .tag-item.tag-item-static,
-html[data-tag-style="pill-gray"] .tag-item.tag-item-static:hover {
+html[data-tag-style="pill-gray"] .tag-item.tag-item-static {
     background: rgba(0, 0, 0, 0.05);
     color: rgb(163, 163, 163);
 }
-html[data-tag-style="pill-gray"].dark .tag-item.tag-item-static,
-html[data-tag-style="pill-gray"].dark .tag-item.tag-item-static:hover {
+@media (hover: hover) {
+    html[data-tag-style="pill-gray"] .tag-item.tag-item-static:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: rgb(163, 163, 163);
+    }
+}
+html[data-tag-style="pill-gray"].dark .tag-item.tag-item-static {
     background: rgba(255, 255, 255, 0.1);
     color: rgb(115, 115, 115);
+}
+@media (hover: hover) {
+    html[data-tag-style="pill-gray"].dark .tag-item.tag-item-static:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgb(115, 115, 115);
+    }
 }
 
 html[data-tag-style="rectangle"] .tag-item {
@@ -70,26 +91,42 @@ html[data-tag-style="rectangle"] .tag-item {
     background: var(--btn-regular-bg);
     color: var(--btn-content);
 }
-html[data-tag-style="rectangle"] .tag-item:hover {
-    background: var(--btn-regular-bg-hover);
-    color: var(--btn-content);
+@media (hover: hover) {
+    html[data-tag-style="rectangle"] .tag-item:hover {
+        background: var(--btn-regular-bg-hover);
+        color: var(--btn-content);
+    }
 }
 html[data-tag-style="rectangle"] .tag-item:active {
     background: var(--btn-regular-bg-active);
 }
-html[data-tag-style="rectangle"].dark .tag-item,
-html[data-tag-style="rectangle"].dark .tag-item:hover {
+html[data-tag-style="rectangle"].dark .tag-item {
     color: rgba(255, 255, 255, 0.75);
 }
-html[data-tag-style="rectangle"] .tag-item.tag-item-static,
-html[data-tag-style="rectangle"] .tag-item.tag-item-static:hover {
+@media (hover: hover) {
+    html[data-tag-style="rectangle"].dark .tag-item:hover {
+        color: rgba(255, 255, 255, 0.75);
+    }
+}
+html[data-tag-style="rectangle"] .tag-item.tag-item-static {
     background: var(--btn-regular-bg);
     color: var(--btn-content);
     opacity: 0.75;
 }
-html[data-tag-style="rectangle"].dark .tag-item.tag-item-static,
-html[data-tag-style="rectangle"].dark .tag-item.tag-item-static:hover {
+@media (hover: hover) {
+    html[data-tag-style="rectangle"] .tag-item.tag-item-static:hover {
+        background: var(--btn-regular-bg);
+        color: var(--btn-content);
+        opacity: 0.75;
+    }
+}
+html[data-tag-style="rectangle"].dark .tag-item.tag-item-static {
     color: rgba(255, 255, 255, 0.75);
+}
+@media (hover: hover) {
+    html[data-tag-style="rectangle"].dark .tag-item.tag-item-static:hover {
+        color: rgba(255, 255, 255, 0.75);
+    }
 }
 html[data-tag-style="rectangle"] .tag-item .tag-count-badge,
 html[data-tag-style="rectangle"].dark .tag-item .tag-count-badge {

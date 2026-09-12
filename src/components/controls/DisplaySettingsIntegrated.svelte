@@ -45,6 +45,7 @@ import {
 	setWavesEnabled,
 } from "@utils/setting-utils";
 import { onMount } from "svelte";
+import { BREAKPOINT_COMPACT, BREAKPOINT_TABLET, BREAKPOINT_WIDE } from "@utils/breakpoints";
 import Icon from "@/components/common/Icon.svelte";
 import {
 	backgroundWallpaper,
@@ -94,13 +95,14 @@ const mobileDefaultLayout =
 	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).mobileDefaultMode || defaultLayout;
 let mounted = $state(false);
 let isSmallScreen = $state(
-	typeof window !== "undefined" ? window.innerWidth < 1200 : false,
+	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_WIDE : false,
 );
+// 780 为面板/列表默认布局的移动阈值（is:inline 脚本同用，暂未收敛进断点模块）
 let isMobileWidth = $state(
 	typeof window !== "undefined" ? window.innerWidth < 780 : false,
 );
 let isMobileViewport = $state(
-	typeof window !== "undefined" ? window.innerWidth < 1024 : false,
+	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_TABLET : false,
 );
 let isSwitching = $state(false);
 let wavesEnabled = $state(true);
@@ -458,11 +460,11 @@ function switchWallpaperMode(newMode: WALLPAPER_MODE) {
 }
 
 function checkScreenSize() {
-	isSmallScreen = window.innerWidth < 1200;
+	isSmallScreen = window.innerWidth < BREAKPOINT_WIDE;
 	isMobileWidth = window.innerWidth < 780;
-	isMobileViewport = window.innerWidth < 1024;
+	isMobileViewport = window.innerWidth < BREAKPOINT_TABLET;
 	// 低于380px强制网格模式
-	if (window.innerWidth < 380 && currentLayout === "list") {
+	if (window.innerWidth < BREAKPOINT_COMPACT && currentLayout === "list") {
 		currentLayout = "grid";
 		const event = new CustomEvent("layoutChange", {
 			detail: { layout: "grid" },

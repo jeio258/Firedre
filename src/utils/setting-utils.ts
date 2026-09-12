@@ -21,6 +21,7 @@ import {
 	getSiteConfigFromWindow,
 	getWallpaperConfigFromWindow,
 } from "../config/runtime";
+import { isMobileViewport } from "./breakpoints";
 import { isHomePage as checkIsHomePage } from "./layout-utils";
 
 declare global {
@@ -588,8 +589,7 @@ function createDeviceBooleanDefault(
 		if (typeof runtime === "boolean") return runtime;
 		if (typeof config === "object") {
 			// 如果是分设备配置，检查当前设备
-			const isMobile =
-				typeof window !== "undefined" ? window.innerWidth < 768 : false;
+			const isMobile = isMobileViewport();
 			return isMobile
 				? (config.mobile ?? fallback)
 				: (config.desktop ?? fallback);

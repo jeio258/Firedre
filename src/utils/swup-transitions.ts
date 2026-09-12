@@ -6,6 +6,10 @@ import {
 } from "@/constants/constants";
 import type { WALLPAPER_MODE } from "@/types/config";
 import { isBannerMode } from "@/utils/banner-utils";
+import {
+	isMobileViewport,
+	isTabletOrBelowViewport,
+} from "@/utils/breakpoints";
 import { scheduleContentOverflowEnhancements } from "@/utils/content-overflow-utils";
 import { initializeFloatingPanels } from "@/utils/floating-panel-utils";
 import {
@@ -200,7 +204,7 @@ function registerSwupHooks(): void {
 		}
 
 		// 在移动端禁用文章列表容器的过渡动画，防止与主内容区位置变化冲突
-		if (window.innerWidth < 1024) {
+		if (isTabletOrBelowViewport()) {
 			const postListContainer = document.getElementById("post-list-container");
 			if (postListContainer) {
 				postListContainer.style.transition = "none";
@@ -212,7 +216,7 @@ function registerSwupHooks(): void {
 			heightExtend.classList.remove("hidden");
 		}
 
-		const shouldUseSmoothScroll = window.innerWidth >= 768;
+		const shouldUseSmoothScroll = !isMobileViewport();
 		if (shouldUseSmoothScroll) {
 			window.scrollTo({
 				top: 0,
@@ -243,7 +247,7 @@ function registerSwupHooks(): void {
 		);
 
 		// 在移动端恢复文章列表容器的过渡动画（在主内容区位置动画完成后）
-		const isMobile = window.innerWidth < 1024;
+		const isMobile = isTabletOrBelowViewport();
 		if (isMobile) {
 			setTimeout(() => {
 				const postListContainer = document.getElementById(

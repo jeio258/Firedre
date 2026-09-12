@@ -1,4 +1,5 @@
 import { backgroundWallpaper } from "@/config";
+import { isTabletOrBelowViewport } from "@/utils/breakpoints";
 import { pathsEqual, url } from "@/utils/url-utils";
 
 const TITLE_FADE_RATIO = 0.5;                    
@@ -92,7 +93,7 @@ function isBlurRampEnabled(): boolean {
 	const enable = backgroundWallpaper.fullscreen?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;
 	if (!enable) return true;
-	return window.innerWidth < 1024 ? enable.mobile : enable.desktop;
+	return isTabletOrBelowViewport() ? enable.mobile : enable.desktop;
 }
 
 function readMaxBlur(wrapper: HTMLElement): number {

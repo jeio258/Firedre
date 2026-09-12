@@ -45,9 +45,11 @@
 	min-height: 2.2rem;
 }
 
-.toc-item:hover {
-	background: color-mix(in oklab, var(--toc-btn-hover), transparent);
-	transform: translateX(1px);
+@media (hover: hover) {
+	.toc-item:hover {
+		background: color-mix(in oklab, var(--toc-btn-hover), transparent);
+		transform: translateX(1px);
+	}
 }
 
 .toc-item:active {
