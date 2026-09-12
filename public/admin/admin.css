@@ -2169,3 +2169,33 @@ html.dark .lg-field input {
 .btn:active:not(:disabled) {
 	transform: translateY(1px);
 }
+
+/* 窄屏顶栏：按钮防换行收缩，保持 32px 高与 fit-content 宽 */
+.btn {
+	white-space: nowrap;
+}
+@media (max-width: 640px) {
+	.topbar {
+		gap: 0.5rem;
+		padding: 0 0.75rem;
+	}
+	.top-actions {
+		gap: 0.75rem;
+	}
+	.top-actions .btn {
+		padding: 0.5rem 0.75rem;
+		font-size: 0.8rem;
+		min-height: 32px;
+	}
+	.top-actions .btn svg {
+		width: 14px;
+		height: 14px;
+	}
+	.crumb-group,
+	.crumb-sep {
+		display: none;
+	}
+	.user-trigger .user-name {
+		display: none;
+	}
+}
