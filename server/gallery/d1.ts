@@ -6,6 +6,8 @@ import type {
 } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
 import { runDbBatch } from "../utils/dbBatch";
+import { chunkArray, uniqueNonEmpty } from "../utils/collections";
+import { parseStringList } from "../utils/json";
 
 interface AlbumRow {
 	slug: string;
@@ -34,16 +36,6 @@ export interface AlbumD1Data {
 	content: string;
 }
 
-function parseTags(raw: string | null): string[] | undefined {
-	if (!raw) return undefined;
-	try {
-		const parsed = JSON.parse(raw);
-		return Array.isArray(parsed) ? parsed.map(String) : undefined;
-	} catch {
-		return undefined;
-	}
-}
-
 function parseSource(raw: string): AlbumSource {
 	return raw === "webdav" ? "webdav" : "local";
 }
@@ -58,7 +50,7 @@ function buildAlbumFrontmatter(
 		desc: row.desc || undefined,
 		date: row.date || undefined,
 		location: row.location || undefined,
-		tags: parseTags(row.tags),
+		tags: parseStringList(row.tags),
 		encrypted: row.encrypted === 1,
 		source: parseSource(row.source),
 	};
@@ -95,14 +87,12 @@ export async function getAlbumsFromD1Map(
 	slugs: string[],
 ): Promise<Map<string, AlbumD1Data>> {
 	const map = new Map<string, AlbumD1Data>();
-	const valid = [...new Set(slugs.filter(Boolean))];
+	const valid = uniqueNonEmpty(slugs);
 	if (!valid.length) return map;
 
 	const rows: AlbumRow[] = [];
 	const photos: (AlbumPhotoRow & { album_slug: string })[] = [];
-	const CHUNK = 100;
-	for (let i = 0; i < valid.length; i += CHUNK) {
-		const chunk = valid.slice(i, i + CHUNK);
+	for (const chunk of chunkArray(valid)) {
 		const placeholders = chunk.map(() => "?").join(",");
 		const albumRes = await env.DB.prepare(
 			`SELECT * FROM albums WHERE slug IN (${placeholders})`,

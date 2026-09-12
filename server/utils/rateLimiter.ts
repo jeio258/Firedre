@@ -1,6 +1,7 @@
 
 
 import type { CloudflareEnv } from "../../types/env";
+import { getClientIp } from "./clientIp";
 
 export interface RateLimitConfig {
 
@@ -30,14 +31,6 @@ const defaultConfig: RateLimitConfig = {
 	maxRequests: 60,
 	message: "请求过于频繁，请稍后再试",
 };
-
-export function getClientIp(request: Request): string {
-	return (
-		request.headers.get("CF-Connecting-IP") ||
-
-		"unknown"
-	);
-}
 
 export async function checkD1RateLimit(
 	db: D1Database,

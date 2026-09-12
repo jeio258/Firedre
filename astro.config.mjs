@@ -1,29 +1,11 @@
 import { setMaxListeners } from "node:events";
 import cloudflare from "@astrojs/cloudflare";
-import { unified } from "@astrojs/markdown-remark";
-import mdx from "@astrojs/mdx";
 import svelte from "@astrojs/svelte";
 import swup from "@swup/astro";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders } from "astro/config";
 import icon from "astro-icon";
-import "katex/dist/contrib/mhchem.mjs"; // 加载 mhchem 扩展
-import {
-	fontConfig,
-	fontsList,
-	mermaidConfig,
-	siteConfig,
-} from "./src/config";
-import I18nKey from "./src/i18n/i18nKey";
-import { i18n } from "./src/i18n/translation";
-import { rehypeMermaid } from "./src/plugins/rehype-mermaid.mjs";
-import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
-import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
-import { remarkWikiLink } from "./src/plugins/remark-wiki-link.js";
-import {
-	sharedRehypePlugins,
-	sharedRemarkPlugins,
-} from "./src/plugins/markdown-preset.mjs";
+import { fontConfig, fontsList, siteConfig } from "./src/config";
 import { collectUsedFontCssVars } from "./src/utils/fontHelper";
 
 if (process.env.NODE_ENV === "development") {
@@ -40,10 +22,6 @@ export default defineConfig({
 
 	// Firedre：全站 SSR（纯动态），Cloudflare Workers + Static Assets
 	output: "server",
-
-	define: {
-		__FIREFLY_VERSION__: JSON.stringify("6.16.5"),
-	},
 
 	base: "/",
 	trailingSlash: "always",
@@ -135,7 +113,7 @@ export default defineConfig({
 		icon({
 			include: {
 				"material-symbols": [
-					"airwave-rounded", "archive", "arrow-back", "arrow-drop-down-rounded", "arrow-outward-rounded", "article", "article-outline", "auto-stories-outline-rounded", "book-2-outline-rounded", "bookmark-rounded", "bookmarks", "border-outer-rounded", "brightness-auto-outline-rounded", "build-outline", "build-outline-rounded", "calendar-clock-outline", "calendar-month-outline-rounded", "calendar-month-rounded", "calendar-today", "calendar-today-outline-rounded", "chat", "chat-bubble-outline-rounded", "check", "chevron-left-rounded", "chevron-right-rounded", "chrome-reader-mode-rounded", "close", "close-fullscreen-rounded", "cloud-outline", "code-rounded", "computer-outline", "copyright-outline", "dark-mode-outline-rounded", "docs", "download", "dynamic-feed-rounded", "edit-calendar-outline-rounded", "emoji-people-rounded", "error-outline", "expand-more-rounded", "favorite", "folder-off", "folder-open", "folder-open-rounded", "folder-outline", "format-list-bulleted", "format-quote-rounded", "forum-rounded", "full-coverage-outline-rounded", "gradient", "group", "group-off-outline", "help-outline", "hide-image-outline", "history-rounded", "home", "home-outline-rounded", "home-pin-outline", "image-outline", "info", "info-outline", "ink-pen-outline-rounded", "keyboard-arrow-down-rounded", "keyboard-arrow-up-rounded", "label-outline", "language", "layers", "link", "link-2-rounded", "link-rounded", "location-on", "location-on-rounded", "lock-outline", "menu-book", "menu-rounded", "more-horiz", "movie", "movie-filter", "music-note-rounded", "notes-rounded", "palette", "palette-outline", "palette-outline", "pause-rounded", "person", "photo-library", "pinboard", "play-arrow-rounded", "keep", "recommend", "repeat-one-rounded", "repeat-rounded", "rocket-launch-outline", "rss-feed", "schedule-outline-rounded", "search", "search-off", "search-off-rounded", "search-rounded", "sentiment-sad", "settings", "share", "shield-lock", "shuffle-rounded", "signpost", "skip-next-rounded", "skip-previous-rounded", "subtitles-off-outline-rounded", "subtitles-outline-rounded", "sync-rounded", "tag-rounded", "text-ad-outline-rounded", "titlecase-rounded", "update-rounded", "view-carousel-outline", "visibility-outline-rounded", "volume-off-rounded", "volume-up-rounded", "wallpaper", "wb-sunny-outline-rounded", "zoom-in-rounded", "admin-panel-settings"
+					"airwave-rounded", "archive", "arrow-back", "arrow-drop-down-rounded", "arrow-outward-rounded", "article", "article-outline", "auto-stories-outline-rounded", "book-2-outline-rounded", "bookmark-rounded", "bookmarks", "border-outer-rounded", "brightness-auto-outline-rounded", "build-outline", "build-outline-rounded", "calendar-clock-outline", "calendar-month-outline-rounded", "calendar-month-rounded", "calendar-today", "calendar-today-outline-rounded", "chat", "chat-bubble-outline-rounded", "check", "chevron-left-rounded", "chevron-right-rounded", "chrome-reader-mode-rounded", "close", "close-fullscreen-rounded", "cloud-outline", "code-rounded", "computer-outline", "copyright-outline", "dark-mode-outline-rounded", "docs", "download", "dynamic-feed-rounded", "edit-calendar-outline-rounded", "emoji-people-rounded", "error-outline", "expand-more-rounded", "favorite", "folder-off", "folder-open", "folder-open-rounded", "folder-outline", "format-list-bulleted", "format-quote-rounded", "forum-rounded", "full-coverage-outline-rounded", "gradient", "group", "group-off-outline", "help-outline", "hide-image-outline", "history-rounded", "home", "home-outline-rounded", "home-pin-outline", "image-outline", "info", "info-outline", "ink-pen-outline-rounded", "keyboard-arrow-down-rounded", "keyboard-arrow-up-rounded", "label-outline", "language", "layers", "link", "link-2-rounded", "link-rounded", "location-on", "location-on-rounded", "lock-outline", "menu-book", "menu-rounded", "more-horiz", "movie", "movie-filter", "music-note-rounded", "notes-rounded", "palette", "palette-outline", "pause-rounded", "person", "photo-library", "pinboard", "play-arrow-rounded", "keep", "recommend", "repeat-one-rounded", "repeat-rounded", "rocket-launch-outline", "rss-feed", "schedule-outline-rounded", "search", "search-off", "search-off-rounded", "search-rounded", "sentiment-sad", "settings", "share", "shield-lock", "shuffle-rounded", "signpost", "skip-next-rounded", "skip-previous-rounded", "subtitles-off-outline-rounded", "subtitles-outline-rounded", "sync-rounded", "tag-rounded", "text-ad-outline-rounded", "titlecase-rounded", "update-rounded", "view-carousel-outline", "visibility-outline-rounded", "volume-off-rounded", "volume-up-rounded", "wallpaper", "wb-sunny-outline-rounded", "zoom-in-rounded", "admin-panel-settings"
 				],
 				"fa7-brands": [
 					"alipay", "bilibili", "creative-commons", "creative-commons-pd", "creative-commons-zero", "gitee", "github", "node-js", "osi", "qq", "weixin"
@@ -154,31 +132,7 @@ export default defineConfig({
 		}),
 		// 代码高亮改由客户端 highlight.js 承担，已移除 expressive-code 集成
 		svelte(),
-		mdx(),
 	],
-	markdown: {
-		// Firedre：文章/页面内容由运行时渲染管线（server/posts/render.ts）处理，
-		// 关闭 Astro 内置 shiki 语法高亮以大幅减小 Worker 体积（代码高亮改由客户端 highlight.js 承担）
-		// 插件集合与运行时链共享（src/plugins/markdown-preset.mjs），差异项在此注入
-		syntaxHighlight: false,
-		processor: unified({
-			remarkPlugins: [
-				...sharedRemarkPlugins({
-					admonition:
-						siteConfig.post.rehypeCallouts.enablePythonMarkdownAdmonitions !==
-						false,
-					readingTime: remarkReadingTime,
-					wikiLink: remarkWikiLink,
-					excerpt: remarkExcerpt,
-				}).plugins,
-			],
-			rehypePlugins: [
-				...sharedRehypePlugins(siteConfig, {
-					afterCodeGroup: [[rehypeMermaid, mermaidConfig]],
-				}).plugins,
-			],
-		}),
-	},
 	vite: {
 		plugins: [
 			tailwindcss(),

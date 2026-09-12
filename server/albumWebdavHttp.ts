@@ -1,13 +1,7 @@
+import type { AlbumWebDavRuntimeOptions } from "../types/album";
 import type { CloudflareEnv } from "../types/env";
 import { handleAlbumWebDavFile, handleAlbumWebDavList } from "./albumWebdav";
 import { withRateLimit } from "./utils/rateLimiter";
-
-export type AlbumWebdavRuntimeEnv = Record<string, string | undefined>;
-
-export interface AlbumWebdavHttpOptions {
-	runtimeEnv?: AlbumWebdavRuntimeEnv;
-	env?: CloudflareEnv;
-}
 
 function jsonResponse(data: unknown, status = 200) {
 	return new Response(JSON.stringify(data), {
@@ -26,7 +20,7 @@ function parseAccessFromSearchParams(params: URLSearchParams) {
 
 export async function handleAlbumWebdavHttp(
 	request: Request,
-	options?: AlbumWebdavHttpOptions,
+	options?: AlbumWebDavRuntimeOptions,
 ): Promise<Response> {
 	const url = new URL(request.url);
 	const pathname = url.pathname;
@@ -82,7 +76,7 @@ export async function handleAlbumWebdavHttp(
 async function handleWebDavFile(
 	request: Request,
 	url: URL,
-	runtimeOptions: AlbumWebdavRuntimeOptions,
+	runtimeOptions: AlbumWebDavRuntimeOptions,
 ): Promise<Response> {
 	const slug = url.searchParams.get("slug") || "";
 	const target = url.searchParams.get("url");
@@ -115,7 +109,7 @@ async function handleWebDavFile(
 async function handleWebDavList(
 	request: Request,
 	url: URL,
-	runtimeOptions: AlbumWebdavRuntimeOptions,
+	runtimeOptions: AlbumWebDavRuntimeOptions,
 ): Promise<Response> {
 	let body: Record<string, string | undefined>;
 
@@ -143,9 +137,4 @@ async function handleWebDavList(
 		runtimeOptions,
 	);
 	return jsonResponse(result);
-}
-
-interface AlbumWebdavRuntimeOptions {
-	env?: CloudflareEnv;
-	runtimeEnv?: Record<string, string | undefined>;
 }

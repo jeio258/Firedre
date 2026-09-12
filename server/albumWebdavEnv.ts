@@ -1,13 +1,12 @@
-import type { AlbumWebDavConfig } from "../types/album";
+import type {
+	AlbumWebDavConfig,
+	AlbumWebDavRuntimeOptions,
+} from "../types/album";
 import type { CloudflareEnv } from "../types/env";
 import { UserError } from "./utils/userError";
 import { getAlbumWebDavConfigFromR2 } from "./gallery/service";
 
 export const WEBDAV_PASSWORD_ENV = "WEBDAV_PASSWORD";
-
-export interface AlbumWebDavRuntimeOptions {
-	env?: CloudflareEnv;
-}
 
 export function getWebDavPassword(env?: CloudflareEnv) {
 	return env?.WEBDAV_PASSWORD || process.env[WEBDAV_PASSWORD_ENV];

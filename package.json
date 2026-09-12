@@ -27,8 +27,6 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.2.3",
-    "@astrojs/mdx": "^7.0.6",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/svelte": "9.0.1",
     "@fancyapps/ui": "^6.1.14",

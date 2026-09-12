@@ -12,6 +12,7 @@ import type {
 } from "../../types/posts";
 import { normalizePinOrder, sortPostsByPinOrder } from "../../utils/pinOrder";
 import { UserError } from "../utils/userError";
+import { parseStringList } from "../utils/json";
 import { runDbBatch } from "../utils/dbBatch";
 import { bumpContentVersion } from "../settings/service";
 import {
@@ -44,23 +45,13 @@ interface WikiLinkMetaCache {
 const wikiMetaCache = new Map<string, WikiLinkMetaCache>();
 const WIKI_CACHE_TTL_MS = 5 * 60 * 1000; // 5 分钟
 
-function parseJsonList(raw: string | null): string[] | undefined {
-	if (!raw) return undefined;
-	try {
-		const parsed = JSON.parse(raw);
-		return Array.isArray(parsed) ? parsed.map(String) : undefined;
-	} catch {
-		return undefined;
-	}
-}
-
 function recordToListItem(row: PostRecord): PostListItem {
 	const fm = parseFmJson(row.fm_json);
 	const categories =
-		parseJsonList(row.categories) ??
+		parseStringList(row.categories) ??
 		(fm.category ? [String(fm.category)] : undefined);
 	const tags =
-		parseJsonList(row.tags) ??
+		parseStringList(row.tags) ??
 		(Array.isArray(fm.tags) ? fm.tags.map(String) : undefined);
 	return {
 		slug: row.slug,
@@ -240,8 +231,8 @@ export function buildWikiLinkResolver(env: CloudflareEnv): WikiLinkResolver {
 			title: row.title,
 			description: row.description || undefined,
 			published: row.date ? String(row.date).slice(0, 10) : undefined,
-			category: parseJsonList(row.categories)?.[0],
-			tags: parseJsonList(row.tags),
+			category: parseStringList(row.categories)?.[0],
+			tags: parseStringList(row.tags),
 			password: row.password || undefined,
 			image: row.cover || undefined,
 		}));

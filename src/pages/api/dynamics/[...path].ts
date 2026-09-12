@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
 	deleteDynamic,
@@ -17,7 +18,7 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const url = new URL(request.url);
 
 	try {
@@ -62,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const id = segments[0];
 	if (!id) return badRequest("缺少动态 ID");
 

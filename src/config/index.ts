@@ -27,7 +27,6 @@ export type {
 	SiteConfig,
 	SponsorConfig,
 	SponsorItem,
-	SponsorMethod,
 	WidgetComponentConfig,
 	WidgetComponentType,
 	WidgetSpecificConfig,

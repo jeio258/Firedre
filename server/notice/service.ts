@@ -1,8 +1,9 @@
 import type { CloudflareEnv } from "../../types/env";
 import type { NoticeBoard, NoticeBoardDetail } from "../../types/notice";
-import { NOTICE_ROW_ID } from "./constants";
 import { normalizeNoticeBoard, parseNoticePayload } from "./normalize";
 import { UserError } from "../utils/userError";
+
+const NOTICE_ROW_ID = 1;
 
 interface NoticeRecord {
 	id: number;

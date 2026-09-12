@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
 	createFriend,
@@ -23,7 +24,7 @@ export const prerender = false;
 
 // GET /api/friends/  - 友链列表（后台含全部，前台展示仅启用）
 export const GET: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
 	try {
@@ -71,7 +72,7 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 
@@ -92,7 +93,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { splitMarkdown } from "../../../../server/posts/frontmatter";
 import { renderMarkdown } from "../../../../server/posts/render";
 import {
@@ -12,7 +13,7 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	if (segments.length !== 1) return badRequest("路径无效");
 
 	const name = decodeURIComponent(segments[0]);

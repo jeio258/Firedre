@@ -7,9 +7,7 @@
       "astro/client"
     ],
     "noEmit": true,
-    "allowJs": true,
-    "checkJs": false,
-    "declaration": false
+    "checkJs": false
   },
   "include": [
     "server/**/*",

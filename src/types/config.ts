@@ -16,7 +16,7 @@ export type { SakuraConfig } from "./effectsConfig";
 export type { ExpressiveCodeConfig } from "./expressiveCodeConfig";
 export type { FontSelectionConfig } from "./fontConfig";
 export type { FooterConfig } from "./footerConfig";
-export type { FriendLink, FriendsPageConfig } from "./friendsConfig";
+export type { FriendsPageConfig } from "./friendsConfig";
 export type { GalleryAlbum } from "./galleryConfig";
 export type { LicenseConfig } from "./licenseConfig";
 export type { MermaidConfig } from "./mermaidConfig";
@@ -44,11 +44,7 @@ export type {
 	SiteConfig,
 	WALLPAPER_MODE,
 } from "./siteConfig";
-export type {
-	SponsorConfig,
-	SponsorItem,
-	SponsorMethod,
-} from "./sponsorConfig";
+export type { SponsorConfig, SponsorItem } from "./sponsorConfig";
 
 export type ResponsiveImageLayout = "constrained" | "full-width" | "none";
 

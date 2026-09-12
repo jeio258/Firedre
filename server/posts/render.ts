@@ -11,6 +11,7 @@ import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import "katex/dist/contrib/mhchem.mjs"; // mhchem 扩展
 import { siteConfig } from "../../src/config/index";
+import type { MarkdownHeading } from "../../types/posts";
 import {
 	sharedRehypePlugins,
 	sharedRemarkPlugins,
@@ -22,12 +23,6 @@ import {
 import { rehypeSanitizeDangerous } from "./sanitize";
 
 export { stripMarkdown } from "./markdown";
-
-export interface MarkdownHeading {
-	depth: number;
-	slug: string;
-	text: string;
-}
 
 export interface RenderedMarkdown {
 	html: string;

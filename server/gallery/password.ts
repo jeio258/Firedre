@@ -1,4 +1,5 @@
 import type { CloudflareEnv } from "../../types/env";
+import { chunkArray, uniqueNonEmpty } from "../utils/collections";
 
 // 口令静态保护：以 SESSION_SECRET 派生密钥做 AES-GCM 加密后落库，
 // D1 数据单独泄露不再直接暴露口令；历史明文值兼容读取（前缀区分），无 secret 时回退明文。
@@ -98,12 +99,10 @@ export async function getAlbumPasswordsMap(
 	slugs: string[],
 ): Promise<Map<string, string>> {
 	const map = new Map<string, string>();
-	const valid = [...new Set(slugs.filter(Boolean))];
+	const valid = uniqueNonEmpty(slugs);
 	if (!valid.length) return map;
 
-	const CHUNK = 100;
-	for (let i = 0; i < valid.length; i += CHUNK) {
-		const chunk = valid.slice(i, i + CHUNK);
+	for (const chunk of chunkArray(valid)) {
 		const placeholders = chunk.map(() => "?").join(",");
 		const { results } = await env.DB.prepare(
 			`SELECT album_slug, password FROM album_passwords WHERE album_slug IN (${placeholders})`,

@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { decodePostSlug, isValidPostSlug } from "../../../../server/posts/frontmatter";
 import {
@@ -49,7 +50,7 @@ function redactPostSecrets<T>(post: T): T {
 }
 
 export const GET: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const url = new URL(request.url);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
@@ -120,7 +121,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const slug = segments[0];
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
@@ -147,7 +148,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const slug = segments[0];
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");

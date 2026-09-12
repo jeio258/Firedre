@@ -1,15 +1,7 @@
 {
   "extends": "astro/tsconfigs/base",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
     "strict": true,
-    "strictNullChecks": true,
-    "allowJs": true,
-    "declaration": true,
     "noUncheckedSideEffectImports": false,
     "plugins": [
       {
@@ -43,8 +35,5 @@
   "include": [
     ".astro/types.d.ts",
     "src/**/*"
-  ],
-  "exclude": [
-    "dist"
   ]
 }

@@ -1,7 +1,7 @@
 
 
 import type { AlbumPhoto } from "../../types/album";
-import { detectMediaTypeFromMime } from "../../utils/albumMedia";
+import { detectMediaTypeFromMime, MEDIA_EXT } from "../../utils/albumMedia";
 import { UserError } from "../utils/userError";
 import { fetchWithRetry } from "../utils/fetchRetry";
 
@@ -15,9 +15,6 @@ export interface ImgbedListFile {
 		TimeStamp?: string | number;
 	};
 }
-
-const IMAGE_EXT =
-	/\.(jpe?g|png|gif|webp|avif|bmp|heic|heif|ico|mp4|webm|mov|mkv|avi|m4v|ogv|wmv)$/i;
 
 export function inferFileBase(listUrl: string): string {
 	try {
@@ -66,7 +63,7 @@ export async function fetchImgbedPhotos(
 	const photos: AlbumPhoto[] = [];
 	for (const file of files) {
 		const name = typeof file?.name === "string" ? file.name.trim() : "";
-		if (!name || !IMAGE_EXT.test(name.split("?")[0])) continue;
+		if (!name || !MEDIA_EXT.test(name.split("?")[0])) continue;
 
 		const url = `${fileBase}${name.replace(/^\/+/, "")}`;
 

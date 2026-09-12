@@ -3,6 +3,8 @@ import type { AlbumMediaType } from '../types/album'
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|bmp|heic|heif|ico)$/i
 const VIDEO_EXT = /\.(mp4|webm|mov|mkv|avi|m4v|ogv|wmv)$/i
 
+export const MEDIA_EXT = /\.(jpe?g|png|gif|webp|avif|bmp|heic|heif|ico|mp4|webm|mov|mkv|avi|m4v|ogv|wmv)$/i
+
 export function detectMediaTypeFromUrl(url: string): AlbumMediaType | null {
   const clean = url.split('?')[0].split('#')[0]
   if (VIDEO_EXT.test(clean))

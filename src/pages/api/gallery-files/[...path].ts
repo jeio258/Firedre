@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { cfEnv, serverError } from "../../../lib/api";
 import { getAlbumPassword } from "../../../../server/gallery/password";
 import { withRateLimit } from "../../../../server/utils/rateLimiter";
@@ -8,7 +9,7 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
 	try {
-		const segments = (params.path || "").split("/").filter(Boolean);
+		const segments = pathSegments(params);
 		if (segments.length < 2) return new Response("Bad Request", { status: 400 });
 
 		const album = segments[0];

@@ -1,14 +1,15 @@
 ---
-import { musicPlayerConfig } from "@/config/musicConfig";
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
+import { resolveShowLyrics } from "@/utils/music-config";
 
-// 运行时站点配置（后台可编辑；静态 config 为兜底）
-
-const config = musicPlayerConfig;
+// 歌词开关（后台可编辑；静态 config 为兜底）
+const showLyrics = resolveShowLyrics(settings);
 
 const viewConfigStr = JSON.stringify({
-	showLyrics: config.showLyrics ?? true,
+	showLyrics,
 	i18n: {
 		noPlaying: i18n(I18nKey.musicNoPlaying),
 		lyrics: i18n(I18nKey.musicLyrics),

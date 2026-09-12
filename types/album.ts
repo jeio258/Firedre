@@ -1,4 +1,11 @@
+import type { CloudflareEnv } from "./env";
+
 export type AlbumSource = "local" | "webdav";
+
+export interface AlbumWebDavRuntimeOptions {
+	env?: CloudflareEnv;
+	runtimeEnv?: Record<string, string | undefined>;
+}
 
 export interface AlbumWebDavFrontmatterConfig {
 	url: string;

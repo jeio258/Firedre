@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
 import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import {
 	createSiteLink,
@@ -21,7 +22,7 @@ import {
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
 	try {
@@ -65,7 +66,7 @@ export const POST: APIRoute = async ({ request }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 
@@ -83,7 +84,7 @@ export const PUT: APIRoute = async ({ params, request }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 

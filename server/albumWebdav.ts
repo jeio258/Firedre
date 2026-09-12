@@ -1,5 +1,8 @@
-import type { AlbumPhoto, AlbumWebDavConfig } from "../types/album";
-import type { CloudflareEnv } from "../types/env";
+import type {
+	AlbumPhoto,
+	AlbumWebDavConfig,
+	AlbumWebDavRuntimeOptions,
+} from "../types/album";
 import {
 	type AlbumAccessParams,
 	verifyAlbumAccess,
@@ -8,23 +11,16 @@ import { UserError } from "./utils/userError";
 import {
 	detectMediaTypeFromMime,
 	detectMediaTypeFromUrl,
+	MEDIA_EXT,
 } from "../utils/albumMedia";
 import {
 	assertTargetInWebDavScope,
 	resolveWebDavConfig,
 } from "./albumWebdavEnv";
 
-export interface AlbumWebDavRuntimeOptions {
-	env?: CloudflareEnv;
-	runtimeEnv?: Record<string, string | undefined>;
-}
-
 function assertAlbumAccess(access: AlbumAccessParams) {
 	if (!verifyAlbumAccess(access)) throw new UserError("需要正确的相册访问密码");
 }
-
-const MEDIA_EXT =
-	/\.(jpe?g|png|gif|webp|avif|bmp|heic|heif|ico|mp4|webm|mov|mkv|avi|m4v|ogv|wmv)$/i;
 
 export function basicAuthHeader(username?: string, password?: string) {
 	if (!username) return undefined;

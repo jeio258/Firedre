@@ -7,8 +7,7 @@ import type {
 	AlbumWebDavFrontmatterConfig,
 	GalleryHubFrontmatter,
 } from "../../types/album";
-
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
+import { FRONTMATTER_RE } from "../utils/frontmatter";
 
 function normalizePhoto(raw: Record<string, unknown>): AlbumPhoto {
 	const type =
@@ -179,6 +178,20 @@ function buildAlbumPayload(
 	return payload;
 }
 
+const YAML_OPTIONS = {
+	lineWidth: 0,
+	defaultKeyType: "PLAIN",
+	defaultStringType: "QUOTE_DOUBLE",
+} as const;
+
+export function serializeFrontmatterBlock(
+	payload: unknown,
+	content = "",
+): string {
+	const yaml = YAML.stringify(payload, YAML_OPTIONS).trimEnd();
+	return `---\n${yaml}\n---\n${content}`;
+}
+
 export function serializeHubMarkdown(
 	frontmatter: GalleryHubFrontmatter & {
 		title?: string;
@@ -200,27 +213,14 @@ export function serializeHubMarkdown(
 	const slugs = normalizeAlbumSlugs(frontmatter.albums);
 	if (slugs.length) payload.albums = slugs;
 
-	const yaml = YAML.stringify(payload, {
-		lineWidth: 0,
-		defaultKeyType: "PLAIN",
-		defaultStringType: "QUOTE_DOUBLE",
-	}).trimEnd();
-
-	return `---\n${yaml}\n---\n${content}`;
+	return serializeFrontmatterBlock(payload, content);
 }
 
 export function serializeAlbumMarkdown(
 	frontmatter: AlbumDetailFrontmatter & { layout?: string },
 	content = "",
 ) {
-	const payload = buildAlbumPayload(frontmatter);
-	const yaml = YAML.stringify(payload, {
-		lineWidth: 0,
-		defaultKeyType: "PLAIN",
-		defaultStringType: "QUOTE_DOUBLE",
-	}).trimEnd();
-
-	return `---\n${yaml}\n---\n${content}`;
+	return serializeFrontmatterBlock(buildAlbumPayload(frontmatter), content);
 }
 
 export function parseHubSource(source: string) {

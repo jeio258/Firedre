@@ -10,6 +10,3 @@ export function getDraft<T = unknown>(label: string): T | undefined {
 export function clearDraft(label: string): void {
 	store.delete(label);
 }
-export function hasDraft(label: string): boolean {
-	return store.has(label);
-}

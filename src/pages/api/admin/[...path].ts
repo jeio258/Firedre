@@ -1,5 +1,7 @@
 import type { CloudflareEnv } from "../../../../types/env";
 import type { APIRoute } from "astro";
+import { pathSegments } from "../../../lib/routePath";
+import { parseStringListOrEmpty } from "../../../../server/utils/json";
 import {
 	ADMIN_SESSION_COOKIE,
 	buildClearSessionCookie,
@@ -49,7 +51,7 @@ function jsonWithHeaders(
 }
 
 export const POST: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const action = segments[0] || "";
 	const adminEnv = resolveAdminEnv(cfEnv);
 	const secure = new URL(request.url).protocol === "https:";
@@ -177,7 +179,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 };
 
 export const GET: APIRoute = async ({ params, request }) => {
-	const segments = (params.path || "").split("/").filter(Boolean);
+	const segments = pathSegments(params);
 	const action = segments[0] || "";
 
 	// 初始化状态：公开查询，供登录页/初始化页判断是否需创建管理员
@@ -242,15 +244,6 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 			db.prepare("SELECT COUNT(*) AS c, COALESCE(SUM(enabled), 0) AS e FROM friends").first<{ c: number; e: number }>(),
 			db.prepare("SELECT COUNT(*) AS c FROM albums").first<{ c: number }>(),
 		]);
-
-	const list = (s: string | null): string[] => {
-		try {
-			const v = s ? JSON.parse(s) : null;
-			return Array.isArray(v) ? v.map(String) : [];
-		} catch {
-			return [];
-		}
-	};
 
 	let published = 0;
 	let draft = 0;
@@ -333,8 +326,8 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 		}[]).map((r) => ({
 			slug: r.slug,
 			title: r.title,
-			categories: list(r.categories),
-			tags: list(r.tags),
+			categories: parseStringListOrEmpty(r.categories),
+			tags: parseStringListOrEmpty(r.tags),
 			published: r.published === 1,
 			pinned: (r.pin_order ?? 0) > 0,
 			updated: r.updated || r.date,

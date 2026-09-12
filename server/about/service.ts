@@ -1,7 +1,8 @@
 import type { AboutDetail } from "../../types/about";
 import type { CloudflareEnv } from "../../types/env";
-import { ABOUT_R2_KEY } from "./constants";
 import { getAboutFromSource, normalizeAboutSource } from "./source";
+
+const ABOUT_R2_KEY = "about/index.md";
 
 export async function getAbout(
 	env: CloudflareEnv,

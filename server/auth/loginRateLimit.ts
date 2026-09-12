@@ -17,13 +17,7 @@ export function formatLoginRateLimitMessage(retryAfterSec: number) {
 	return `登录尝试过多，请 ${minutes} 分钟后再试`;
 }
 
-export function getRequestClientIp(request: Request) {
-	return (
-		request.headers.get("CF-Connecting-IP") ||
-
-		"unknown"
-	);
-}
+export { getClientIp as getRequestClientIp } from "../utils/clientIp";
 
 function retryAfterSec(lockedUntil: string) {
 	const remainMs = new Date(lockedUntil).getTime() - Date.now();

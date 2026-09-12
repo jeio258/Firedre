@@ -1,4 +1,3 @@
-import YAML from "yaml";
 import type {
 	AlbumDetailFrontmatter,
 	AlbumPhoto,
@@ -19,6 +18,7 @@ import {
 	parseAlbumSource,
 	parseHubSource,
 	serializeAlbumMarkdown,
+	serializeFrontmatterBlock,
 	serializeHubMarkdown,
 	splitGalleryMarkdown,
 	toAlbumSummary,
@@ -162,28 +162,36 @@ export async function unlockGalleryAlbum(
 	return { ok: true, photos: detail.frontmatter.photos || [] };
 }
 
-export async function setAlbumEncryptedFlag(
+async function updateAlbumFrontmatter(
 	env: CloudflareEnv,
 	slug: string,
-	encrypted: boolean,
+	apply: (
+		frontmatter: Record<string, unknown>,
+	) => Record<string, unknown> | null,
 ): Promise<void> {
 	if (!isValidGallerySlug(slug)) return;
 	const detail = await getGalleryAlbumDetail(env, slug);
 	if (!detail?.source) return;
 
 	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
-	if (frontmatter.encrypted === encrypted) return;
+	const next = apply(frontmatter);
+	if (!next) return;
 
-	const next = { ...frontmatter, encrypted };
-	const yaml = YAML.stringify(next, {
-		lineWidth: 0,
-		defaultKeyType: "PLAIN",
-		defaultStringType: "QUOTE_DOUBLE",
-	}).trimEnd();
-	const normalized = `---\n${yaml}\n---\n${content}`;
-	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
-		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
-	});
+	await env.BUCKET.put(
+		galleryAlbumR2Key(slug),
+		serializeFrontmatterBlock(next, content),
+		{ httpMetadata: { contentType: "text/markdown; charset=utf-8" } },
+	);
+}
+
+export async function setAlbumEncryptedFlag(
+	env: CloudflareEnv,
+	slug: string,
+	encrypted: boolean,
+): Promise<void> {
+	await updateAlbumFrontmatter(env, slug, (frontmatter) =>
+		frontmatter.encrypted === encrypted ? null : { ...frontmatter, encrypted },
+	);
 }
 
 export async function setAlbumSourceFlag(
@@ -191,23 +199,9 @@ export async function setAlbumSourceFlag(
 	slug: string,
 	source: "local" | "webdav",
 ): Promise<void> {
-	if (!isValidGallerySlug(slug)) return;
-	const detail = await getGalleryAlbumDetail(env, slug);
-	if (!detail?.source) return;
-
-	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
-	if (frontmatter.source === source) return;
-
-	const next = { ...frontmatter, source };
-	const yaml = YAML.stringify(next, {
-		lineWidth: 0,
-		defaultKeyType: "PLAIN",
-		defaultStringType: "QUOTE_DOUBLE",
-	}).trimEnd();
-	const normalized = `---\n${yaml}\n---\n${content}`;
-	await env.BUCKET.put(galleryAlbumR2Key(slug), normalized, {
-		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
-	});
+	await updateAlbumFrontmatter(env, slug, (frontmatter) =>
+		frontmatter.source === source ? null : { ...frontmatter, source },
+	);
 }
 
 export async function upsertGalleryHub(env: CloudflareEnv, source: string) {

@@ -1,6 +1,5 @@
 import type { PostFrontmatter } from "../../types/posts";
-
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
+import { FRONTMATTER_RE } from "../utils/frontmatter";
 
 function parseSimpleYaml(yaml: string): Record<string, unknown> {
 	const result: Record<string, unknown> = {};
