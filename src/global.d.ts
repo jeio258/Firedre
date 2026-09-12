@@ -91,6 +91,10 @@ declare global {
 		__floatingTOCAutoCloseInit?: boolean;
 
 		__postPageInit?: boolean;
+
+		__panelDelegationInit?: boolean;
+
+		__codeGroupNavInit?: boolean;
 	}
 
 	interface MediaQueryList {

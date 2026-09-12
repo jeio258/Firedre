@@ -46,38 +46,42 @@
     return { group, index };
   }
 
-  document.addEventListener("click", (event) => {
-    const found = resolveTab(event.target);
-    if (found) activate(found.group, found.index);
-  });
+  // Swup 软导航会重执行本脚本，委托监听必须全局唯一（重复注册会令方向键一次跳两个 tab）
+  if (!window.__codeGroupNavInit) {
+    window.__codeGroupNavInit = true;
+    document.addEventListener("click", (event) => {
+      const found = resolveTab(event.target);
+      if (found) activate(found.group, found.index);
+    });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    document.addEventListener("keydown", (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
 
-    const found = resolveTab(event.target);
-    if (!found) return;
+      const found = resolveTab(event.target);
+      if (!found) return;
 
-    const count = getTabs(found.group).length;
-    let next: number;
+      const count = getTabs(found.group).length;
+      let next: number;
 
-    switch (event.key) {
-      case "ArrowRight":
-        next = (found.index + 1) % count;
-        break;
-      case "ArrowLeft":
-        next = (found.index - 1 + count) % count;
-        break;
-      case "Home":
-        next = 0;
-        break;
-      case "End":
-        next = count - 1;
-        break;
-      default:
-        return;
-    }
+      switch (event.key) {
+        case "ArrowRight":
+          next = (found.index + 1) % count;
+          break;
+        case "ArrowLeft":
+          next = (found.index - 1 + count) % count;
+          break;
+        case "Home":
+          next = 0;
+          break;
+        case "End":
+          next = count - 1;
+          break;
+        default:
+          return;
+      }
 
-    event.preventDefault();
-    activate(found.group, next, true);
-  });
+      event.preventDefault();
+      activate(found.group, next, true);
+    });
+  }
 </script>

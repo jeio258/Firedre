@@ -306,6 +306,9 @@ const logoVariants = await Promise.all(
 <script is:inline>
   // 解析期事件委托：面板开关按钮、外部点击关闭、背景播放器
   (function () {
+    // Swup 软导航会重执行本脚本，委托监听必须全局唯一（重复注册会令 toggle 互相抵消）
+    if (window.__panelDelegationInit) return;
+    window.__panelDelegationInit = true;
     var PANELS = [
       ["display-settings-switch", "display-setting"],
       ["nav-menu-switch", "nav-menu-panel"],
