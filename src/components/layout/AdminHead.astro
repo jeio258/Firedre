@@ -10,6 +10,9 @@ const settings = (Astro.locals as { settings?: Record<string, unknown> }).settin
 ---
 <FaviconLinks settings={settings} />
 <link rel="stylesheet" href="/admin/admin.css" />
+<!-- Vditor 主样式：必须由所有后台页面引入（后台为 SPA 视图切换，不重载 head），
+     否则从 /admin/ 直接切到编辑器时主样式缺失 -->
+<link rel="stylesheet" href="/vditor/dist/index.css" />
 <style is:inline set:html={`html{--hue:${defaultHue}}`}></style>
 <script is:inline define:vars={{ defaultMode, defaultHue }}>
 	(function () {

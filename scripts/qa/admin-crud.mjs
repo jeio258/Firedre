@@ -109,6 +109,34 @@ try {
 		}
 
 		check("后台用例无控制台错误", errors.length === 0, errors.slice(0, 2).join(" | "));
+
+		// ---------- SPA 内切换进入编辑器：Vditor 主样式必须生效 ----------
+		// 后台为 SPA 视图切换（不重载 head），曾因 vditor CSS 只在部分路由引入，
+		// 从 /admin/ 直接切到编辑器时主样式缺失 → 工具栏高度爆炸、背景透明。
+		await page.goto(base + "/admin/", { waitUntil: "load" });
+		await page.waitForTimeout(2500);
+		await page.evaluate(() => {
+			const a = [...document.querySelectorAll('a[href="/admin/about/"]')][0];
+			a?.click();
+		});
+		await page.waitForTimeout(5000);
+		const ed = await page.evaluate(() => {
+			const tb = document.querySelector(".vditor-toolbar");
+			return {
+				hasVditor: !!document.querySelector(".vditor"),
+				hasMainCss: [...document.styleSheets].some((s) =>
+					(s.href || "").includes("/vditor/dist/index.css"),
+				),
+				toolbarH: tb ? Math.round(tb.getBoundingClientRect().height) : null,
+				toolbarBg: tb ? getComputedStyle(tb).backgroundColor : null,
+			};
+		});
+		check("SPA 切换进入编辑器：vditor 主样式已加载", ed.hasMainCss, JSON.stringify(ed));
+		check(
+			"SPA 切换进入编辑器：工具栏渲染正常",
+			ed.hasVditor && ed.toolbarH !== null && ed.toolbarH < 100 && ed.toolbarBg !== "rgba(0, 0, 0, 0)",
+			`toolbarH=${ed.toolbarH} bg=${ed.toolbarBg}`,
+		);
 	}
 } finally {
 	await browser.close();
