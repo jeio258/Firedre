@@ -650,7 +650,35 @@ $effect(() => {
 </script>
 
 <div id="display-setting" class="float-panel float-panel-closed absolute transition-all w-80 right-4 px-3 pt-0 pb-3 max-h-[80vh] overflow-y-auto {hasAnyContent ? '' : 'hidden!'}" data-floating-panel data-floating-panel-trigger="display-settings-switch" inert aria-hidden="true">
-	{#if hasAnyContent}
+	{#snippet resetButton(isDefault: boolean, onReset: () => void)}
+<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
+		class:opacity-0={isDefault} class:pointer-events-none={isDefault}
+		disabled={isDefault} aria-hidden={isDefault ? "true" : undefined} onclick={onReset}>
+	<div class="text-(--btn-content)">
+		<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
+	</div>
+</button>
+{/snippet}
+
+{#snippet toggleRow(icon: string, label: string, enabled: boolean, onToggle: () => void)}
+<button
+	class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
+	class:bg-(--btn-regular-bg-hover)={enabled}
+	onclick={onToggle}
+>
+	<Icon icon={icon} class="text-[1.25rem] shrink-0"></Icon>
+	<span class="text-sm flex-1">{label}</span>
+	<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
+		 class:bg-(--primary)={enabled}
+		 class:bg-(--btn-regular-bg-active)={!enabled}>
+		<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
+			 class:left-0.5={!enabled}
+			 class:left-5={enabled}></div>
+	</div>
+</button>
+{/snippet}
+
+{#if hasAnyContent}
 
 	{#if showTabBar}
 	<div class="flex border-b border-black/5 dark:border-white/10 -mx-1 mb-2">
@@ -675,13 +703,7 @@ $effect(() => {
 		<div class="">
 			<div class="section-title">
 				{i18n(I18nKey.themeColor)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={hue === defaultHue} class:pointer-events-none={hue === defaultHue}
-						disabled={hue === defaultHue} aria-hidden={hue === defaultHue ? "true" : undefined} onclick={resetHue}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(hue === defaultHue, resetHue)}
 				<div id="hueValue" class="transition bg-(--btn-regular-bg) rounded-md flex justify-center
 				font-bold items-center text-(--btn-content)">
 					{hue}
@@ -698,13 +720,7 @@ $effect(() => {
 		<div class="">
 			<div class="section-title">
 				{i18n(I18nKey.postListLayout)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={currentLayout === effectiveDefaultLayout} class:pointer-events-none={currentLayout === effectiveDefaultLayout}
-						disabled={currentLayout === effectiveDefaultLayout} aria-hidden={currentLayout === effectiveDefaultLayout ? "true" : undefined} onclick={resetLayout}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(currentLayout === effectiveDefaultLayout, resetLayout)}
 			</div>
 			<div class="flex gap-2">
 				<button
@@ -743,48 +759,14 @@ $effect(() => {
 		<div>
 			<div class="section-title">
 				{i18n(I18nKey.cardSettings)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={cardSettingsIsDefault} class:pointer-events-none={cardSettingsIsDefault}
-						disabled={cardSettingsIsDefault} aria-hidden={cardSettingsIsDefault ? "true" : undefined} onclick={resetCardSettings}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(cardSettingsIsDefault, resetCardSettings)}
 			</div>
 			<div class="space-y-1">
 				{#if isCardBorderSwitchable}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={cardBorderEnabled}
-					onclick={toggleCardBorderEnabled}
-				>
-					<Icon icon="material-symbols:border-outer-rounded" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.cardBorder)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={cardBorderEnabled}
-						 class:bg-(--btn-regular-bg-active)={!cardBorderEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!cardBorderEnabled}
-							 class:left-5={cardBorderEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:border-outer-rounded", i18n(I18nKey.cardBorder), cardBorderEnabled, toggleCardBorderEnabled)}
 				{/if}
 				{#if isCardFollowThemeSwitchable}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={cardFollowThemeEnabled}
-					onclick={toggleCardFollowThemeEnabled}
-				>
-					<Icon icon="material-symbols:palette" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.cardFollowTheme)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={cardFollowThemeEnabled}
-						 class:bg-(--btn-regular-bg-active)={!cardFollowThemeEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!cardFollowThemeEnabled}
-							 class:left-5={cardFollowThemeEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:palette", i18n(I18nKey.cardFollowTheme), cardFollowThemeEnabled, toggleCardFollowThemeEnabled)}
 				{/if}
 			</div>
 		</div>
@@ -797,13 +779,7 @@ $effect(() => {
 		<div>
 			<div class="section-title">
 				{i18n(I18nKey.wallpaperMode)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={wallpaperMode === defaultWallpaperMode} class:pointer-events-none={wallpaperMode === defaultWallpaperMode}
-						disabled={wallpaperMode === defaultWallpaperMode} aria-hidden={wallpaperMode === defaultWallpaperMode ? "true" : undefined} onclick={resetWallpaperMode}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(wallpaperMode === defaultWallpaperMode, resetWallpaperMode)}
 			</div>
 			<div class="grid grid-cols-2 gap-2">
 				<button
@@ -851,13 +827,7 @@ $effect(() => {
 		<div class="">
 			<div class="section-title">
 				{i18n(I18nKey.overlaySettings)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={overlaySettingsIsDefault} class:pointer-events-none={overlaySettingsIsDefault}
-						disabled={overlaySettingsIsDefault} aria-hidden={overlaySettingsIsDefault ? "true" : undefined} onclick={resetOverlaySettings}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(overlaySettingsIsDefault, resetOverlaySettings)}
 			</div>
 			<div class="space-y-2">
 				{#each overlaySliderItems as item (item.key)}
@@ -888,85 +858,23 @@ $effect(() => {
 		<div class="">
 			<div class="section-title">
 				{i18n(I18nKey.wallpaperSettings)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={bannerSettingsIsDefault} class:pointer-events-none={bannerSettingsIsDefault}
-						disabled={bannerSettingsIsDefault} aria-hidden={bannerSettingsIsDefault ? "true" : undefined} onclick={resetBannerSettings}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(bannerSettingsIsDefault, resetBannerSettings)}
 			</div>
 			<div class="space-y-1">
 
 				{#if isBannerTitleSwitchable}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={bannerTitleEnabled}
-					onclick={toggleBannerTitleEnabled}
-				>
-					<Icon icon="material-symbols:titlecase-rounded" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.wallpaperTitle)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={bannerTitleEnabled}
-						 class:bg-(--btn-regular-bg-active)={!bannerTitleEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!bannerTitleEnabled}
-							 class:left-5={bannerTitleEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:titlecase-rounded", i18n(I18nKey.wallpaperTitle), bannerTitleEnabled, toggleBannerTitleEnabled)}
 				{/if}
 				{#if isBannerCarouselSwitchable}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={bannerCarouselEnabled}
-					onclick={toggleBannerCarouselEnabled}
-				>
-					<Icon icon="material-symbols:view-carousel-outline" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.wallpaperCarousel)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={bannerCarouselEnabled}
-						 class:bg-(--btn-regular-bg-active)={!bannerCarouselEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!bannerCarouselEnabled}
-							 class:left-5={bannerCarouselEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:view-carousel-outline", i18n(I18nKey.wallpaperCarousel), bannerCarouselEnabled, toggleBannerCarouselEnabled)}
 				{/if}
 				<!-- Waves Animation Switch（仅横幅模式，全屏壁纸无水波纹） -->
 				{#if isWavesSwitchable && wallpaperMode === WALLPAPER_BANNER}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={wavesEnabled}
-					onclick={toggleWavesEnabled}
-				>
-					<Icon icon="material-symbols:airwave-rounded" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.wavesAnimation)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={wavesEnabled}
-						 class:bg-(--btn-regular-bg-active)={!wavesEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!wavesEnabled}
-							 class:left-5={wavesEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:airwave-rounded", i18n(I18nKey.wavesAnimation), wavesEnabled, toggleWavesEnabled)}
 				{/if}
 				<!-- Gradient Transition Switch（仅横幅模式，全屏壁纸无渐变过渡） -->
 				{#if isGradientSwitchable && wallpaperMode === WALLPAPER_BANNER}
-				<button
-					class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-					class:bg-(--btn-regular-bg-hover)={gradientEnabled}
-					onclick={toggleGradientEnabled}
-				>
-					<Icon icon="material-symbols:gradient" class="text-[1.25rem] shrink-0"></Icon>
-					<span class="text-sm flex-1">{i18n(I18nKey.gradientTransition)}</span>
-					<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-						 class:bg-(--primary)={gradientEnabled}
-						 class:bg-(--btn-regular-bg-active)={!gradientEnabled}>
-						<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-							 class:left-0.5={!gradientEnabled}
-							 class:left-5={gradientEnabled}></div>
-					</div>
-				</button>
+				{@render toggleRow("material-symbols:gradient", i18n(I18nKey.gradientTransition), gradientEnabled, toggleGradientEnabled)}
 				{/if}
 			</div>
 		</div>
@@ -978,30 +886,9 @@ $effect(() => {
 		<div class="">
 			<div class="section-title">
 				{i18n(I18nKey.effectsSettings)}
-				<button aria-label="Reset to Default" class="btn-regular rounded-md active:scale-90"
-						class:opacity-0={sakuraEnabled === defaultSakuraEnabled} class:pointer-events-none={sakuraEnabled === defaultSakuraEnabled}
-						disabled={sakuraEnabled === defaultSakuraEnabled} aria-hidden={sakuraEnabled === defaultSakuraEnabled ? "true" : undefined}
-						onclick={() => { sakuraEnabled = defaultSakuraEnabled; setSakuraEnabled(defaultSakuraEnabled); }}>
-					<div class="text-(--btn-content)">
-						<Icon icon="fa7-solid:arrow-rotate-left" class="text-[0.75rem]"></Icon>
-					</div>
-				</button>
+				{@render resetButton(sakuraEnabled === defaultSakuraEnabled, () => { sakuraEnabled = defaultSakuraEnabled; setSakuraEnabled(defaultSakuraEnabled); })}
 			</div>
-			<button
-				class="w-full btn-regular rounded-md py-2 px-3 flex items-center gap-3 text-left active:scale-95 transition-all relative overflow-hidden"
-				class:bg-(--btn-regular-bg-hover)={sakuraEnabled}
-				onclick={toggleSakuraEnabled}
-			>
-				<Icon icon="mdi:flower-poppy" class="text-[1.25rem] shrink-0"></Icon>
-				<span class="text-sm flex-1">{i18n(I18nKey.sakuraEffect)}</span>
-				<div class="w-10 h-5 rounded-full transition-all duration-200 relative"
-					 class:bg-(--primary)={sakuraEnabled}
-					 class:bg-(--btn-regular-bg-active)={!sakuraEnabled}>
-					<div class="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200"
-						 class:left-0.5={!sakuraEnabled}
-						 class:left-5={sakuraEnabled}></div>
-				</div>
-			</button>
+			{@render toggleRow("mdi:flower-poppy", i18n(I18nKey.sakuraEffect), sakuraEnabled, toggleSakuraEnabled)}
 		</div>
 		{/if}
 	{/if}

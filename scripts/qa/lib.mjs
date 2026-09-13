@@ -58,6 +58,31 @@ export function setAdminPassword(hash) {
 	d1(`UPDATE admin_users SET password_hash='${hash}' WHERE username='${QA_ADMIN_USER}'`);
 }
 
+// 读取 site_settings 某个分组的原始 JSON 文本（值本身是 JSON 字符串）
+export function readSettingGroup(key) {
+	const out = d1(`SELECT value FROM site_settings WHERE key='${key}'`);
+	const start = out.indexOf("[");
+	const end = out.lastIndexOf("]");
+	if (start < 0 || end < 0) return null;
+	try {
+		const parsed = JSON.parse(out.slice(start, end + 1));
+		return parsed?.[0]?.results?.[0]?.value ?? null;
+	} catch {
+		return null;
+	}
+}
+
+// 写入分组值并返回还原函数
+export function injectSettingGroup(key, jsonValue) {
+	const original = readSettingGroup(key);
+	const esc = (v) => v.replace(/'/g, "''");
+	d1(`UPDATE site_settings SET value='${esc(jsonValue)}' WHERE key='${key}'`);
+	return () => {
+		if (original === null) return;
+		d1(`UPDATE site_settings SET value='${esc(original)}' WHERE key='${key}'`);
+	};
+}
+
 // 临时把管理员密码换成已知值，返回还原函数
 export function injectTestAdmin() {
 	const original = getAdminPasswordHash();

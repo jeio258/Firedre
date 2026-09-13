@@ -19,6 +19,7 @@
     "qa:swup": "node scripts/qa/swup-listeners.mjs",
     "qa:admin": "node scripts/qa/admin-crud.mjs",
     "qa:visual": "node scripts/qa/visual.mjs",
+    "qa:panel": "node scripts/qa/panel.mjs",
     "type-check:server": "tsc --noEmit -p tsconfig.server.json",
     "format": "biome format --write ./src ./server ./types",
     "lint": "biome check --write ./src ./server ./types",
