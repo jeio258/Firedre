@@ -23,6 +23,10 @@ import { remarkPlantuml } from "./remark-plantuml.js";
 
 // 运行时渲染链（server/posts/render.ts）的共享插件集合；差异项由调用方注入。
 
+/**
+ * @param {{ admonition?: boolean, readingTime?: unknown, wikiLink?: unknown, excerpt?: unknown }} [options]
+ * @returns {any[]}
+ */
 export function sharedRemarkPlugins({
 	admonition = true,
 	readingTime,
@@ -46,6 +50,11 @@ export function sharedRemarkPlugins({
 	return { plugins };
 }
 
+/**
+ * @param {any} siteConfig
+ * @param {{ afterCodeGroup?: any[], beforeAutolink?: any[] }} [options]
+ * @returns {any[]}
+ */
 export function sharedRehypePlugins(
 	siteConfig,
 	{ afterCodeGroup = [], beforeAutolink = [] } = {},

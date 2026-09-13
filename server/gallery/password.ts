@@ -18,7 +18,7 @@ function warnDecryptFailure(): void {
 }
 
 const keyCache = globalThis as {
-	__FIREDRE_ALBUM_KEY__?: { secret: string; key: Promise<CryptoKey> };
+	__FIREDRE_ALBUM_KEY__?: { secret: string; key: Promise<CryptoKey | null> };
 };
 
 function getSessionSecret(env: CloudflareEnv): string | null {
@@ -31,7 +31,7 @@ function getCipherKey(env: CloudflareEnv): Promise<CryptoKey | null> {
 	if (!secret) return Promise.resolve(null);
 	const cached = keyCache.__FIREDRE_ALBUM_KEY__;
 	if (cached && cached.secret === secret) return cached.key;
-	const key = (async () => {
+	const key = (async (): Promise<CryptoKey | null> => {
 		try {
 			const material = new TextEncoder().encode(`album-pwd:${secret}`);
 			const digest = await crypto.subtle.digest("SHA-256", material);
@@ -43,15 +43,17 @@ function getCipherKey(env: CloudflareEnv): Promise<CryptoKey | null> {
 				["encrypt", "decrypt"],
 			);
 		} catch (e) {
-			// 派生失败不缓存 rejected Promise，避免后续请求恒败
-			if (keyCache.__FIREDRE_ALBUM_KEY__?.secret === secret) {
-				delete keyCache.__FIREDRE_ALBUM_KEY__;
-			}
 			console.warn("[gallery] 相册口令密钥派生失败", e);
 			return null;
 		}
 	})();
 	keyCache.__FIREDRE_ALBUM_KEY__ = { secret, key };
+	// 派生失败不长期缓存，避免后续请求恒败
+	key.then((k) => {
+		if (!k && keyCache.__FIREDRE_ALBUM_KEY__?.key === key) {
+			delete keyCache.__FIREDRE_ALBUM_KEY__;
+		}
+	});
 	return key;
 }
 
@@ -62,9 +64,9 @@ function toB64(buf: ArrayBuffer | Uint8Array): string {
 	return btoa(s);
 }
 
-function fromB64(s: string): Uint8Array {
+function fromB64(s: string): Uint8Array<ArrayBuffer> {
 	const raw = atob(s);
-	const out = new Uint8Array(raw.length);
+	const out = new Uint8Array(new ArrayBuffer(raw.length));
 	for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
 	return out;
 }

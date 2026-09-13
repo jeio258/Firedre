@@ -25,6 +25,8 @@ declare global {
 
 		__loadPagefind?: () => Promise<void>;
 		__pagefindLoading?: Promise<void>;
+		__fireflyMusicConfig?: string;
+		__fireflyMusicViewConfig?: string;
 		__fireflyMusic?: {
 			init: () => Promise<void>;
 			getState: () => {
@@ -91,8 +93,6 @@ declare global {
 		__floatingTOCAutoCloseInit?: boolean;
 
 		__postPageInit?: boolean;
-
-		__panelDelegationInit?: boolean;
 
 		__firedreBgPlayerInit?: boolean;
 

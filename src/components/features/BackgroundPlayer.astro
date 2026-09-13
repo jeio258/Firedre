@@ -63,7 +63,7 @@ const tLoadError = i18n(I18nKey.videoLoadError);
 	)
 }
 
-<script is:inline define:vars={{ urls: urlsJson, playerMode, hasMultiple }}>
+<script is:inline data-swup-ignore-script define:vars={{ urls: urlsJson, playerMode, hasMultiple }}>
 	(() => {
 		var urlList = JSON.parse(urls);
 		if (!urlList.length) return;
@@ -76,10 +76,6 @@ const tLoadError = i18n(I18nKey.videoLoadError);
 		var toast = document.getElementById("bg-player-toast");
 
 		if (!video) return;
-
-		// 防止 is:inline 脚本重复注册监听器（Swup 导航会重新执行脚本）
-		if (video.getAttribute("data-player-init")) return;
-		video.setAttribute("data-player-init", "true");
 
 		var isPlaying = false;
 		var currentIndex = 0;

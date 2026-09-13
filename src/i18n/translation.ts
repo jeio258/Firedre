@@ -11,7 +11,8 @@ const DEFAULT_LANG = "en";
 
 declare global {
 	interface Window {
-		__FIREDRE_I18N__?: LangMap;
+		// Layout 注入的是当前语言的「键→文案」表（单语言全量，非语言映射）
+		__FIREDRE_I18N__?: Translation;
 	}
 }
 
