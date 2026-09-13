@@ -3,7 +3,7 @@ import type { ImageMetadata } from "astro";
 import { profileConfig } from "@/config/profileConfig";
 import { siteConfig } from "@/config/siteConfig";
 import { defaultFavicons } from "@/constants/icon";
-import { url } from "./url-utils";
+import { isAbsoluteUrl, url } from "./url-utils";
 
 const projectImages = import.meta.glob<ImageMetadata>(
 	"/src/**/*.{png,jpg,jpeg,webp,avif,gif,svg}",
@@ -35,12 +35,7 @@ export async function toAbsoluteImageInfo(
 	base: URL | string,
 ): Promise<{ url: string; width?: number; height?: number } | null> {
 	if (!src) return null;
-	if (
-		src.startsWith("http://") ||
-		src.startsWith("https://") ||
-		src.startsWith("//") ||
-		src.startsWith("data:")
-	) {
+	if (isAbsoluteUrl(src, true)) {
 		return { url: src };
 	}
 	if (src.startsWith("/")) {

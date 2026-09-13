@@ -3,7 +3,7 @@
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
-import { formatDynamicDate } from "@/utils/date-utils";
+import { formatDynamicDate, formatDynamicLocalDate } from "@/utils/date-utils";
 import { fetchWithDedup } from "@/utils/fetch-dedup";
 import { fetchMemos } from "@/utils/memos-adapter";
 import { url } from "@/utils/url-utils";
@@ -69,16 +69,11 @@ function getPlainText(html: string): string {
 }
 
 function formatDate(timestamp: number): string {
+	const date = new Date(Number(timestamp));
 	if (apiUrl.startsWith("http") || memos?.enable) {
-		return new Date(Number(timestamp)).toLocaleDateString("zh-CN", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-		});
+		return formatDynamicLocalDate(date);
 	}
-	return formatDynamicDate(new Date(Number(timestamp)));
+	return formatDynamicDate(date);
 }
 </script>
 

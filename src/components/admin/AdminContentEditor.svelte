@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onDestroy, onMount, tick } from "svelte";
-	import "vditor/dist/index.css";
 	import type Vditor from "vditor";
 	import { createAdminVditor } from "@/lib/adminVditor";
 	import { registerSaveAll } from "@/lib/adminSave";
 	import { getDraft, clearDraft } from "@/lib/adminDrafts";
+	import { apiJson } from "@/lib/adminApi";
 
 	let { section = "about", apiPath = "/api/about/" } = $props();
 
@@ -21,18 +21,15 @@
 
 	async function load() {
 		try {
-			const resp = await fetch(apiPath);
-			if (resp.ok) {
-				const data = await resp.json();
-				rawContent = data.source ?? "";
-			}
-			loaded = true;
-			await tick();
-			initEditor();
-		} catch {
-			message = "加载失败";
-			loaded = true;
+			const data = await apiJson<{ source?: string }>(apiPath);
+			rawContent = data.source ?? "";
+		} catch (err) {
+			// 内容不存在（非 2xx）保持空白，仅网络错误提示
+			if (err instanceof TypeError) message = "加载失败";
 		}
+		loaded = true;
+		await tick();
+		initEditor();
 	}
 
 	async function initEditor() {
@@ -58,24 +55,19 @@
 			return;
 		}
 		try {
-			const resp = await fetch(apiPath, {
+			await apiJson(apiPath, {
 				method: "PUT",
 				headers: { "Content-Type": "text/markdown" },
 				body: content,
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "保存失败";
-				return;
-			}
-		message = "已保存";
-		clearDraft("关于页");
-	} catch {
-		message = "网络错误";
-	} finally {
-		saving = false;
+			message = "已保存";
+			clearDraft("关于页");
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
+		} finally {
+			saving = false;
+		}
 	}
-}
 
 	onMount(async () => {
 		await load();

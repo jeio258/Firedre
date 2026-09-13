@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { apiJson } from "@/lib/adminApi";
 	import { registerSaveAll } from "@/lib/adminSave";
 	import Switch from "./Switch.svelte";
 
@@ -56,14 +57,16 @@
 
 	async function loadImgbedStatus() {
 		try {
-			const resp = await fetch("/api/settings/?group=gallery");
-			if (resp.ok) {
-				const data = await resp.json();
-				imgbedEnabled = data.imgbedEnabled === true;
-				imgbedEndpoint = data.imgbedEndpoint ?? "";
-				imgbedDir = data.imgbedDir ?? "";
-			}
+			const data = await apiJson<{
+				imgbedEnabled?: boolean;
+				imgbedEndpoint?: string;
+				imgbedDir?: string;
+			}>("/api/settings/?group=gallery");
+			imgbedEnabled = data.imgbedEnabled === true;
+			imgbedEndpoint = data.imgbedEndpoint ?? "";
+			imgbedDir = data.imgbedDir ?? "";
 		} catch {
+			// 读取失败保持默认状态
 		}
 	}
 
@@ -71,7 +74,7 @@
 		imgbedDirSaving = true;
 		imgbedDirMsg = "";
 		try {
-			const resp = await fetch("/api/settings/", {
+			await apiJson("/api/settings/", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -79,14 +82,9 @@
 					data: { imgbedDir: imgbedDir.trim() },
 				}),
 			});
-			const data = await resp.json().catch(() => null);
-			if (resp.ok && data?.ok) {
-				imgbedDirMsg = "已保存图床目录（留空 = 根目录）";
-			} else {
-				imgbedDirMsg = data?.message || "保存失败";
-			}
-		} catch {
-			imgbedDirMsg = "网络错误";
+			imgbedDirMsg = "已保存图床目录（留空 = 根目录）";
+		} catch (err) {
+			imgbedDirMsg = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			imgbedDirSaving = false;
 		}
@@ -102,19 +100,14 @@
 			return;
 		}
 		try {
-			const resp = await fetch(
+			const data = await apiJson<{ count?: number }>(
 				`/api/gallery/${encodeURIComponent(targetSlug)}/imgbed/photos/`,
 				{ method: "POST" },
 			);
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				imgbedMsg = data.message || "图床拉取失败";
-				return;
-			}
 			imgbedMsg = `已从图床获取 ${data.count} 张图片`;
 			await load();
-		} catch {
-			imgbedMsg = "网络错误";
+		} catch (err) {
+			imgbedMsg = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			imgbedFetching = false;
 		}
@@ -122,14 +115,12 @@
 
 	async function loadPasswordState() {
 		try {
-			const resp = await fetch(
+			const data = await apiJson<{ hasPassword?: boolean }>(
 				`/api/gallery/${encodeURIComponent(slug)}/password/`,
 			);
-			if (resp.ok) {
-				const data = await resp.json();
-				hasPassword = !!data.hasPassword;
-			}
+			hasPassword = !!data.hasPassword;
 		} catch {
+			// 读取失败保持默认未设置状态
 		}
 	}
 
@@ -137,7 +128,7 @@
 		passwordSaving = true;
 		passwordMsg = "";
 		try {
-			const resp = await fetch(
+			const data = await apiJson<{ hasPassword?: boolean }>(
 				`/api/gallery/${encodeURIComponent(slug)}/password/`,
 				{
 					method: "PUT",
@@ -145,16 +136,11 @@
 					body: JSON.stringify({ password: passwordInput }),
 				},
 			);
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				passwordMsg = data.message || "密码保存失败";
-				return;
-			}
 			hasPassword = !!data.hasPassword;
 			passwordInput = "";
 			passwordMsg = hasPassword ? "已设置相册密码" : "已清除相册密码";
-		} catch {
-			passwordMsg = "网络错误";
+		} catch (err) {
+			passwordMsg = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			passwordSaving = false;
 		}
@@ -164,20 +150,14 @@
 		passwordSaving = true;
 		passwordMsg = "";
 		try {
-			const resp = await fetch(
-				`/api/gallery/${encodeURIComponent(slug)}/password/`,
-				{ method: "DELETE" },
-			);
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				passwordMsg = data.message || "密码清除失败";
-				return;
-			}
+			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/password/`, {
+				method: "DELETE",
+			});
 			hasPassword = false;
 			passwordInput = "";
 			passwordMsg = "已清除相册密码";
-		} catch {
-			passwordMsg = "网络错误";
+		} catch (err) {
+			passwordMsg = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			passwordSaving = false;
 		}
@@ -186,26 +166,23 @@
 	async function load() {
 		if (!isNew) {
 			try {
-				const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`);
-				if (resp.ok) {
-					const data = await resp.json();
-					const fm = data?.frontmatter || {};
-					formTitle = String(fm.title || "");
-					formDate = String(fm.date || "");
-					formLocation = String(fm.location || "");
-					formTags = Array.isArray(fm.tags) ? fm.tags.join(", ") : "";
-					formCover = String(fm.cover || "");
-					formDesc = String(fm.desc || "");
-					hadEncrypted = fm.encrypted === true;
-					photos = Array.isArray(fm.photos)
-						? (fm.photos as Array<{ url: string; type?: string; poster?: string; date?: string }>).filter((p) => p?.url)
-						: [];
-					photosText = photosToText(photos);
-				} else {
-					message = "加载失败";
-				}
-			} catch {
-				message = "网络错误";
+				const data = await apiJson<{ frontmatter?: Record<string, unknown> }>(
+					`/api/gallery/${encodeURIComponent(slug)}/`,
+				);
+				const fm = data?.frontmatter || {};
+				formTitle = String(fm.title || "");
+				formDate = String(fm.date || "");
+				formLocation = String(fm.location || "");
+				formTags = Array.isArray(fm.tags) ? fm.tags.join(", ") : "";
+				formCover = String(fm.cover || "");
+				formDesc = String(fm.desc || "");
+				hadEncrypted = fm.encrypted === true;
+				photos = Array.isArray(fm.photos)
+					? (fm.photos as Array<{ url: string; type?: string; poster?: string; date?: string }>).filter((p) => p?.url)
+					: [];
+				photosText = photosToText(photos);
+			} catch (err) {
+				message = err instanceof TypeError ? "网络错误" : "加载失败";
 			}
 		}
 		loaded = true;
@@ -248,23 +225,18 @@
 		}
 		const fm = buildFrontmatter();
 		try {
-			const resp = await fetch(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
+			await apiJson(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ frontmatter: fm, content: "" }),
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "保存失败";
-				return;
-			}
 			if (isNew) {
 				window.location.href = `/admin/gallery/${encodeURIComponent(targetSlug)}/`;
 				return;
 			}
 			message = "已保存";
-		} catch {
-			message = "网络错误";
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			saving = false;
 		}
@@ -274,16 +246,13 @@
 		if (!confirm(`确定删除相册「${slug}」？此操作不可恢复。`)) return;
 		saving = true;
 		try {
-			const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
+			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
 				method: "DELETE",
 			});
-			if (resp.ok) {
-				window.location.href = "/admin/gallery/";
-				return;
-			}
-			message = "删除失败";
-		} catch {
-			message = "网络错误";
+			window.location.href = "/admin/gallery/";
+			return;
+		} catch (err) {
+			message = err instanceof TypeError ? "网络错误" : "删除失败";
 		} finally {
 			saving = false;
 		}

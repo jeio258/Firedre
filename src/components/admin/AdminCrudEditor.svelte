@@ -121,23 +121,18 @@
 				payload[f.key] = f.toPayload ? f.toPayload(v) : v;
 			}
 			const url = editingId ? `${apiPath}${editingId}/` : apiPath;
-			const resp = await fetch(url, {
+			await apiJson(url, {
 				method: editingId ? "PUT" : "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "保存失败";
-				return;
-			}
-		message = "已保存";
-		clearDraft("友链");
-		showForm = false;
-		editingId = null;
+			message = "已保存";
+			clearDraft("友链");
+			showForm = false;
+			editingId = null;
 			await load();
-		} catch {
-			message = "网络错误";
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			saving = false;
 		}
@@ -146,17 +141,12 @@
 	async function remove(item: Item) {
 		if (!window.confirm(`确定删除${entityName}「${identify(item)}」吗？`)) return;
 		try {
-			const resp = await fetch(`${apiPath}${item.id}/`, { method: "DELETE" });
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "删除失败";
-				return;
-			}
+			await apiJson(`${apiPath}${item.id}/`, { method: "DELETE" });
 			if (editingId === item.id) cancelForm();
 			message = "已删除";
 			await load();
-		} catch {
-			message = "网络错误";
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
 		}
 	}
 

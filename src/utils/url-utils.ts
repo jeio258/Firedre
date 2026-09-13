@@ -18,6 +18,18 @@ export function pathsEqual(path1: string, path2: string): boolean {
 	return normalizedPath1 === normalizedPath2;
 }
 
+// 判断是否为绝对 URL（协议相对 // 也算），allowData 控制 data: 是否计入
+export function isAbsoluteUrl(src: string, allowData = false): boolean {
+	if (
+		src.startsWith("http://") ||
+		src.startsWith("https://") ||
+		src.startsWith("//")
+	) {
+		return true;
+	}
+	return allowData && src.startsWith("data:");
+}
+
 function joinUrl(...parts: string[]): string {
 	// 如果第一个部分是网络URL，直接返回拼接后的结果（不处理协议头的//）
 	if (

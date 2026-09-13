@@ -316,6 +316,9 @@ const logoVariants = await Promise.all(
       ["scheme-switch", "theme-mode-panel"]
     ];
     document.addEventListener("click", function (event) {
+      // 同一事件只允许处理一次，避免委托副本重复 toggle 相互抵消
+      if (event.__firedrePanelHandled) return;
+      event.__firedrePanelHandled = true;
       var t = event.target;
       if (!t || t.nodeType !== 1) return;
       var bgBtn = document.getElementById("bg-player-toggle");
@@ -341,6 +344,8 @@ const logoVariants = await Promise.all(
 <script>
 // 背景播放器：图标同步与显隐切换（点击由解析期委托处理）
 (function setupBgPlayer() {
+    if (window.__firedreBgPlayerInit) return;
+    window.__firedreBgPlayerInit = true;
     let bgPlayerBtn = document.getElementById("bg-player-toggle");
     if (!bgPlayerBtn) return;
 

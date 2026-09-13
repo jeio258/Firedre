@@ -56,6 +56,17 @@ export function formatDateI18nWithTime(dateInput: Date | string): string {
 	return formatDateI18n(dateInput, true);
 }
 
+// 第三方 API / Memos 数据使用浏览器本地时区的本地化输出
+export function formatDynamicLocalDate(date: Date): string {
+	return date.toLocaleDateString("zh-CN", {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+}
+
 export function formatDynamicDate(dateInput: Date | string): string {
 	const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
 	const parts = new Intl.DateTimeFormat("en-CA", {

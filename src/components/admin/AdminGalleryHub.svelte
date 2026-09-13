@@ -41,16 +41,12 @@
 	async function remove(slug: string) {
 		if (!confirm(`确定删除相册「${slug}」？`)) return;
 		try {
-			const resp = await fetch(`/api/gallery/${encodeURIComponent(slug)}/`, {
+			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
 				method: "DELETE",
 			});
-			if (resp.ok) {
-				albums = albums.filter((a) => a.slug !== slug);
-			} else {
-				alert("删除失败");
-			}
-		} catch {
-			alert("网络错误");
+			albums = albums.filter((a) => a.slug !== slug);
+		} catch (err) {
+			alert(err instanceof TypeError ? "网络错误" : "删除失败");
 		}
 	}
 

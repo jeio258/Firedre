@@ -16,7 +16,7 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getRelatedPosts, getSeriesPosts } from "@utils/content-utils";
-import { getCategoryUrl, getPostUrlBySlug } from "@utils/url-utils";
+import { getCategoryUrl, getPostUrlBySlug, isAbsoluteUrl } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -85,12 +85,7 @@ const usePostCoverOverlay = showPostCover && coverCfg.enableInPostOverlay;
 
 const getDirectImageUrl = (src: string | undefined): string | null => {
 	if (!src) return null;
-	if (
-		src.startsWith("http://") ||
-		src.startsWith("https://") ||
-		src.startsWith("//") ||
-		src.startsWith("data:")
-	) {
+	if (isAbsoluteUrl(src, true)) {
 		return src;
 	}
 	return src.startsWith("/") ? url(src) : null;

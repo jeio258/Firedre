@@ -72,20 +72,15 @@
 		siteUrlSaving = true;
 		siteUrlMsg = "";
 		try {
-			const resp = await fetch("/api/settings/", {
+			await apiJson("/api/settings/", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ groups: { basic: { siteUrl: val } } }),
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				siteUrlMsg = data.message || "保存失败";
-				return;
-			}
 			siteUrlMsg = "域名已保存 ✓";
-		clearDraft("站点链接");
-		} catch {
-			siteUrlMsg = "网络错误";
+			clearDraft("站点链接");
+		} catch (err) {
+			siteUrlMsg = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			siteUrlSaving = false;
 		}

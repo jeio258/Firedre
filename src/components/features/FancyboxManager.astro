@@ -212,16 +212,19 @@
 
   setup();
 
-  document.addEventListener("swup:content:replace", () => {
-    requestAnimationFrame(setup);
-  });
-  document.addEventListener("dynamic-gallery:ready", () => {
-    requestAnimationFrame(setup);
-  });
-  document.addEventListener("swup:visit:start", cleanupFancybox);
+  if (!window.__fancyboxInit) {
+    window.__fancyboxInit = true;
+    document.addEventListener("swup:content:replace", () => {
+      requestAnimationFrame(setup);
+    });
+    document.addEventListener("dynamic-gallery:ready", () => {
+      requestAnimationFrame(setup);
+    });
+    document.addEventListener("swup:visit:start", cleanupFancybox);
 
-  // 加密文章解密后重新绑定灯箱
-  document.addEventListener("password:decrypted", () => {
-    setTimeout(setup, 200);
-  });
+    // 加密文章解密后重新绑定灯箱
+    document.addEventListener("password:decrypted", () => {
+      setTimeout(setup, 200);
+    });
+  }
 </script>

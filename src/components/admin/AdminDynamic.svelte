@@ -91,7 +91,7 @@
 		saving = true;
 		message = "";
 		try {
-			const resp = await fetch("/api/dynamics/", {
+			await apiJson("/api/dynamics/", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -102,18 +102,13 @@
 					location: formLocation || undefined,
 				}),
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "保存失败";
-				return;
-			}
-		message = "已保存";
-		clearDraft("动态");
-		showForm = false;
+			message = "已保存";
+			clearDraft("动态");
+			showForm = false;
 			editingId = "";
 			await load();
-		} catch {
-			message = "网络错误";
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
 		} finally {
 			saving = false;
 		}
@@ -122,19 +117,14 @@
 	async function remove(item: DynamicItem) {
 		if (!window.confirm(`确定删除这条动态吗？\n${truncate(item.content, 40)}`)) return;
 		try {
-			const resp = await fetch(`/api/dynamics/${encodeURIComponent(item.id)}/`, {
+			await apiJson(`/api/dynamics/${encodeURIComponent(item.id)}/`, {
 				method: "DELETE",
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "删除失败";
-				return;
-			}
 			if (editingId === item.id) cancelForm();
 			message = "已删除";
 			await load();
-		} catch {
-			message = "网络错误";
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
 		}
 	}
 

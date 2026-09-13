@@ -134,6 +134,8 @@
   }
 
   function init(): void {
+    if (window.__githubCardInit) return;
+    window.__githubCardInit = true;
     enhanceCards();
     document.addEventListener("swup:content:replace", () => {
       requestAnimationFrame(enhanceCards);

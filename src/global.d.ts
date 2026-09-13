@@ -94,6 +94,12 @@ declare global {
 
 		__panelDelegationInit?: boolean;
 
+		__firedreBgPlayerInit?: boolean;
+
+		__githubCardInit?: boolean;
+
+		__fancyboxInit?: boolean;
+
 		__codeGroupNavInit?: boolean;
 	}
 

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { onDestroy, onMount, tick } from "svelte";
-import "vditor/dist/index.css";
 import { pinyin } from "pinyin-pro";
 import type Vditor from "vditor";
 import { createAdminVditor } from "@/lib/adminVditor";

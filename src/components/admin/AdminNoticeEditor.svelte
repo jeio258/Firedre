@@ -33,7 +33,7 @@
 		saving = true;
 		message = "";
 		try {
-			const resp = await fetch("/api/notice/", {
+			await apiJson("/api/notice/", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -41,18 +41,13 @@
 					sections: [{ label: "", lines: [{ text: content }] }],
 				}),
 			});
-			const data = await resp.json();
-			if (!resp.ok || !data.ok) {
-				message = data.message || "保存失败";
-				return;
-			}
-		message = "已保存";
-		clearDraft("公告");
-	} catch {
-		message = "网络错误";
-	} finally {
-		saving = false;
-	}
+			message = "已保存";
+			clearDraft("公告");
+		} catch (err) {
+			message = err instanceof Error ? err.message : "网络错误";
+		} finally {
+			saving = false;
+		}
 }
 
 	onMount(async () => {

@@ -43,12 +43,13 @@
 		enabled = !enabled;
 		saving = true;
 		try {
-			await fetch("/api/settings/", {
+			await apiJson("/api/settings/", {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ groups: { [group]: { [enableKey]: enabled } } }),
 			});
 		} catch {
+			enabled = !enabled;
 		}
 		saving = false;
 	}

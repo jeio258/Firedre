@@ -13,6 +13,7 @@ import {
 	galleryAlbumR2Key,
 	isValidGallerySlug,
 } from "./constants";
+import type { AlbumD1Data } from "./d1";
 import {
 	deleteAlbumFromD1,
 	getAlbumFromD1,
@@ -52,21 +53,30 @@ function summarizeAlbum(
 	return summary;
 }
 
+// 相册 frontmatter 读取：D1 优先，存量数据回落 R2 index.md
+async function resolveAlbumFrontmatter(
+	env: CloudflareEnv,
+	slug: string,
+	d1: AlbumD1Data | undefined,
+): Promise<AlbumDetailFrontmatter | null> {
+	if (d1) return d1.frontmatter;
+	const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
+	if (!object) return null;
+	return parseAlbumSource(await object.text()).frontmatter;
+}
+
 async function loadAlbumSummary(
 	env: CloudflareEnv,
 	slug: string,
 ): Promise<AlbumSummary | null> {
 	const albumMap = await getAlbumsFromD1Map(env, [slug]);
 	const passwordMap = await getAlbumPasswordsMap(env, [slug]);
-	const d1 = albumMap.get(slug);
-	let frontmatter: AlbumDetailFrontmatter;
-	if (d1) {
-		frontmatter = d1.frontmatter;
-	} else {
-		const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
-		if (!object) return null;
-		frontmatter = parseAlbumSource(await object.text()).frontmatter;
-	}
+	const frontmatter = await resolveAlbumFrontmatter(
+		env,
+		slug,
+		albumMap.get(slug),
+	);
+	if (!frontmatter) return null;
 	return summarizeAlbum(
 		slug,
 		frontmatter,
@@ -91,15 +101,12 @@ export async function getGalleryHub(
 
 	const summaries: AlbumSummary[] = [];
 	for (const slug of slugs) {
-		const d1 = albumMap.get(slug);
-		let frontmatter: AlbumDetailFrontmatter;
-		if (d1) {
-			frontmatter = d1.frontmatter;
-		} else {
-			const albumObject = await env.BUCKET.get(galleryAlbumR2Key(slug));
-			if (!albumObject) continue;
-			frontmatter = parseAlbumSource(await albumObject.text()).frontmatter;
-		}
+		const frontmatter = await resolveAlbumFrontmatter(
+			env,
+			slug,
+			albumMap.get(slug),
+		);
+		if (!frontmatter) continue;
 		summaries.push(
 			summarizeAlbum(slug, frontmatter, (passwordMap.get(slug) ?? "") !== ""),
 		);
@@ -360,14 +367,16 @@ export async function setAlbumPhotos(
 	const detail = await getGalleryAlbum(env, slug, { includeSource: true });
 	if (!detail) throw new UserError("相册不存在");
 
+	const normalizedPhotos = photos.map((p) => ({
+		url: p.url,
+		...(p.type ? { type: p.type } : {}),
+		...(p.poster ? { poster: p.poster } : {}),
+		...(p.date ? { date: p.date } : {}),
+	}));
+
 	const nextFrontmatter: AlbumDetailFrontmatter = {
 		...detail.frontmatter,
-		photos: photos.map((p) => ({
-			url: p.url,
-			...(p.type ? { type: p.type } : {}),
-			...(p.poster ? { poster: p.poster } : {}),
-			...(p.date ? { date: p.date } : {}),
-		})),
+		photos: normalizedPhotos,
 	};
 
 	// D1 相册：直接写 D1。
@@ -381,12 +390,7 @@ export async function setAlbumPhotos(
 	// 存量 R2 相册：仍走 R2 index.md 更新（保留其他字段）。
 	if (!detail.source) throw new UserError("相册不存在");
 	const { frontmatter, content } = splitGalleryMarkdown(detail.source);
-	frontmatter.photos = photos.map((p) => ({
-		url: p.url,
-		...(p.type ? { type: p.type } : {}),
-		...(p.poster ? { poster: p.poster } : {}),
-		...(p.date ? { date: p.date } : {}),
-	}));
+	frontmatter.photos = normalizedPhotos;
 	const normalized = serializeAlbumMarkdown(
 		frontmatter as AlbumDetailFrontmatter & { layout?: string },
 		content,

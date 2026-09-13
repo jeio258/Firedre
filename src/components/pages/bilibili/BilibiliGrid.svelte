@@ -8,6 +8,7 @@ import type { StandardizedAnime } from "@/types/bilibili";
 
 import BilibiliCard from "./BilibiliCard.svelte";
 import BilibiliDetailModal from "./BilibiliDetailModal.svelte";
+import { getSeasonTypeLabel } from "./seasonTypes";
 
 interface Props {
 	items: StandardizedAnime[];
@@ -32,16 +33,6 @@ let sortBy = $state<"rating-desc" | "rating-asc" | "date-desc" | "date-asc">(
 let currentPage = $state(1);
 let selectedAnime = $state<StandardizedAnime | null>(null);
 
-// season_type 到 i18n key 的映射
-const SEASON_TYPE_I18N: Record<number, I18nKey> = {
-	1: I18nKey.animeTypeAnime,
-	2: I18nKey.animeTypeMovie,
-	3: I18nKey.animeTypeDocumentary,
-	4: I18nKey.animeTypeChinese,
-	5: I18nKey.animeTypeDrama,
-	7: I18nKey.animeTypeConcert,
-};
-
 // 动态生成筛选项：从数据中提取实际存在的 season_type
 let filterOptions = $derived(() => {
 	const typeMap = new Map<number, number>();
@@ -53,7 +44,7 @@ let filterOptions = $derived(() => {
 		.sort(([a], [b]) => a - b)
 		.map(([type, count]) => ({
 			value: String(type),
-			label: i18n(SEASON_TYPE_I18N[type] || I18nKey.animeTypeAnime),
+			label: getSeasonTypeLabel(type),
 			count,
 		}));
 });

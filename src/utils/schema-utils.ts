@@ -1,17 +1,12 @@
 import type { ProfileConfig, SiteConfig } from "@/types/config";
-import { getSearchUrl, normalizeSiteUrl, url } from "./url-utils";
+import { getSearchUrl, isAbsoluteUrl, normalizeSiteUrl, url } from "./url-utils";
 
 export function toAbsoluteUrl(
 	src: string | undefined | null,
 	base: URL | string,
 ): string | null {
 	if (!src) return null;
-	if (
-		src.startsWith("http://") ||
-		src.startsWith("https://") ||
-		src.startsWith("//") ||
-		src.startsWith("data:")
-	) {
+	if (isAbsoluteUrl(src, true)) {
 		return src;
 	}
 
