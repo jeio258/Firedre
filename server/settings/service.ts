@@ -220,7 +220,13 @@ export interface SettingsShape {
 	icp?: string;
 	navItems?: Array<{ label: string; url: string }>;
 	social?: Array<{ label: string; url: string }>;
-	music?: { enabled?: boolean; url?: string; name?: string };
+	music?: {
+		enabled?: boolean;
+		url?: string;
+		name?: string;
+		showInNavbar?: boolean;
+		showInSidebar?: boolean;
+	};
 	effects?: {
 		sakura?: boolean;
 		waves?: boolean;

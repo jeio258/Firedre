@@ -65,37 +65,42 @@ let {
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）
+// 实际存储为「分组 + 扁平」并存：basic/theme/post 等分组键与扁平键都可读，
+// 故在 SettingsShape 之上放开索引签名，避免各处 as any 断言。
+type LayoutSettings = import("../../server/settings/service").SettingsShape &
+	Record<string, any>;
+
 const settings =
 	(
 		Astro.locals as {
-			settings?: import("../../server/settings/service").SettingsShape;
+			settings?: LayoutSettings;
 		}
 	).settings ?? {};
 
-const configHue = settings.hue ?? ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue;
+const configHue = settings.hue ?? (settings?.["themeColor"] ?? siteConfig.themeColor).hue;
 
 const navbarTransparentMode =
-	((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi";
+	((settings?.["theme"])?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi";
 // 判断是否应该显示顶部高光效果（只在full和semifull模式下显示）
 const shouldShowTopHighlight =
 	navbarTransparentMode === "full" || navbarTransparentMode === "semifull";
 
 const NAVBAR_PANEL_MIN_BLUR = 2;
 const navbarPanelBlur = Math.max(
-	((((settings as any)?.["theme"]) as any)?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
+	((settings?.["theme"])?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
 	NAVBAR_PANEL_MIN_BLUR,
 );
 
 const effectiveTitle =
-	((settings as any)?.["basic"]?.["title"] as string | undefined) ??
+	(settings?.["basic"]?.["title"] as string | undefined) ??
 	settings.title ??
 	siteConfig.title;
 const effectiveDescription =
-	((settings as any)?.["basic"]?.["description"] as string | undefined) ??
+	(settings?.["basic"]?.["description"] as string | undefined) ??
 	settings.description ??
 	siteConfig.description;
 let pageTitle: string;
-const siteSubtitle = ((settings as any)?.["subtitle"] ?? siteConfig.subtitle) || "";
+const siteSubtitle = (settings?.["subtitle"] ?? siteConfig.subtitle) || "";
 
 const siteIdentity = siteSubtitle ? `${effectiveTitle} - ${siteSubtitle}` : effectiveTitle;
 if (title) {
@@ -105,24 +110,24 @@ if (title) {
 }
 
 let ogImageUrl: string | undefined;
-if (((settings as any)?.["post"] ?? siteConfig.post).generateOgImages && postSlug) {
+if ((settings?.["post"] ?? siteConfig.post).generateOgImages && postSlug) {
 	ogImageUrl = new URL(`/og/${postSlug}.png`, Astro.site).toString();
 } else if (postCoverImage) {
 	ogImageUrl = postCoverImage; // 已由文章页算成绝对 URL
 }
 
 if (!lang) {
-	lang = `${((settings as any)?.["lang"] ?? siteConfig.lang)}`;
+	lang = `${(settings?.["lang"] ?? siteConfig.lang)}`;
 }
 const siteLang = lang.replace("_", "-");
 
 // 作者个人页（/about/）绝对 URL，作为 Person.url
-const effectiveSiteUrl = settings.siteUrl || ((settings as any)?.["site_url"] ?? siteConfig.site_url);
+const effectiveSiteUrl = settings.siteUrl || (settings?.["site_url"] ?? siteConfig.site_url);
 
 const avatarUrl = await getAuthorAvatarUrl(effectiveSiteUrl);
 // 头像 preload：默认头像（未被后台替换）时预取静态文件，提前加载 LCP 图
 const avatarPreloadUrl =
-	(!((settings as any)?.["avatar"]) || ((settings as any)?.["avatar"] === profileConfig.avatar)) &&
+	(!(settings?.["avatar"]) || (settings?.["avatar"] === profileConfig.avatar)) &&
 	profileConfig.avatar
 		? await getRawImageUrl(profileConfig.avatar).catch(() => null)
 		: null;
@@ -133,7 +138,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 ---
 
 <!doctype html>
-<html lang={siteLang} class:list={["bg-(--page-bg) text-[14px] md:text-[16px]", settings.cardBorder === true ? "enable-card-border" : ""]} data-wallpaper-mode={((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode)} data-has-wallpaper={hasWallpaper ? "" : undefined} data-tag-style={settings.tagStyle || ((settings as any)?.["tagStyle"] ?? siteConfig.tagStyle) || "pill"} data-category-style={settings.categoryStyle || ((settings as any)?.["categoryStyle"] ?? siteConfig.categoryStyle) || "rectangle"}>
+<html lang={siteLang} class:list={["bg-(--page-bg) text-[14px] md:text-[16px]", settings.cardBorder === true ? "enable-card-border" : ""]} data-wallpaper-mode={((settings?.["theme"])?.["mode"] ?? backgroundWallpaper.mode)} data-has-wallpaper={hasWallpaper ? "" : undefined} data-tag-style={settings.tagStyle || (settings?.["tagStyle"] ?? siteConfig.tagStyle) || "pill"} data-category-style={settings.categoryStyle || (settings?.["categoryStyle"] ?? siteConfig.categoryStyle) || "rectangle"}>
   <head>
     <meta charset="UTF-8" />
     <style is:inline>
@@ -172,12 +177,15 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       content={description || effectiveDescription || pageTitle}
     />
     {(() => {
-      const kw = typeof settings.keywords === "string"
-        ? settings.keywords
-        : (((settings as any)?.["keywords"] ?? siteConfig.keywords)?.length ? ((settings as any)?.["keywords"] ?? siteConfig.keywords).join(", ") : "");
+      const rawKw = (settings as { keywords?: unknown }).keywords ?? siteConfig.keywords;
+      const kw = typeof rawKw === "string"
+        ? rawKw
+        : Array.isArray(rawKw) && rawKw.length
+          ? rawKw.join(", ")
+          : "";
       return kw ? <meta name="keywords" content={kw} /> : null;
     })()}
-    <meta name="author" content={((settings as any)?.["profile"]?.["name"] as string | undefined) ?? ((settings as any)?.["name"] ?? profileConfig.name)} />
+    <meta name="author" content={(settings?.["profile"]?.["name"] as string | undefined) ?? (settings?.["name"] ?? profileConfig.name)} />
 
     <link rel="canonical" href={Astro.url} />
     {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
@@ -231,13 +239,13 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <meta name="generator" content={Astro.generator} />
     <FaviconLinks settings={settings} />
 
-    {((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
-     ((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (
+    {(settings?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
+     (settings?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (
       <script
         is:inline
         define:vars={{
           noReferrerDomains: JSON.stringify(
-            ((settings as any)?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains
+            (settings?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains
           ),
         }}
       >
@@ -299,15 +307,15 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         configHue,
         settingsVersion: (Astro.locals as { settingsVersion?: string }).settingsVersion ?? "",
         i18nMap: getTranslation(siteConfig.lang),
-        defaultMode: settings.defaultMode || ((settings as any)?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
-        defaultWallpaperMode: ((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode),
+        defaultMode: settings.defaultMode || (settings?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
+        defaultWallpaperMode: ((settings?.["theme"])?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
-          ((settings as any)?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
+          (settings?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
         darkTheme: getExpressiveCodeConfig(settings).darkTheme,
         lightTheme: getExpressiveCodeConfig(settings).lightTheme,
         baseUrl: import.meta.env.BASE_URL,
-        cardTransparentOpacity: ((((settings as any)?.["theme"]) as any)?.["overlayCardOpacity"] ?? ((((settings as any)?.["theme"]) as any)?.["overlay"] as any)?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
-        cardRadius: ((settings as any)?.["cardRadius"] ?? (siteConfig as any).card?.radius) ?? 1,
+        cardTransparentOpacity: ((settings?.["theme"])?.["overlayCardOpacity"] ?? settings?.["theme"]?.["overlay"]?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
+        cardRadius: (settings?.["cardRadius"] ?? (siteConfig as any).card?.radius) ?? 1,
       }}
     >
       // 主题初始化 - 与setting-utils.ts保持一致
@@ -426,7 +434,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <style
       define:vars={{
         configHue,
-        "page-width": `${settings.pageWidth ?? ((settings as any)?.["pageWidth"] ?? siteConfig.pageWidth) ?? PAGE_WIDTH}rem`,
+        "page-width": `${settings.pageWidth ?? (settings?.["pageWidth"] ?? siteConfig.pageWidth) ?? PAGE_WIDTH}rem`,
         "navbar-panel-blur": `${navbarPanelBlur}px`,
         "banner-height-home": `${BANNER_HEIGHT_HOME}vh`,
         "banner-height-non-home": `${BANNER_HEIGHT_NON_HOME}vh`,
@@ -439,7 +447,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={((settings as any)?.["profile"]?.["name"] as string | undefined) ?? ((settings as any)?.["name"] ?? profileConfig.name)}
+      title={(settings?.["profile"]?.["name"] as string | undefined) ?? (settings?.["name"] ?? profileConfig.name)}
       href={`${Astro.site}rss.xml`}
     />
 
@@ -450,7 +458,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     class:list={[
       {
         "is-home": isHomePageCheck,
-        "sticky-navbar": ((settings as any)?.["navbar"] ?? siteConfig.navbar).stickyNavbar ?? false,
+        "sticky-navbar": (settings?.["navbar"] ?? siteConfig.navbar).stickyNavbar ?? false,
       },
     ]}
   >
@@ -470,8 +478,8 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     {                                 }
     <script is:inline define:vars={{
-      defaultBorder: ((settings as any)?.["card"] ?? siteConfig.card)?.border ?? false,
-      defaultFollowTheme: ((settings as any)?.["card"] ?? siteConfig.card)?.followTheme ?? false,
+      defaultBorder: (settings?.["card"] ?? siteConfig.card)?.border ?? false,
+      defaultFollowTheme: (settings?.["card"] ?? siteConfig.card)?.followTheme ?? false,
     }}>
       (function() {
         var stored = localStorage.getItem("cardBorderEnabled");
@@ -491,7 +499,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <MusicManager />
     <slot />
 
-    {((((settings as any)?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || (((settings as any)?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (
+    {(((settings?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || ((settings?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (
       <MusicPlayerView />
     )}
 
