@@ -188,8 +188,8 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <meta name="author" content={(settings?.["profile"]?.["name"] as string | undefined) ?? (settings?.["name"] ?? profileConfig.name)} />
 
     <link rel="canonical" href={Astro.url} />
-    {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} />}
-    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} />}
+    {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
+    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} fetchpriority="high" />}
     <meta property="og:site_name" content={effectiveTitle} />
     <meta property="og:url" content={Astro.url} />
     <meta property="og:title" content={pageTitle} />
