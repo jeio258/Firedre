@@ -24,8 +24,8 @@
     "format": "biome format --write ./src ./server ./types",
     "lint": "biome check --write ./src ./server ./types",
     "preinstall": "npx only-allow pnpm",
-    "d1:migrate": "npx wrangler d1 migrations apply firedre-blog --remote",
-    "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
+    "d1:migrate": "npx wrangler d1 migrations apply DB --remote",
+    "d1:migrate:local": "npx wrangler d1 migrations apply DB --local",
     "deploy": "pnpm build && wrangler pages deploy dist --project-name firedre",
     "deploy:dry": "pnpm build && wrangler pages deploy dist --project-name firedre --dry-run"
   },

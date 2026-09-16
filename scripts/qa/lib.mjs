@@ -35,7 +35,7 @@ function clearHtmlCache() {
 export function d1(sql) {
 	return execFileSync(
 		"npx",
-		["wrangler", "d1", "execute", "firedre-blog", "--local", "--command", sql],
+		["wrangler", "d1", "execute", "DB", "--local", "--command", sql],
 		{ encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
 	);
 }
