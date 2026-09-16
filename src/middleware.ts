@@ -142,7 +142,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						new Response(html, {
 							headers: {
 								"Content-Type": "text/html; charset=utf-8",
-								"Cache-Control": "public, max-age=60",
+								"Cache-Control": "public, max-age=600",
 							},
 						}),
 					);
