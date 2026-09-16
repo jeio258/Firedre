@@ -119,7 +119,8 @@ export function sanitizeDynamicHtml(input: string): string {
 				allowedAttrs[name] = attr.value;
 			}
 
-			for (const name of Object.keys(el.attributes)) el.removeAttribute(name);
+			for (const attr of Array.from(el.attributes))
+				el.removeAttribute(attr.name);
 			for (const [name, value] of Object.entries(allowedAttrs)) {
 				if (name === "style") continue; // 丢弃内联 style，避免 CSS 注入
 				el.setAttribute(name, value);
