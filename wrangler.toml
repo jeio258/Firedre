@@ -5,7 +5,7 @@ pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "firedre-blog-v2"
+database_name = "firedre-blog"
 database_id = "771d3eee-4a4f-4765-a477-8e9022aff4b1"
 
 [[r2_buckets]]
