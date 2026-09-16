@@ -51,16 +51,17 @@ export const prerender = false;
 const slug = Astro.params.slug || "";
 
 // Firedre：运行时从 D1+R2 获取文章并渲染
-const { getPostBySlug } = await import("../../../server/posts/service");
-const { cfEnv } = await import("../../lib/api");
+const [{ getPostBySlug }, { cfEnv }, { apiPostToEntry }] = await Promise.all([
+	import("../../../server/posts/service"),
+	import("../../lib/api"),
+	import("../../utils/post-types"),
+]);
 const postDetail = await getPostBySlug(cfEnv, slug, {});
 if (!postDetail) {
 	return Astro.redirect("/404/");
 }
 
-const { entry, html, headings, words, minutes } = (
-	await import("../../utils/post-types")
-).apiPostToEntry(postDetail);
+const { entry, html, headings, words, minutes } = apiPostToEntry(postDetail);
 
 const remarkPluginFrontmatter = {
 	words,
@@ -101,17 +102,16 @@ const posterAvatarSelector = ((settings as any)?.["avatar"] ?? profileConfig.ava
 dayjs.extend(utc);
 
 const coverBasePath = "";
-const coverImage =
-	(await toAbsoluteImageInfo(
-		processedImage,
-		coverBasePath,
-		siteUrl,
-	)) ?? undefined;
+const [coverImageRaw, authorAvatarUrl, siteLogo] = await Promise.all([
+	toAbsoluteImageInfo(processedImage, coverBasePath, siteUrl),
+	getAuthorAvatarUrl(siteUrl),
+	getSiteLogo(siteUrl),
+]);
+const coverImage = coverImageRaw ?? undefined;
 
 const aboutUrl =
 	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
-const authorAvatarUrl = await getAuthorAvatarUrl(siteUrl);
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
 	profileConfig,
@@ -123,7 +123,7 @@ const authorPerson = buildPersonEntity({
 const publisher = buildPublisherEntity({
 	site: siteUrl,
 	siteConfig,
-	logo: await getSiteLogo(siteUrl),
+	logo: siteLogo,
 });
 
 const breadcrumbItems = [
@@ -185,8 +185,10 @@ const jsonLd = {
 	],
 };
 
-const relatedPosts = await getRelatedPosts(entry, 5);
-const seriesData = await getSeriesPosts(entry);
+const [relatedPosts, seriesData] = await Promise.all([
+	getRelatedPosts(entry, 5),
+	getSeriesPosts(entry),
+]);
 ---
 
 <MainGridLayout

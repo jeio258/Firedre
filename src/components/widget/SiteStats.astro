@@ -29,9 +29,11 @@ const siteStartDate =
 	((settings as any)?.["siteStartDate"] ?? siteConfig.siteStartDate) ||
 	"2025-01-01";
 
-const posts = await fetchPostsForStats();
-const categories = await getCategoryList();
-const tags = await getTagList();
+const [posts, categories, tags] = await Promise.all([
+	fetchPostsForStats(),
+	getCategoryList(),
+	getTagList(),
+]);
 
 let totalWords = 0;
 for (const post of posts) {

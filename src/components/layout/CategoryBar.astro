@@ -11,8 +11,11 @@ interface Props {
 
 const { currentPostCategory } = Astro.props as Props;
 
-const categories = await getCategoryList();
-const totalPosts = (await getSortedPostsList()).length;
+const [categories, allPosts] = await Promise.all([
+	getCategoryList(),
+	getSortedPostsList(),
+]);
+const totalPosts = allPosts.length;
 const homeUrl = url("/");
 const archiveUrl = url("/archive/");
 
