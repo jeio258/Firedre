@@ -31,7 +31,6 @@ import {
 	toAlbumSummary,
 } from "./frontmatter";
 import {
-	ALBUM_PASSWORD_DECRYPT_FAILED,
 	deleteAlbumPassword,
 	getAlbumPassword,
 	getAlbumPasswordsMap,
@@ -421,10 +420,8 @@ export async function getAlbumWebDavConfigFromR2(
 				}
 			: {}),
 		encrypted: album.frontmatter.encrypted === true,
-		albumPassword:
-			albumPassword === ALBUM_PASSWORD_DECRYPT_FAILED
-				? undefined
-				: albumPassword || undefined,
+		// 解密失败哨兵保持非空：消费方据此判定「已上锁」并拒绝，不再塌陷为 undefined
+		albumPassword: albumPassword || undefined,
 	};
 }
 

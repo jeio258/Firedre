@@ -17,9 +17,19 @@ import {
 	assertTargetInWebDavScope,
 	resolveWebDavConfig,
 } from "./albumWebdavEnv";
+import { ALBUM_PASSWORD_DECRYPT_FAILED } from "./gallery/password";
+
+export class AlbumAccessDeniedError extends UserError {}
 
 function assertAlbumAccess(access: AlbumAccessParams) {
-	if (!verifyAlbumAccess(access)) throw new UserError("需要正确的相册访问密码");
+	if (!verifyAlbumAccess(access))
+		throw new AlbumAccessDeniedError("需要正确的相册访问密码");
+}
+
+// 口令密文不可解密（密钥缺失/轮换/损坏）：显式拒绝，不依赖下游空口令回退
+function assertAlbumPasswordReadable(albumPassword?: string) {
+	if (albumPassword === ALBUM_PASSWORD_DECRYPT_FAILED)
+		throw new AlbumAccessDeniedError("相册口令校验不可用，已拒绝访问");
 }
 
 export function basicAuthHeader(username?: string, password?: string) {
@@ -197,6 +207,7 @@ export async function handleAlbumWebDavList(
 ) {
 	const config = await resolveWebDavConfig(body.slug, options);
 
+	assertAlbumPasswordReadable(config.albumPassword);
 	assertAlbumAccess({
 		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,
@@ -221,6 +232,7 @@ export async function handleAlbumWebDavFile(
 
 	const config = await resolveWebDavConfig(slug, options);
 
+	assertAlbumPasswordReadable(config.albumPassword);
 	assertAlbumAccess({
 		encrypted: Boolean(config.albumPassword),
 		password: config.albumPassword,

@@ -1,6 +1,10 @@
 import type { AlbumWebDavRuntimeOptions } from "../types/album";
 import type { CloudflareEnv } from "../types/env";
-import { handleAlbumWebDavFile, handleAlbumWebDavList } from "./albumWebdav";
+import {
+	AlbumAccessDeniedError,
+	handleAlbumWebDavFile,
+	handleAlbumWebDavList,
+} from "./albumWebdav";
 import { withRateLimit } from "./utils/rateLimiter";
 
 function jsonResponse(data: unknown, status = 200) {
@@ -32,7 +36,7 @@ export async function handleAlbumWebdavHttp(
 	try {
 		if (pathname.endsWith("/file") || url.searchParams.has("url")) {
 
-			return withRateLimit(
+			return await withRateLimit(
 				options?.env ?? ({} as CloudflareEnv),
 				request,
 				{
@@ -49,7 +53,7 @@ export async function handleAlbumWebdavHttp(
 			pathname.endsWith("/list") &&
 			(request.method === "GET" || request.method === "POST")
 		) {
-			return withRateLimit(
+			return await withRateLimit(
 				options?.env ?? ({} as CloudflareEnv),
 				request,
 				{
@@ -64,6 +68,8 @@ export async function handleAlbumWebdavHttp(
 
 		return jsonResponse({ message: "Not found" }, 404);
 	} catch (error) {
+		if (error instanceof AlbumAccessDeniedError)
+			return jsonResponse({ message: error.message }, 403);
 		return jsonResponse(
 			{
 				message: error instanceof Error ? error.message : "WebDAV 代理失败",
