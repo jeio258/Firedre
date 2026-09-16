@@ -14,6 +14,7 @@ import {
 	upsertPost,
 } from "../../../../server/posts/service";
 import { withRateLimit } from "../../../../server/utils/rateLimiter";
+import { redactPostSecrets } from "../../../../server/posts/sanitize";
 import {
 	badRequest,
 	cfEnv,
@@ -25,29 +26,6 @@ import {
 } from "../../../lib/api";
 
 export const prerender = false;
-
-function redactPostSecrets<T>(post: T): T {
-	const copy = { ...(post as Record<string, unknown>) };
-	const isEncrypted = Boolean(
-		copy.password ?? (copy as { frontmatter?: { password?: unknown } }).frontmatter?.password,
-	);
-	delete copy.password;
-	delete copy.passwordHint;
-	if (copy.frontmatter && typeof copy.frontmatter === "object") {
-		const fm = { ...(copy.frontmatter as Record<string, unknown>) };
-		delete fm.password;
-		delete fm.passwordHint;
-		copy.frontmatter = fm;
-	}
-	if (isEncrypted) {
-
-		delete copy.html;
-		delete copy.headings;
-		delete copy.source;
-		delete copy.markdown;
-	}
-	return copy as T;
-}
 
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);

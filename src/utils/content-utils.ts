@@ -1,6 +1,6 @@
 
 
-import { fetchWithDedup } from "./fetch-dedup";
+import { dedupByKey, fetchWithDedup } from "./fetch-dedup";
 import {
 	type ApiPostDetail,
 	type ApiPostListItem,
@@ -28,6 +28,28 @@ interface PostsListResponse {
 async function fetchPostsList(
 	params: Record<string, string | number> = {},
 ): Promise<ApiPostListItem[]> {
+	if (import.meta.env.SSR) {
+		// SSR 直调 server 层：自请求会重入 middleware 并放大 D1 查询
+		return dedupByKey(`ssr:posts:${JSON.stringify(params)}`, async () => {
+			const [{ cfEnv }, { listPosts }, { redactPostSecrets }] =
+				await Promise.all([
+					import("../lib/api"),
+					import("../../server/posts/service"),
+					import("../../server/posts/sanitize"),
+				]);
+			const result = await listPosts(cfEnv, {
+				page: Number(params.page || 1),
+				pageSize: Number(params.pageSize || 100),
+				category: params.category ? String(params.category) : undefined,
+				tag: params.tag ? String(params.tag) : undefined,
+				month: params.month ? String(params.month) : undefined,
+				includeUnpublished: false,
+			});
+			// 与 /api/posts/ 的非管理员响应一致：脱敏后再交给列表映射
+			return result.posts.map(redactPostSecrets) as ApiPostListItem[];
+		});
+	}
+
 	const search = new URLSearchParams();
 	for (const [key, value] of Object.entries(params)) {
 		if (value !== undefined && value !== "") search.set(key, String(value));
@@ -75,6 +97,16 @@ export type Tag = {
 };
 
 export async function getTagList(): Promise<Tag[]> {
+	if (import.meta.env.SSR) {
+		return dedupByKey("ssr:taxonomy:tags", async () => {
+			const [{ cfEnv }, { getTaxonomyTags }] = await Promise.all([
+				import("../lib/api"),
+				import("../../server/posts/service"),
+			]);
+			return (await getTaxonomyTags(cfEnv)) as Tag[];
+		});
+	}
+
 	const data = await fetchWithDedup<{ tags: Tag[] }>(
 		apiUrl("/posts/taxonomy/tags/"),
 	);
@@ -88,6 +120,21 @@ export type Category = {
 };
 
 export async function getCategoryList(): Promise<Category[]> {
+	if (import.meta.env.SSR) {
+		const categories = await dedupByKey("ssr:taxonomy:categories", async () => {
+			const [{ cfEnv }, { getTaxonomyCategories }] = await Promise.all([
+				import("../lib/api"),
+				import("../../server/posts/service"),
+			]);
+			return await getTaxonomyCategories(cfEnv);
+		});
+		return categories.map((cat) => ({
+			name: cat.name,
+			count: cat.total,
+			url: getCategoryUrl(cat.name),
+		}));
+	}
+
 	const data = await fetchWithDedup<{
 		categories: Array<{ name: string; total: number }>;
 	}>(apiUrl("/posts/taxonomy/categories/"));

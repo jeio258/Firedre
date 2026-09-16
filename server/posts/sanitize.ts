@@ -118,3 +118,28 @@ export function rehypeSanitizeDangerous() {
 		sanitizeHast(tree);
 	};
 }
+
+/** 响应脱敏：删除口令字段；加密文章再删除正文相关字段（不回填 encrypted 标记） */
+export function redactPostSecrets<T>(post: T): T {
+	const copy = { ...(post as Record<string, unknown>) };
+	const isEncrypted = Boolean(
+		copy.password ??
+			(copy as { frontmatter?: { password?: unknown } }).frontmatter
+				?.password,
+	);
+	delete copy.password;
+	delete copy.passwordHint;
+	if (copy.frontmatter && typeof copy.frontmatter === "object") {
+		const fm = { ...(copy.frontmatter as Record<string, unknown>) };
+		delete fm.password;
+		delete fm.passwordHint;
+		copy.frontmatter = fm;
+	}
+	if (isEncrypted) {
+		delete copy.html;
+		delete copy.headings;
+		delete copy.source;
+		delete copy.markdown;
+	}
+	return copy as T;
+}
