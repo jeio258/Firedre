@@ -16,15 +16,15 @@ if (!getSiteConfig(Astro.locals).pages.guestbook) {
 	return Astro.redirect("/404/");
 }
 
-// Firedre：留言板内容来自 R2 spec/guestbook.md
-const { fetchWithDedup } = await import("../utils/fetch-dedup");
+// Firedre：留言板内容来自 R2 spec/guestbook.md（直调 server 层，避免 HTTP 自请求）
+const [{ cfEnv }, { getSpecPage }] = await Promise.all([
+	import("../lib/api"),
+	import("../../server/spec/service"),
+]);
 
 let guestbookHtml = "";
 try {
-	const guestbookDetail = await fetchWithDedup<{ html: string }>(
-		"/api/spec/guestbook",
-	);
-	guestbookHtml = guestbookDetail?.html || "";
+	guestbookHtml = (await getSpecPage(cfEnv, "guestbook"))?.html || "";
 } catch {
 	guestbookHtml = "";
 }

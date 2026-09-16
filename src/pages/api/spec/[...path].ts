@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { pathSegments } from "../../../lib/routePath";
-import { splitMarkdown } from "../../../../server/posts/frontmatter";
-import { renderMarkdown } from "../../../../server/posts/render";
+import { getSpecPage, isValidSpecName } from "../../../../server/spec/service";
 import {
 	badRequest,
 	cfEnv,
@@ -17,20 +16,12 @@ export const GET: APIRoute = async ({ params }) => {
 	if (segments.length !== 1) return badRequest("路径无效");
 
 	const name = decodeURIComponent(segments[0]);
-	if (!/^[a-zA-Z0-9._-]+$/.test(name)) return badRequest("路径无效");
+	if (!isValidSpecName(name)) return badRequest("路径无效");
 
 	try {
-		const object = await cfEnv.BUCKET.get(`spec/${name}.md`);
-		if (!object) return notFound("页面不存在");
-		const source = await object.text();
-		const { frontmatter, content } = splitMarkdown(source);
-		const rendered = await renderMarkdown(content, { frontmatter });
-		return json({
-			name,
-			frontmatter,
-			html: rendered.html,
-			source,
-		});
+		const page = await getSpecPage(cfEnv, name);
+		if (!page) return notFound("页面不存在");
+		return json(page);
 	} catch (error) {
 		return serverError(error);
 	}
