@@ -37,7 +37,7 @@ pnpm dev       # http://localhost:4321
 
 **后台首次使用**：访问 `/admin/` 会提示尚无管理员，进入 `/admin/setup/` 创建首个管理员（密码以 bcrypt 存储于本地 D1）。
 
-> 说明：本地开发**不自动创建管理员**、也不内置演示数据。如需种子数据请查看 `migrations/`（`0004_social_data.sql`、`0009_site_links_extend.sql` 含部分种子）。
+> 说明：本地开发**不自动创建管理员**，亦无文章 / 动态等演示数据；友链与站点外链由 `migrations/0001_init.sql` 内置种子（3 条友链、14 条外链）。
 
 ### 质量检查
 
@@ -146,7 +146,7 @@ D1 数据库 `firedre-blog` 共 **14 张业务表**（迁移 SQL 位于 `migrati
 | album_photos | 相册照片表（`sort_order` 排序，级联删除） |
 | site_links | 站点外链（导航栏 / footer / 资料卡 / 打赏） |
 
-迁移历史：`0001_core_posts` → `0002_social` → `0003_system` → `0004_social_data`（种子）→ `0005_admin_users` → `0006_album_webdav` → `0007_albums` → `0008_site_links` → `0009_site_links_extend`（种子）→ `0010_cleanup`（清理废弃表）。
+迁移历史：原 11 个链式迁移（`0001_core_posts` → `0002_social` → `0003_system` → `0004_social_data` → `0005_admin_users` → `0006_album_webdav` → `0007_albums` → `0008_site_links` → `0009_site_links_extend` → `0010_cleanup` → `0011_admin_singleton`）已于 2026-09-16 合并为单个 `0001_init.sql` 基线，后续结构变更一律新增编号迁移文件。
 
 ---
 
