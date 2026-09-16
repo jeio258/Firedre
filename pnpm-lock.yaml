@@ -107,6 +107,9 @@ importers:
       rehype-autolink-headings:
         specifier: ^7.1.0
         version: 7.1.0
+      rehype-callouts:
+        specifier: ^2.2.0
+        version: 2.2.0
       rehype-code-group:
         specifier: ^0.3.1
         version: 0.3.1(typescript@6.0.3)
@@ -225,9 +228,6 @@ importers:
       postcss-nesting:
         specifier: ^14.0.1
         version: 14.0.1(postcss@8.5.26)
-      rehype-callouts:
-        specifier: ^2.2.0
-        version: 2.2.0
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@26.3.0)(@vitest/coverage-v8@4.1.11)(vite@8.2.2(@types/node@26.3.0)(esbuild@0.28.2)(jiti@2.7.0)(stylus@0.64.0(supports-color@10.2.2))(terser@5.50.0)(tsx@4.23.12)(yaml@2.9.0))
