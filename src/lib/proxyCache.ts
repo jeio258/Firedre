@@ -16,8 +16,8 @@ const CACHE_TTL_SEC = 300;
 // 单实例内尽力限流：per-IP 滑动窗口，超出返回 true（应拒绝）
 // 存于 globalThis：dev 下模块可能按请求重新求值，globalThis 跨请求保留状态
 const g = globalThis as unknown as { __proxyRateBuckets?: Map<string, { count: number; resetAt: number }> };
-const buckets: Map<string, { count: number; resetAt: number }> =
-	g.__proxyRateBuckets ?? (g.__proxyRateBuckets = new Map());
+g.__proxyRateBuckets ??= new Map();
+const buckets: Map<string, { count: number; resetAt: number }> = g.__proxyRateBuckets;
 
 export function proxyRateLimited(request: Request): boolean {
 	const ip = getRequestClientIp(request);
@@ -59,4 +59,28 @@ export async function proxyCachePut(url: URL, response: Response): Promise<void>
 	} catch {
 		// 缓存写入失败不影响主流程
 	}
+}
+
+// 代理路由共用前置守卫：限流命中返回 429，缓存命中回放响应，均未命中返回 null
+// proxyCacheGet 自身已在 DEV 短路，调用方无需再判断环境
+export async function proxyEarlyResponse(
+	request: Request,
+	url: URL,
+): Promise<Response | null> {
+	if (proxyRateLimited(request)) {
+		return new Response(
+			JSON.stringify({ error: "请求过于频繁，请稍后再试" }),
+			{
+				status: 429,
+				headers: { "Content-Type": "application/json" },
+			},
+		);
+	}
+
+	const cached = await proxyCacheGet(url);
+	if (!cached) return null;
+
+	const headers = new Headers(cached.headers);
+	headers.set("X-Firedre-Cache", "HIT");
+	return new Response(await cached.text(), { status: cached.status, headers });
 }

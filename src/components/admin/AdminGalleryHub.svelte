@@ -35,7 +35,7 @@
 	}
 
 	function create() {
-		window.location.href = `/admin/gallery/new/`;
+		window.location.href = "/admin/gallery/new/";
 	}
 
 	async function remove(slug: string) {
