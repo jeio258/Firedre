@@ -5,8 +5,6 @@ import { url } from "@/utils/url-utils";
 // 运行时评论配置（后台可编辑；静态 config 为兜底）
 const comment = getCommentConfig(Astro.locals);
 
-
-
 interface Props {
 	path: string;
 }
@@ -28,9 +26,8 @@ const config = {
 ---
 
 <div id="tcomment"></div>
-<script is:inline src={jsUrl} defer></script>
 {cssUrl && <link rel="stylesheet" href={cssUrl.startsWith("http") ? cssUrl : url(cssUrl)} />}
-<script is:inline define:vars={{ config }}>
+<script is:inline define:vars={{ config, jsUrl }}>
   // 获取当前页面路径
   function getCurrentPath() {
     // 仅接受站内相对路径作为评论线程标识，拒绝外部 scheme/控制字符注入
@@ -50,6 +47,42 @@ const config = {
       path: getCurrentPath(),
       el: "#tcomment",
     };
+  }
+
+  // 懒加载 Twikoo 脚本：评论区接近视口时才拉取（rootMargin 400px 预加载）
+  let twikooJsLoading = false;
+  function loadTwikooJs() {
+    if (twikooJsLoading || typeof twikoo !== "undefined") return;
+    twikooJsLoading = true;
+    const s = document.createElement("script");
+    s.src = jsUrl;
+    s.async = true;
+    s.onload = () => {
+      twikooJsLoading = false;
+      initTwikoo();
+    };
+    s.onerror = () => {
+      twikooJsLoading = false;
+    };
+    document.head.appendChild(s);
+  }
+
+  function observeComment() {
+    const el = document.getElementById("tcomment");
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      // 老浏览器兜底：空闲时加载
+      const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500));
+      idle(loadTwikooJs);
+      return;
+    }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        io.disconnect();
+        loadTwikooJs();
+      }
+    }, { rootMargin: "400px" });
+    io.observe(el);
   }
 
   // 初始化 Twikoo
@@ -72,24 +105,28 @@ const config = {
           });
       }
     } else {
-      // 如果 Twikoo 未加载，稍后重试
-      setTimeout(initTwikoo, 500);
+      // 脚本未就绪：触发懒加载，加载完成后由 onload 回调初始化
+      loadTwikooJs();
     }
   }
 
-  // 页面加载时初始化
-  document.addEventListener("DOMContentLoaded", initTwikoo);
+  // 页面加载时按需观察评论区
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", observeComment);
+  } else {
+    observeComment();
+  }
 
   // Swup 页面切换后重新初始化
   if (window.swup && window.swup.hooks) {
     window.swup.hooks.on("content:replace", function () {
-      setTimeout(initTwikoo, 200);
+      setTimeout(observeComment, 200);
     });
   } else {
     document.addEventListener("swup:enable", function () {
       if (window.swup && window.swup.hooks) {
         window.swup.hooks.on("content:replace", function () {
-          setTimeout(initTwikoo, 200);
+          setTimeout(observeComment, 200);
         });
       }
     });
@@ -99,7 +136,7 @@ const config = {
     const commentEl = document.getElementById("tcomment");
     if (commentEl) {
       console.log("[Twikoo] Re-initializing via custom event");
-      initTwikoo();
+      observeComment();
     }
   });
 </script>
