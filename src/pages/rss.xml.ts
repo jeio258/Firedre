@@ -1,8 +1,6 @@
 import rss, { type RSSFeedItem } from "@astrojs/rss";
-import { formatDateI18nWithTime } from "@utils/date-utils";
 import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
-import sanitizeHtml from "sanitize-html";
 import { siteConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
 import { getSettingsVersion } from "../../server/settings/service";
@@ -17,9 +15,7 @@ function stripInvalidXmlChars(str: string): string {
 }
 
 export async function GET(context: APIContext): Promise<Response> {
-	const { listPosts, getPostBySlug } = await import(
-		"../../server/posts/service"
-	);
+	const { listPosts } = await import("../../server/posts/service");
 	const { cfEnv } = await import("../lib/api");
 
 	const { posts } = await listPosts(cfEnv, { pageSize: 200 });
@@ -27,62 +23,16 @@ export async function GET(context: APIContext): Promise<Response> {
 	const siteUrl = getSiteConfig(context.locals).site_url;
 	const settingsVersion = await getSettingsVersion(cfEnv);
 
-	const items: RSSFeedItem[] = [];
-	for (const post of posts) {
-		const detail = await getPostBySlug(cfEnv, post.slug, {});
-		if (!detail) continue;
-
-		// 加密文章不在 RSS 中下发明文正文，仅输出标题与摘要，避免泄露正文全文
-		const isEncrypted = Boolean(detail.password);
-		const summary = detail.description || detail.excerpt || detail.title || "";
-		const description = isEncrypted
-			? stripInvalidXmlChars(summary)
-			: sanitizeHtml(detail.html || "", {
-					allowedTags: [
-						"a",
-						"p",
-						"br",
-						"b",
-						"strong",
-						"i",
-						"em",
-						"u",
-						"code",
-						"pre",
-						"ul",
-						"ol",
-						"li",
-						"blockquote",
-						"h1",
-						"h2",
-						"h3",
-						"h4",
-						"h5",
-						"h6",
-						"img",
-						"table",
-						"thead",
-						"tbody",
-						"tr",
-						"th",
-						"td",
-						"span",
-						"div",
-					],
-					allowedAttributes: {
-						a: ["href", "title"],
-						img: ["src", "alt", "title"],
-					},
-				});
-
-		items.push({
-			title: detail.title,
-			link: url(`/posts/${detail.slug}/`),
-			pubDate: new Date(detail.date || 0),
-			...(detail.updated ? { updatedDate: new Date(detail.updated) } : {}),
-			description: stripInvalidXmlChars(description),
-		});
-	}
+	// 仅用 D1 元数据 + 摘要：不读 R2、不渲染正文，避免 200 篇串行渲染
+	const items: RSSFeedItem[] = posts.map((post) => ({
+		title: stripInvalidXmlChars(post.title),
+		link: url(`/posts/${post.slug}/`),
+		pubDate: new Date(post.date || 0),
+		...(post.updated ? { updatedDate: new Date(post.updated) } : {}),
+		description: stripInvalidXmlChars(
+			post.description || post.excerpt || post.title || "",
+		),
+	}));
 
 	const resp = await rss({
 		title: siteConfig.title,
@@ -97,5 +47,3 @@ export async function GET(context: APIContext): Promise<Response> {
 	resp.headers.set("ETag", `"settings-${settingsVersion}"`);
 	return resp;
 }
-
-export { formatDateI18nWithTime };
