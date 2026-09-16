@@ -11,9 +11,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const { request } = context;
 	const url = new URL(request.url);
 
-	(globalThis as unknown as { __FIREFLY_ORIGIN__?: string }).__FIREFLY_ORIGIN__ =
-		url.origin;
-
 	// HTML 页面快路径：先查缓存，命中即返回，避免 seed/settings/version 串行 D1 查询
 	const isHtmlPage =
 		request.method === "GET" &&
