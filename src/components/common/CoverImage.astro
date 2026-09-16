@@ -29,6 +29,8 @@ interface Props {
 	apiUrls?: string[];
 	// 高度跟随图片本身宽高比（不裁上下，只裁两边），用于文章详情页封面
 	naturalHeight?: boolean;
+	// 首屏封面缩短淡入时长，降低 LCP 渲染延迟
+	fastFade?: boolean;
 }
 
 const {
@@ -44,6 +46,7 @@ const {
 	fetchpriority = "auto",
 	apiUrls = [],
 	naturalHeight = false,
+	fastFade = false,
 } = Astro.props;
 
 const configQuality = getImageQuality();
@@ -57,8 +60,9 @@ const isLocal = !(
 );
 const isPublic = src.startsWith("/");
 
-const imageClass =
-	"w-full h-full object-cover opacity-0 transition-opacity duration-500 ease-out";
+const imageClass = `w-full h-full object-cover opacity-0 transition-opacity ease-out ${
+		fastFade ? "duration-150" : "duration-500"
+	}`;
 const imageStyle = `object-position: ${position};`;
 
 // LQIP 渐变占位
@@ -81,6 +85,14 @@ const remoteReferrerPolicy =
 	!isLocal && shouldAddNoReferrer(isPublic ? url(src) : src)
 		? "no-referrer"
 		: undefined;
+
+// 远程 http(s) 封面走同源代理（按宽度缩放 + 边缘缓存），data:/站点相对路径保持原样
+// 项目 trailingSlash: "always"，路径带斜杠避免 301 跳转
+const remoteSrc = isPublic
+	? url(src)
+	: src.startsWith("http")
+		? url(`/api/cover-proxy/?u=${encodeURIComponent(src)}&w=${widths[0]}`)
+		: src;
 ---
 
 <div
@@ -130,7 +142,7 @@ const remoteReferrerPolicy =
 
 	{!isLocal && (
 		<img
-			src={isPublic ? url(src) : src}
+			src={remoteSrc}
 			alt={alt || ""}
 			class={imageClass}
 			style={imageStyle}
