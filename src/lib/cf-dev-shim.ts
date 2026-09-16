@@ -69,16 +69,6 @@ try {
 			console.log(`[cf-dev-shim] 已应用迁移 ${file}`);
 		}
 	}
-
-	// 清理统一 schema 前的废弃旧表
-	for (const t of [
-		"post_categories",
-		"post_tags",
-		"api_rate_limits",
-		"admin_login_attempts",
-	]) {
-		db.exec(`DROP TABLE IF EXISTS ${t}`);
-	}
 } catch (e) {
 	console.error("[cf-dev-shim] D1 初始化失败:", (e as Error).message);
 	db = null;

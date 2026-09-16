@@ -18,7 +18,7 @@ let env: { DB: unknown; BUCKET: unknown };
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
 	db.exec("PRAGMA foreign_keys = ON");
-	applyMigrations(db, ["0006_album_webdav.sql", "0007_albums.sql"]);
+	applyMigrations(db, ["0001_init.sql"]);
 	env = {
 		DB: makeD1(db),
 		BUCKET: makeR2({ "gallery/r2-album/index.md": R2_SOURCE }),

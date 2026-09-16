@@ -16,7 +16,7 @@ let env: { DB: D1Like };
 beforeAll(() => {
 	db = new DatabaseSync(":memory:");
 	db.exec("PRAGMA foreign_keys = ON");
-	applyMigrations(db, ["0008_site_links.sql", "0009_site_links_extend.sql"]);
+	applyMigrations(db, ["0001_init.sql"]);
 	env = { DB: makeD1(db) };
 });
 
