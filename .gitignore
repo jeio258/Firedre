@@ -64,6 +64,7 @@ tail.log
 coverage/
 docs/
 CODEBUDDY.md
+AI_CONTEXT.md
 
 # QA 截图产物（基线 JSON 入库，截图不入库）
 scripts/qa/screenshots/
