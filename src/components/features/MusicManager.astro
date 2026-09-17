@@ -333,6 +333,10 @@ window.__fireflyMusicConfig = managerConfigStr;
         if (!track.url && track.source && (track.id || track.name)) {
             currentTrackUrls = [];
             currentTrackUrlIndex = 0;
+            // 解析耗时可能较长，立即停掉旧曲播放（否则切歌期间上一首继续出声）
+            audio.pause();
+            audio.removeAttribute('src');
+            audio.load();
             resolveTrackUrl(track).then(function (resolved) {
                 if (ver !== loadVersion) return;
                 currentTrackUrls = [resolved.url];
