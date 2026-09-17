@@ -337,6 +337,8 @@ window.__fireflyMusicConfig = managerConfigStr;
                 if (ver !== loadVersion) return;
                 currentTrackUrls = [resolved.url];
                 currentTrackUrlIndex = 0;
+                // 解析可能顺带返回封面（QQ 专辑图），重新通知 UI 更新当前曲目显示
+                emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
                 tryPlayCurrentTrackUrl(autoPlay, ver);
             }).catch(function (e) {
                 if (ver !== loadVersion) return;

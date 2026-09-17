@@ -48,15 +48,27 @@ async function searchTxSongmid(
 		if (!res.ok) return null;
 		const data = (await res.json()) as {
 			data?: {
-				song?: { list?: Array<{ songmid?: string; albummid?: string }> };
+				song?: {
+					list?: Array<{
+						songmid?: string;
+						albummid?: string;
+						songname?: string;
+					}>;
+				};
 			};
 		};
-		const first = data?.data?.song?.list?.[0];
+		const list = data?.data?.song?.list ?? [];
+		const first = list[0];
 		if (!first?.songmid) return null;
-		const pic = first.albummid
-			? `https://y.gtimg.cn/music/photo_new/T002R500x500M000${first.albummid}.jpg`
+		// 优先精确匹配歌名（QQ 搜索可能返回同名不同版本或相关推荐，取错会导致歌不对）
+		const norm = (v: string | undefined) =>
+			(v ?? "").replace(/\s+/g, "").toLowerCase();
+		const exact = list.find((x) => norm(x.songname) === norm(name)) ?? first;
+		if (!exact?.songmid) return null;
+		const pic = exact.albummid
+			? `https://y.gtimg.cn/music/photo_new/T002R500x500M000${exact.albummid}.jpg`
 			: "";
-		return { songmid: first.songmid, pic };
+		return { songmid: exact.songmid, pic };
 	} catch {
 		return null;
 	}
