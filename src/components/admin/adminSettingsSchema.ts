@@ -694,15 +694,10 @@ export const GROUPS: Group[] = [
 		fields: [
 			{ name: "enabled", label: "启用打赏", type: "boolean" },
 			{ name: "title", label: "打赏标题", type: "text" },
-			{ name: "description", label: "打赏描述", type: "textarea" },
-			{ name: "usage", label: "打赏用途说明", type: "textarea" },
-			{ name: "showButtonInPost", label: "文章内打赏按钮", type: "boolean" },
-			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
 			{
 				name: "sponsors",
 				label: "打赏者列表",
 				type: "records",
-				wide: true,
 				recordFields: [
 					{ key: "name", label: "名称", required: true },
 					{ key: "avatar", label: "头像链接" },
@@ -712,6 +707,10 @@ export const GROUPS: Group[] = [
 				placeholder:
 					"每行一位，字段顺序：名称 | 头像链接 | 金额 | 日期\n如：夏叶 | https://…/avatar.png | ¥50 | 2025-10-01",
 			},
+			{ name: "description", label: "打赏描述", type: "textarea" },
+			{ name: "usage", label: "打赏用途说明", type: "textarea" },
+			{ name: "showButtonInPost", label: "文章内打赏按钮", type: "boolean" },
+			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
 		],
 	},
 	{
