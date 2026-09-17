@@ -13,6 +13,7 @@ import {
 	json,
 	methodNotAllowed,
 	unauthorized,
+	withAdmin,
 } from "../../../lib/api";
 
 export const prerender = false;
@@ -34,33 +35,26 @@ export const GET: APIRoute = async ({ params, request }) => {
 	}
 };
 
-export const POST: APIRoute = async ({ request }) => {
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
+export const POST: APIRoute = withAdmin(async ({ request }) => {
+	const body = (await request.json().catch(() => null)) as {
+		id?: string;
+		content?: string;
+		published?: number;
+		pinned?: boolean;
+		location?: string;
+	} | null;
+	if (!body || !String(body.content || "").trim())
+		return badRequest("动态内容不能为空");
 
-	try {
-		const body = (await request.json().catch(() => null)) as {
-			id?: string;
-			content?: string;
-			published?: number;
-			pinned?: boolean;
-			location?: string;
-		} | null;
-		if (!body || !String(body.content || "").trim())
-			return badRequest("动态内容不能为空");
-
-		const id = String(body.id || "").trim() || `dyn-${Date.now()}`;
-		const result = await upsertDynamic(cfEnv, id, {
-			content: String(body.content),
-			published: body.published ? Number(body.published) : Date.now(),
-			pinned: body.pinned === true,
-			location: String(body.location || ""),
-		});
-		return json({ ok: true, ...result });
-	} catch (error) {
-		return fromServiceError(error);
-	}
-};
+	const id = String(body.id || "").trim() || `dyn-${Date.now()}`;
+	const result = await upsertDynamic(cfEnv, id, {
+		content: String(body.content),
+		published: body.published ? Number(body.published) : Date.now(),
+		pinned: body.pinned === true,
+		location: String(body.location || ""),
+	});
+	return json({ ok: true, ...result });
+});
 
 export const DELETE: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);

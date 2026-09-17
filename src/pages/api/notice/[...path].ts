@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { getNotice, upsertNotice } from "../../../../server/notice/service";
 import {
 	badRequest,
@@ -7,7 +6,7 @@ import {
 	fromServiceError,
 	json,
 	methodNotAllowed,
-	unauthorized,
+	withAdmin,
 } from "../../../lib/api";
 
 export const prerender = false;
@@ -22,18 +21,11 @@ export const GET: APIRoute = async () => {
 	}
 };
 
-export const PUT: APIRoute = async ({ request }) => {
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
-
-	try {
-		const raw = await request.text();
-		if (!raw.trim()) return badRequest("内容不能为空");
-		const result = await upsertNotice(cfEnv, raw);
-		return json({ ok: true, ...result });
-	} catch (error) {
-		return fromServiceError(error);
-	}
-};
+export const PUT: APIRoute = withAdmin(async ({ request }) => {
+	const raw = await request.text();
+	if (!raw.trim()) return badRequest("内容不能为空");
+	const result = await upsertNotice(cfEnv, raw);
+	return json({ ok: true, ...result });
+});
 
 export const ALL: APIRoute = async () => methodNotAllowed();

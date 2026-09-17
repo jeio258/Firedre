@@ -1,4 +1,6 @@
 import { env } from "cloudflare:workers";
+import type { APIContext, APIRoute } from "astro";
+import { verifyAdminRequest } from "../../server/auth/adminSession";
 import { UserError } from "../../server/utils/userError";
 
 // biome-ignore lint/suspicious/noExplicitAny: cloudflare:workers env 由运行时注入，类型不静态可知
@@ -46,15 +48,26 @@ export function badRequest(message: string) {
 export { UserError };
 
 export function serverError(error: unknown) {
-
-	const message =
-		error instanceof UserError
-			? error.message
-			: "服务器错误";
+	const message = error instanceof UserError ? error.message : "服务器错误";
 	return json({ message }, 500);
 }
 
 export function fromServiceError(error: unknown) {
 	if (error instanceof UserError) return badRequest(error.message);
 	return serverError(error);
+}
+
+// 写路径通用样板：强制管理员鉴权 + 统一错误映射，消除各写路由重复的守卫与 try/catch 包裹
+export function withAdmin(
+	handler: (context: APIContext) => Promise<Response>,
+): APIRoute {
+	return async (context) => {
+		const isAdmin = await verifyAdminRequest(context.request, cfEnv);
+		if (!isAdmin) return unauthorized();
+		try {
+			return await handler(context);
+		} catch (error) {
+			return fromServiceError(error);
+		}
+	};
 }

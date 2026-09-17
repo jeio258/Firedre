@@ -18,6 +18,7 @@ import {
 	notFound,
 	serverError,
 	unauthorized,
+	withAdmin,
 } from "../../../lib/api";
 
 export const prerender = false;
@@ -56,20 +57,13 @@ export const GET: APIRoute = async ({ params, request }) => {
 	}
 };
 
-export const POST: APIRoute = async ({ request }) => {
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
-
-	try {
-		const body = await request.json().catch(() => null);
-		if (!body || typeof body !== "object") return badRequest("请求体无效");
-		const friend = await createFriend(cfEnv, body as never);
-		if (!friend) return serverError("创建友链失败");
-		return json({ ok: true, item: toView(friend) }, 200, "private");
-	} catch (error) {
-		return fromServiceError(error);
-	}
-};
+export const POST: APIRoute = withAdmin(async ({ request }) => {
+	const body = await request.json().catch(() => null);
+	if (!body || typeof body !== "object") return badRequest("请求体无效");
+	const friend = await createFriend(cfEnv, body as never);
+	if (!friend) return serverError("创建友链失败");
+	return json({ ok: true, item: toView(friend) }, 200, "private");
+});
 
 export const PUT: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
