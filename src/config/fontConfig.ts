@@ -52,12 +52,27 @@ export const fontsList: FontDefinition[] = [
 		},
 		fallbacks: ["sans-serif"],
 	},
+	{
+		// 方正筑紫A圆体B（子集化 woff2：GB2312 全集 + ASCII + 项目用字，6964 CJK）
+		name: "Fangzheng ZhuZi A Yuan B",
+		cssVariable: "--font-fangzheng-zizhu",
+		provider: "local",
+		display: "swap",
+		options: {
+			variants: [
+				{
+					src: ["./public/assets/fonts/FangzhengZhuZiA-YuanB.woff2"],
+				},
+			],
+		},
+		fallbacks: ["sans-serif"],
+	},
 ];
 
 export const fontConfig: FontSelectionConfig = {
 	enable: true,
 
-	selected: ["system"],
+	selected: ["--font-fangzheng-zizhu"],
 
 	bannerTitleFont: "--font-zen-maru-gothic",
 	bannerSubtitleFont: "--font-inter",
