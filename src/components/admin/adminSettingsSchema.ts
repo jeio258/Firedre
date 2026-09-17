@@ -799,7 +799,7 @@ export const GROUPS: Group[] = [
 				type: "text",
 				placeholder: "2024",
 			},
-			{ name: "customHtml", label: "自定义页脚 HTML", type: "textarea" },
+			{ name: "customHtml", label: "自定义页脚 HTML", type: "text" },
 		],
 	},
 	{
