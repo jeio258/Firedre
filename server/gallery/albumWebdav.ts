@@ -2,22 +2,22 @@ import type {
 	AlbumPhoto,
 	AlbumWebDavConfig,
 	AlbumWebDavRuntimeOptions,
-} from "../types/album";
+} from "../../types/album";
 import {
 	type AlbumAccessParams,
 	verifyAlbumAccess,
-} from "../utils/albumAuth";
-import { UserError } from "./utils/userError";
+} from "../../utils/albumAuth";
+import { UserError } from "../utils/userError";
 import {
 	detectMediaTypeFromMime,
 	detectMediaTypeFromUrl,
 	MEDIA_EXT,
-} from "../utils/albumMedia";
+} from "../../utils/albumMedia";
 import {
 	assertTargetInWebDavScope,
 	resolveWebDavConfig,
 } from "./albumWebdavEnv";
-import { ALBUM_PASSWORD_DECRYPT_FAILED } from "./gallery/password";
+import { ALBUM_PASSWORD_DECRYPT_FAILED } from "./password";
 
 export class AlbumAccessDeniedError extends UserError {}
 

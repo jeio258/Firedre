@@ -1,11 +1,11 @@
-import type { AlbumWebDavRuntimeOptions } from "../types/album";
-import type { CloudflareEnv } from "../types/env";
+import type { AlbumWebDavRuntimeOptions } from "../../types/album";
+import type { CloudflareEnv } from "../../types/env";
 import {
 	AlbumAccessDeniedError,
 	handleAlbumWebDavFile,
 	handleAlbumWebDavList,
 } from "./albumWebdav";
-import { withRateLimit } from "./utils/rateLimiter";
+import { withRateLimit } from "../utils/rateLimiter";
 
 function jsonResponse(data: unknown, status = 200) {
 	return new Response(JSON.stringify(data), {

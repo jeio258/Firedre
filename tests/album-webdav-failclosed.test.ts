@@ -1,7 +1,7 @@
 import { createServer, type Server } from "node:http";
 import { DatabaseSync } from "node:sqlite";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { handleAlbumWebdavHttp } from "../server/albumWebdavHttp";
+import { handleAlbumWebdavHttp } from "../server/gallery/albumWebdavHttp";
 import { upsertAlbumToD1 } from "../server/gallery/d1";
 import { setAlbumPassword } from "../server/gallery/password";
 import { setAlbumWebDavConfig } from "../server/gallery/webdavConfig";

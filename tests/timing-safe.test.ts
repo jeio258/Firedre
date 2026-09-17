@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { constantTimeEqual } from "../server/utils/timingSafe";
-import { assertTargetInWebDavScope } from "../server/albumWebdavEnv";
+import { assertTargetInWebDavScope } from "../server/gallery/albumWebdavEnv";
 import { verifyAlbumAccess } from "../utils/albumAuth";
 
 describe("constantTimeEqual", () => {
