@@ -28,10 +28,13 @@ try {
 	// ===== 1. 首页静态断言 =====
 	const resp = await page.goto(base + "/", { waitUntil: "domcontentloaded" });
 	const html = await resp.text();
-	check("P0-2 首页 wallpaper/avatar preload 不含 fetchpriority=high",
-		!/<link rel="preload" as="image" [^>]*fetchpriority="high"/.test(html));
-	check("P1-2 首卡封面淡入 duration-150", html.includes("duration-150"));
-	check("P1-2 其余卡片保留 duration-500", html.includes("duration-500"));
+	// P0-2 曾去掉 preload high，后经 archive 降分定位为副作用已回滚（a5f7405）：壁纸是首绘主体应保持高优先级
+	check("P0-2 已回滚：wallpaper/avatar preload 含 fetchpriority=high",
+		/<link rel="preload" as="image" [^>]*fetchpriority="high"/.test(html));
+	// P1-2 已升级为「封面默认可见」：img class 不再含 opacity-0（消除 JS 翻转的 LCP 渲染延迟）
+	const coverClass = await page.evaluate(() =>
+		document.querySelector("img[data-cover-img]")?.className || "");
+	check("P1-2 封面默认可见（class 无 opacity-0）", coverClass !== "" && !coverClass.includes("opacity-0"), coverClass.slice(0, 60));
 
 	// ===== 2. 首页封面走代理 =====
 	const proxiedImgs = await page.evaluate(() =>

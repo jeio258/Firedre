@@ -29,8 +29,6 @@ interface Props {
 	apiUrls?: string[];
 	// 高度跟随图片本身宽高比（不裁上下，只裁两边），用于文章详情页封面
 	naturalHeight?: boolean;
-	// 首屏封面缩短淡入时长，降低 LCP 渲染延迟
-	fastFade?: boolean;
 }
 
 const {
@@ -46,7 +44,6 @@ const {
 	fetchpriority = "auto",
 	apiUrls = [],
 	naturalHeight = false,
-	fastFade = false,
 } = Astro.props;
 
 const configQuality = getImageQuality();
@@ -60,9 +57,8 @@ const isLocal = !(
 );
 const isPublic = src.startsWith("/");
 
-const imageClass = `w-full h-full object-cover opacity-0 transition-opacity ease-out ${
-		fastFade ? "duration-150" : "duration-500"
-	}`;
+// 封面默认可见：图片渐进渲染 + LQIP 占位，加载完成后仅隐藏 spinner，不经 JS 翻转透明度（消除 LCP 渲染延迟）
+const imageClass = "w-full h-full object-cover";
 const imageStyle = `object-position: ${position};`;
 
 // LQIP 渐变占位
@@ -106,7 +102,7 @@ const remoteSrc = isPublic
 	<div class="lqip-placeholder absolute inset-0 pointer-events-none" style={lqipProps.style} aria-hidden="true"></div>
 
 	{showLoading && (
-		<div class="loading-spinner absolute inset-0 flex items-center justify-center z-10" style="background-color: var(--card-bg);">
+		<div class="loading-spinner absolute inset-0 flex items-center justify-center z-10">
 			<div class="spinner"></div>
 		</div>
 	)}
@@ -136,6 +132,7 @@ const remoteSrc = isPublic
 			sizes={sizes}
 			dataCoverImg={true}
 			showLqip={false}
+			fadeIn={false}
 			showOverlay={false}
 		/>
 	)}
@@ -245,6 +242,7 @@ const remoteSrc = isPublic
 
 			const hideLoading = () => {
 				container.setAttribute('data-loading', 'false');
+				// 默认已可见，此处幂等复位（供 API 重试路径从隐藏态恢复）
 				img.style.opacity = '1';
 				const placeholder = container.querySelector('.lqip-placeholder') as HTMLElement | null;
 				if (placeholder) placeholder.classList.add('loaded');
@@ -252,6 +250,7 @@ const remoteSrc = isPublic
 
 			const showError = () => {
 				container.setAttribute('data-loading', 'false');
+				img.style.opacity = '0';
 				container.setAttribute('data-error', 'true');
 			};
 
