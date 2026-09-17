@@ -12,6 +12,7 @@
   "include": [
     "server/**/*",
     "types/**/*",
+    "utils/**/*",
     "src/plugins/**/*",
     "src/config/**/*",
     "src/utils/image-utils.ts",
