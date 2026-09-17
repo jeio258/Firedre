@@ -549,7 +549,6 @@ export const GROUPS: Group[] = [
 				name: "randomCoverImage",
 				label: "随机封面图配置",
 				type: "records",
-				wide: true,
 				objectFields: [
 					{ key: "enable", label: "启用(true/false)", valueType: "boolean" },
 					{ key: "apis", label: "接口列表(逗号分隔)", valueType: "list" },
