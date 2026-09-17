@@ -15,7 +15,6 @@ export type {
 	DynamicConfig,
 	ExpressiveCodeConfig,
 	FooterConfig,
-	GalleryAlbum,
 	LicenseConfig,
 	MermaidConfig,
 	MusicPlayerConfig,
