@@ -105,7 +105,7 @@ function validateCells(
 	return "";
 }
 
-// 按字段声明把一行组装成对象
+// 按字段声明把一行组装成对象（“-”占位符视为空，避免被当作有效值）
 function cellsToRow(
 	fields: RecordFieldSpec[],
 	parts: string[],
@@ -113,7 +113,7 @@ function cellsToRow(
 	const row: Record<string, unknown> = {};
 	fields.forEach((f, k) => {
 		const val = parts[k] ?? "";
-		if (val) row[f.key] = textToCell(f, val);
+		if (val && val !== "-" && val !== "—") row[f.key] = textToCell(f, val);
 	});
 	return row;
 }

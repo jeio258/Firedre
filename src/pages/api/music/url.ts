@@ -28,25 +28,63 @@ const ID_PATTERN: Record<string, RegExp> = {
 
 const cachesRef = (globalThis as unknown as { caches?: CacheStorage }).caches;
 
+// QQ 音乐搜索：歌名+歌手 → songmid（id 缺失或格式不符时自动定位歌曲）
+async function searchTxSongmid(
+	name: string,
+	singer: string,
+): Promise<string | null> {
+	const q = encodeURIComponent(`${name} ${singer}`.trim());
+	try {
+		const res = await fetch(
+			`https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w=${q}&format=json`,
+			{
+				headers: {
+					"user-agent": "Mozilla/5.0",
+					referer: "https://y.qq.com/",
+				},
+			},
+		);
+		if (!res.ok) return null;
+		const data = (await res.json()) as {
+			data?: { song?: { list?: Array<{ songmid?: string }> } };
+		};
+		return data?.data?.song?.list?.[0]?.songmid ?? null;
+	} catch {
+		return null;
+	}
+}
+
 export const GET: APIRoute = async ({ url }) => {
 	const source = url.searchParams.get("source") ?? "";
-	const id = url.searchParams.get("id") ?? "";
+	let id = url.searchParams.get("id") ?? "";
 	const quality = url.searchParams.get("quality") ?? "128k";
 	const name = url.searchParams.get("name") ?? "";
 	const singer = url.searchParams.get("singer") ?? "";
 
 	if (!SOURCES.has(source)) return badRequest("不支持的平台");
-	if (!id) return badRequest("缺少歌曲 ID");
 	if (!QUALITYS.has(quality)) return badRequest("不支持的音质");
-	// 格式校验：不合格直接拒绝，避免音源逐后端重试耗尽 CPU 时间
-	if (!/^[A-Za-z0-9_-]+$/.test(id)) return badRequest("歌曲 ID 格式不合法");
+
+	// ID 校验：缺失或格式不符时，若有歌名则自动搜索歌曲 ID（避免音源空转耗尽 CPU）
+	// 注：tx 的纯数字 ID 大概率是 songid 而非 songmid，同样触发搜索纠正
 	const pattern = ID_PATTERN[source];
-	if (pattern && !pattern.test(id)) {
-		return badRequest(
-			source === "kg"
-				? "酷狗歌曲标识应为 32 位十六进制 FileHash"
-				: `歌曲 ID 格式不合法（${source}）`,
-		);
+	const idValid =
+		!!id &&
+		/^[A-Za-z0-9_-]+$/.test(id) &&
+		(!pattern || pattern.test(id)) &&
+		!(source === "tx" && /^\d+$/.test(id));
+	if (!idValid) {
+		if (source !== "tx" || !name) {
+			return badRequest(
+				id
+					? "歌曲 ID 格式不合法（也可提供歌名与歌手以自动搜索）"
+					: "缺少歌曲 ID（或提供歌名与歌手以自动搜索）",
+			);
+		}
+		const found = await searchTxSongmid(name, singer);
+		if (!found) {
+			return badRequest(`未搜索到「${name} ${singer}」，请检查歌名与歌手`);
+		}
+		id = found;
 	}
 
 	// 仅缓存成功结果；播放链接有时效，TTL 保持短
