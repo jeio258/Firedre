@@ -1,3 +1,5 @@
+import { fontsList } from "@/config/fontConfig";
+
 export type FieldType =
 	| "text"
 	| "number"
@@ -59,6 +61,12 @@ export const CATEGORIES = [
 	"扩展功能",
 ] as const;
 
+// 字体下拉选项：空值表示继承（不单独设置）
+const FONT_OPTIONS: SelectOption[] = [
+	{ label: "默认（继承正文字体）", value: "" },
+	...fontsList.map((f) => ({ label: f.name, value: f.cssVariable })),
+];
+
 export const GROUPS: Group[] = [
 	{
 		key: "basic",
@@ -96,8 +104,12 @@ export const GROUPS: Group[] = [
 			{
 				name: "defaultMode",
 				label: "默认主题模式",
-				type: "text",
-				placeholder: "system / light / dark",
+				type: "select",
+				options: [
+					{ label: "跟随系统", value: "system" },
+					{ label: "浅色", value: "light" },
+					{ label: "深色", value: "dark" },
+				],
 			},
 			{
 				name: "pageWidth",
@@ -109,14 +121,21 @@ export const GROUPS: Group[] = [
 			{
 				name: "categoryStyle",
 				label: "分类样式",
-				type: "text",
-				placeholder: "rectangle / pill / none",
+				type: "select",
+				options: [
+					{ label: "矩形", value: "rectangle" },
+					{ label: "胶囊", value: "pill" },
+				],
 			},
 			{
 				name: "tagStyle",
 				label: "标签样式",
-				type: "text",
-				placeholder: "pill / rectangle / none",
+				type: "select",
+				options: [
+					{ label: "胶囊", value: "pill" },
+					{ label: "灰色胶囊", value: "pill-gray" },
+					{ label: "矩形", value: "rectangle" },
+				],
 			},
 			{ name: "pageFriends", label: "页面开关：友链", type: "boolean" },
 			{ name: "pageGuestbook", label: "页面开关：留言板", type: "boolean" },
@@ -240,8 +259,13 @@ export const GROUPS: Group[] = [
 			{
 				name: "mode",
 				label: "壁纸模式",
-				type: "text",
-				placeholder: "banner / fullscreen / overlay / none",
+				type: "select",
+				options: [
+					{ label: "横幅", value: "banner" },
+					{ label: "全屏", value: "fullscreen" },
+					{ label: "叠加", value: "overlay" },
+					{ label: "无", value: "none" },
+				],
 			},
 			{ name: "playerUrl", label: "背景视频播放地址 (mp4)", type: "text" },
 			{
@@ -269,8 +293,11 @@ export const GROUPS: Group[] = [
 			{
 				name: "playerMode",
 				label: "多视频播放模式",
-				type: "text",
-				placeholder: "order / random",
+				type: "select",
+				options: [
+					{ label: "顺序", value: "order" },
+					{ label: "随机", value: "random" },
+				],
 			},
 			{ name: "homeTextEnable", label: "主页横幅文字", type: "boolean" },
 			{ name: "homeTitle", label: "主页横幅主标题", type: "text" },
@@ -327,8 +354,13 @@ export const GROUPS: Group[] = [
 			{
 				name: "carouselTransition",
 				label: "轮播过渡效果",
-				type: "text",
-				placeholder: "zoom / fade / …",
+				type: "select",
+				options: [
+					{ label: "缩放", value: "zoom" },
+					{ label: "淡入淡出", value: "fade" },
+					{ label: "滑动", value: "slide" },
+					{ label: "缓慢缩放", value: "kenburns" },
+				],
 			},
 			{
 				name: "overlayOpacity",
@@ -381,10 +413,30 @@ export const GROUPS: Group[] = [
 				hint: "默认 100",
 			},
 			{ name: "enable", label: "启用自定义字体", type: "boolean" },
-			{ name: "bannerTitleFont", label: "横幅标题字体", type: "text" },
-			{ name: "bannerSubtitleFont", label: "横幅副标题字体", type: "text" },
-			{ name: "navbarTitleFont", label: "导航栏标题字体", type: "text" },
-			{ name: "codeFont", label: "代码字体", type: "text" },
+			{
+				name: "bannerTitleFont",
+				label: "横幅标题字体",
+				type: "select",
+				options: FONT_OPTIONS,
+			},
+			{
+				name: "bannerSubtitleFont",
+				label: "横幅副标题字体",
+				type: "select",
+				options: FONT_OPTIONS,
+			},
+			{
+				name: "navbarTitleFont",
+				label: "导航栏标题字体",
+				type: "select",
+				options: FONT_OPTIONS,
+			},
+			{
+				name: "codeFont",
+				label: "代码字体",
+				type: "select",
+				options: FONT_OPTIONS,
+			},
 		],
 	},
 	{
@@ -518,8 +570,11 @@ export const GROUPS: Group[] = [
 			{
 				name: "mode",
 				label: "使用方式",
-				type: "text",
-				placeholder: "meting（在线平台）/ local（本地音乐）",
+				type: "select",
+				options: [
+					{ label: "本地音乐（用下方音乐列表）", value: "local" },
+					{ label: "在线平台（Meting API）", value: "meting" },
+				],
 			},
 			{
 				name: "volume",
@@ -530,8 +585,12 @@ export const GROUPS: Group[] = [
 			{
 				name: "playMode",
 				label: "播放模式",
-				type: "text",
-				placeholder: "list / one / random",
+				type: "select",
+				options: [
+					{ label: "列表循环", value: "list" },
+					{ label: "单曲循环", value: "one" },
+					{ label: "随机播放", value: "random" },
+				],
 			},
 			{ name: "showLyrics", label: "启用歌词显示", type: "boolean" },
 			{ name: "autoplay", label: "自动播放", type: "boolean" },
@@ -539,14 +598,26 @@ export const GROUPS: Group[] = [
 			{
 				name: "metingServer",
 				label: "音乐平台",
-				type: "text",
-				placeholder: "netease / tencent / kugou / xiami / baidu",
+				type: "select",
+				options: [
+					{ label: "网易云", value: "netease" },
+					{ label: "QQ音乐", value: "tencent" },
+					{ label: "酷狗", value: "kugou" },
+					{ label: "虾米", value: "xiami" },
+					{ label: "百度", value: "baidu" },
+				],
 			},
 			{
 				name: "metingType",
 				label: "Meting 类型",
-				type: "text",
-				placeholder: "song / playlist / album / search / artist",
+				type: "select",
+				options: [
+					{ label: "单曲", value: "song" },
+					{ label: "歌单", value: "playlist" },
+					{ label: "专辑", value: "album" },
+					{ label: "搜索", value: "search" },
+					{ label: "歌手", value: "artist" },
+				],
 			},
 			{ name: "metingId", label: "歌单/专辑/单曲 ID", type: "text" },
 			{ name: "metingAuth", label: "Meting 认证 token", type: "text" },
@@ -789,15 +860,21 @@ export const GROUPS: Group[] = [
 			{
 				name: "type",
 				label: "模型类型",
-				type: "text",
-				placeholder: "live2d / spine",
+				type: "select",
+				options: [
+					{ label: "Live2D", value: "live2d" },
+					{ label: "Spine", value: "spine" },
+				],
 			},
 			{ name: "model", label: "模型 ID / 路径", type: "text" },
 			{
 				name: "position",
 				label: "位置",
-				type: "text",
-				placeholder: "bottom-left / bottom-right",
+				type: "select",
+				options: [
+					{ label: "左下角", value: "bottom-left" },
+					{ label: "右下角", value: "bottom-right" },
+				],
 			},
 			{ name: "size", label: "尺寸", type: "number" },
 			{
