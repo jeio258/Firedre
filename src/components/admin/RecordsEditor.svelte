@@ -6,6 +6,9 @@ interface Props {
 	value?: unknown;
 	recordFields?: RecordFieldSpec[];
 	objectFields?: RecordFieldSpec[];
+	groupFields?: RecordFieldSpec[];
+	itemFields?: RecordFieldSpec[];
+	indent?: string;
 	separator?: string;
 	fieldLabel?: string;
 	placeholder?: string;
@@ -15,25 +18,34 @@ let {
 	value = "",
 	recordFields = [],
 	objectFields = [],
+	groupFields = [],
+	itemFields = [],
+	indent = "  ",
 	separator = "|",
 	fieldLabel = "",
 	placeholder = "",
 	onChange = () => {},
 }: Props = $props();
 
-// 对象模式：值为单个对象，单行呈现；否则为数组模式（每行一条记录）
-const isObject = $derived(objectFields.length > 0);
+// 三种模式互斥：对象（单行）/ 两级嵌套（缩进）/ 记录数组（每行一条）
+const isNested = $derived(groupFields.length > 0 && itemFields.length > 0);
+const isObject = $derived(!isNested && objectFields.length > 0);
 const activeFields = $derived(isObject ? objectFields : recordFields);
 // recordFields 仅一项且 key 为空时，按「纯字符串列表」处理（每行一条）
 const isPlain = $derived(
-	!isObject && recordFields.length === 1 && recordFields[0]?.key === "",
+	!isObject &&
+		!isNested &&
+		recordFields.length === 1 &&
+		recordFields[0]?.key === "",
 );
 const orderHint = $derived(
-	isObject
-		? `单行填写，字段顺序：${objectFields.map((f) => f.label).join(` ${separator} `)}`
-		: isPlain
-			? "每行一条"
-			: recordFields.map((f) => f.label).join(` ${separator} `),
+	isNested
+		? `分组行（顶格）：${groupFields.map((f) => f.label).join(` ${separator} `)}\n子项行（缩进 ${indent.length} 空格）：${itemFields.map((f) => f.label).join(` ${separator} `)}`
+		: isObject
+			? `单行填写，字段顺序：${objectFields.map((f) => f.label).join(` ${separator} `)}`
+			: isPlain
+				? "每行一条"
+				: recordFields.map((f) => f.label).join(` ${separator} `),
 );
 
 let open = $state(false);
@@ -129,6 +141,26 @@ function toText(v: unknown): string {
 				.map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
 				.join("\n");
 		}
+		if (isNested) {
+			return parsed
+				.map((g) => {
+					const head = groupFields
+						.map((f) => cellToText(f, (g as Record<string, unknown>)?.[f.key]))
+						.join(` ${separator} `);
+					const items = Array.isArray((g as { items?: unknown[] }).items)
+						? ((g as { items: unknown[] }).items as Record<string, unknown>[])
+						: [];
+					const childLines = items.map(
+						(it) =>
+							indent +
+							itemFields
+								.map((f) => cellToText(f, it?.[f.key]))
+								.join(` ${separator} `),
+					);
+					return [head, ...childLines].join("\n");
+				})
+				.join("\n");
+		}
 		return parsed
 			.map((row) =>
 				recordFields
@@ -152,6 +184,37 @@ function parse(
 		const err = validateCells(objectFields, parts, "");
 		if (err) return { ok: false, error: err };
 		return { ok: true, json: JSON.stringify(cellsToRow(objectFields, parts)) };
+	}
+	if (isNested) {
+		// 顶格行 = 分组，缩进行 = 该分组的子项
+		const groups: Record<string, unknown>[] = [];
+		let current: (Record<string, unknown> & { items: unknown[] }) | null = null;
+		const rawLines = t.split("\n");
+		for (let i = 0; i < rawLines.length; i++) {
+			const raw = rawLines[i];
+			if (!raw.trim()) continue;
+			const line = raw.trim();
+			const isChild = /^\s/.test(raw);
+			if (isChild) {
+				if (!current) {
+					return {
+						ok: false,
+						error: `第 ${i + 1} 行是子项，但其上方没有分组行`,
+					};
+				}
+				const parts = splitCells(line);
+				const err = validateCells(itemFields, parts, `第 ${i + 1} 行`);
+				if (err) return { ok: false, error: err };
+				current.items.push(cellsToRow(itemFields, parts));
+			} else {
+				const parts = splitCells(line);
+				const err = validateCells(groupFields, parts, `第 ${i + 1} 行`);
+				if (err) return { ok: false, error: err };
+				current = { ...cellsToRow(groupFields, parts), items: [] };
+				groups.push(current);
+			}
+		}
+		return { ok: true, json: JSON.stringify(groups) };
 	}
 	const lines = t
 		.split("\n")
@@ -213,6 +276,17 @@ let preview = $derived.by(() => {
 			return line.length > 40 ? `${line.slice(0, 40)}…` : line;
 		}
 		if (!Array.isArray(parsed) || parsed.length === 0) return "（空）点击编辑";
+		if (isNested) {
+			const g0 = parsed[0] as Record<string, unknown>;
+			const name = groupFields
+				.map((f) => cellToText(f, g0?.[f.key]))
+				.filter(Boolean)
+				.join(" ");
+			const childCount = Array.isArray(g0?.items)
+				? (g0.items as unknown[]).length
+				: 0;
+			return `${parsed.length} 组：${name}（含 ${childCount} 项）`;
+		}
 		const first = isPlain
 			? String(parsed[0])
 			: recordFields

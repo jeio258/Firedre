@@ -36,6 +36,12 @@ export interface Field {
 	recordFields?: RecordFieldSpec[];
 	/** type="records" 且值为单个对象时的字段声明（单行呈现，字段用 separator 分隔） */
 	objectFields?: RecordFieldSpec[];
+	/** type="records" 且值为「分组含子项」的两级结构：父级字段 */
+	groupFields?: RecordFieldSpec[];
+	/** type="records" 两级结构的子项字段（缩进行） */
+	itemFields?: RecordFieldSpec[];
+	/** 两级结构子项的缩进前缀，默认两个空格 */
+	indent?: string;
 	/** type="records" 时的行内分隔符，默认 "|" */
 	separator?: string;
 }
@@ -674,11 +680,27 @@ export const GROUPS: Group[] = [
 			{ name: "description", label: "页面描述", type: "textarea" },
 			{
 				name: "groups",
-				label: "书签分组与条目（JSON 数组）",
-				type: "json",
+				label: "书签分组与条目",
+				type: "records",
 				wide: true,
+				groupFields: [
+					{ key: "name", label: "分组名", required: true },
+					{ key: "icon", label: "分组图标" },
+					{ key: "desc", label: "分组描述" },
+					{ key: "weight", label: "权重", valueType: "number" },
+					{ key: "enabled", label: "启用(true/false)", valueType: "boolean" },
+					{ key: "id", label: "分组ID" },
+				],
+				itemFields: [
+					{ key: "title", label: "标题", required: true },
+					{ key: "url", label: "链接", required: true },
+					{ key: "desc", label: "描述" },
+					{ key: "icon", label: "图标" },
+					{ key: "weight", label: "权重", valueType: "number" },
+					{ key: "enabled", label: "启用(true/false)", valueType: "boolean" },
+				],
 				placeholder:
-					'[{"id":"dev","name":"开发","icon":"material-symbols:code-rounded","desc":"","weight":100,"items":[{"title":"GitHub","url":"https://github.com","desc":"","icon":"","weight":10}]}]',
+					"分组行（顶格）：分组名 | 分组图标 | 分组描述 | 权重 | 启用(true/false) | 分组ID\n子项行（行首缩进两空格）：标题 | 链接 | 描述 | 图标 | 权重 | 启用(true/false)",
 			},
 			{
 				name: "favicon",
