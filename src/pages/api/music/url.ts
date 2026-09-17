@@ -19,6 +19,13 @@ const ID_FIELD: Record<string, string> = {
 	mg: "copyrightId",
 };
 
+// 各平台 ID 格式（避免无效输入让音源空转重试至 CPU 超限）
+const ID_PATTERN: Record<string, RegExp> = {
+	kg: /^[A-Fa-f0-9]{32}$/, // 酷狗 FileHash
+	tx: /^[A-Za-z0-9]+$/, // QQ 音乐 songmid
+	wy: /^\d+$/, // 网易云歌曲 ID
+};
+
 const cachesRef = (globalThis as unknown as { caches?: CacheStorage }).caches;
 
 export const GET: APIRoute = async ({ url }) => {
@@ -31,6 +38,16 @@ export const GET: APIRoute = async ({ url }) => {
 	if (!SOURCES.has(source)) return badRequest("不支持的平台");
 	if (!id) return badRequest("缺少歌曲 ID");
 	if (!QUALITYS.has(quality)) return badRequest("不支持的音质");
+	// 格式校验：不合格直接拒绝，避免音源逐后端重试耗尽 CPU 时间
+	if (!/^[A-Za-z0-9_-]+$/.test(id)) return badRequest("歌曲 ID 格式不合法");
+	const pattern = ID_PATTERN[source];
+	if (pattern && !pattern.test(id)) {
+		return badRequest(
+			source === "kg"
+				? "酷狗歌曲标识应为 32 位十六进制 FileHash"
+				: `歌曲 ID 格式不合法（${source}）`,
+		);
+	}
 
 	// 仅缓存成功结果；播放链接有时效，TTL 保持短
 	const cacheKey = new Request(url.toString(), { method: "GET" });
