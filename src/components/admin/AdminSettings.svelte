@@ -237,6 +237,7 @@ onMount(async () => {
 											<RecordsEditor
 												value={data[group.key]?.[field.name]}
 												recordFields={field.recordFields ?? []}
+												objectFields={field.objectFields ?? []}
 												separator={field.separator ?? "|"}
 												fieldLabel={field.label}
 												placeholder={field.placeholder ?? ""}

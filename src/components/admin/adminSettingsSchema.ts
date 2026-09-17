@@ -18,8 +18,8 @@ export interface RecordFieldSpec {
 	required?: boolean;
 	/** 允许值；填写后按枚举校验 */
 	options?: string[];
-	/** 行内文本与存储值的类型转换，默认 string */
-	valueType?: "string" | "boolean" | "number";
+	/** 行内文本与存储值的类型转换，默认 string；list 表示逗号分隔的字符串数组 */
+	valueType?: "string" | "boolean" | "number" | "list";
 }
 export interface Field {
 	name: string;
@@ -32,8 +32,10 @@ export interface Field {
 	options?: SelectOption[];
 	// 仅当所属评论类型为指定值时显示（用于评论系统按类型动态显隐）
 	cmt?: string;
-	/** type="records" 时的记录字段声明 */
+	/** type="records" 且值为数组时的记录字段声明 */
 	recordFields?: RecordFieldSpec[];
+	/** type="records" 且值为单个对象时的字段声明（单行呈现，字段用 separator 分隔） */
+	objectFields?: RecordFieldSpec[];
 	/** type="records" 时的行内分隔符，默认 "|" */
 	separator?: string;
 }
@@ -487,10 +489,15 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "randomCoverImage",
-				label: "随机封面图配置（JSON）",
-				type: "json",
+				label: "随机封面图配置",
+				type: "records",
 				wide: true,
-				placeholder: '{"enable":false,"apis":["https://t.alcy.cc/pc"]}',
+				objectFields: [
+					{ key: "enable", label: "启用(true/false)", valueType: "boolean" },
+					{ key: "apis", label: "接口列表(逗号分隔)", valueType: "list" },
+				],
+				placeholder:
+					"单行填写，字段顺序：启用(true/false) | 接口列表(逗号分隔)\n如：false | https://t.alcy.cc/pc,https://www.dmoe.cc/random.php",
 			},
 		],
 	},
@@ -675,9 +682,14 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "favicon",
-				label: "Favicon 自动获取配置（JSON）",
-				type: "json",
-				placeholder: '{"enabled":true,"api":"https://a.favicon.im/{domain}"}',
+				label: "Favicon 自动获取配置",
+				type: "records",
+				objectFields: [
+					{ key: "enabled", label: "启用(true/false)", valueType: "boolean" },
+					{ key: "api", label: "接口地址" },
+				],
+				placeholder:
+					"单行填写，字段顺序：启用(true/false) | 接口地址\n如：true | https://a.favicon.im/{domain}",
 			},
 		],
 	},

@@ -5,6 +5,7 @@ import type { RecordFieldSpec } from "./adminSettingsSchema";
 interface Props {
 	value?: unknown;
 	recordFields?: RecordFieldSpec[];
+	objectFields?: RecordFieldSpec[];
 	separator?: string;
 	fieldLabel?: string;
 	placeholder?: string;
@@ -13,20 +14,26 @@ interface Props {
 let {
 	value = "",
 	recordFields = [],
+	objectFields = [],
 	separator = "|",
 	fieldLabel = "",
 	placeholder = "",
 	onChange = () => {},
 }: Props = $props();
 
+// 对象模式：值为单个对象，单行呈现；否则为数组模式（每行一条记录）
+const isObject = $derived(objectFields.length > 0);
+const activeFields = $derived(isObject ? objectFields : recordFields);
 // recordFields 仅一项且 key 为空时，按「纯字符串列表」处理（每行一条）
 const isPlain = $derived(
-	recordFields.length === 1 && recordFields[0]?.key === "",
+	!isObject && recordFields.length === 1 && recordFields[0]?.key === "",
 );
 const orderHint = $derived(
-	isPlain
-		? "每行一条"
-		: recordFields.map((f) => f.label).join(` ${separator} `),
+	isObject
+		? `单行填写，字段顺序：${objectFields.map((f) => f.label).join(` ${separator} `)}`
+		: isPlain
+			? "每行一条"
+			: recordFields.map((f) => f.label).join(` ${separator} `),
 );
 
 let open = $state(false);
@@ -40,6 +47,9 @@ function cellToText(f: RecordFieldSpec, v: unknown): string {
 	if (f.valueType === "boolean") {
 		return v === true || v === "true" ? "true" : "false";
 	}
+	if (f.valueType === "list") {
+		return Array.isArray(v) ? v.join(",") : String(v);
+	}
 	return String(v);
 }
 
@@ -52,21 +62,74 @@ function textToCell(f: RecordFieldSpec, raw: string): unknown {
 		const n = Number(raw);
 		return Number.isNaN(n) ? raw : n;
 	}
+	if (f.valueType === "list") {
+		return raw
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+	}
 	return raw;
+}
+
+// 把一行文本拆成字段值（对象模式下用于单行）
+function splitCells(line: string): string[] {
+	return line.split(separator).map((p) => p.trim());
+}
+
+// 字段级校验，返回错误信息（无错返回 ""）
+function validateCells(
+	fields: RecordFieldSpec[],
+	parts: string[],
+	rowLabel: string,
+): string {
+	for (let k = 0; k < fields.length; k++) {
+		const f = fields[k];
+		const val = parts[k] ?? "";
+		if (f.required && !val) return `${rowLabel}缺少「${f.label}」`;
+		if (f.options && val && !f.options.includes(val)) {
+			return `${rowLabel}「${f.label}」只能是 ${f.options.join(" / ")}`;
+		}
+	}
+	return "";
+}
+
+// 按字段声明把一行组装成对象
+function cellsToRow(
+	fields: RecordFieldSpec[],
+	parts: string[],
+): Record<string, unknown> {
+	const row: Record<string, unknown> = {};
+	fields.forEach((f, k) => {
+		const val = parts[k] ?? "";
+		if (val) row[f.key] = textToCell(f, val);
+	});
+	return row;
 }
 
 // JSON 字符串 → 行文本（结构对使用者不可见）
 function toText(v: unknown): string {
 	if (v == null || v === "") return "";
 	try {
-		const arr = typeof v === "string" ? JSON.parse(v) : v;
-		if (!Array.isArray(arr)) return String(v);
+		const parsed = typeof v === "string" ? JSON.parse(v) : v;
+		if (isObject) {
+			if (
+				parsed == null ||
+				typeof parsed !== "object" ||
+				Array.isArray(parsed)
+			) {
+				return String(v);
+			}
+			return objectFields
+				.map((f) => cellToText(f, (parsed as Record<string, unknown>)[f.key]))
+				.join(` ${separator} `);
+		}
+		if (!Array.isArray(parsed)) return String(v);
 		if (isPlain) {
-			return arr
+			return parsed
 				.map((x) => (typeof x === "string" ? x : JSON.stringify(x)))
 				.join("\n");
 		}
-		return arr
+		return parsed
 			.map((row) =>
 				recordFields
 					.map((f) => cellToText(f, (row as Record<string, unknown>)?.[f.key]))
@@ -82,6 +145,14 @@ function toText(v: unknown): string {
 function parse(
 	t: string,
 ): { ok: true; json: string } | { ok: false; error: string } {
+	if (isObject) {
+		const line = t.split("\n")[0]?.trim() ?? "";
+		if (!line) return { ok: true, json: "{}" };
+		const parts = splitCells(line);
+		const err = validateCells(objectFields, parts, "");
+		if (err) return { ok: false, error: err };
+		return { ok: true, json: JSON.stringify(cellsToRow(objectFields, parts)) };
+	}
 	const lines = t
 		.split("\n")
 		.map((l) => l.trim())
@@ -89,26 +160,10 @@ function parse(
 	if (isPlain) return { ok: true, json: JSON.stringify(lines) };
 	const rows: Record<string, unknown>[] = [];
 	for (let i = 0; i < lines.length; i++) {
-		const parts = lines[i].split(separator).map((p) => p.trim());
-		for (let k = 0; k < recordFields.length; k++) {
-			const f = recordFields[k];
-			const val = parts[k] ?? "";
-			if (f.required && !val) {
-				return { ok: false, error: `第 ${i + 1} 行缺少「${f.label}」` };
-			}
-			if (f.options && val && !f.options.includes(val)) {
-				return {
-					ok: false,
-					error: `第 ${i + 1} 行「${f.label}」只能是 ${f.options.join(" / ")}`,
-				};
-			}
-		}
-		const row: Record<string, unknown> = {};
-		recordFields.forEach((f, k) => {
-			const val = parts[k] ?? "";
-			if (val) row[f.key] = textToCell(f, val);
-		});
-		rows.push(row);
+		const parts = splitCells(lines[i]);
+		const err = validateCells(activeFields, parts, `第 ${i + 1} 行`);
+		if (err) return { ok: false, error: err };
+		rows.push(cellsToRow(activeFields, parts));
 	}
 	return { ok: true, json: JSON.stringify(rows) };
 }
@@ -135,22 +190,36 @@ function save() {
 		error = r.error;
 		return;
 	}
-	onChange(r.json === "[]" ? "" : r.json);
+	onChange(r.json === "[]" || r.json === "{}" ? "" : r.json);
 	open = false;
 }
 
 let preview = $derived.by(() => {
 	if (value == null || value === "") return "（空）点击编辑";
 	try {
-		const arr = typeof value === "string" ? JSON.parse(value) : value;
-		if (!Array.isArray(arr) || arr.length === 0) return "（空）点击编辑";
+		const parsed = typeof value === "string" ? JSON.parse(value) : value;
+		if (isObject) {
+			if (
+				parsed == null ||
+				typeof parsed !== "object" ||
+				Array.isArray(parsed)
+			) {
+				return "（格式异常）点击编辑";
+			}
+			const line = objectFields
+				.map((f) => cellToText(f, (parsed as Record<string, unknown>)[f.key]))
+				.filter(Boolean)
+				.join(" ");
+			return line.length > 40 ? `${line.slice(0, 40)}…` : line;
+		}
+		if (!Array.isArray(parsed) || parsed.length === 0) return "（空）点击编辑";
 		const first = isPlain
-			? String(arr[0])
+			? String(parsed[0])
 			: recordFields
-					.map((f) => cellToText(f, arr[0]?.[f.key]))
+					.map((f) => cellToText(f, parsed[0]?.[f.key]))
 					.filter(Boolean)
 					.join(" ");
-		return `${arr.length} 条：${first.length > 28 ? `${first.slice(0, 28)}…` : first}`;
+		return `${parsed.length} 条：${first.length > 28 ? `${first.slice(0, 28)}…` : first}`;
 	} catch {
 		return "（格式异常）点击编辑";
 	}
