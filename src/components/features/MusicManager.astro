@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { musicPlayerConfig } from "@/config/musicConfig";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -61,6 +62,9 @@ const localPlaylist =
 					url?: string;
 					cover?: string;
 					lrc?: string;
+					source?: string;
+					id?: string;
+					quality?: string;
 				};
 				const isFullUrl = (path: string) => /^https?:\/\//.test(path);
 				const songUrl = song.url || "";
@@ -69,7 +73,11 @@ const localPlaylist =
 				return {
 					name: song.name || "",
 					artist: song.artist || "",
-					url: isFullUrl(songUrl) ? songUrl : url(songUrl),
+					url: songUrl
+						? isFullUrl(songUrl)
+							? songUrl
+							: url(songUrl)
+						: undefined,
 					pic: songCover
 						? isFullUrl(songCover)
 							? songCover
@@ -80,6 +88,9 @@ const localPlaylist =
 							? songLrc
 							: url(songLrc)
 						: undefined,
+					source: song.source || undefined,
+					id: song.id || undefined,
+					quality: song.quality || undefined,
 				};
 			})
 		: [];
@@ -154,7 +165,7 @@ window.__fireflyMusicConfig = managerConfigStr;
     }
 
     var audio = document.createElement('audio');
-    audio.crossOrigin = 'anonymous';
+    // 不设置 crossOrigin：音源 CDN（如酷我）不返回 CORS 头，设置后会因跨域校验导致播放失败
     audio.style.display = 'none';
     audio.preload = 'none'; // 阻止浏览器预加载和自动恢复播放
     document.body.appendChild(audio);
@@ -282,6 +293,23 @@ window.__fireflyMusicConfig = managerConfigStr;
         }
     }
 
+    // 音源解析：无直链时按 source+id 调 /api/music/url/ 取播放地址（链接带时效，每次播放实时解析）
+    async function resolveTrackUrl(track) {
+        if (track.url) return track.url;
+        if (!track.source || !track.id) return '';
+        var q = '?source=' + encodeURIComponent(track.source)
+            + '&id=' + encodeURIComponent(track.id)
+            + '&quality=' + encodeURIComponent(track.quality || '128k');
+        if (track.name) q += '&name=' + encodeURIComponent(track.name);
+        if (track.artist) q += '&singer=' + encodeURIComponent(track.artist);
+        var r = await fetch('/api/music/url/' + q);
+        var d = await r.json();
+        if (!d || d.ok !== true || !d.url) {
+            throw new Error((d && d.message) || '音源解析失败');
+        }
+        return d.url;
+    }
+
     function loadTrack(index, autoPlay) {
         if (index < 0 || index >= state.playlist.length) return;
         state.currentIndex = index;
@@ -291,6 +319,34 @@ window.__fireflyMusicConfig = managerConfigStr;
         if (errorSkipTimeout) {
             clearTimeout(errorSkipTimeout);
             errorSkipTimeout = null;
+        }
+
+        loadLyrics(track);
+
+        emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
+
+        // 需经音源解析的曲目：先取地址再播放；失败则提示并自动跳过
+        if (!track.url && track.source && track.id) {
+            currentTrackUrls = [];
+            currentTrackUrlIndex = 0;
+            resolveTrackUrl(track).then(function (resolved) {
+                if (ver !== loadVersion) return;
+                currentTrackUrls = [resolved];
+                currentTrackUrlIndex = 0;
+                tryPlayCurrentTrackUrl(autoPlay, ver);
+            }).catch(function (e) {
+                if (ver !== loadVersion) return;
+                console.warn('音源解析失败:', e);
+                state.error = String((e && e.message) || e);
+                emit('fm:error', { message: '音源解析失败，即将自动跳过...' });
+                if (autoPlay) {
+                    errorSkipTimeout = setTimeout(function () {
+                        if (ver !== loadVersion) return;
+                        playNext(true);
+                    }, 1500);
+                }
+            });
+            return;
         }
 
         currentTrackUrls = [track.url];
@@ -309,10 +365,6 @@ window.__fireflyMusicConfig = managerConfigStr;
                 }
             });
         }
-
-        loadLyrics(track);
-
-        emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         tryPlayCurrentTrackUrl(autoPlay, ver);
     }
