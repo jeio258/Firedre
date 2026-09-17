@@ -134,7 +134,7 @@ export const settingsDefaults = {
 		metingFallbackApis:
 			'["https://api.injahow.cn/meting/?server=:server&type=:type&id=:id","https://api.moeyao.cn/meting/?server=:server&type=:type&id=:id"]',
 		localPlaylist:
-			'[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]',
+			'[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""},{"name":"晴天","artist":"周杰伦","source":"tx","id":"0039MnYb0qxYhV","quality":"128k","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]',
 	},
 	mermaid: {
 		enabled: true,
@@ -187,11 +187,18 @@ export const settingsDefaults = {
 	sponsor: {
 		title: "",
 		description: "",
-		usage: "您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
+		usage:
+			"您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
 		showButtonInPost: true,
 		showSponsorsList: true,
 		sponsors: [
-			{ name: "夏叶", avatar: "https://weavatar.com/avatar/d252655d40d6874417a720bad0a6c5f77f8f338402dc37e4190?s=640", amount: "¥50", date: "2025-10-01" },
+			{
+				name: "夏叶",
+				avatar:
+					"https://weavatar.com/avatar/d252655d40d6874417a720bad0a6c5f77f8f338402dc37e4190?s=640",
+				amount: "¥50",
+				date: "2025-10-01",
+			},
 			{ name: "匿名用户", amount: "¥20", date: "2025-10-01" },
 		],
 	},

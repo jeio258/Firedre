@@ -35,5 +35,8 @@
   "include": [
     ".astro/types.d.ts",
     "src/**/*"
+  ],
+  "exclude": [
+    "src/music-sources"
   ]
 }

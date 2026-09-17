@@ -15,7 +15,6 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 	showLyrics: false,
 
 	meting: {
-
 		api: "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r",
 
 		server: "netease",
@@ -38,6 +37,16 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 				name: "使一颗心免于哀伤",
 				artist: "知更鸟 / HOYO-MiX / Chevy",
 				url: "/assets/music/使一颗心免于哀伤-哼唱.mp3",
+				cover: "/assets/music/cover/109951169585655912.webp",
+				lrc: "",
+			},
+			{
+				// 示例：不填 url，按 source+id 经音源实时解析（链接有时效，每次播放重新解析）
+				name: "晴天",
+				artist: "周杰伦",
+				source: "tx",
+				id: "0039MnYb0qxYhV",
+				quality: "128k",
 				cover: "/assets/music/cover/109951169585655912.webp",
 				lrc: "",
 			},
