@@ -18,6 +18,8 @@ export interface RecordFieldSpec {
 	required?: boolean;
 	/** 允许值；填写后按枚举校验 */
 	options?: string[];
+	/** 行内文本与存储值的类型转换，默认 string */
+	valueType?: "string" | "boolean" | "number";
 }
 export interface Field {
 	name: string;
@@ -204,10 +206,21 @@ export const GROUPS: Group[] = [
 			{ name: "email", label: "邮箱", type: "text" },
 			{
 				name: "links",
-				label: "社交链接（JSON 数组）",
-				type: "json",
+				label: "社交链接",
+				type: "records",
 				hidden: true,
-				placeholder: '[{"name":"GitHub","url":"https://github.com/x"}]',
+				recordFields: [
+					{ key: "name", label: "名称", required: true },
+					{ key: "url", label: "链接", required: true },
+					{ key: "icon", label: "图标" },
+					{
+						key: "showName",
+						label: "显示名称(true/false)",
+						valueType: "boolean",
+					},
+				],
+				placeholder:
+					"每行一个，字段顺序：名称 | 链接 | 图标 | 显示名称(true/false)\n如：GitHub | https://github.com/x | fa7-brands:github | true",
 			},
 		],
 	},
@@ -534,10 +547,24 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "localPlaylist",
-				label: "本地音乐列表（JSON 数组）",
-				type: "json",
+				label: "本地音乐列表",
+				type: "records",
+				recordFields: [
+					{ key: "name", label: "歌名", required: true },
+					{ key: "artist", label: "歌手" },
+					{
+						key: "source",
+						label: "音源",
+						options: ["tx", "wy", "kw", "kg", "mg"],
+					},
+					{ key: "id", label: "歌曲ID" },
+					{ key: "quality", label: "音质", options: ["128k", "320k", "flac"] },
+					{ key: "url", label: "直链(本地路径)" },
+					{ key: "cover", label: "封面" },
+					{ key: "lrc", label: "歌词" },
+				],
 				placeholder:
-					'[{"name":"歌名","artist":"歌手","url":"/assets/…mp3","cover":"/assets/…","lrc":""}]',
+					"每行一首，字段顺序：歌名 | 歌手 | 音源 | 歌曲ID | 音质 | 直链 | 封面 | 歌词\n音源可选 tx/wy/kw/kg/mg；填了音源+歌曲ID 即按音源解析，填了直链则直接播放",
 			},
 		],
 	},
@@ -590,9 +617,17 @@ export const GROUPS: Group[] = [
 			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
 			{
 				name: "sponsors",
-				label: "打赏者列表（JSON）",
-				type: "json",
+				label: "打赏者列表",
+				type: "records",
 				wide: true,
+				recordFields: [
+					{ key: "name", label: "名称", required: true },
+					{ key: "avatar", label: "头像链接" },
+					{ key: "amount", label: "金额" },
+					{ key: "date", label: "日期" },
+				],
+				placeholder:
+					"每行一位，字段顺序：名称 | 头像链接 | 金额 | 日期\n如：夏叶 | https://…/avatar.png | ¥50 | 2025-10-01",
 			},
 		],
 	},

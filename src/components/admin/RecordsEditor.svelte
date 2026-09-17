@@ -34,6 +34,27 @@ let text = $state("");
 let error = $state("");
 let areaEl: HTMLTextAreaElement | undefined = $state();
 
+// 存储值 → 行内文本
+function cellToText(f: RecordFieldSpec, v: unknown): string {
+	if (v == null) return "";
+	if (f.valueType === "boolean") {
+		return v === true || v === "true" ? "true" : "false";
+	}
+	return String(v);
+}
+
+// 行内文本 → 存储值（按声明类型转换）
+function textToCell(f: RecordFieldSpec, raw: string): unknown {
+	if (f.valueType === "boolean") {
+		return ["true", "1", "是", "yes"].includes(raw);
+	}
+	if (f.valueType === "number") {
+		const n = Number(raw);
+		return Number.isNaN(n) ? raw : n;
+	}
+	return raw;
+}
+
 // JSON 字符串 → 行文本（结构对使用者不可见）
 function toText(v: unknown): string {
 	if (v == null || v === "") return "";
@@ -48,7 +69,7 @@ function toText(v: unknown): string {
 		return arr
 			.map((row) =>
 				recordFields
-					.map((f) => String((row as Record<string, unknown>)?.[f.key] ?? ""))
+					.map((f) => cellToText(f, (row as Record<string, unknown>)?.[f.key]))
 					.join(` ${separator} `),
 			)
 			.join("\n");
@@ -66,7 +87,7 @@ function parse(
 		.map((l) => l.trim())
 		.filter(Boolean);
 	if (isPlain) return { ok: true, json: JSON.stringify(lines) };
-	const rows: Record<string, string>[] = [];
+	const rows: Record<string, unknown>[] = [];
 	for (let i = 0; i < lines.length; i++) {
 		const parts = lines[i].split(separator).map((p) => p.trim());
 		for (let k = 0; k < recordFields.length; k++) {
@@ -82,10 +103,10 @@ function parse(
 				};
 			}
 		}
-		const row: Record<string, string> = {};
+		const row: Record<string, unknown> = {};
 		recordFields.forEach((f, k) => {
 			const val = parts[k] ?? "";
-			if (val) row[f.key] = val;
+			if (val) row[f.key] = textToCell(f, val);
 		});
 		rows.push(row);
 	}
@@ -126,7 +147,7 @@ let preview = $derived.by(() => {
 		const first = isPlain
 			? String(arr[0])
 			: recordFields
-					.map((f) => String(arr[0]?.[f.key] ?? ""))
+					.map((f) => cellToText(f, arr[0]?.[f.key]))
 					.filter(Boolean)
 					.join(" ");
 		return `${arr.length} 条：${first.length > 28 ? `${first.slice(0, 28)}…` : first}`;
