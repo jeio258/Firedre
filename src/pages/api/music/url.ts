@@ -29,10 +29,11 @@ const ID_PATTERN: Record<string, RegExp> = {
 const cachesRef = (globalThis as unknown as { caches?: CacheStorage }).caches;
 
 // QQ 音乐搜索：歌名+歌手 → songmid（id 缺失或格式不符时自动定位歌曲）
+// 同时返回专辑封面 URL（albummid 拼接）
 async function searchTxSongmid(
 	name: string,
 	singer: string,
-): Promise<string | null> {
+): Promise<{ songmid: string; pic: string } | null> {
 	const q = encodeURIComponent(`${name} ${singer}`.trim());
 	try {
 		const res = await fetch(
@@ -46,9 +47,16 @@ async function searchTxSongmid(
 		);
 		if (!res.ok) return null;
 		const data = (await res.json()) as {
-			data?: { song?: { list?: Array<{ songmid?: string }> } };
+			data?: {
+				song?: { list?: Array<{ songmid?: string; albummid?: string }> };
+			};
 		};
-		return data?.data?.song?.list?.[0]?.songmid ?? null;
+		const first = data?.data?.song?.list?.[0];
+		if (!first?.songmid) return null;
+		const pic = first.albummid
+			? `https://y.gtimg.cn/music/photo_new/T002R500x500M000${first.albummid}.jpg`
+			: "";
+		return { songmid: first.songmid, pic };
 	} catch {
 		return null;
 	}
@@ -60,6 +68,7 @@ export const GET: APIRoute = async ({ url }) => {
 	const quality = url.searchParams.get("quality") ?? "128k";
 	const name = url.searchParams.get("name") ?? "";
 	const singer = url.searchParams.get("singer") ?? "";
+	let searchedPic = "";
 
 	if (!SOURCES.has(source)) return badRequest("不支持的平台");
 	if (!QUALITYS.has(quality)) return badRequest("不支持的音质");
@@ -84,7 +93,8 @@ export const GET: APIRoute = async ({ url }) => {
 		if (!found) {
 			return badRequest(`未搜索到「${name} ${singer}」，请检查歌名与歌手`);
 		}
-		id = found;
+		id = found.songmid;
+		searchedPic = found.pic;
 	}
 
 	// 仅缓存成功结果；播放链接有时效，TTL 保持短
@@ -117,7 +127,15 @@ export const GET: APIRoute = async ({ url }) => {
 		]);
 
 		const response = json(
-			{ ok: true, url: resolved, source, quality, name, singer },
+			{
+				ok: true,
+				url: resolved,
+				source,
+				quality,
+				name,
+				singer,
+				...(searchedPic ? { pic: searchedPic } : {}),
+			},
 			200,
 		);
 		response.headers.set("cache-control", `public, max-age=${RESULT_TTL_S}`);

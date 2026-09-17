@@ -66,10 +66,12 @@ const localPlaylist =
 					id?: string;
 					quality?: string;
 				};
+				// 「-」占位符视为空（用户习惯用 - 表示“无”），避免生成无效路径
+				const dash = (v?: string) => (!v || v === "-" || v === "—" ? "" : v);
 				const isFullUrl = (path: string) => /^https?:\/\//.test(path);
-				const songUrl = song.url || "";
-				const songCover = song.cover || "";
-				const songLrc = song.lrc || "";
+				const songUrl = dash(song.url);
+				const songCover = dash(song.cover);
+				const songLrc = dash(song.lrc);
 				return {
 					name: song.name || "",
 					artist: song.artist || "",
@@ -88,9 +90,9 @@ const localPlaylist =
 							? songLrc
 							: url(songLrc)
 						: undefined,
-					source: song.source || undefined,
-					id: song.id || undefined,
-					quality: song.quality || undefined,
+					source: dash(song.source) || undefined,
+					id: dash(song.id) || undefined,
+					quality: dash(song.quality) || undefined,
 				};
 			})
 		: [];
@@ -295,8 +297,8 @@ window.__fireflyMusicConfig = managerConfigStr;
 
     // 音源解析：无直链时按 source+id 调 /api/music/url/ 取播放地址（链接带时效，每次播放实时解析）
     async function resolveTrackUrl(track) {
-        if (track.url) return track.url;
-        if (!track.source || !track.id) return '';
+        if (track.url) return { url: track.url, pic: track.pic || '' };
+        if (!track.source || (!track.id && !track.name)) return { url: '', pic: '' };
         var q = '?source=' + encodeURIComponent(track.source)
             + '&id=' + encodeURIComponent(track.id)
             + '&quality=' + encodeURIComponent(track.quality || '128k');
@@ -307,7 +309,9 @@ window.__fireflyMusicConfig = managerConfigStr;
         if (!d || d.ok !== true || !d.url) {
             throw new Error((d && d.message) || '音源解析失败');
         }
-        return d.url;
+        // 音源自动搜索时顺带返回专辑封面
+        if (d.pic && !track.pic) track.pic = d.pic;
+        return { url: d.url, pic: track.pic || '' };
     }
 
     function loadTrack(index, autoPlay) {
@@ -326,12 +330,12 @@ window.__fireflyMusicConfig = managerConfigStr;
         emit('fm:track', { index: index, track: track, autoPlay: !!autoPlay });
 
         // 需经音源解析的曲目：先取地址再播放；失败则提示并自动跳过
-        if (!track.url && track.source && track.id) {
+        if (!track.url && track.source && (track.id || track.name)) {
             currentTrackUrls = [];
             currentTrackUrlIndex = 0;
             resolveTrackUrl(track).then(function (resolved) {
                 if (ver !== loadVersion) return;
-                currentTrackUrls = [resolved];
+                currentTrackUrls = [resolved.url];
                 currentTrackUrlIndex = 0;
                 tryPlayCurrentTrackUrl(autoPlay, ver);
             }).catch(function (e) {
@@ -346,6 +350,20 @@ window.__fireflyMusicConfig = managerConfigStr;
                     }, 1500);
                 }
             });
+            return;
+        }
+
+        // 无直链且无法解析（如缺少音源与 ID）的曲目：提示并自动跳过，避免脚本崩溃
+        if (!track.url) {
+            console.warn('曲目缺少播放地址:', track.name);
+            state.error = '「' + (track.name || '未命名曲目') + '」缺少播放地址';
+            emit('fm:error', { message: state.error + '，即将自动跳过...' });
+            if (autoPlay) {
+                errorSkipTimeout = setTimeout(function () {
+                    if (ver !== loadVersion) return;
+                    playNext(true);
+                }, 1500);
+            }
             return;
         }
 
