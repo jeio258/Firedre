@@ -1,17 +1,18 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import JsonEditor from "./JsonEditor.svelte";
-import Switch from "./Switch.svelte";
 import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
-import { getDraft, clearDraft } from "@/lib/adminDrafts";
 import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 import {
 	CATEGORIES,
 	type Field,
-	type Group,
 	GROUPS,
+	type Group,
 } from "./adminSettingsSchema";
+import JsonEditor from "./JsonEditor.svelte";
+import RecordsEditor from "./RecordsEditor.svelte";
+import Switch from "./Switch.svelte";
 
 let data = $state<Record<string, Record<string, unknown>>>({});
 let loading = $state(true);
@@ -93,7 +94,9 @@ function profileArea(group: Group, field: Field): string {
 
 const jsonFields = new Set(
 	GROUPS.flatMap((g) =>
-		g.fields.filter((f) => f.type === "json").map((f) => f.name),
+		g.fields
+			.filter((f) => f.type === "json" || f.type === "records")
+			.map((f) => f.name),
 	),
 );
 
@@ -145,8 +148,9 @@ function applyHueToAdmin(hue: unknown) {
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
 	document.documentElement.style.setProperty("--hue", String(h));
-	document.body.style.background =
-		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
+	document.body.style.background = getComputedStyle(document.documentElement)
+		.getPropertyValue("--page-bg")
+		.trim();
 }
 
 // 暴露给顶栏「保存全部」
@@ -227,6 +231,15 @@ onMount(async () => {
 												value={data[group.key]?.[field.name]}
 												placeholder={field.placeholder ?? ""}
 												fieldLabel={field.label}
+												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
+											/>
+										{:else if field.type === "records"}
+											<RecordsEditor
+												value={data[group.key]?.[field.name]}
+												recordFields={field.recordFields ?? []}
+												separator={field.separator ?? "|"}
+												fieldLabel={field.label}
+												placeholder={field.placeholder ?? ""}
 												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
 											/>
 										{:else if field.type === "password"}

@@ -1,8 +1,23 @@
-
-export type FieldType = "text" | "number" | "boolean" | "textarea" | "json" | "password" | "select";
+export type FieldType =
+	| "text"
+	| "number"
+	| "boolean"
+	| "textarea"
+	| "json"
+	| "password"
+	| "select"
+	| "records";
 export interface SelectOption {
 	label: string;
 	value: string;
+}
+/** type="records" 时单条记录的字段声明（key 为空字符串表示纯字符串列表） */
+export interface RecordFieldSpec {
+	key: string;
+	label: string;
+	required?: boolean;
+	/** 允许值；填写后按枚举校验 */
+	options?: string[];
 }
 export interface Field {
 	name: string;
@@ -15,6 +30,10 @@ export interface Field {
 	options?: SelectOption[];
 	// 仅当所属评论类型为指定值时显示（用于评论系统按类型动态显隐）
 	cmt?: string;
+	/** type="records" 时的记录字段声明 */
+	recordFields?: RecordFieldSpec[];
+	/** type="records" 时的行内分隔符，默认 "|" */
+	separator?: string;
 }
 export interface Group {
 	key: string;
@@ -23,10 +42,14 @@ export interface Group {
 	fields: Field[];
 }
 
-export const CATEGORIES = ["站点配置", "功能配置", "页面配置", "扩展功能"] as const;
+export const CATEGORIES = [
+	"站点配置",
+	"功能配置",
+	"页面配置",
+	"扩展功能",
+] as const;
 
 export const GROUPS: Group[] = [
-
 	{
 		key: "basic",
 		title: "基本信息",
@@ -238,9 +261,10 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "homeSubtitles",
-				label: "主页副标题（JSON 数组）",
-				type: "json",
-				placeholder: '["In Reddened Chrysalis, I Once Rest"]',
+				label: "主页副标题",
+				type: "records",
+				recordFields: [{ key: "", label: "副标题" }],
+				placeholder: "每行一条，如：In Reddened Chrysalis, I Once Rest",
 			},
 			{
 				name: "homeSubtitleSize",
@@ -361,20 +385,76 @@ export const GROUPS: Group[] = [
 				],
 			},
 			// Twikoo：环境 ID + JS 地址
-			{ name: "twikooEnvId", label: "Twikoo 环境 ID", type: "text", cmt: "twikoo", placeholder: "https://xxx.vercel.app" },
-			{ name: "twikooJsUrl", label: "Twikoo JS 地址", type: "text", cmt: "twikoo", placeholder: "https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js" },
+			{
+				name: "twikooEnvId",
+				label: "Twikoo 环境 ID",
+				type: "text",
+				cmt: "twikoo",
+				placeholder: "https://xxx.vercel.app",
+			},
+			{
+				name: "twikooJsUrl",
+				label: "Twikoo JS 地址",
+				type: "text",
+				cmt: "twikoo",
+				placeholder:
+					"https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js",
+			},
 			// Giscus：仓库 + 分类（Repo ID / 分类 ID 供前端使用）
-			{ name: "giscusRepo", label: "Giscus 仓库 (owner/repo)", type: "text", cmt: "giscus", placeholder: "owner/repo" },
-			{ name: "giscusRepoId", label: "Giscus Repo ID", type: "text", cmt: "giscus" },
-			{ name: "giscusCategory", label: "Giscus 分类", type: "text", cmt: "giscus" },
-			{ name: "giscusCategoryId", label: "Giscus 分类 ID", type: "text", cmt: "giscus" },
+			{
+				name: "giscusRepo",
+				label: "Giscus 仓库 (owner/repo)",
+				type: "text",
+				cmt: "giscus",
+				placeholder: "owner/repo",
+			},
+			{
+				name: "giscusRepoId",
+				label: "Giscus Repo ID",
+				type: "text",
+				cmt: "giscus",
+			},
+			{
+				name: "giscusCategory",
+				label: "Giscus 分类",
+				type: "text",
+				cmt: "giscus",
+			},
+			{
+				name: "giscusCategoryId",
+				label: "Giscus 分类 ID",
+				type: "text",
+				cmt: "giscus",
+			},
 			// Waline：服务地址
-			{ name: "walineServer", label: "Waline 服务地址", type: "text", cmt: "waline", placeholder: "https://waline.vercel.app" },
+			{
+				name: "walineServer",
+				label: "Waline 服务地址",
+				type: "text",
+				cmt: "waline",
+				placeholder: "https://waline.vercel.app",
+			},
 			// Disqus：Shortname
-			{ name: "disqusShortname", label: "Disqus Shortname", type: "text", cmt: "disqus" },
+			{
+				name: "disqusShortname",
+				label: "Disqus Shortname",
+				type: "text",
+				cmt: "disqus",
+			},
 			// Artalk：服务地址 + 站点名
-			{ name: "artalkServer", label: "Artalk 服务地址", type: "text", cmt: "artalk", placeholder: "https://artalk.example.com/" },
-			{ name: "artalkSiteName", label: "Artalk 站点名", type: "text", cmt: "artalk" },
+			{
+				name: "artalkServer",
+				label: "Artalk 服务地址",
+				type: "text",
+				cmt: "artalk",
+				placeholder: "https://artalk.example.com/",
+			},
+			{
+				name: "artalkSiteName",
+				label: "Artalk 站点名",
+				type: "text",
+				cmt: "artalk",
+			},
 		],
 	},
 	{
@@ -387,7 +467,11 @@ export const GROUPS: Group[] = [
 			{ name: "configurable", label: "文章可自定义封面", type: "boolean" },
 			{ name: "showLoading", label: "加载动画", type: "boolean" },
 			{ name: "enableInPost", label: "文章页显示封面图", type: "boolean" },
-			{ name: "enableInPostOverlay", label: "封面图叠加标题布局", type: "boolean" },
+			{
+				name: "enableInPostOverlay",
+				label: "封面图叠加标题布局",
+				type: "boolean",
+			},
 			{
 				name: "randomCoverImage",
 				label: "随机封面图配置（JSON）",
@@ -442,9 +526,11 @@ export const GROUPS: Group[] = [
 			{ name: "metingAuth", label: "Meting 认证 token", type: "text" },
 			{
 				name: "metingFallbackApis",
-				label: "备用 API（JSON 数组）",
-				type: "json",
-				placeholder: '["https://api.injahow.cn/meting/…"]',
+				label: "备用 API",
+				type: "records",
+				recordFields: [{ key: "", label: "API 地址" }],
+				placeholder:
+					"每行一个，如：https://api.injahow.cn/meting/?server=:server&type=:type&id=:id",
 			},
 			{
 				name: "localPlaylist",
@@ -502,7 +588,12 @@ export const GROUPS: Group[] = [
 			{ name: "usage", label: "打赏用途说明", type: "textarea" },
 			{ name: "showButtonInPost", label: "文章内打赏按钮", type: "boolean" },
 			{ name: "showSponsorsList", label: "赞助列表", type: "boolean" },
-			{ name: "sponsors", label: "打赏者列表（JSON）", type: "json", wide: true },
+			{
+				name: "sponsors",
+				label: "打赏者列表（JSON）",
+				type: "json",
+				wide: true,
+			},
 		],
 	},
 	{
