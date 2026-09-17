@@ -13,7 +13,8 @@
       "!**/dist/**/*",
       "!**/node_modules/**/*",
       "!**/src/constants/icons-data.json",
-      "!**/src/constants/lqips.json"
+      "!**/src/constants/lqips.json",
+      "!**/src/music-sources/**"
     ]
   },
   "formatter": {
