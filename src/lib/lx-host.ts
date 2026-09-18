@@ -188,8 +188,6 @@ async function initLxSource(scriptKey: string): Promise<LxSource> {
 
 	(globalThis as unknown as { lx?: unknown }).lx = lx;
 	// 构建期已打包为模块，此处经 glob 加载器触发执行（脚本会读取 globalThis.lx）
-	// 音源脚本为无导出的 IIFE，故忽略模块类型检查
-	// @ts-expect-error
 	await execSources[execPath]();
 
 	const deadline = Date.now() + INITED_WAIT_MS;
