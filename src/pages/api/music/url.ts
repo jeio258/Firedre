@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
-import { badRequest, json } from "../../../lib/api";
+import { badRequest, cfEnv, json } from "../../../lib/api";
 import { getLxSource, LxError } from "../../../lib/lx-host";
+import { withRateLimit } from "../../../server/utils/rateLimiter";
 
 export const prerender = false;
 
@@ -110,7 +111,7 @@ function extractSongFromLink(
 	return null;
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
 	let source = url.searchParams.get("source") ?? "";
 	let id = url.searchParams.get("id") ?? "";
 	const quality = url.searchParams.get("quality") ?? "128k";
@@ -170,49 +171,67 @@ export const GET: APIRoute = async ({ url }) => {
 		}
 	}
 
-	try {
-		const lxSource = await getLxSource();
-		const resolved = await Promise.race([
-			lxSource.getMusicUrl(
-				source,
-				{ [ID_FIELD[source] ?? "id"]: id, id, name, singer },
-				quality,
-			),
-			new Promise<never>((_, reject) =>
-				setTimeout(
-					() => reject(new LxError("音源解析超时")),
-					RESOLVE_TIMEOUT_MS,
-				),
-			),
-		]);
-
-		const response = json(
-			{
-				ok: true,
-				url: resolved,
-				source,
-				quality,
-				name,
-				singer,
-				...(searchedPic ? { pic: searchedPic } : {}),
-			},
-			200,
-		);
-		response.headers.set("cache-control", `public, max-age=${RESULT_TTL_S}`);
-		if (cachesRef) {
+	// 音源解析（高成本）：限流保护防止滥用触发多后端重试耗尽 CPU（缓存命中不计入）
+	return withRateLimit(
+		cfEnv,
+		request,
+		{ windowMs: 60_000, maxRequests: 30, scope: "music-url", failOpen: true },
+		async () => {
+			const t0 = Date.now();
 			try {
-				await cachesRef.default.put(cacheKey, response.clone());
-			} catch {
-				// 缓存写入失败不影响返回
+				const lxSource = await getLxSource();
+				const resolved = await Promise.race([
+					lxSource.getMusicUrl(
+						source,
+						{ [ID_FIELD[source] ?? "id"]: id, id, name, singer },
+						quality,
+					),
+					new Promise<never>((_, reject) =>
+						setTimeout(
+							() => reject(new LxError("音源解析超时")),
+							RESOLVE_TIMEOUT_MS,
+						),
+					),
+				]);
+
+				console.log(
+					`[music/url] ok source=${source} quality=${quality} 耗时=${Date.now() - t0}ms`,
+				);
+				const response = json(
+					{
+						ok: true,
+						url: resolved,
+						source,
+						quality,
+						name,
+						singer,
+						...(searchedPic ? { pic: searchedPic } : {}),
+					},
+					200,
+				);
+				response.headers.set(
+					"cache-control",
+					`public, max-age=${RESULT_TTL_S}`,
+				);
+				if (cachesRef) {
+					try {
+						await cachesRef.default.put(cacheKey, response.clone());
+					} catch {
+						// 缓存写入失败不影响返回
+					}
+				}
+				return response;
+			} catch (error) {
+				const detail =
+					error instanceof Error ? error.message : String(error);
+				console.error("[music/url] 解析失败:", detail);
+				const message =
+					error instanceof LxError
+						? error.message
+						: `音源解析失败：${detail}`;
+				// 失败结果不缓存，便于上游恢复后立即生效
+				return json({ ok: false, message }, 502);
 			}
-		}
-		return response;
-	} catch (error) {
-		const detail = error instanceof Error ? error.message : String(error);
-		console.error("[music/url] 解析失败:", detail);
-		const message =
-			error instanceof LxError ? error.message : `音源解析失败：${detail}`;
-		// 失败结果不缓存，便于上游恢复后立即生效
-		return json({ ok: false, message }, 502);
-	}
+		},
+	);
 };
