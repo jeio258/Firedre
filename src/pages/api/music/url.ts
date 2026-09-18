@@ -84,13 +84,51 @@ async function searchTxSongmid(
 	}
 }
 
+// 从歌曲页/分享链接提取平台与歌曲 ID（支持 QQ 音乐、网易云）
+function extractSongFromLink(
+	raw: string,
+): { source: string; id: string } | null {
+	try {
+		const u = new URL(raw);
+		const host = u.hostname.replace(/^www\./, "");
+		// QQ 音乐：y.qq.com/n/ryqq/songDetail/{songmid}
+		if (host === "y.qq.com" || host.endsWith("qq.com")) {
+			const m =
+				u.pathname.match(/songDetail\/([A-Za-z0-9]+)/) ??
+				u.pathname.match(/song\/([A-Za-z0-9]+)\.html/);
+			if (m) return { source: "tx", id: m[1] };
+		}
+		// 网易云：music.163.com/song?id={id} 或 /song/{id}
+		if (host === "music.163.com" || host === "y.music.163.com") {
+			const id = u.searchParams.get("id");
+			const m = u.pathname.match(/\/song\/(\d+)/);
+			if (id || m) return { source: "wy", id: (id || m) as string };
+		}
+	} catch {
+		return null;
+	}
+	return null;
+}
+
 export const GET: APIRoute = async ({ url }) => {
-	const source = url.searchParams.get("source") ?? "";
+	let source = url.searchParams.get("source") ?? "";
 	let id = url.searchParams.get("id") ?? "";
 	const quality = url.searchParams.get("quality") ?? "128k";
 	const name = url.searchParams.get("name") ?? "";
 	const singer = url.searchParams.get("singer") ?? "";
 	let searchedPic = "";
+
+	// 「歌曲 ID」可填歌曲页/分享链接：自动识别平台并提取歌曲 ID
+	if (/^https?:\/\//.test(id)) {
+		const extracted = extractSongFromLink(id);
+		if (!extracted) {
+			return badRequest(
+				"无法从该链接识别歌曲（支持 QQ 音乐 / 网易云的歌曲页链接）",
+			);
+		}
+		if (SOURCES.has(extracted.source)) source = extracted.source;
+		id = extracted.id;
+	}
 
 	if (!SOURCES.has(source)) return badRequest("不支持的平台");
 	if (!QUALITYS.has(quality)) return badRequest("不支持的音质");
