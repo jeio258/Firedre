@@ -68,11 +68,23 @@ const lqipProps = isLocal
 		? getLqipProps(src, basePath, true)
 		: getLqipProps(src);
 
-const widths = [828];
+// 三档响应式：移动小卡 480 / 标准 828 / 大屏与高 DPR 1280（cover-proxy w 参数按档缩放并独立缓存）
+const widths = [480, 828, 1280];
 const sizes = preview
 	? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
 	: "(max-width: 768px) 100vw, 828px";
 const quality = configQuality;
+
+// 远程图多档 srcset（cover-proxy 按档缩放），src 兜底标准档
+const remoteSrcset =
+	src.startsWith("http")
+		? widths
+				.map(
+					(w) =>
+						`${url(`/api/cover-proxy/?u=${encodeURIComponent(src)}&w=${w}`)} ${w}w`,
+				)
+				.join(", ")
+		: "";
 
 const showLoading = ((((settings as any)?.["cover"]) as any)?.["showLoading"] ?? coverImageConfig.showLoading) ?? true;
 
@@ -83,11 +95,11 @@ const remoteReferrerPolicy =
 		: undefined;
 
 // 远程 http(s) 封面走同源代理（按宽度缩放 + 边缘缓存），data:/站点相对路径保持原样
-// 项目 trailingSlash: "always"，路径带斜杠避免 301 跳转
+// 项目 trailingSlash: "always"，路径带斜杠避免 301 跳转；src 兜底标准 828 档
 const remoteSrc = isPublic
 	? url(src)
 	: src.startsWith("http")
-		? url(`/api/cover-proxy/?u=${encodeURIComponent(src)}&w=${widths[0]}`)
+		? url(`/api/cover-proxy/?u=${encodeURIComponent(src)}&w=828`)
 		: src;
 ---
 
@@ -140,6 +152,8 @@ const remoteSrc = isPublic
 	{!isLocal && (
 		<img
 			src={remoteSrc}
+			srcset={remoteSrcset || undefined}
+			sizes={sizes}
 			alt={alt || ""}
 			class={imageClass}
 			style={imageStyle}
