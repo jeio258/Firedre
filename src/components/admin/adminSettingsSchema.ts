@@ -76,7 +76,7 @@ export const GROUPS: Group[] = [
 			{ name: "title", label: "站点标题", type: "text" },
 			{ name: "subtitle", label: "副标题", type: "text" },
 			{ name: "description", label: "站点描述", type: "textarea" },
-			{ name: "keywords", label: "关键词（逗号分隔）", type: "text" },
+			{ name: "keywords", label: "关键词（逗号分隔）", type: "textarea" },
 			{
 				name: "siteUrl",
 				label: "站点地址",
