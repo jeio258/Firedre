@@ -1,6 +1,5 @@
+import { getSpecPage, isValidSpecName } from "@server/spec/service";
 import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
-import { getSpecPage, isValidSpecName } from "../../../../server/spec/service";
 import {
 	badRequest,
 	cfEnv,
@@ -8,6 +7,7 @@ import {
 	notFound,
 	serverError,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 

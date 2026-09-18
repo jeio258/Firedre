@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
 	createSiteLink,
 	deleteSiteLink,
@@ -102,7 +102,11 @@ describe("site_links 数据层", () => {
 
 	it("listEnabledSiteLinks 按 location 过滤且排除停用项", async () => {
 		// 0019/0020 seed 已含 2 条启用的 footer（Firefly + Firedre）
-		await createSiteLink(env as never, { name: "FooterA", url: "https://a.com", location: "footer" });
+		await createSiteLink(env as never, {
+			name: "FooterA",
+			url: "https://a.com",
+			location: "footer",
+		});
 		const disabled = await createSiteLink(env as never, {
 			name: "FooterB",
 			url: "https://b.com",
@@ -138,7 +142,10 @@ describe("site_links 数据层", () => {
 	});
 
 	it("删除链接", async () => {
-		const created = await createSiteLink(env as never, { name: "Del", url: "https://del.com" });
+		const created = await createSiteLink(env as never, {
+			name: "Del",
+			url: "https://del.com",
+		});
 		const ok = await deleteSiteLink(env as never, created.id);
 		expect(ok).toBe(true);
 		const all = await listSiteLinks(env as never);

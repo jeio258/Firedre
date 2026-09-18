@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { fetchWithRetry } from "../server/utils/fetchRetry";
 
 const originalFetch = globalThis.fetch;
@@ -22,14 +22,22 @@ describe("fetchWithRetry", () => {
 			calls += 1;
 			return new Response("err", { status: calls === 1 ? 503 : 200 });
 		});
-		const res = await fetchWithRetry("https://x/", {}, { retries: 2, backoffMs: 1 });
+		const res = await fetchWithRetry(
+			"https://x/",
+			{},
+			{ retries: 2, backoffMs: 1 },
+		);
 		expect(res.status).toBe(200);
 		expect(calls).toBe(2);
 	});
 
 	it("重试耗尽后返回末次 5xx 响应（由调用方处理状态）", async () => {
 		globalThis.fetch = vi.fn(async () => new Response("err", { status: 500 }));
-		const res = await fetchWithRetry("https://x/", {}, { retries: 1, backoffMs: 1 });
+		const res = await fetchWithRetry(
+			"https://x/",
+			{},
+			{ retries: 1, backoffMs: 1 },
+		);
 		expect(res.status).toBe(500);
 	});
 

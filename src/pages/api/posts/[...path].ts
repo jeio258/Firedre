@@ -1,7 +1,6 @@
-import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
-import { decodePostSlug, isValidPostSlug } from "../../../../server/posts/frontmatter";
+import { verifyAdminRequest } from "@server/auth/adminSession";
+import { decodePostSlug, isValidPostSlug } from "@server/posts/frontmatter";
+import { redactPostSecrets } from "@server/posts/sanitize";
 import {
 	deletePost,
 	getPostBySlug,
@@ -12,9 +11,9 @@ import {
 	listPosts,
 	searchPosts,
 	upsertPost,
-} from "../../../../server/posts/service";
-import { withRateLimit } from "../../../../server/utils/rateLimiter";
-import { redactPostSecrets } from "../../../../server/posts/sanitize";
+} from "@server/posts/service";
+import { withRateLimit } from "@server/utils/rateLimiter";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,
@@ -24,6 +23,7 @@ import {
 	notFound,
 	unauthorized,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
@@ -71,8 +71,12 @@ export const GET: APIRoute = async ({ params, request }) => {
 				return badRequest("文章 slug 格式无效");
 			const neighbors = await getPostNeighbors(cfEnv, segments[1]);
 			if (!isAdmin) {
-				neighbors.prev = neighbors.prev ? redactPostSecrets(neighbors.prev) : null;
-				neighbors.next = neighbors.next ? redactPostSecrets(neighbors.next) : null;
+				neighbors.prev = neighbors.prev
+					? redactPostSecrets(neighbors.prev)
+					: null;
+				neighbors.next = neighbors.next
+					? redactPostSecrets(neighbors.next)
+					: null;
 			}
 			return json(neighbors, 200, "list");
 		}
@@ -111,7 +115,12 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	return withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 10, scope: "posts-write", failOpen: false },
+		{
+			windowMs: 60_000,
+			maxRequests: 10,
+			scope: "posts-write",
+			failOpen: false,
+		},
 		async () => {
 			try {
 				const body = await request.text();

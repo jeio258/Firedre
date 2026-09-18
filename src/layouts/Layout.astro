@@ -7,7 +7,6 @@ import CodeGroupManager from "@components/features/CodeGroupManager.astro";
 import FancyboxManager from "@components/features/FancyboxManager.astro";
 import FontSetup from "@components/features/FontSetup.astro";
 import GithubCardManager from "@components/features/GithubCardManager.astro";
-import MarkdownEnhancer from "@components/features/MarkdownEnhancer.svelte";
 import MusicManager from "@components/features/MusicManager.astro";
 import MusicPlayerView from "@components/features/MusicPlayerView.astro";
 import SakuraEffect from "@components/features/SakuraEffect.astro";
@@ -67,7 +66,7 @@ const isHomePageCheck = isHomePage(Astro.url.pathname);
 // 后台站点设置（覆盖静态 siteConfig 的关键项）
 // 实际存储为「分组 + 扁平」并存：basic/theme/post 等分组键与扁平键都可读，
 // 故在 SettingsShape 之上放开索引签名，避免各处 as any 断言。
-type LayoutSettings = import("../../server/settings/service").SettingsShape &
+type LayoutSettings = import("@server/settings/service").SettingsShape &
 	Record<string, any>;
 
 const settings =
@@ -496,7 +495,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}
     <ConfigCarrier />
-    <MusicManager />
+    {settings.music?.enabled !== false && <MusicManager />}
     <slot />
 
     {(((settings?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || ((settings?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (
@@ -511,7 +510,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     {settings.effects?.waves !== false && <WavesEffect />}
 
-    <MarkdownEnhancer client:load />
+    <script>import "../scripts/markdown-enhancer";</script>
     <FancyboxManager />
 
     <CodeGroupManager />

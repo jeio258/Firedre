@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, describe, expect, it } from "vitest";
 import { getAlbumFromD1, upsertAlbumToD1 } from "../server/gallery/d1";
 import {
 	setAlbumEncryptedFlag,

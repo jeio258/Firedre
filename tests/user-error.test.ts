@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { UserError } from "../server/utils/userError";
+import { describe, expect, it } from "vitest";
 import { checkD1RateLimit } from "../server/utils/rateLimiter";
+import { UserError } from "../server/utils/userError";
 
 describe("UserError", () => {
 	it("is an Error subclass with name UserError", () => {
@@ -27,20 +27,19 @@ describe("checkD1RateLimit fail-open/fail-closed", () => {
 	}
 
 	it("defaults to fail-open (allowed) on D1 failure", async () => {
-		const result = await checkD1RateLimit(
-			failingDb(),
-			"key",
-			{ windowMs: 60_000, maxRequests: 10 },
-		);
+		const result = await checkD1RateLimit(failingDb(), "key", {
+			windowMs: 60_000,
+			maxRequests: 10,
+		});
 		expect(result.allowed).toBe(true);
 	});
 
 	it("fails closed (denied) when failOpen=false on D1 failure", async () => {
-		const result = await checkD1RateLimit(
-			failingDb(),
-			"key",
-			{ windowMs: 60_000, maxRequests: 10, failOpen: false },
-		);
+		const result = await checkD1RateLimit(failingDb(), "key", {
+			windowMs: 60_000,
+			maxRequests: 10,
+			failOpen: false,
+		});
 		expect(result.allowed).toBe(false);
 		expect(result.retryAfterSec).toBeGreaterThan(0);
 	});

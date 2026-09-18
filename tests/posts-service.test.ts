@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	deletePost,
 	getPostBySlug,
@@ -31,9 +31,15 @@ const source = (title: string) =>
 
 describe("upsertPost 写入与回读", () => {
 	it("写入 D1/R2 并可按 slug 回读详情", async () => {
-		const r = await upsertPost(env as never, "hello-world", source("Hello World"));
+		const r = await upsertPost(
+			env as never,
+			"hello-world",
+			source("Hello World"),
+		);
 		expect(r.slug).toBe("hello-world");
-		expect(env.BUCKET.store.get("posts/hello-world.md")).toContain("Hello World");
+		expect(env.BUCKET.store.get("posts/hello-world.md")).toContain(
+			"Hello World",
+		);
 
 		const detail = await getPostBySlug(env as never, "hello-world", {
 			includeUnpublished: true,
@@ -101,7 +107,11 @@ describe("listPosts / searchPosts / deletePost", () => {
 	it("deletePost 删除文章、FTS 与 taxonomy", async () => {
 		await upsertPost(env as never, "hello-world", source("Hello"));
 		expect(await deletePost(env as never, "hello-world")).toBe(true);
-		expect(await getPostBySlug(env as never, "hello-world", { includeUnpublished: true })).toBeNull();
+		expect(
+			await getPostBySlug(env as never, "hello-world", {
+				includeUnpublished: true,
+			}),
+		).toBeNull();
 		const fts = db
 			.prepare("SELECT COUNT(*) AS c FROM posts_fts WHERE slug = 'hello-world'")
 			.get() as { c: number };

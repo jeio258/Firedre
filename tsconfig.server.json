@@ -13,9 +13,8 @@
     "server/**/*",
     "types/**/*",
     "utils/**/*",
-    "src/plugins/**/*",
+    "shared/**/*",
     "src/config/**/*",
-    "src/utils/image-utils.ts",
     "src/utils/fetch-dedup.ts"
   ]
 }

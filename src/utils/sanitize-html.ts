@@ -1,5 +1,3 @@
-
-
 const REMOVED_TAGS = new Set([
 	"script",
 	"style",
@@ -74,12 +72,17 @@ const ALLOWED_TAGS = new Set([
 	"source",
 	"track",
 ]);
-import { safeUrlScheme } from "../../server/utils/safeUrl";
+
+import { safeUrlScheme } from "@server/utils/safeUrl";
 
 function isSafeUrl(raw: string | null | undefined): boolean {
 	if (!raw) return true;
 
-	return safeUrlScheme(raw, { schemes: ["http", "https", "mailto", "tel", "ftp"] }) !== null;
+	return (
+		safeUrlScheme(raw, {
+			schemes: ["http", "https", "mailto", "tel", "ftp"],
+		}) !== null
+	);
 }
 
 export function sanitizeDynamicHtml(input: string): string {

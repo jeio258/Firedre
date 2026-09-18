@@ -1,9 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { safeJsonLd, toAbsoluteUrl } from "../src/utils/schema-utils";
 
 describe("schema-utils.toAbsoluteUrl 对裸域名 base 的防御", () => {
 	it("base 为裸域名（无协议）时不抛 Invalid URL，并补全 https://", () => {
-
 		const url = toAbsoluteUrl("/about/", "www.994613.xyz");
 		expect(url).toBe("https://www.994613.xyz/about/");
 	});
@@ -14,7 +13,10 @@ describe("schema-utils.toAbsoluteUrl 对裸域名 base 的防御", () => {
 	});
 
 	it("src 为绝对 URL 时原样返回，不依赖 base", () => {
-		const url = toAbsoluteUrl("https://cdn.example.com/x.png", "www.994613.xyz");
+		const url = toAbsoluteUrl(
+			"https://cdn.example.com/x.png",
+			"www.994613.xyz",
+		);
 		expect(url).toBe("https://cdn.example.com/x.png");
 	});
 

@@ -56,9 +56,9 @@ describe("fetchImgbedPhotos", () => {
 			"fetch",
 			vi.fn().mockResolvedValue(jsonResponse({}, false, 403)),
 		);
-		await expect(
-			fetchImgbedPhotos(LIST_URL, "bad", "x"),
-		).rejects.toThrow(UserError);
+		await expect(fetchImgbedPhotos(LIST_URL, "bad", "x")).rejects.toThrow(
+			UserError,
+		);
 	});
 
 	it("目录无文件抛 UserError", async () => {
@@ -66,15 +66,15 @@ describe("fetchImgbedPhotos", () => {
 			"fetch",
 			vi.fn().mockResolvedValue(jsonResponse({ files: [] })),
 		);
-		await expect(
-			fetchImgbedPhotos(LIST_URL, "t", "empty"),
-		).rejects.toThrow(/未找到文件/);
+		await expect(fetchImgbedPhotos(LIST_URL, "t", "empty")).rejects.toThrow(
+			/未找到文件/,
+		);
 	});
 
 	it("目录留空不携带 dir 参数（根目录）", async () => {
-		const fetchMock = vi.fn().mockResolvedValue(
-			jsonResponse({ files: [{ name: "a.jpg" }] }),
-		);
+		const fetchMock = vi
+			.fn()
+			.mockResolvedValue(jsonResponse({ files: [{ name: "a.jpg" }] }));
 		vi.stubGlobal("fetch", fetchMock);
 
 		const photos = await fetchImgbedPhotos(LIST_URL, "test-token", "");
@@ -85,9 +85,7 @@ describe("fetchImgbedPhotos", () => {
 				headers: { Authorization: "Bearer test-token" },
 			}),
 		);
-		expect(photos).toEqual([
-			{ url: "https://cfbed.sanyue.de/file/a.jpg" },
-		]);
+		expect(photos).toEqual([{ url: "https://cfbed.sanyue.de/file/a.jpg" }]);
 	});
 
 	it("端点为非法协议抛 UserError", async () => {

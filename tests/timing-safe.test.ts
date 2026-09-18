@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { constantTimeEqual } from "../server/utils/timingSafe";
+import { describe, expect, it } from "vitest";
 import { assertTargetInWebDavScope } from "../server/gallery/albumWebdavEnv";
+import { constantTimeEqual } from "../server/utils/timingSafe";
 import { verifyAlbumAccess } from "../utils/albumAuth";
 
 describe("constantTimeEqual", () => {
@@ -56,7 +56,10 @@ describe("verifyAlbumAccess", () => {
 describe("assertTargetInWebDavScope", () => {
 	it("allows exact base path", () => {
 		expect(() =>
-			assertTargetInWebDavScope("https://webdav.example.com/album/", "https://webdav.example.com/album/"),
+			assertTargetInWebDavScope(
+				"https://webdav.example.com/album/",
+				"https://webdav.example.com/album/",
+			),
 		).not.toThrow();
 	});
 

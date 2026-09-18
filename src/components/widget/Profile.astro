@@ -2,11 +2,11 @@
 import { Icon } from "astro-icon/components";
 import SafeIcon from "@/components/common/SafeIcon.astro";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
-import { profileConfig } from "@/config/profileConfig";
+import { profileConfig } from "@shared/config/profileConfig";
 import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
 import { getRawImageUrl } from "@/utils/schema-image";
 import { url } from "@/utils/url-utils";
-import { listEnabledSiteLinks, type SiteLinkView } from "../../../server/siteLinks/service";
+import { listEnabledSiteLinks, type SiteLinkView } from "@server/siteLinks/service";
 import { cfEnv } from "../../lib/api";
 
 const settings =

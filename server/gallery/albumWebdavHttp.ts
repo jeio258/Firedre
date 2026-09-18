@@ -1,11 +1,11 @@
 import type { AlbumWebDavRuntimeOptions } from "../../types/album";
 import type { CloudflareEnv } from "../../types/env";
+import { withRateLimit } from "../utils/rateLimiter";
 import {
 	AlbumAccessDeniedError,
 	handleAlbumWebDavFile,
 	handleAlbumWebDavList,
 } from "./albumWebdav";
-import { withRateLimit } from "../utils/rateLimiter";
 
 function jsonResponse(data: unknown, status = 200) {
 	return new Response(JSON.stringify(data), {
@@ -35,7 +35,6 @@ export async function handleAlbumWebdavHttp(
 
 	try {
 		if (pathname.endsWith("/file") || url.searchParams.has("url")) {
-
 			return await withRateLimit(
 				options?.env ?? ({} as CloudflareEnv),
 				request,
@@ -109,7 +108,7 @@ async function handleWebDavFile(
 	if (file.contentRange) headers.set("Content-Range", file.contentRange);
 	if (file.contentLength) headers.set("Content-Length", file.contentLength);
 
-	return new Response(file.buffer, { status: file.status, headers });
+	return new Response(file.body, { status: file.status, headers });
 }
 
 async function handleWebDavList(

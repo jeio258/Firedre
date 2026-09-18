@@ -1,10 +1,29 @@
 import { defineMiddleware } from "astro:middleware";
+import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
-import { setPlantumlRuntimeConfig } from "./config/plantumlRuntime";
 
 export interface SettingsLocals {
-	settings: import("../server/settings/service").SiteSettings;
+	settings: import("@server/settings/service").SiteSettings;
 	settingsVersion?: string;
+}
+
+// 安全响应头对缓存命中与渲染路径统一生效
+function applySecurityHeaders(headers: Headers) {
+	headers.set("X-Content-Type-Options", "nosniff");
+	headers.set("X-Frame-Options", "SAMEORIGIN");
+	headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	headers.set(
+		"Strict-Transport-Security",
+		"max-age=31536000; includeSubDomains",
+	);
+	headers.set(
+		"Permissions-Policy",
+		"camera=(), microphone=(), geolocation=(), payment=()",
+	);
+	headers.set(
+		"Content-Security-Policy-Report-Only",
+		"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+	);
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -21,21 +40,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	let settingsVersion = "";
 	if (isHtmlPage) {
 		try {
-			const { getSettingsVersionCached } = await import("../server/settings/service");
+			const { getSettingsVersionCached } = await import(
+				"@server/settings/service"
+			);
 			const { cfEnv } = await import("./lib/api");
 			settingsVersion = await getSettingsVersionCached(cfEnv);
 
 			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${settingsVersion}`;
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
-				return new Response(await cached.text(), {
-					headers: {
-						"Content-Type": "text/html; charset=utf-8",
+				const headers = new Headers({
+					"Content-Type": "text/html; charset=utf-8",
 
-						"Cache-Control": "public, max-age=0, must-revalidate",
-						"X-Firedre-Cache": "CACHE-HIT",
-					},
+					"Cache-Control": "public, max-age=0, must-revalidate",
+					"X-Firedre-Cache": "CACHE-HIT",
 				});
+				applySecurityHeaders(headers);
+				return new Response(await cached.text(), { headers });
 			}
 		} catch {
 			// 缓存不可用不影响主流程
@@ -45,31 +66,59 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	try {
 		const [{ getAllSettings, SETTING_GROUPS }, { settingsDefaults }] =
 			await Promise.all([
-				import("../server/settings/service"),
-				import("./config/settings-defaults"),
+				import("@server/settings/service"),
+				import("@shared/config/settings-defaults"),
 			]);
 		const { cfEnv } = await import("./lib/api");
 
-		// seed 与 settings 并行（seed 仅新 isolate 执行一次）
-		const seedFlag = globalThis as unknown as { __FIREDRE_SEEDED__?: boolean };
-		const seedTask = seedFlag.__FIREDRE_SEEDED__
-			? Promise.resolve()
-			: (async () => {
-					seedFlag.__FIREDRE_SEEDED__ = true;
-					try {
-						const { ensureDefaultPosts } = await import("../server/posts/seed");
-						await ensureDefaultPosts(cfEnv);
-					} catch {
-						// seed 失败不影响请求
-					}
-				})();
-		const [groups, { mergeSettings }] = await Promise.all([
-			getAllSettings(cfEnv),
-			import("../server/settings/merge"),
-			seedTask,
-		]);
+		// schema 引导先于渲染：空库首次访问自动建表，避免渲染层查询 500（isolate 内缓存零开销）
+		const { ensureSchema } = await import("@server/posts/seed");
+		await ensureSchema(cfEnv);
 
-		const defaults = settingsDefaults as unknown as Record<string, Record<string, unknown>>;
+		// seed 仅新 isolate 执行一次（后台运行，不阻塞当前请求）
+		const seedFlag = globalThis as unknown as { __FIREDRE_SEEDED__?: boolean };
+		if (!seedFlag.__FIREDRE_SEEDED__) {
+			seedFlag.__FIREDRE_SEEDED__ = true;
+			(async () => {
+				try {
+					const { ensureDefaultPosts } = await import("@server/posts/seed");
+					await ensureDefaultPosts(cfEnv);
+				} catch {
+					// seed 失败不影响请求
+				}
+			})();
+		}
+		// getAllSettings isolate 级缓存：以设置版本为键（任何设置写入都会自增版本号），
+		// 命中时省去每 cache-miss 请求的全表 D1 读；TTL 兜底覆盖直改 D1 不 bump 版本的场景
+		const settingsCache = globalThis as unknown as {
+			__FIREDRE_SETTINGS_CACHE__?: {
+				version: string;
+				groups: Record<string, Record<string, unknown>>;
+				at: number;
+			};
+		};
+		let groups: Record<string, Record<string, unknown>>;
+		const cachedGroups = settingsCache.__FIREDRE_SETTINGS_CACHE__;
+		if (
+			cachedGroups &&
+			cachedGroups.version === settingsVersion &&
+			Date.now() - cachedGroups.at < 30_000
+		) {
+			groups = cachedGroups.groups;
+		} else {
+			groups = await getAllSettings(cfEnv);
+			settingsCache.__FIREDRE_SETTINGS_CACHE__ = {
+				version: settingsVersion,
+				groups,
+				at: Date.now(),
+			};
+		}
+		const { mergeSettings } = await import("@server/settings/merge");
+
+		const defaults = settingsDefaults as unknown as Record<
+			string,
+			Record<string, unknown>
+		>;
 		const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
 		const merged = mergeSettings(defaults, groups, groupNames);
 
@@ -90,10 +139,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		for (const [k, v] of Object.entries(pageMap)) {
 			if (typeof basicGroup[k] === "boolean") pagesOut[v] = basicGroup[k];
 		}
-		merged.pages = { ...(merged.pages as Record<string, unknown> ?? {}), ...pagesOut };
+		merged.pages = {
+			...((merged.pages as Record<string, unknown>) ?? {}),
+			...pagesOut,
+		};
 		(context.locals as unknown as SettingsLocals).settings = merged;
 		if (settingsVersion) {
-			(context.locals as unknown as SettingsLocals).settingsVersion = settingsVersion;
+			(context.locals as unknown as SettingsLocals).settingsVersion =
+				settingsVersion;
 		}
 	} catch (e) {
 		console.warn("[middleware] 站点设置加载失败，本次请求以空配置渲染", e);
@@ -105,21 +158,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const response = await next();
 
 	// 安全响应头对所有 HTTP 方法生效（含 API 写操作的响应）
-	response.headers.set("X-Content-Type-Options", "nosniff");
-	response.headers.set("X-Frame-Options", "SAMEORIGIN");
-	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-	response.headers.set(
-		"Strict-Transport-Security",
-		"max-age=31536000; includeSubDomains",
-	);
-	response.headers.set(
-		"Permissions-Policy",
-		"camera=(), microphone=(), geolocation=(), payment=()",
-	);
-	response.headers.set(
-		"Content-Security-Policy-Report-Only",
-		"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
-	);
+	applySecurityHeaders(response.headers);
 
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");
@@ -132,8 +171,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			!url.pathname.startsWith("/api");
 
 		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
-
-			response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+			response.headers.set(
+				"Cache-Control",
+				"public, max-age=0, must-revalidate",
+			);
 			try {
 				const html = await response.clone().text();
 				if (html.length > 500 && html.length < 900_000) {
@@ -147,9 +188,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						}),
 					);
 				}
-			} catch {
-
-			}
+			} catch {}
 		}
 	}
 	return response;

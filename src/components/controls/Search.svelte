@@ -35,7 +35,6 @@ const handleDesktopFocus = (event: FocusEvent): void => {
 };
 
 const setPanelVisibility = (show: boolean, isDesktop: boolean): void => {
-
 	if (typeof document === "undefined") return;
 	const panel = document.getElementById("search-panel");
 	if (
@@ -125,7 +124,7 @@ $: if (initialized && (keywordMobile || keywordMobile === "")) {
 ">
     <Icon icon="material-symbols:search"
           class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-    <input id="search-input-desktop" placeholder="{i18n(I18nKey.search)}" bind:value={keywordDesktop}
+    <input id="search-input-desktop" placeholder="{i18n(I18nKey.search)}" aria-label={i18n(I18nKey.search)} bind:value={keywordDesktop}
            aria-controls="search-panel" data-floating-panel-no-expanded
            on:focus={handleDesktopFocus}
            class="transition-all pl-10 text-sm bg-transparent outline-0
@@ -148,7 +147,7 @@ top-20 left-4 md:left-[unset] right-4 shadow-2xl rounded-2xl p-2"
   ">
         <Icon icon="material-symbols:search"
               class="absolute text-[1.25rem] pointer-events-none ml-3 transition my-auto text-black/30 dark:text-white/30"></Icon>
-        <input placeholder={i18n(I18nKey.search)} bind:value={keywordMobile}
+        <input placeholder={i18n(I18nKey.search)} aria-label={i18n(I18nKey.search)} bind:value={keywordMobile}
                class="pl-10 absolute inset-0 text-base bg-transparent outline-0
                text-black/50 dark:text-white/50"
         >

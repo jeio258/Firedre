@@ -1,5 +1,4 @@
-
-
+// biome-ignore lint/suspicious/noShadowRestrictedNames: 沿用 mdast-util-toString 原名
 import { toString } from "mdast-util-to-string";
 import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
@@ -10,16 +9,16 @@ import remarkSmartypants from "remark-smartypants";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import "katex/dist/contrib/mhchem.mjs"; // mhchem 扩展
-import { siteConfig } from "../../src/config/index";
-import type { MarkdownHeading } from "../../types/posts";
+import { siteConfig } from "@shared/config/siteConfig";
 import {
 	sharedRehypePlugins,
 	sharedRemarkPlugins,
-} from "../../src/plugins/markdown-preset.mjs";
+} from "@shared/plugins/markdown-preset.mjs";
 import {
 	remarkWikiLinkRuntime,
 	type WikiLinkResolver,
-} from "../../src/plugins/remark-wiki-link-runtime";
+} from "@shared/plugins/remark-wiki-link-runtime";
+import type { MarkdownHeading } from "../../types/posts";
 import { rehypeSanitizeDangerous } from "./sanitize";
 
 export { stripMarkdown } from "./markdown";

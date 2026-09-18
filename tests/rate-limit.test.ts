@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
-	LOGIN_MAX_ATTEMPTS,
 	createD1LoginRateLimit,
+	LOGIN_MAX_ATTEMPTS,
 } from "../server/auth/loginRateLimit";
 import { checkD1RateLimit } from "../server/utils/rateLimiter";
 import { makeD1 } from "./helpers/d1";

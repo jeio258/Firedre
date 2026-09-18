@@ -1,6 +1,6 @@
+import { getAllDynamics } from "@server/dynamic/service";
+import { getSettingsVersionCached } from "@server/settings/service";
 import type { APIRoute } from "astro";
-import { getAllDynamics } from "../../../server/dynamic/service";
-import { getSettingsVersionCached } from "../../../server/settings/service";
 import { cfEnv, fromServiceError } from "../../lib/api";
 
 export const prerender = false;

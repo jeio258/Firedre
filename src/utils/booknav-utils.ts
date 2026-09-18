@@ -1,4 +1,4 @@
-import { booknavConfig } from "../config/booknavConfig";
+import { booknavConfig } from "@shared/config/booknavConfig";
 import type {
 	BooknavFaviconConfig,
 	BooknavGroup,
@@ -6,9 +6,9 @@ import type {
 } from "../types/booknavConfig";
 
 export type ResolvedBooknavIcon =
-	| { kind: "icon"; value: string }                  
-	| { kind: "image"; value: string }        
-	| { kind: "letter"; value: string };         
+	| { kind: "icon"; value: string }
+	| { kind: "image"; value: string }
+	| { kind: "letter"; value: string };
 
 // astro-icon 图标名格式：namespace:name
 const ICON_NAME_PATTERN = /^[\w-]+:[\w-]+$/;
@@ -64,7 +64,9 @@ export function resolveBooknavIcon(
 }
 
 // 获取启用的书签分组，分组与组内条目均按权重排序；groups 缺省回退静态配置
-export function getEnabledBooknavGroups(groups: BooknavGroup[] = booknavConfig): BooknavGroup[] {
+export function getEnabledBooknavGroups(
+	groups: BooknavGroup[] = booknavConfig,
+): BooknavGroup[] {
 	return groups
 		.filter((group) => group.enabled !== false)
 		.map((group) => ({

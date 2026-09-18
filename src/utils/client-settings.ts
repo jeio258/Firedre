@@ -1,5 +1,5 @@
-import { settingsDefaults } from "../config/settings-defaults";
-import { redactSensitive } from "../../server/settings/sensitive";
+import { redactSensitive } from "@server/settings/sensitive";
+import { settingsDefaults } from "@shared/config/settings-defaults";
 
 const CLIENT_SETTING_GROUPS = [
 	"basic",

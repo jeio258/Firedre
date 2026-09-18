@@ -4,6 +4,7 @@
  *
  * 运行方式说明：workerd 禁止运行时 codegen（new Function / eval），
  * 因此音源脚本经 Vite 构建期打包为模块，执行前把宿主对象挂到 globalThis.lx。
+ * 脚本文件放入 src/music-sources/*.js 即被收录，后台「音源解析脚本」按文件名选择。
  */
 
 export type LxCapability = {
@@ -17,6 +18,7 @@ export type LxMusicInfo = Record<string, unknown>;
 
 export type LxSource = {
 	capabilities: Record<string, LxCapability>;
+	abortInflight(): void;
 	getMusicUrl(
 		source: string,
 		musicInfo: LxMusicInfo,
@@ -37,35 +39,74 @@ type LxHandler = (payload: LxRequestPayload) => Promise<unknown>;
 const INITED_WAIT_MS = 10_000;
 const POLL_MS = 50;
 
-// 音源初始化只执行一次，之后复用（失败时清空以便重试）
-let cachedSource: Promise<LxSource> | null = null;
+export const DEFAULT_LX_SCRIPT = "kh-v1.7.16";
 
-export function getLxSource(): Promise<LxSource> {
-	if (!cachedSource) {
-		cachedSource = initLxSource().catch((error: unknown) => {
-			cachedSource = null;
+// 编译模块按需执行（脚本 IIFE 依赖执行时已挂好 globalThis.lx，不可 eager）
+const execSources = import.meta.glob("../music-sources/*.js") as Record<
+	string,
+	() => Promise<unknown>
+>;
+// 原始文本用于 currentScriptInfo.rawScript（部分音源据此做完整性签名）
+const rawSources = import.meta.glob("../music-sources/*.js", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
+
+const keyOf = (path: string) => path.replace(/^.*\//, "").replace(/\.js$/, "");
+
+export const LX_SCRIPT_KEYS = Object.keys(execSources).map(keyOf).sort();
+
+// 各音源初始化只执行一次，之后复用（失败时清空以便重试）
+const cachedSources = new Map<string, Promise<LxSource>>();
+// 初始化串行链：脚本经 globalThis.lx 单槽注册，并发 init 会互相覆盖
+let initChain: Promise<unknown> = Promise.resolve();
+
+export function getLxSource(
+	scriptKey: string = DEFAULT_LX_SCRIPT,
+): Promise<LxSource> {
+	const cached = cachedSources.get(scriptKey);
+	if (cached) return cached;
+	const init = initChain
+		.then(() => initLxSource(scriptKey))
+		.catch((error: unknown) => {
+			cachedSources.delete(scriptKey);
 			throw error;
 		});
-	}
-	return cachedSource;
+	cachedSources.set(scriptKey, init);
+	initChain = init.catch(() => {});
+	return init;
 }
 
-async function initLxSource(): Promise<LxSource> {
+function execModulePath(scriptKey: string): string {
+	const match = Object.keys(execSources).find((p) => keyOf(p) === scriptKey);
+	if (!match) {
+		throw new LxError(
+			`未找到音源脚本「${scriptKey}」，可用：${LX_SCRIPT_KEYS.join(", ")}`,
+		);
+	}
+	return match;
+}
+
+async function initLxSource(scriptKey: string): Promise<LxSource> {
+	const execPath = execModulePath(scriptKey);
 	const handlers = new Map<string, LxHandler>();
 	const state: { capabilities: Record<string, LxCapability> | null } = {
 		capabilities: null,
 	};
+	// 进行中的脚本网络请求，供超时后统一取消
+	const inflight = new Set<AbortController>();
 
 	const lx = {
 		version: "2.0.0",
 		env: "desktop",
 		currentScriptInfo: {
-			name: "",
+			name: scriptKey,
 			description: "",
 			version: "",
 			author: "",
 			homepage: "",
-			rawScript: "",
+			rawScript: rawSources[execPath] ?? "",
 		},
 		EVENT_NAMES: {
 			inited: "inited",
@@ -104,6 +145,7 @@ async function initLxSource(): Promise<LxSource> {
 					? optionsOrCallback
 					: maybeCallback;
 			const controller = new AbortController();
+			inflight.add(controller);
 			(async () => {
 				try {
 					const headers: Record<string, string> = {
@@ -134,6 +176,8 @@ async function initLxSource(): Promise<LxSource> {
 					);
 				} catch (error) {
 					callback?.(error, null, null);
+				} finally {
+					inflight.delete(controller);
 				}
 			})();
 			return () => controller.abort();
@@ -143,10 +187,8 @@ async function initLxSource(): Promise<LxSource> {
 	};
 
 	(globalThis as unknown as { lx?: unknown }).lx = lx;
-	// 构建期已打包为模块，此处仅触发执行（脚本会读取 globalThis.lx）
-	// 音源脚本为无导出的 IIFE，故忽略模块类型检查
-	// @ts-expect-error
-	await import("../music-sources/kh-v1.7.16.js");
+	// 构建期已打包为模块，此处经 glob 加载器触发执行（脚本会读取 globalThis.lx）
+	await execSources[execPath]();
 
 	const deadline = Date.now() + INITED_WAIT_MS;
 	while (state.capabilities === null && Date.now() < deadline) {
@@ -158,6 +200,11 @@ async function initLxSource(): Promise<LxSource> {
 
 	return {
 		capabilities: state.capabilities,
+		// 取消该实例全部进行中的脚本网络请求（解析超时后调用，避免后台继续占用 CPU）
+		abortInflight() {
+			for (const controller of inflight) controller.abort();
+			inflight.clear();
+		},
 		async getMusicUrl(source, musicInfo, quality) {
 			const result = await requestHandler({
 				source,

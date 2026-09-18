@@ -1,13 +1,5 @@
 // 第三方代理共享：轻量内存限流 + 响应缓存（prod caches.default / dev 跳过）
-
-function getRequestClientIp(request: Request): string {
-	return (
-		request.headers.get("CF-Connecting-IP") ||
-		request.headers.get("X-Real-IP") ||
-		request.headers.get("X-Forwarded-For")?.split(",")[0]?.trim() ||
-		"unknown"
-	);
-}
+import { getClientIp } from "@server/utils/clientIp";
 
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -15,12 +7,16 @@ const CACHE_TTL_SEC = 300;
 
 // 单实例内尽力限流：per-IP 滑动窗口，超出返回 true（应拒绝）
 // 存于 globalThis：dev 下模块可能按请求重新求值，globalThis 跨请求保留状态
-const g = globalThis as unknown as { __proxyRateBuckets?: Map<string, { count: number; resetAt: number }> };
+const g = globalThis as unknown as {
+	__proxyRateBuckets?: Map<string, { count: number; resetAt: number }>;
+};
 g.__proxyRateBuckets ??= new Map();
-const buckets: Map<string, { count: number; resetAt: number }> = g.__proxyRateBuckets;
+const buckets: Map<string, { count: number; resetAt: number }> =
+	g.__proxyRateBuckets;
 
 export function proxyRateLimited(request: Request): boolean {
-	const ip = getRequestClientIp(request);
+	// IP 口径与 server/utils/clientIp 统一（CF-Connecting-IP 单源）
+	const ip = getClientIp(request);
 	const now = Date.now();
 	const b = buckets.get(ip);
 	if (!b || b.resetAt <= now) {
@@ -46,7 +42,10 @@ export async function proxyCacheGet(url: URL): Promise<Response | null> {
 	}
 }
 
-export async function proxyCachePut(url: URL, response: Response): Promise<void> {
+export async function proxyCachePut(
+	url: URL,
+	response: Response,
+): Promise<void> {
 	if (import.meta.env.DEV) return;
 	try {
 		const headers = new Headers(response.headers);
@@ -68,13 +67,10 @@ export async function proxyEarlyResponse(
 	url: URL,
 ): Promise<Response | null> {
 	if (proxyRateLimited(request)) {
-		return new Response(
-			JSON.stringify({ error: "请求过于频繁，请稍后再试" }),
-			{
-				status: 429,
-				headers: { "Content-Type": "application/json" },
-			},
-		);
+		return new Response(JSON.stringify({ error: "请求过于频繁，请稍后再试" }), {
+			status: 429,
+			headers: { "Content-Type": "application/json" },
+		});
 	}
 
 	const cached = await proxyCacheGet(url);
@@ -83,4 +79,18 @@ export async function proxyEarlyResponse(
 	const headers = new Headers(cached.headers);
 	headers.set("X-Firedre-Cache", "HIT");
 	return new Response(await cached.text(), { status: cached.status, headers });
+}
+
+// 三段式代理路由的公共包装：early（限流/缓存命中）→ 业务 handler → 结果回填缓存
+// handler 抛错交由调用方的 try/catch 处理（serverError）
+export async function withProxyGuard<T extends Response>(
+	request: Request,
+	url: URL,
+	handler: () => Promise<T>,
+): Promise<Response> {
+	const early = await proxyEarlyResponse(request, url);
+	if (early) return early;
+	const body = await handler();
+	await proxyCachePut(url, body.clone());
+	return body;
 }

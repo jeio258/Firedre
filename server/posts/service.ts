@@ -1,7 +1,7 @@
 import type {
 	WikiLinkPostMeta,
 	WikiLinkResolver,
-} from "../../src/plugins/remark-wiki-link-runtime";
+} from "@shared/plugins/remark-wiki-link-runtime";
 import type { CloudflareEnv } from "../../types/env";
 import type {
 	PostDetail,

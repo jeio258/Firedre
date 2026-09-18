@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
-	syncPostTaxonomy,
+	categoryFilterSql,
 	listCategoryTree,
 	listTagCounts,
-	categoryFilterSql,
+	syncPostTaxonomy,
 	tagFilterSql,
 } from "../server/posts/taxonomy";
 import type { PostFrontmatter } from "../types/posts";
@@ -56,7 +56,9 @@ describe("D1 迁移：post_taxonomy 表统一（post_categories + post_tags 合�
 		} as PostFrontmatter);
 
 		const rows = db
-			.prepare("SELECT post_slug, type, value FROM post_taxonomy ORDER BY post_slug, type, value")
+			.prepare(
+				"SELECT post_slug, type, value FROM post_taxonomy ORDER BY post_slug, type, value",
+			)
 			.all() as Array<{ post_slug: string; type: string; value: string }>;
 		expect(rows).toEqual([
 			{ post_slug: "a", type: "category", value: "分类一" },

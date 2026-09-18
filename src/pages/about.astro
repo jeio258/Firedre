@@ -3,7 +3,7 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 
 import Markdown from "@components/common/Markdown.astro";
-import { profileConfig } from "@/config/profileConfig";
+import { profileConfig } from "@shared/config/profileConfig";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -14,7 +14,7 @@ import { buildProfilePage } from "@/utils/schema-utils";
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
 // Firedre：关于页内容来自 R2（后台可编辑）
-const { getAbout } = await import("../../server/about/service");
+const { getAbout } = await import("@server/about/service");
 const { cfEnv } = await import("../lib/api");
 const aboutDetail = await getAbout(cfEnv);
 

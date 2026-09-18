@@ -1,5 +1,3 @@
-
-
 import { dedupByKey, fetchWithDedup } from "./fetch-dedup";
 import {
 	type ApiPostDetail,
@@ -34,8 +32,8 @@ async function fetchPostsList(
 			const [{ cfEnv }, { listPosts }, { redactPostSecrets }] =
 				await Promise.all([
 					import("../lib/api"),
-					import("../../server/posts/service"),
-					import("../../server/posts/sanitize"),
+					import("@server/posts/service"),
+					import("@server/posts/sanitize"),
 				]);
 			const result = await listPosts(cfEnv, {
 				page: Number(params.page || 1),
@@ -101,7 +99,7 @@ export async function getTagList(): Promise<Tag[]> {
 		return dedupByKey("ssr:taxonomy:tags", async () => {
 			const [{ cfEnv }, { getTaxonomyTags }] = await Promise.all([
 				import("../lib/api"),
-				import("../../server/posts/service"),
+				import("@server/posts/service"),
 			]);
 			return (await getTaxonomyTags(cfEnv)) as Tag[];
 		});
@@ -124,7 +122,7 @@ export async function getCategoryList(): Promise<Category[]> {
 		const categories = await dedupByKey("ssr:taxonomy:categories", async () => {
 			const [{ cfEnv }, { getTaxonomyCategories }] = await Promise.all([
 				import("../lib/api"),
-				import("../../server/posts/service"),
+				import("@server/posts/service"),
 			]);
 			return await getTaxonomyCategories(cfEnv);
 		});

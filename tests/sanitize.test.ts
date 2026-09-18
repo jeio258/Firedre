@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { sanitizeHast, sanitizeUrl } from "../server/posts/sanitize";
 
 describe("sanitizeUrl", () => {
@@ -18,8 +18,12 @@ describe("sanitizeUrl", () => {
 	});
 
 	it("removes non-image data: URLs", () => {
-		expect(sanitizeUrl("data:text/html,<script>alert(1)</script>")).toBeUndefined();
-		expect(sanitizeUrl("data:image/svg+xml,<svg onload=alert(1)>")).toBeUndefined();
+		expect(
+			sanitizeUrl("data:text/html,<script>alert(1)</script>"),
+		).toBeUndefined();
+		expect(
+			sanitizeUrl("data:image/svg+xml,<svg onload=alert(1)>"),
+		).toBeUndefined();
 	});
 
 	it("keeps safe URLs", () => {
@@ -37,20 +41,38 @@ describe("sanitizeHast", () => {
 		const tree = {
 			type: "root",
 			children: [
-				{ type: "element", tagName: "p", properties: {}, children: [{ type: "text", value: "hi" }] },
-				{ type: "element", tagName: "script", properties: {}, children: [{ type: "text", value: "alert(1)" }] },
+				{
+					type: "element",
+					tagName: "p",
+					properties: {},
+					children: [{ type: "text", value: "hi" }],
+				},
+				{
+					type: "element",
+					tagName: "script",
+					properties: {},
+					children: [{ type: "text", value: "alert(1)" }],
+				},
 				{
 					type: "element",
 					tagName: "div",
 					properties: {},
 					children: [
-						{ type: "element", tagName: "script", properties: {}, children: [] },
+						{
+							type: "element",
+							tagName: "script",
+							properties: {},
+							children: [],
+						},
 					],
 				},
 			],
 		};
 		sanitizeHast(tree);
-		const remaining = tree.children as Array<{ tagName?: string; children?: unknown[] }>;
+		const remaining = tree.children as Array<{
+			tagName?: string;
+			children?: unknown[];
+		}>;
 		const tags = remaining.map((c) => c.tagName);
 		expect(tags).not.toContain("script");
 		// p 与 div 保留，div 内的 script 被移除
@@ -73,7 +95,10 @@ describe("sanitizeHast", () => {
 		const iframe = {
 			type: "element",
 			tagName: "iframe",
-			properties: { src: "https://example.com", srcdoc: "<script>alert(1)</script>" },
+			properties: {
+				src: "https://example.com",
+				srcdoc: "<script>alert(1)</script>",
+			},
 			children: [],
 		};
 		sanitizeHast(iframe);
@@ -108,7 +133,12 @@ describe("sanitizeHast", () => {
 			type: "root",
 			children: [
 				{ type: "element", tagName: "math", properties: {}, children: [] },
-				{ type: "element", tagName: "annotation-xml", properties: {}, children: [] },
+				{
+					type: "element",
+					tagName: "annotation-xml",
+					properties: {},
+					children: [],
+				},
 				{ type: "element", tagName: "input", properties: {}, children: [] },
 				{ type: "element", tagName: "p", properties: {}, children: [] },
 			],
@@ -127,8 +157,7 @@ describe("sanitizeHast srcset（P2-1）", () => {
 			type: "element",
 			tagName: "img",
 			properties: {
-				srcset:
-					"a.jpg 1x, javascript:alert(1) 2x, /local/b.jpg 2x",
+				srcset: "a.jpg 1x, javascript:alert(1) 2x, /local/b.jpg 2x",
 			},
 			children: [],
 		};

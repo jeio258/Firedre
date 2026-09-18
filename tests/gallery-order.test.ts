@@ -48,7 +48,11 @@ describe("upsertGalleryAlbum 创建相册自动进列表", () => {
 		const r2 = makeR2({ [HUB_KEY]: hubSource });
 		const env = envFor(r2);
 
-		await upsertGalleryAlbum(env, "new-album", albumSource("new-album", "新相册"));
+		await upsertGalleryAlbum(
+			env,
+			"new-album",
+			albumSource("new-album", "新相册"),
+		);
 
 		expect(albumsIn(r2)).toEqual(["existing-album", "new-album"]);
 		// 相册文件确实写入
@@ -59,7 +63,11 @@ describe("upsertGalleryAlbum 创建相册自动进列表", () => {
 		const r2 = makeR2({ [HUB_KEY]: hubSource });
 		const env = envFor(r2);
 
-		await upsertGalleryAlbum(env, "existing-album", albumSource("existing-album", "已有"));
+		await upsertGalleryAlbum(
+			env,
+			"existing-album",
+			albumSource("existing-album", "已有"),
+		);
 
 		expect(albumsIn(r2)).toEqual(["existing-album"]);
 	});
@@ -81,7 +89,10 @@ describe("updateGalleryAlbumOrder 排序", () => {
 			"other",
 		]);
 
-		expect(result.albums.map((a) => a.slug)).toEqual(["other", "existing-album"]);
+		expect(result.albums.map((a) => a.slug)).toEqual([
+			"other",
+			"existing-album",
+		]);
 		expect(albumsIn(r2)).toEqual(["other", "existing-album"]);
 	});
 

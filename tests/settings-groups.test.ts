@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { SETTING_GROUPS } from "../server/settings/service";
+import { describe, expect, it } from "vitest";
 import { flattenSettingsDefaults } from "../server/settings/flatten";
+import { SETTING_GROUPS } from "../server/settings/service";
 
 const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt"];
 

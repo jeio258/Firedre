@@ -42,7 +42,7 @@ interface Props {
 const settings =
 	(
 		Astro.locals as {
-			settings?: import("../../server/settings/service").SettingsShape;
+			settings?: import("@server/settings/service").SettingsShape;
 		}
 	).settings ?? {};
 

@@ -8,19 +8,15 @@ import {
 	WALLPAPER_NONE,
 	WALLPAPER_OVERLAY,
 } from "@constants/constants";
-import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
-import {
-	backgroundWallpaper,
-	sakuraConfig,
-	siteConfig,
-} from "../config";
 import {
 	getEffectsConfigFromWindow,
 	getExpressiveCodeConfigFromWindow,
 	getPanelConfigFromWindow,
 	getSiteConfigFromWindow,
 	getWallpaperConfigFromWindow,
-} from "../config/runtime";
+} from "@shared/config/runtime";
+import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
+import { backgroundWallpaper, sakuraConfig, siteConfig } from "../config";
 import { isMobileViewport } from "./breakpoints";
 import { isHomePage as checkIsHomePage } from "./layout-utils";
 
@@ -46,7 +42,13 @@ interface BooleanSettingOpts {
 	afterStore?: (value: boolean) => void;
 }
 
-function createStoredBoolean({ key, getDefault, shouldGet, shouldStore, afterStore }: BooleanSettingOpts) {
+function createStoredBoolean({
+	key,
+	getDefault,
+	shouldGet,
+	shouldStore,
+	afterStore,
+}: BooleanSettingOpts) {
 	return {
 		getStored(): boolean {
 			if (shouldGet && !shouldGet()) {
@@ -82,7 +84,25 @@ interface NumberSettingOpts {
 	afterStore?: (value: number) => void;
 }
 
-function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSettingOpts) {
+function createStoredNumber({
+	key,
+	getDefault,
+	min,
+	max,
+	afterStore,
+}: NumberSettingOpts) {
+	// 记录「存储时后台的默认值」：用户未显式自定义（存储值 == 记录的默认值）时，
+	// 后台修改默认值后前端自动跟随，避免后台设置被本地残留偏好覆盖
+	const readRecordedDefault = (): number | null => {
+		if (
+			typeof localStorage === "undefined" ||
+			typeof localStorage.getItem !== "function"
+		) {
+			return null;
+		}
+		const raw = localStorage.getItem(`${key}:default`);
+		return raw === null ? null : Number.parseFloat(raw);
+	};
 	return {
 		getStored(): number {
 			if (
@@ -94,7 +114,13 @@ function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSet
 			const stored = localStorage.getItem(key);
 			if (stored === null) return getDefault();
 			const parsed = Number.parseFloat(stored);
-			return Number.isNaN(parsed) ? getDefault() : clampNumber(parsed, min, max);
+			if (Number.isNaN(parsed)) return getDefault();
+			const recorded = readRecordedDefault();
+			// 存储值与记录的默认值一致 → 用户未自定义，跟随后台的新默认值
+			if (recorded !== null && parsed === recorded) {
+				return clampNumber(getDefault(), min, max);
+			}
+			return clampNumber(parsed, min, max);
 		},
 		set(value: number): void {
 			const safe = clampNumber(value, min, max);
@@ -103,6 +129,11 @@ function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSet
 				typeof localStorage.setItem === "function"
 			) {
 				localStorage.setItem(key, String(safe));
+				// 记录当前后台默认值，供「未自定义则跟随」判断
+				localStorage.setItem(
+					`${key}:default`,
+					String(clampNumber(getDefault(), min, max)),
+				);
 			}
 			afterStore?.(safe);
 		},
@@ -111,7 +142,7 @@ function createStoredNumber({ key, getDefault, min, max, afterStore }: NumberSet
 
 export function getDefaultHue(): number {
 	const fallback = "250";
-		if (typeof document === "undefined") {
+	if (typeof document === "undefined") {
 		return Number.parseInt(fallback, 10);
 	}
 	const configCarrier = document.getElementById("config-carrier");
@@ -120,7 +151,9 @@ export function getDefaultHue(): number {
 
 function getDefaultTheme(): LIGHT_DARK_MODE {
 	// 统一从后台 settings 读取默认主题，静态 config 仅兑底
-	return (getSiteConfigFromWindow().themeColor?.defaultMode ?? siteConfig.themeColor.defaultMode ?? DEFAULT_THEME) as LIGHT_DARK_MODE;
+	return (getSiteConfigFromWindow().themeColor?.defaultMode ??
+		siteConfig.themeColor.defaultMode ??
+		DEFAULT_THEME) as LIGHT_DARK_MODE;
 }
 
 export function getSystemTheme(): LIGHT_DARK_MODE {
@@ -141,7 +174,7 @@ export function resolveTheme(theme: LIGHT_DARK_MODE): LIGHT_DARK_MODE {
 }
 
 export function getHue(): number {
-		if (typeof window === "undefined" || !window.localStorage) {
+	if (typeof window === "undefined" || !window.localStorage) {
 		return getDefaultHue();
 	}
 	const stored = localStorage.getItem("hue");
@@ -149,7 +182,7 @@ export function getHue(): number {
 }
 
 export function setHue(hue: number): void {
-		if (
+	if (
 		typeof window === "undefined" ||
 		!window.localStorage ||
 		typeof document === "undefined"
@@ -165,16 +198,16 @@ export function setHue(hue: number): void {
 }
 
 export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
-		if (typeof document === "undefined") {
+	if (typeof document === "undefined") {
 		return;
 	}
 
-		const resolvedTheme = resolveTheme(theme);
+	const resolvedTheme = resolveTheme(theme);
 
-		const currentIsDark = document.documentElement.classList.contains("dark");
+	const currentIsDark = document.documentElement.classList.contains("dark");
 	const currentTheme = document.documentElement.getAttribute("data-theme");
 
-	let targetIsDark = false;          
+	let targetIsDark = false;
 	switch (resolvedTheme) {
 		case LIGHT_MODE:
 			targetIsDark = false;
@@ -201,7 +234,6 @@ export function applyThemeToDocument(theme: LIGHT_DARK_MODE): void {
 
 	// 批量 DOM 操作，减少重绘
 	if (needsThemeChange) {
-
 		if (targetIsDark) {
 			document.documentElement.classList.add("dark");
 		} else {
@@ -219,14 +251,14 @@ let systemThemeListener:
 	| null = null;
 
 export function setTheme(theme: LIGHT_DARK_MODE): void {
-		if (
+	if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.setItem !== "function"
 	) {
 		return;
 	}
 
-		applyThemeToDocument(theme);
+	applyThemeToDocument(theme);
 
 	localStorage.setItem("theme", theme);
 
@@ -239,9 +271,7 @@ export function setTheme(theme: LIGHT_DARK_MODE): void {
 	}
 }
 
-
 function setupSystemThemeListener(): void {
-
 	cleanupSystemThemeListener();
 
 	if (typeof window === "undefined") {
@@ -250,7 +280,7 @@ function setupSystemThemeListener(): void {
 
 	const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-		const handleSystemThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
+	const handleSystemThemeChange = (e: MediaQueryListEvent | MediaQueryList) => {
 		const isDark = e.matches;
 		const currentIsDark = document.documentElement.classList.contains("dark");
 
@@ -282,7 +312,6 @@ function setupSystemThemeListener(): void {
 	if (mediaQuery.addEventListener) {
 		mediaQuery.addEventListener("change", handleSystemThemeChange);
 	} else {
-
 		mediaQuery.addListener(handleSystemThemeChange);
 	}
 
@@ -299,7 +328,6 @@ function cleanupSystemThemeListener() {
 	if (mediaQuery.removeEventListener) {
 		mediaQuery.removeEventListener("change", systemThemeListener);
 	} else {
-
 		mediaQuery.removeListener(systemThemeListener);
 	}
 
@@ -307,7 +335,7 @@ function cleanupSystemThemeListener() {
 }
 
 export function getStoredTheme(): LIGHT_DARK_MODE {
-		if (
+	if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.getItem !== "function"
 	) {
@@ -333,7 +361,6 @@ export function initThemeListener(): void {
 		setupSystemThemeListener();
 	}
 }
-
 
 export function syncBannerHomeTextVisibility(): void {
 	const overlay = document.querySelector(
@@ -403,13 +430,12 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 
 	// 根据当前壁纸模式设置导航栏透明模式和模糊效果
 	if (mode === WALLPAPER_OVERLAY) {
-				transparentMode = "none";
+		transparentMode = "none";
 		blurAmount = 0;
 	} else if (mode === WALLPAPER_NONE) {
-				transparentMode = "none";
+		transparentMode = "none";
 		blurAmount = 0;
 	} else if (mode === WALLPAPER_FULLSCREEN) {
-
 		const isHomePage = checkIsHomePage(window.location.pathname);
 		const dynamicTransparent =
 			backgroundWallpaper.fullscreen?.navbar?.dynamicTransparent ?? false;
@@ -427,18 +453,18 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 		blurAmount = backgroundWallpaper.banner?.navbar?.blur ?? 20;
 	}
 
-		navbar.setAttribute("data-transparent-mode", transparentMode);
+	navbar.setAttribute("data-transparent-mode", transparentMode);
 	navbar.style.setProperty("--navbar-glass-blur", `${blurAmount}px`);
 
-		navbar.classList.remove(
+	navbar.classList.remove(
 		"navbar-transparent-semi",
 		"navbar-transparent-full",
 		"navbar-transparent-semifull",
 	);
 
-		navbar.classList.remove("scrolled");
+	navbar.classList.remove("scrolled");
 
-		if (
+	if (
 		transparentMode === "semifull" &&
 		(mode === WALLPAPER_BANNER || mode === WALLPAPER_FULLSCREEN) &&
 		typeof window.initSemifullScrollDetection === "function"
@@ -446,13 +472,13 @@ export function updateNavbarTransparency(mode: WALLPAPER_MODE): void {
 		// 在Banner和全屏壁纸模式的semifull下启用滚动检测
 		window.initSemifullScrollDetection();
 	} else if (window.semifullScrollHandler) {
-				window.removeEventListener("scroll", window.semifullScrollHandler);
+		window.removeEventListener("scroll", window.semifullScrollHandler);
 		delete window.semifullScrollHandler;
 	}
 }
 
 export function setWallpaperMode(mode: WALLPAPER_MODE): void {
-		if (
+	if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.setItem !== "function"
 	) {
@@ -470,9 +496,8 @@ export function initWallpaperMode(): void {
 }
 
 export function getStoredWallpaperMode(): WALLPAPER_MODE {
-
 	const runtimeMode = getWallpaperConfigFromWindow().mode;
-		if (
+	if (
 		typeof localStorage === "undefined" ||
 		typeof localStorage.getItem !== "function"
 	) {
@@ -485,20 +510,33 @@ export function getStoredWallpaperMode(): WALLPAPER_MODE {
 		return runtimeMode;
 	}
 
-	return (localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) || runtimeMode;
+	return (
+		(localStorage.getItem("wallpaperMode") as WALLPAPER_MODE) || runtimeMode
+	);
 }
 
 export function getDefaultOverlayOpacity(): number {
-	return getWallpaperConfigFromWindow().overlay?.opacity ?? backgroundWallpaper.overlay?.opacity ?? 0.8;
+	return (
+		getWallpaperConfigFromWindow().overlay?.opacity ??
+		backgroundWallpaper.overlay?.opacity ??
+		0.8
+	);
 }
 
 export function getDefaultOverlayBlur(): number {
-	return getWallpaperConfigFromWindow().overlay?.blur ?? backgroundWallpaper.overlay?.blur ?? 0;
+	return (
+		getWallpaperConfigFromWindow().overlay?.blur ??
+		backgroundWallpaper.overlay?.blur ??
+		0
+	);
 }
 
 export function getDefaultOverlayCardOpacity(): number {
-
-	return getWallpaperConfigFromWindow().overlay?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity ?? 0.6;
+	return (
+		getWallpaperConfigFromWindow().overlay?.cardOpacity ??
+		backgroundWallpaper.overlay?.cardOpacity ??
+		0.6
+	);
 }
 
 function applyOverlayCssVar(
@@ -521,9 +559,25 @@ function applyOverlayCssVar(
 	};
 }
 
-const applyOverlayOpacityToDocument = applyOverlayCssVar("wallpaper-wrapper", "--overlay-opacity", 0, 1);
-const applyOverlayBlurToDocument = applyOverlayCssVar("wallpaper-wrapper", "--overlay-blur", 0, 20, "px");
-const applyOverlayCardOpacityToDocument = applyOverlayCssVar("html", "--card-transparent-opacity", 0, 1);
+const applyOverlayOpacityToDocument = applyOverlayCssVar(
+	"wallpaper-wrapper",
+	"--overlay-opacity",
+	0,
+	1,
+);
+const applyOverlayBlurToDocument = applyOverlayCssVar(
+	"wallpaper-wrapper",
+	"--overlay-blur",
+	0,
+	20,
+	"px",
+);
+const applyOverlayCardOpacityToDocument = applyOverlayCssVar(
+	"html",
+	"--card-transparent-opacity",
+	0,
+	1,
+);
 
 const overlayOpacitySetting = createStoredNumber({
 	key: "overlayOpacity",
@@ -627,8 +681,16 @@ function createElementToggle(
 	};
 }
 
-const applyWavesEnabledToDocument = createElementToggle("data-waves-enabled", "header-waves", "waves-disabled");
-const applyGradientEnabledToDocument = createElementToggle("data-gradient-enabled", "wallpaper-gradient", "gradient-disabled");
+const applyWavesEnabledToDocument = createElementToggle(
+	"data-waves-enabled",
+	"header-waves",
+	"waves-disabled",
+);
+const applyGradientEnabledToDocument = createElementToggle(
+	"data-gradient-enabled",
+	"wallpaper-gradient",
+	"gradient-disabled",
+);
 
 const wavesSetting = createStoredBoolean({
 	key: "wavesEnabled",
@@ -670,9 +732,14 @@ const sakuraSetting = createStoredBoolean({
 	getDefault: getDefaultSakuraEnabled,
 	afterStore(enabled: boolean): void {
 		if (typeof document === "undefined") return;
-		document.documentElement.setAttribute("data-sakura-enabled", String(enabled));
+		document.documentElement.setAttribute(
+			"data-sakura-enabled",
+			String(enabled),
+		);
 		if (typeof window !== "undefined") {
-			window.dispatchEvent(new CustomEvent("sakuraToggle", { detail: { enabled } }));
+			window.dispatchEvent(
+				new CustomEvent("sakuraToggle", { detail: { enabled } }),
+			);
 		}
 	},
 });
@@ -684,11 +751,19 @@ export function setSakuraEnabled(enabled: boolean): void {
 }
 
 export function getDefaultBannerTitleEnabled(): boolean {
-	return getWallpaperConfigFromWindow().common?.homeText?.enable ?? backgroundWallpaper.common?.homeText?.enable ?? true;
+	return (
+		getWallpaperConfigFromWindow().common?.homeText?.enable ??
+		backgroundWallpaper.common?.homeText?.enable ??
+		true
+	);
 }
 
 export function getDefaultBannerCarouselEnabled(): boolean {
-	return getEffectsConfigFromWindow().bannerCarousel ?? backgroundWallpaper.common?.carousel?.enable ?? false;
+	return (
+		getEffectsConfigFromWindow().bannerCarousel ??
+		backgroundWallpaper.common?.carousel?.enable ??
+		false
+	);
 }
 
 const bannerTitleSetting = createStoredBoolean({
@@ -762,7 +837,9 @@ function applyBannerCarouselEnabledToDocument(enabled: boolean): void {
 }
 
 export function getDefaultCardBorderEnabled(): boolean {
-	return getSiteConfigFromWindow().card?.border ?? siteConfig.card?.border ?? false;
+	return (
+		getSiteConfigFromWindow().card?.border ?? siteConfig.card?.border ?? false
+	);
 }
 
 const cardBorderSetting = createStoredBoolean({
@@ -782,7 +859,11 @@ export function setCardBorderEnabled(enabled: boolean): void {
 }
 
 export function getDefaultCardFollowThemeEnabled(): boolean {
-	return getSiteConfigFromWindow().card?.followTheme ?? siteConfig.card?.followTheme ?? false;
+	return (
+		getSiteConfigFromWindow().card?.followTheme ??
+		siteConfig.card?.followTheme ??
+		false
+	);
 }
 
 const cardFollowThemeSetting = createStoredBoolean({

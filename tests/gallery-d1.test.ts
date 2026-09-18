@@ -1,5 +1,5 @@
-import { describe, expect, it, beforeAll } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
 	deleteAlbumFromD1,
 	getAlbumFromD1,
@@ -35,7 +35,11 @@ describe("相册 D1 数据层", () => {
 				source: "local",
 				photos: [
 					{ url: "https://x/1.jpg", type: "image" },
-					{ url: "https://x/video.mp4", type: "video", poster: "https://x/p.jpg" },
+					{
+						url: "https://x/video.mp4",
+						type: "video",
+						poster: "https://x/p.jpg",
+					},
 					{ url: "https://x/2.jpg" },
 				],
 			},
@@ -63,7 +67,11 @@ describe("相册 D1 数据层", () => {
 		await upsertAlbumToD1(
 			env,
 			"test-album",
-			{ title: "改后", source: "local", photos: [{ url: "https://x/new.jpg" }] },
+			{
+				title: "改后",
+				source: "local",
+				photos: [{ url: "https://x/new.jpg" }],
+			},
 			"新正文",
 		);
 		const data = await getAlbumFromD1(env, "test-album");

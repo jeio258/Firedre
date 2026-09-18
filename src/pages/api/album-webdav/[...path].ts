@@ -1,5 +1,5 @@
+import { handleAlbumWebdavHttp } from "@server/gallery/albumWebdavHttp";
 import type { APIRoute } from "astro";
-import { handleAlbumWebdavHttp } from "../../../../server/gallery/albumWebdavHttp";
 import { cfEnv } from "../../../lib/api";
 
 export const prerender = false;

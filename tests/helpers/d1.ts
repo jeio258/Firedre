@@ -14,7 +14,9 @@ export interface D1StmtLike {
 	all<T = Record<string, unknown>>(): Promise<{ results: T[] }>;
 }
 
-/** node:sqlite 之上的 D1 兼容桩：run() 返回 D1Result 形状的 meta.changes */export function makeD1(db: DatabaseSync): D1Like {
+/** node:sqlite 之上的 D1 兼容桩：run() 返回 D1Result 形状的 meta.changes */ export function makeD1(
+	db: DatabaseSync,
+): D1Like {
 	return {
 		prepare(sql: string) {
 			const stmt = db.prepare(sql);

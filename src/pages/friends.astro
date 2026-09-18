@@ -19,7 +19,7 @@ if (!getSiteConfig(Astro.locals).pages.friends) {
 }
 
 // Firedre：友链数据来自 D1（后台可编辑）
-const { listEnabledFriends } = await import("../../server/friends/service");
+const { listEnabledFriends } = await import("@server/friends/service");
 const { cfEnv } = await import("../lib/api");
 const friendRows = await listEnabledFriends(cfEnv);
 

@@ -1,17 +1,18 @@
 <script lang="ts">
+import { settingsDefaults as defaultsJson } from "@shared/config/settings-defaults";
 import { onMount } from "svelte";
-import JsonEditor from "./JsonEditor.svelte";
-import Switch from "./Switch.svelte";
 import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
-import { getDraft, clearDraft } from "@/lib/adminDrafts";
-import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 import {
 	CATEGORIES,
 	type Field,
-	type Group,
 	GROUPS,
+	type Group,
 } from "./adminSettingsSchema";
+import JsonEditor from "./JsonEditor.svelte";
+import RecordsEditor from "./RecordsEditor.svelte";
+import Switch from "./Switch.svelte";
 
 let data = $state<Record<string, Record<string, unknown>>>({});
 let loading = $state(true);
@@ -54,8 +55,8 @@ async function load() {
 			}
 			data[g.key] = merged;
 		}
-		data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
-		cmtTypeVal = String(data["comment"]?.["type"] ?? "");
+		data.nav = { ...(defaults.nav ?? {}), ...(all.nav ?? {}) };
+		cmtTypeVal = String(data.comment?.type ?? "");
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}
@@ -93,7 +94,9 @@ function profileArea(group: Group, field: Field): string {
 
 const jsonFields = new Set(
 	GROUPS.flatMap((g) =>
-		g.fields.filter((f) => f.type === "json").map((f) => f.name),
+		g.fields
+			.filter((f) => f.type === "json" || f.type === "records")
+			.map((f) => f.name),
 	),
 );
 
@@ -115,7 +118,7 @@ async function save() {
 			}
 			out[g.key] = payload;
 		}
-		out["nav"] = { ...(data["nav"] ?? {}) };
+		out.nav = { ...(data.nav ?? {}) };
 		try {
 			await apiJson("/api/settings/", {
 				method: "PUT",
@@ -130,7 +133,7 @@ async function save() {
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 		clearDraft("站点设置");
 
-		applyHueToAdmin(data["basic"]?.hue);
+		applyHueToAdmin(data.basic?.hue);
 	} catch {
 		message = "网络错误，修改尚未保存";
 	} finally {
@@ -145,8 +148,9 @@ function applyHueToAdmin(hue: unknown) {
 	const h = Number(hue);
 	if (!Number.isFinite(h) || h < 0 || h > 360) return;
 	document.documentElement.style.setProperty("--hue", String(h));
-	document.body.style.background =
-		getComputedStyle(document.documentElement).getPropertyValue("--page-bg").trim();
+	document.body.style.background = getComputedStyle(document.documentElement)
+		.getPropertyValue("--page-bg")
+		.trim();
 }
 
 // 暴露给顶栏「保存全部」
@@ -227,6 +231,19 @@ onMount(async () => {
 												value={data[group.key]?.[field.name]}
 												placeholder={field.placeholder ?? ""}
 												fieldLabel={field.label}
+												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
+											/>
+										{:else if field.type === "records"}
+											<RecordsEditor
+												value={data[group.key]?.[field.name]}
+												recordFields={field.recordFields ?? []}
+												objectFields={field.objectFields ?? []}
+												groupFields={field.groupFields ?? []}
+												itemFields={field.itemFields ?? []}
+												indent={field.indent ?? "  "}
+												separator={field.separator ?? "|"}
+												fieldLabel={field.label}
+												placeholder={field.placeholder ?? ""}
 												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
 											/>
 										{:else if field.type === "password"}

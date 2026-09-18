@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-	getWallpaperConfig,
-	getSiteConfig,
-	getSidebarConfig,
-	getSponsorConfig,
 	getDynamicConfig,
 	getPanelConfig,
+	getSidebarConfig,
+	getSiteConfig,
+	getSponsorConfig,
+	getWallpaperConfig,
 } from "../src/config/runtime";
 
 describe("runtime.getWallpaperConfig", () => {
@@ -34,7 +34,9 @@ describe("runtime.getWallpaperConfig", () => {
 	});
 
 	it("空 bannerUrl 回退静态默认", () => {
-		const config = getWallpaperConfig({ settings: { theme: { bannerUrl: "" } } });
+		const config = getWallpaperConfig({
+			settings: { theme: { bannerUrl: "" } },
+		});
 		const src = config.src as { desktop?: string[] };
 		expect(src.desktop?.length ?? 0).toBeGreaterThan(0);
 	});
@@ -66,9 +68,13 @@ describe("runtime.getWallpaperConfig", () => {
 	});
 
 	it("typewriter 布尔开关正确转为对象 enable", () => {
-		const on = getWallpaperConfig({ settings: { theme: { typewriter: true } } });
+		const on = getWallpaperConfig({
+			settings: { theme: { typewriter: true } },
+		});
 		expect(on.common?.homeText?.typewriter?.enable).toBe(true);
-		const off = getWallpaperConfig({ settings: { theme: { typewriter: false } } });
+		const off = getWallpaperConfig({
+			settings: { theme: { typewriter: false } },
+		});
 		expect(off.common?.homeText?.typewriter?.enable).toBe(false);
 	});
 });
@@ -89,17 +95,23 @@ describe("runtime.getSiteConfig", () => {
 	});
 
 	it("conflictedKey title 从平铺层读不到时，仍从 basic 组读取", () => {
-		const config = getSiteConfig({ settings: { basic: { title: "嵌套标题" } } });
+		const config = getSiteConfig({
+			settings: { basic: { title: "嵌套标题" } },
+		});
 		expect(config.title).toBe("嵌套标题");
 	});
 
 	it("裸域名 siteUrl 自动补全 https:// 协议（防止 new URL 崩溃导致白屏）", () => {
-		const config = getSiteConfig({ settings: { basic: { siteUrl: "www.994613.xyz" } } });
+		const config = getSiteConfig({
+			settings: { basic: { siteUrl: "www.994613.xyz" } },
+		});
 		expect(config.site_url).toBe("https://www.994613.xyz");
 	});
 
 	it("已带协议的 siteUrl 保持不变", () => {
-		const config = getSiteConfig({ settings: { basic: { siteUrl: "https://example.com" } } });
+		const config = getSiteConfig({
+			settings: { basic: { siteUrl: "https://example.com" } },
+		});
 		expect(config.site_url).toBe("https://example.com");
 	});
 });
@@ -123,7 +135,9 @@ describe("runtime.getSidebarConfig", () => {
 describe("runtime.getSponsorConfig", () => {
 	it("读取后台 sponsor 组开关", () => {
 		const config = getSponsorConfig({
-			settings: { sponsor: { showButtonInPost: false, showSponsorsList: false } },
+			settings: {
+				sponsor: { showButtonInPost: false, showSponsorsList: false },
+			},
 		});
 		expect(config.showButtonInPost).toBe(false);
 		expect(config.showSponsorsList).toBe(false);

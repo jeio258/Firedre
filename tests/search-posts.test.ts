@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { searchPosts } from "../server/posts/service";
 
 function makeDbMock(capture: { query?: string }) {
@@ -44,6 +44,8 @@ describe("searchPosts 关键词 FTS 转义（P2-3）", () => {
 		const env = { DB: { prepare: vi.fn() } } as never;
 		const result = await searchPosts(env, "   ");
 		expect(result).toEqual([]);
-		expect((env.DB as { prepare: ReturnType<typeof vi.fn> }).prepare).not.toHaveBeenCalled();
+		expect(
+			(env.DB as { prepare: ReturnType<typeof vi.fn> }).prepare,
+		).not.toHaveBeenCalled();
 	});
 });

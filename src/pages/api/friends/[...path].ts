@@ -1,6 +1,4 @@
-import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
+import { verifyAdminRequest } from "@server/auth/adminSession";
 import {
 	createFriend,
 	deleteFriend,
@@ -8,7 +6,8 @@ import {
 	listEnabledFriends,
 	listFriends,
 	updateFriend,
-} from "../../../../server/friends/service";
+} from "@server/friends/service";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,
@@ -20,6 +19,7 @@ import {
 	unauthorized,
 	withAdmin,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
@@ -122,7 +122,10 @@ function toView(row: {
 		imgurl: row.imgurl,
 		desc: row.desc || "",
 		siteurl: row.siteurl,
-		tags: (row.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
+		tags: (row.tags || "")
+			.split(",")
+			.map((t) => t.trim())
+			.filter(Boolean),
 		weight: Number(row.weight),
 		enabled: row.enabled === 1,
 	};

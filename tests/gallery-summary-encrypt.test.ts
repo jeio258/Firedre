@@ -1,6 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+	GALLERY_HUB_R2_KEY,
+	galleryAlbumR2Key,
+} from "../server/gallery/constants";
 import { getGalleryHub } from "../server/gallery/service";
-import { GALLERY_HUB_R2_KEY, galleryAlbumR2Key } from "../server/gallery/constants";
 import { makeR2, type R2Stub } from "./helpers/r2";
 
 function makeD1Mock() {
@@ -17,8 +20,7 @@ function makeD1Mock() {
 								const rows = [...store.entries()]
 									.filter(
 										([slug]) =>
-											bound.args.length === 0 ||
-											bound.args.includes(slug),
+											bound.args.length === 0 || bound.args.includes(slug),
 									)
 									.map(([album_slug, password]) => ({
 										album_slug,
@@ -62,8 +64,8 @@ describe("getGalleryHub：加密判定以 D1 密码为准（消除 R2 封面破�
 		const hub = await getGalleryHub(env as never);
 		const summary = hub?.albums?.[0];
 		expect(summary?.encrypted).toBe(true);
-		expect(summary?.cover).toBeUndefined();                    
-		expect(summary?.count).toBeUndefined();         
+		expect(summary?.cover).toBeUndefined();
+		expect(summary?.count).toBeUndefined();
 		expect(summary?.slug).toBe("firefly");
 	});
 
@@ -71,9 +73,7 @@ describe("getGalleryHub：加密判定以 D1 密码为准（消除 R2 封面破�
 		const hub = await getGalleryHub(env as never);
 		const summary = hub?.albums?.[0];
 		expect(summary?.encrypted).toBeFalsy();
-		expect(summary?.cover).toBe(
-			"/api/gallery-files/firefly/files/cover.avif/",
-		);
+		expect(summary?.cover).toBe("/api/gallery-files/firefly/files/cover.avif/");
 		expect(summary?.count).toBe(2);
 	});
 });

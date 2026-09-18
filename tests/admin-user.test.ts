@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
 	authenticateAdmin,
 	createAdminUser,
-	hasAdminUser,
 	getAdminUserByUsername,
+	hasAdminUser,
 	updateAdminUserPassword,
 	verifyAdminUserCredentials,
 } from "../server/auth/adminUser";
@@ -41,7 +41,11 @@ describe("admin_users 表：首次创建唯一管理员", () => {
 	});
 
 	it("首个用户创建成功，密码存 bcrypt 哈希", async () => {
-		const result = await createAdminUser(makeD1(db) as never, "admin", "secret-123");
+		const result = await createAdminUser(
+			makeD1(db) as never,
+			"admin",
+			"secret-123",
+		);
 		expect(result).toEqual({ ok: true });
 
 		const row = await getAdminUserByUsername(makeD1(db) as never, "admin");
@@ -53,7 +57,11 @@ describe("admin_users 表：首次创建唯一管理员", () => {
 
 	it("已有管理员后禁止再创建第二个用户（单用户模型）", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "pass-1");
-		const result = await createAdminUser(makeD1(db) as never, "editor", "pass-2");
+		const result = await createAdminUser(
+			makeD1(db) as never,
+			"editor",
+			"pass-2",
+		);
 		expect(result).toEqual({ ok: false, conflict: true });
 		// 且不能创建同名用户
 		const dup = await createAdminUser(makeD1(db) as never, "admin", "pass-3");
@@ -68,10 +76,18 @@ describe("admin_users 表：首次创建唯一管理员", () => {
 	it("verifyAdminUserCredentials 正确/错误密码校验", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "correct-pass");
 		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "correct-pass"),
+			await verifyAdminUserCredentials(
+				makeD1(db) as never,
+				"admin",
+				"correct-pass",
+			),
 		).toBe(true);
 		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "wrong-pass"),
+			await verifyAdminUserCredentials(
+				makeD1(db) as never,
+				"admin",
+				"wrong-pass",
+			),
 		).toBe(false);
 		expect(
 			await verifyAdminUserCredentials(makeD1(db) as never, "ghost", "x"),
@@ -86,12 +102,22 @@ describe("admin_users 表：改密 / 列表", () => {
 
 	it("updateAdminUserPassword 修改后旧密码失效", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "old-pass");
-		expect(await updateAdminUserPassword(makeD1(db) as never, "admin", "new-pass")).toBe(true);
 		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "old-pass"),
+			await updateAdminUserPassword(makeD1(db) as never, "admin", "new-pass"),
+		).toBe(true);
+		expect(
+			await verifyAdminUserCredentials(
+				makeD1(db) as never,
+				"admin",
+				"old-pass",
+			),
 		).toBe(false);
 		expect(
-			await verifyAdminUserCredentials(makeD1(db) as never, "admin", "new-pass"),
+			await verifyAdminUserCredentials(
+				makeD1(db) as never,
+				"admin",
+				"new-pass",
+			),
 		).toBe(true);
 	});
 });
@@ -119,7 +145,9 @@ describe("authenticateAdmin：D1 唯一管理员", () => {
 
 	it("禁用用户无法登录（enabled 检查）", async () => {
 		await createAdminUser(makeD1(db) as never, "admin", "pass");
-		db.prepare("UPDATE admin_users SET enabled = 0 WHERE username = 'admin'").run();
+		db.prepare(
+			"UPDATE admin_users SET enabled = 0 WHERE username = 'admin'",
+		).run();
 		expect(
 			await authenticateAdmin(env() as never, makeD1(db), "admin", "pass"),
 		).toBe(false);

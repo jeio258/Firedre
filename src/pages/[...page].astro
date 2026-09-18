@@ -12,7 +12,7 @@ import { apiPostToPostForList } from "@/utils/post-types";
 export const prerender = false;
 
 // Firedre：首页分页从 D1 动态获取
-const { listPosts } = await import("../../server/posts/service");
+const { listPosts } = await import("@server/posts/service");
 const { cfEnv } = await import("../lib/api");
 
 const pageNum = Astro.params.page ? Number(Astro.params.page) : 1;

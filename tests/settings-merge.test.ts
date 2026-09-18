@@ -1,8 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-	mergeSettings,
-	normalizeSettingValue,
-} from "../server/settings/merge";
+import { describe, expect, it } from "vitest";
+import { mergeSettings, normalizeSettingValue } from "../server/settings/merge";
 
 describe("normalizeSettingValue", () => {
 	it("should parse valid JSON arrays", () => {

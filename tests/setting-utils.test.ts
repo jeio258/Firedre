@@ -1,21 +1,21 @@
-import { afterEach, describe, it, expect, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-	getStoredWavesEnabled,
-	setWavesEnabled,
-	getStoredGradientEnabled,
-	getStoredCardBorderEnabled,
-	setCardBorderEnabled,
-	getStoredCardFollowThemeEnabled,
-	setCardFollowThemeEnabled,
 	getStoredBannerTitleEnabled,
-	getStoredOverlayOpacity,
-	setOverlayOpacity,
+	getStoredCardBorderEnabled,
+	getStoredCardFollowThemeEnabled,
+	getStoredGradientEnabled,
 	getStoredOverlayBlur,
-	setOverlayBlur,
 	getStoredOverlayCardOpacity,
-	setOverlayCardOpacity,
+	getStoredOverlayOpacity,
 	getStoredSakuraEnabled,
+	getStoredWavesEnabled,
+	setCardBorderEnabled,
+	setCardFollowThemeEnabled,
+	setOverlayBlur,
+	setOverlayCardOpacity,
+	setOverlayOpacity,
 	setSakuraEnabled,
+	setWavesEnabled,
 } from "../src/utils/setting-utils";
 
 function fakeStorage() {
@@ -53,20 +53,29 @@ describe("boolean settings localStorage contract", () => {
 
 	it("set* writes String(value) to localStorage", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
-		vi.stubGlobal("document", { documentElement: { setAttribute: () => {}, classList: { add: () => {}, remove: () => {} } }, querySelector: () => null, getElementById: () => null });
+		vi.stubGlobal("document", {
+			documentElement: {
+				setAttribute: () => {},
+				classList: { add: () => {}, remove: () => {} },
+			},
+			querySelector: () => null,
+			getElementById: () => null,
+		});
 		setWavesEnabled(true);
-		expect((globalThis as any).localStorage.getItem("wavesEnabled")).toBe("true");
+		expect((globalThis as any).localStorage.getItem("wavesEnabled")).toBe(
+			"true",
+		);
 		setWavesEnabled(false);
-		expect((globalThis as any).localStorage.getItem("wavesEnabled")).toBe("false");
+		expect((globalThis as any).localStorage.getItem("wavesEnabled")).toBe(
+			"false",
+		);
 	});
 
 	it("returns default when localStorage is undefined (node)", () => {
-
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 	});
 
 	it("returns default when localStorage exists but getItem is missing", () => {
-
 		vi.stubGlobal("localStorage", { setItem: () => {} });
 		expect(typeof getStoredWavesEnabled()).toBe("boolean");
 		expect(typeof getStoredOverlayOpacity()).toBe("number");
@@ -89,7 +98,12 @@ describe("boolean settings localStorage contract", () => {
 	it("set* triggers DOM side effects (data attributes / classList)", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
 		const el = {
-			classList: { add: vi.fn(), remove: vi.fn(), contains: vi.fn(() => false), toggle: vi.fn() },
+			classList: {
+				add: vi.fn(),
+				remove: vi.fn(),
+				contains: vi.fn(() => false),
+				toggle: vi.fn(),
+			},
 			setAttribute: vi.fn(),
 			removeAttribute: vi.fn(),
 			style: { setProperty: vi.fn() },
@@ -137,9 +151,14 @@ describe("number settings (overlay) localStorage contract", () => {
 
 	it("set* clamps then writes", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
-		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		vi.stubGlobal("document", {
+			getElementById: () => null,
+			documentElement: { style: { setProperty: () => {} } },
+		});
 		setOverlayOpacity(2);
-		expect((globalThis as any).localStorage.getItem("overlayOpacity")).toBe("1");
+		expect((globalThis as any).localStorage.getItem("overlayOpacity")).toBe(
+			"1",
+		);
 	});
 
 	it("overlayCardOpacity parses and clamps to [0,1]", () => {
@@ -152,15 +171,23 @@ describe("number settings (overlay) localStorage contract", () => {
 
 	it("setOverlayBlur clamps to [0,20] then writes", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
-		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		vi.stubGlobal("document", {
+			getElementById: () => null,
+			documentElement: { style: { setProperty: () => {} } },
+		});
 		setOverlayBlur(50);
 		expect((globalThis as any).localStorage.getItem("overlayBlur")).toBe("20");
 	});
 
 	it("setOverlayCardOpacity clamps to [0,1] then writes", () => {
 		vi.stubGlobal("localStorage", fakeStorage());
-		vi.stubGlobal("document", { getElementById: () => null, documentElement: { style: { setProperty: () => {} } } });
+		vi.stubGlobal("document", {
+			getElementById: () => null,
+			documentElement: { style: { setProperty: () => {} } },
+		});
 		setOverlayCardOpacity(2);
-		expect((globalThis as any).localStorage.getItem("overlayCardOpacity")).toBe("1");
+		expect((globalThis as any).localStorage.getItem("overlayCardOpacity")).toBe(
+			"1",
+		);
 	});
 });

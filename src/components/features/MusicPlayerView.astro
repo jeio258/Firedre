@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { resolveShowLyrics } from "@/utils/music-config";
@@ -120,6 +121,9 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             itemTemplate: document.getElementById('playlist-item-template')
         };
 
+        // 无封面曲目的占位图（黑胶唱片样式，data URI 零依赖）
+        var FALLBACK_COVER = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" rx="14" fill="#22262e"/><circle cx="100" cy="100" r="74" fill="none" stroke="#2d323b" stroke-width="1.5"/><circle cx="100" cy="100" r="56" fill="none" stroke="#2d323b" stroke-width="1.5"/><circle cx="100" cy="100" r="38" fill="none" stroke="#2d323b" stroke-width="1.5"/><circle cx="100" cy="100" r="20" fill="#3b4252"/><circle cx="100" cy="100" r="4" fill="#8892a0"/></svg>');
+
         var _critical = [ui.btnPlay, ui.btnRepeat, ui.btnMute, ui.volContainer,
             ui.btnDrawer, ui.btnLrc, ui.lrcDrawer, ui.lrcContainer,
             ui.progressContainer, ui.btnNext, ui.btnPrev, ui.loading,
@@ -230,9 +234,9 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.cover.src = track.pic;
                 ui.cover.alt = track.name + ' - ' + track.artist;
             } else {
-                ui.cover.src = '';
-                ui.cover.classList.add('opacity-0');
-                ui.cover.alt = cfg.i18n.noCover;
+                // 无封面：显示内置黑胶占位图（保持转圈动画风格）
+                ui.cover.src = FALLBACK_COVER;
+                ui.cover.alt = track.name + ' - ' + track.artist;
             }
 
             ui.cover.classList.remove('animate-spin-slow');
@@ -498,7 +502,8 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             renderLyricsUI(s.lyrics, s.lyrics.length > 0 ? 'loaded' : 'none');
             if (s.currentLrcIndex >= 0) updateLrcHighlight(s.currentLrcIndex);
 
-            if (s.track && s.track.pic && ui.cover.src && ui.cover.complete && ui.cover.naturalWidth > 0) {
+            // 有有效图片源且加载成功即显示（含 fallback 占位图）
+            if (ui.cover.src && ui.cover.complete && ui.cover.naturalWidth > 0) {
                 ui.cover.classList.remove('opacity-0');
             }
 

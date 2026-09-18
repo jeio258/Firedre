@@ -1,13 +1,12 @@
-import type { APIRoute } from "astro";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
-import { isValidGallerySlug } from "../../../../server/gallery/constants";
-import { serializeAlbumMarkdown } from "../../../../server/gallery/frontmatter";
+import { verifyAdminRequest } from "@server/auth/adminSession";
+import { isValidGallerySlug } from "@server/gallery/constants";
+import { serializeAlbumMarkdown } from "@server/gallery/frontmatter";
 import {
 	deleteAlbumPassword,
 	getAlbumPassword,
 	setAlbumPassword,
-} from "../../../../server/gallery/password";
-import { sanitizeGalleryAlbumForPublic } from "../../../../server/gallery/sanitize";
+} from "@server/gallery/password";
+import { sanitizeGalleryAlbumForPublic } from "@server/gallery/sanitize";
 import {
 	deleteGalleryAlbum,
 	getGalleryAlbum,
@@ -18,13 +17,14 @@ import {
 	updateGalleryAlbumOrder,
 	upsertGalleryAlbum,
 	upsertGalleryHub,
-} from "../../../../server/gallery/service";
+} from "@server/gallery/service";
 import {
 	deleteAlbumWebDavConfig,
 	getAlbumWebDavConfig,
 	setAlbumWebDavConfig,
-} from "../../../../server/gallery/webdavConfig";
-import { withRateLimit } from "../../../../server/utils/rateLimiter";
+} from "@server/gallery/webdavConfig";
+import { withRateLimit } from "@server/utils/rateLimiter";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,
@@ -121,13 +121,11 @@ export const POST: APIRoute = async ({ params, request }) => {
 			async () => {
 				try {
 					const { getImgbedConfig } = await import(
-						"../../../../server/gallery/imgbedConfig"
+						"@server/gallery/imgbedConfig"
 					);
-					const { fetchImgbedPhotos } = await import(
-						"../../../../server/gallery/imgbed"
-					);
+					const { fetchImgbedPhotos } = await import("@server/gallery/imgbed");
 					const { setAlbumPhotos, upsertGalleryAlbum } = await import(
-						"../../../../server/gallery/service"
+						"@server/gallery/service"
 					);
 					const cfg = await getImgbedConfig(cfEnv);
 					if (!cfg)

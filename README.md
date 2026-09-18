@@ -188,6 +188,6 @@ types/                  全局类型（含 CloudflareEnv 绑定类型）
 
 ## 致谢与说明
 
-- 前台主题基于 [Firefly](https://github.com/CuteLeaf/Firefly)（[文档](https://docs-firefly.cuteleaf.cn)），仅作云端动态化与后台扩展
+- **上游策略（2026-09 声明）**：本仓库为 [Firefly](https://github.com/CuteLeaf/Firefly) 的实质独立分支——已深度改造（云端动态化、后台管理、音源集成等），后续**不再定期合并上游**；上游仅作设计参考。因此允许对上游来源文件进行自由重构与重命名。
+- 前台主题基于 Firefly（[文档](https://docs-firefly.cuteleaf.cn)），仅作云端动态化与后台扩展
 - 本仓库不包含任何真实凭据（Secrets 均为环境变量注入）
-- `ARCHIVE.md` 记录 Firedre 从 Firefly 改造的关键决策

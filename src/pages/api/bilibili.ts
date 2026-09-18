@@ -1,29 +1,27 @@
 import type { APIRoute } from "astro";
-import { json, serverError } from "../../lib/api";
-import { proxyCachePut, proxyEarlyResponse } from "@/lib/proxyCache";
 import { siteConfig } from "@/config";
+import { withProxyGuard } from "@/lib/proxyCache";
 import { fetchBilibiliList } from "@/utils/bilibili-utils";
+import { json, serverError } from "../../lib/api";
 
 export const prerender = false;
 
 // Bilibili 追番/追剧列表同源代理：服务端 fetch 第三方并归一化为 StandardizedAnime[]
 export const GET: APIRoute = async ({ request, url, locals }) => {
 	try {
-		const early = await proxyEarlyResponse(request, url);
-		if (early) return early;
-		const settings = ((locals as { settings?: Record<string, any> })?.settings ??
-			{}) as Record<string, any>;
-		const uid =
-			url.searchParams.get("uid")?.trim() ||
-			settings?.["bilibili"]?.uid ||
-			(siteConfig as any).bilibili?.uid;
-		if (!uid) {
-			return json({ error: "bilibili uid 未配置" }, 400);
-		}
-		const list = await fetchBilibiliList(String(uid));
-		const body = json(list, 200, "private");
-		await proxyCachePut(url, body.clone());
-		return body;
+		return await withProxyGuard(request, url, async () => {
+			const settings = ((locals as { settings?: Record<string, any> })
+				?.settings ?? {}) as Record<string, any>;
+			const uid =
+				url.searchParams.get("uid")?.trim() ||
+				settings?.["bilibili"]?.uid ||
+				(siteConfig as any).bilibili?.uid;
+			if (!uid) {
+				return json({ error: "bilibili uid 未配置" }, 400);
+			}
+			const list = await fetchBilibiliList(String(uid));
+			return json(list, 200, "private");
+		});
 	} catch (error) {
 		return serverError(error);
 	}

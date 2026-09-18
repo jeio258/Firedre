@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { sanitizeGalleryAlbumForPublic } from "../server/gallery/sanitize";
 import type { GalleryAlbumDetail } from "../types/gallery";
 
@@ -39,7 +39,6 @@ describe("sanitizeGalleryAlbumForPublic（相册密码不泄漏）", () => {
 	});
 
 	it("R2 encrypted=false 但 D1 有密码：仍隐藏照片（R1 判锁统一回归）", () => {
-
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: false }),
 			true,
@@ -58,7 +57,6 @@ describe("sanitizeGalleryAlbumForPublic（相册密码不泄漏）", () => {
 	});
 
 	it("加密相册即使 frontmatter 带 password 也不会泄漏", () => {
-
 		const out = sanitizeGalleryAlbumForPublic(
 			makeAlbum({ encrypted: true, password: "should-not-leak" }),
 			true,

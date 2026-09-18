@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { DatabaseSync } from "node:sqlite";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
+	deleteAlbumWebDavConfig,
 	getAlbumWebDavConfig,
 	setAlbumWebDavConfig,
-	deleteAlbumWebDavConfig,
 } from "../server/gallery/webdavConfig";
 import { makeD1 } from "./helpers/d1";
 import { applyMigrations } from "./helpers/migrations";
@@ -46,15 +46,29 @@ describe("album_webdav 表", () => {
 	});
 
 	it("setAlbumWebDavConfig 不带 username 时返回 undefined", async () => {
-		await setAlbumWebDavConfig(env() as never, "album-b", "https://dav.example.com/b");
+		await setAlbumWebDavConfig(
+			env() as never,
+			"album-b",
+			"https://dav.example.com/b",
+		);
 		const config = await getAlbumWebDavConfig(env() as never, "album-b");
 		expect(config).toEqual({ url: "https://dav.example.com/b" });
 		expect(config?.username).toBeUndefined();
 	});
 
 	it("setAlbumWebDavConfig 覆盖更新（upsert）", async () => {
-		await setAlbumWebDavConfig(env() as never, "album-c", "https://old.example.com", "old");
-		await setAlbumWebDavConfig(env() as never, "album-c", "https://new.example.com", "new");
+		await setAlbumWebDavConfig(
+			env() as never,
+			"album-c",
+			"https://old.example.com",
+			"old",
+		);
+		await setAlbumWebDavConfig(
+			env() as never,
+			"album-c",
+			"https://new.example.com",
+			"new",
+		);
 		const config = await getAlbumWebDavConfig(env() as never, "album-c");
 		expect(config).toEqual({
 			url: "https://new.example.com",
@@ -63,13 +77,21 @@ describe("album_webdav 表", () => {
 	});
 
 	it("空 url 视为清除（set 传空字符串删除记录）", async () => {
-		await setAlbumWebDavConfig(env() as never, "album-d", "https://x.example.com");
+		await setAlbumWebDavConfig(
+			env() as never,
+			"album-d",
+			"https://x.example.com",
+		);
 		await setAlbumWebDavConfig(env() as never, "album-d", "");
 		expect(await getAlbumWebDavConfig(env() as never, "album-d")).toBeNull();
 	});
 
 	it("deleteAlbumWebDavConfig 删除记录", async () => {
-		await setAlbumWebDavConfig(env() as never, "album-e", "https://x.example.com");
+		await setAlbumWebDavConfig(
+			env() as never,
+			"album-e",
+			"https://x.example.com",
+		);
 		await deleteAlbumWebDavConfig(env() as never, "album-e");
 		expect(await getAlbumWebDavConfig(env() as never, "album-e")).toBeNull();
 	});

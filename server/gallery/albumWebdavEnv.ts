@@ -15,7 +15,9 @@ export function getWebDavPassword(env?: CloudflareEnv) {
 export async function resolveWebDavConfig(
 	slug: string,
 	options?: AlbumWebDavRuntimeOptions,
-): Promise<AlbumWebDavConfig & { encrypted?: boolean; albumPassword?: string }> {
+): Promise<
+	AlbumWebDavConfig & { encrypted?: boolean; albumPassword?: string }
+> {
 	if (!slug) throw new UserError("缺少相册标识");
 
 	const env = options?.env;
@@ -52,10 +54,32 @@ export function assertTargetInWebDavScope(targetUrl: string, baseUrl: string) {
 		throw new UserError("非法媒体地址");
 	}
 
-	if (target.origin !== base.origin) throw new UserError("媒体地址不在相册范围内");
+	if (target.origin !== base.origin)
+		throw new UserError("媒体地址不在相册范围内");
 
-	const basePath = base.pathname.replace(/\/$/, "") || "/";
-	const targetPath = target.pathname;
+	// URL.pathname 保留百分号编码，且前缀匹配对 x/../../ 这类段归一化无效，
+	// 须先解码再按段归一化（. 与 ..）后才可比对，否则 %2f 可编码穿越目录范围
+	const basePath = normalizeDavPath(base.pathname);
+	const targetPath = normalizeDavPath(target.pathname);
 	if (targetPath !== basePath && !targetPath.startsWith(`${basePath}/`))
 		throw new UserError("媒体地址不在相册范围内");
+}
+
+function normalizeDavPath(pathname: string): string {
+	let decoded: string;
+	try {
+		decoded = decodeURIComponent(pathname);
+	} catch {
+		throw new UserError("非法媒体地址");
+	}
+	const segments: string[] = [];
+	for (const seg of decoded.split("/")) {
+		if (seg === "" || seg === ".") continue;
+		if (seg === "..") {
+			if (segments.length > 0) segments.pop();
+			continue;
+		}
+		segments.push(seg);
+	}
+	return `/${segments.join("/")}`;
 }

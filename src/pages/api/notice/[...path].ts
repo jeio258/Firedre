@@ -1,5 +1,5 @@
+import { getNotice, upsertNotice } from "@server/notice/service";
 import type { APIRoute } from "astro";
-import { getNotice, upsertNotice } from "../../../../server/notice/service";
 import {
 	badRequest,
 	cfEnv,

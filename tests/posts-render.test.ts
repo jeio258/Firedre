@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderMarkdown } from "../server/posts/render";
 
 describe("renderMarkdown 渲染管线", () => {

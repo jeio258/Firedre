@@ -85,39 +85,103 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["theme.homeSubtitleSize", d.theme.homeSubtitleSize, home.subtitleSize],
 	["theme.typewriter", d.theme.typewriter, home.typewriter.enable],
 	["theme.typewriterSpeed", d.theme.typewriterSpeed, home.typewriter.speed],
-	["theme.typewriterDeleteSpeed", d.theme.typewriterDeleteSpeed, home.typewriter.deleteSpeed],
-	["theme.typewriterPauseTime", d.theme.typewriterPauseTime, home.typewriter.pauseTime],
+	[
+		"theme.typewriterDeleteSpeed",
+		d.theme.typewriterDeleteSpeed,
+		home.typewriter.deleteSpeed,
+	],
+	[
+		"theme.typewriterPauseTime",
+		d.theme.typewriterPauseTime,
+		home.typewriter.pauseTime,
+	],
 	["theme.carousel", d.theme.carousel, bg.common.carousel.enable],
-	["theme.carouselInterval", d.theme.carouselInterval, bg.common.carousel.interval],
-	["theme.carouselTransition", d.theme.carouselTransition, bg.common.carousel.transitionEffect],
+	[
+		"theme.carouselInterval",
+		d.theme.carouselInterval,
+		bg.common.carousel.interval,
+	],
+	[
+		"theme.carouselTransition",
+		d.theme.carouselTransition,
+		bg.common.carousel.transitionEffect,
+	],
 	["theme.overlayOpacity", d.theme.overlayOpacity, bg.overlay.opacity],
 	["theme.overlayBlur", d.theme.overlayBlur, bg.overlay.blur],
-	["theme.overlayCardOpacity", d.theme.overlayCardOpacity, bg.overlay.cardOpacity],
+	[
+		"theme.overlayCardOpacity",
+		d.theme.overlayCardOpacity,
+		bg.overlay.cardOpacity,
+	],
 
 	["nav.navItems", d.nav.navItems, JSON.stringify(navBarConfig.links)],
-	["sidebar.hideSidebarOnPostPage", d.sidebar.hideSidebarOnPostPage, sidebarLayoutConfig.hideSidebarOnPostPage],
-	["sidebar.showBothSidebarsOnPostPage", d.sidebar.showBothSidebarsOnPostPage, sidebarLayoutConfig.showBothSidebarsOnPostPage],
+	[
+		"sidebar.hideSidebarOnPostPage",
+		d.sidebar.hideSidebarOnPostPage,
+		sidebarLayoutConfig.hideSidebarOnPostPage,
+	],
+	[
+		"sidebar.showBothSidebarsOnPostPage",
+		d.sidebar.showBothSidebarsOnPostPage,
+		sidebarLayoutConfig.showBothSidebarsOnPostPage,
+	],
 	["font.enable", d.font.enable, fontConfig.enable],
 	["font.navbarTitleFont", d.font.navbarTitleFont, fontConfig.navbarTitleFont],
 
 	["comment.type", d.comment.type, commentConfig.type],
 	["comment.giscusRepo", d.comment.giscusRepo, commentConfig.giscus?.repo],
-	["comment.giscusRepoId", d.comment.giscusRepoId, commentConfig.giscus?.repoId],
-	["comment.giscusCategory", d.comment.giscusCategory, commentConfig.giscus?.category],
-	["comment.giscusCategoryId", d.comment.giscusCategoryId, commentConfig.giscus?.categoryId],
+	[
+		"comment.giscusRepoId",
+		d.comment.giscusRepoId,
+		commentConfig.giscus?.repoId,
+	],
+	[
+		"comment.giscusCategory",
+		d.comment.giscusCategory,
+		commentConfig.giscus?.category,
+	],
+	[
+		"comment.giscusCategoryId",
+		d.comment.giscusCategoryId,
+		commentConfig.giscus?.categoryId,
+	],
 	["comment.twikooEnvId", d.comment.twikooEnvId, commentConfig.twikoo?.envId],
 	["comment.twikooJsUrl", d.comment.twikooJsUrl, commentConfig.twikoo?.jsUrl],
-	["comment.walineServer", d.comment.walineServer, commentConfig.waline?.serverURL],
-	["comment.disqusShortname", d.comment.disqusShortname, commentConfig.disqus?.shortname],
-	["comment.artalkServer", d.comment.artalkServer, commentConfig.artalk?.server],
+	[
+		"comment.walineServer",
+		d.comment.walineServer,
+		commentConfig.waline?.serverURL,
+	],
+	[
+		"comment.disqusShortname",
+		d.comment.disqusShortname,
+		commentConfig.disqus?.shortname,
+	],
+	[
+		"comment.artalkServer",
+		d.comment.artalkServer,
+		commentConfig.artalk?.server,
+	],
 
 	["cover.showLoading", d.cover.showLoading, coverImageConfig.showLoading],
 	["cover.enableInPost", d.cover.enableInPost, coverImageConfig.enableInPost],
-	["cover.enableInPostOverlay", d.cover.enableInPostOverlay, coverImageConfig.enableInPostOverlay],
-	["cover.randomCoverImage", d.cover.randomCoverImage, JSON.stringify(coverImageConfig.randomCoverImage)],
+	[
+		"cover.enableInPostOverlay",
+		d.cover.enableInPostOverlay,
+		coverImageConfig.enableInPostOverlay,
+	],
+	[
+		"cover.randomCoverImage",
+		d.cover.randomCoverImage,
+		JSON.stringify(coverImageConfig.randomCoverImage),
+	],
 
 	["music.showInNavbar", d.music.showInNavbar, musicPlayerConfig.showInNavbar],
-	["music.showInSidebar", d.music.showInSidebar, musicPlayerConfig.showInSidebar],
+	[
+		"music.showInSidebar",
+		d.music.showInSidebar,
+		musicPlayerConfig.showInSidebar,
+	],
 	["music.mode", d.music.mode, musicPlayerConfig.mode],
 	["music.volume", d.music.volume, musicPlayerConfig.volume],
 	["music.playMode", d.music.playMode, musicPlayerConfig.playMode],
@@ -127,8 +191,16 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["music.metingType", d.music.metingType, mp?.type],
 	["music.metingId", d.music.metingId, mp?.id],
 	["music.metingAuth", d.music.metingAuth, mp?.auth],
-	["music.metingFallbackApis", d.music.metingFallbackApis, JSON.stringify(mp?.fallbackApis ?? [])],
-	["music.localPlaylist", d.music.localPlaylist, JSON.stringify(musicPlayerConfig.local?.playlist ?? [])],
+	[
+		"music.metingFallbackApis",
+		d.music.metingFallbackApis,
+		JSON.stringify(mp?.fallbackApis ?? []),
+	],
+	[
+		"music.localPlaylist",
+		d.music.localPlaylist,
+		JSON.stringify(musicPlayerConfig.local?.playlist ?? []),
+	],
 
 	["dynamic.enabled", d.dynamic.enabled, siteConfig.pages.dynamic],
 	["dynamic.title", d.dynamic.title, dynamicConfig.title],
@@ -141,9 +213,17 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["friends.enabled", d.friends.enabled, siteConfig.pages.friends],
 	["gallery.enabled", d.gallery.enabled, siteConfig.pages.gallery],
 	["bookmarks.title", d.bookmarks.title, booknavPageConfig.title],
-	["bookmarks.description", d.bookmarks.description, booknavPageConfig.description],
+	[
+		"bookmarks.description",
+		d.bookmarks.description,
+		booknavPageConfig.description,
+	],
 	["bookmarks.groups", d.bookmarks.groups, JSON.stringify(booknavConfig)],
-	["bookmarks.favicon", d.bookmarks.favicon, JSON.stringify(booknavPageConfig.favicon)],
+	[
+		"bookmarks.favicon",
+		d.bookmarks.favicon,
+		JSON.stringify(booknavPageConfig.favicon),
+	],
 
 	["bilibili.uid", d.bilibili.uid, siteConfig.bilibili.uid],
 	["vndb.enabled", d.vndb.enabled, siteConfig.pages.vndb],
@@ -156,15 +236,27 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["sponsor.title", d.sponsor.title, sponsorConfig.title],
 	["sponsor.description", d.sponsor.description, sponsorConfig.description],
 	["sponsor.usage", d.sponsor.usage, sponsorConfig.usage],
-	["sponsor.showSponsorsList", d.sponsor.showSponsorsList, sponsorConfig.showSponsorsList],
-	["sponsor.showButtonInPost", d.sponsor.showButtonInPost, sponsorConfig.showButtonInPost],
+	[
+		"sponsor.showSponsorsList",
+		d.sponsor.showSponsorsList,
+		sponsorConfig.showSponsorsList,
+	],
+	[
+		"sponsor.showButtonInPost",
+		d.sponsor.showButtonInPost,
+		sponsorConfig.showButtonInPost,
+	],
 
 	["effects.sakura", d.effects.sakura, sakuraConfig.enable],
 	["effects.sakuraNum", d.effects.sakuraNum, sakuraConfig.sakuraNum],
 	["effects.limitTimes", d.effects.limitTimes, sakuraConfig.limitTimes],
 	["effects.waves", d.effects.waves, bg.banner.waves.enable.desktop],
 	["effects.gradient", d.effects.gradient, bg.banner.gradient.enable.desktop],
-	["effects.bannerCarousel", d.effects.bannerCarousel, bg.common.carousel.enable],
+	[
+		"effects.bannerCarousel",
+		d.effects.bannerCarousel,
+		bg.common.carousel.enable,
+	],
 
 	["footer.enable", d.footer.enable, footerConfig.enable],
 	["license.enabled", d.license.enabled, licenseConfig.enable],
@@ -180,8 +272,16 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["plantuml.server", d.plantuml.server, plantumlConfig.server],
 	["plantuml.lightTheme", d.plantuml.lightTheme, plantumlConfig.lightTheme],
 	["plantuml.darkTheme", d.plantuml.darkTheme, plantumlConfig.darkTheme],
-	["expressiveCode.darkTheme", d.expressiveCode.darkTheme, expressiveCodeConfig.darkTheme],
-	["expressiveCode.lightTheme", d.expressiveCode.lightTheme, expressiveCodeConfig.lightTheme],
+	[
+		"expressiveCode.darkTheme",
+		d.expressiveCode.darkTheme,
+		expressiveCodeConfig.darkTheme,
+	],
+	[
+		"expressiveCode.lightTheme",
+		d.expressiveCode.lightTheme,
+		expressiveCodeConfig.lightTheme,
+	],
 ];
 
 describe("settingsDefaults 与静态配置一致性", () => {

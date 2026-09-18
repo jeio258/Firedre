@@ -19,7 +19,7 @@ if (!getSiteConfig(Astro.locals).pages.guestbook) {
 // Firedre：留言板内容来自 R2 spec/guestbook.md（直调 server 层，避免 HTTP 自请求）
 const [{ cfEnv }, { getSpecPage }] = await Promise.all([
 	import("../lib/api"),
-	import("../../server/spec/service"),
+	import("@server/spec/service"),
 ]);
 
 let guestbookHtml = "";
