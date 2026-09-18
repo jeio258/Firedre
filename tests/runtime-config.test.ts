@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
 	getDynamicConfig,
 	getPanelConfig,
@@ -6,7 +5,8 @@ import {
 	getSiteConfig,
 	getSponsorConfig,
 	getWallpaperConfig,
-} from "../src/config/runtime";
+} from "@shared/config/runtime";
+import { describe, expect, it } from "vitest";
 
 describe("runtime.getWallpaperConfig", () => {
 	it("后台设置 theme.bannerUrl 时，src.desktop 替换为后台值（替换语义）", () => {

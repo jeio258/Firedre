@@ -1,6 +1,6 @@
+import { booknavConfig } from "@shared/config/booknavConfig";
+import { getBooknavConfig } from "@shared/config/runtime";
 import { describe, expect, it } from "vitest";
-import { booknavConfig } from "../src/config/booknavConfig";
-import { getBooknavConfig } from "../src/config/runtime";
 
 describe("runtime.getBooknavConfig（书签导航后台化）", () => {
 	it("后台 bookmarks.groups 为 JSON 字符串时，返回解析后的分组（覆盖静态默认值）", () => {
