@@ -286,9 +286,9 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "dimOpacity",
-				label: "壁纸遮罩暗度 (0-1)",
+				label: "壁纸遮罩透明度 (0-1)",
 				type: "number",
-				hint: "越大越暗",
+				hint: "横幅与透明全屏模式共用：值越大壁纸越暗淡",
 			},
 			{
 				name: "playerMode",
@@ -364,9 +364,9 @@ export const GROUPS: Group[] = [
 			},
 			{
 				name: "overlayOpacity",
-				label: "壁纸透明度 (0-1)",
+				label: "壁纸透明度 (0-1，仅叠加模式)",
 				type: "number",
-				hint: "值越小壁纸越淡、越接近背景色",
+				hint: "仅叠加模式生效；横幅/透明全屏请用「壁纸遮罩透明度」",
 			},
 			{ name: "overlayBlur", label: "背景模糊度 (px)", type: "number" },
 			{

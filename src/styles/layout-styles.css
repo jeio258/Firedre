@@ -585,12 +585,13 @@ body.is-home #wallpaper-wrapper.wallpaper-fullscreen img[class*="object-cover"] 
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .banner-home-text-overlay,
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .banner-page-title-overlay,
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .banner-post-meta-overlay,
-body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen #banner-dim-container,
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen #header-waves,
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen #wallpaper-gradient,
 body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .scroll-down-indicator {
     display: none !important;
 }
+
+/* 透明遮罩 (#banner-dim-container) 不随滚动隐藏：横幅与全屏共用后台「壁纸遮罩透明度」 */
 
 #wallpaper-wrapper.wallpaper-fullscreen .banner-home-text-overlay.hidden {
     display: none !important;

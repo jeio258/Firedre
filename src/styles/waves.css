@@ -98,9 +98,8 @@ html[data-wallpaper-mode="none"] #wallpaper-wrapper #banner-dim-container {
     display: none !important;
 }
 
-html[data-wallpaper-mode="fullscreen"] body:not(.is-home) #wallpaper-wrapper #banner-dim-container {
-    display: none !important;
-}
+/* 透明遮罩 (#banner-dim-container) 在 fullscreen 非首页不再隐藏：
+   与横幅共用后台「壁纸遮罩透明度」，见 layout-styles.css 同名注释 */
 html[data-wallpaper-mode="fullscreen"] .waves,
 html[data-wallpaper-mode="fullscreen"] #header-waves,
 html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper #wallpaper-gradient,
