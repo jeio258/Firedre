@@ -1,15 +1,21 @@
 import type { APIRoute } from "astro";
+import { getGalleryHub } from "../../server/gallery/service";
+import { getSettingsVersion } from "../../server/settings/service";
 import { getSiteConfig } from "../config/runtime";
 import { cfEnv } from "../lib/api";
-import { getSettingsVersion } from "../../server/settings/service";
-import { getGalleryHub } from "../../server/gallery/service";
 
 export const prerender = false;
 
 export const GET: APIRoute = async (context) => {
 	const cfg = getSiteConfig(context.locals);
 	const base = cfg.site_url.replace(/\/+$/, "");
-	const settingsVersion = await getSettingsVersion(cfEnv);
+	// D1 不可用时降级为空版本，sitemap 仍输出静态页
+	let settingsVersion = "0";
+	try {
+		settingsVersion = await getSettingsVersion(cfEnv);
+	} catch {
+		// 版本读取失败不影响 sitemap 输出
+	}
 	const urls: string[] = [];
 
 	// 静态页面

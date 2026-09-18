@@ -16,7 +16,11 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getRelatedPosts, getSeriesPosts } from "@utils/content-utils";
-import { getCategoryUrl, getPostUrlBySlug, isAbsoluteUrl } from "@utils/url-utils";
+import {
+	getCategoryUrl,
+	getPostUrlBySlug,
+	isAbsoluteUrl,
+} from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -27,8 +31,8 @@ import SeriesNav from "@/components/misc/SeriesNav.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
 import { licenseConfig } from "@/config/licenseConfig";
 import { profileConfig } from "@/config/profileConfig";
+import { getCoverConfig, getSiteConfig } from "@/config/runtime";
 import { siteConfig } from "@/config/siteConfig";
-import { getSiteConfig, getCoverConfig } from "@/config/runtime";
 import { sponsorConfig } from "@/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
@@ -56,7 +60,17 @@ const [{ getPostBySlug }, { cfEnv }, { apiPostToEntry }] = await Promise.all([
 	import("../../lib/api"),
 	import("../../utils/post-types"),
 ]);
-const postDetail = await getPostBySlug(cfEnv, slug, {});
+let postDetail: Awaited<ReturnType<typeof getPostBySlug>> = null;
+try {
+	postDetail = await getPostBySlug(cfEnv, slug, {});
+} catch (error) {
+	// D1/R2 异常区别于文章不存在：降级为友好错误页而非默认 500
+	console.error("[posts] 文章读取失败:", error);
+	return new Response(
+		`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${siteConfig.title}</title></head><body style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:system-ui"><p>文章加载失败，请稍后刷新重试。</p></body></html>`,
+		{ status: 500, headers: { "Content-Type": "text/html; charset=utf-8" } },
+	);
+}
 if (!postDetail) {
 	return Astro.redirect("/404/");
 }
@@ -79,8 +93,16 @@ const bannerPostMeta = {
 
 const siteUrl = getSiteConfig(Astro.locals).site_url;
 const coverCfg = getCoverConfig(Astro.locals);
-const processedImage = processCoverImageSync(entry.data.image, entry.id, coverCfg.randomCoverImage);
-const apiUrls = getApiUrlList(entry.data.image, entry.id, coverCfg.randomCoverImage);
+const processedImage = processCoverImageSync(
+	entry.data.image,
+	entry.id,
+	coverCfg.randomCoverImage,
+);
+const apiUrls = getApiUrlList(
+	entry.data.image,
+	entry.id,
+	coverCfg.randomCoverImage,
+);
 const showPostCover = Boolean(processedImage && coverCfg.enableInPost);
 const usePostCoverOverlay = showPostCover && coverCfg.enableInPostOverlay;
 
@@ -94,10 +116,13 @@ const getDirectImageUrl = (src: string | undefined): string | null => {
 
 const posterCoverUrl = showPostCover ? null : getDirectImageUrl(processedImage);
 const posterCoverSelector = showPostCover ? "#post-cover img" : null;
-const posterAvatarUrl = getDirectImageUrl(((settings as any)?.["avatar"] ?? profileConfig.avatar));
-const posterAvatarSelector = ((settings as any)?.["avatar"] ?? profileConfig.avatar)
-	? ".profile-avatar-image img"
-	: null;
+const posterAvatarUrl = getDirectImageUrl(
+	(settings as any)?.["avatar"] ?? profileConfig.avatar,
+);
+const posterAvatarSelector =
+	((settings as any)?.["avatar"] ?? profileConfig.avatar)
+		? ".profile-avatar-image img"
+		: null;
 
 dayjs.extend(utc);
 
@@ -109,15 +134,14 @@ const [coverImageRaw, authorAvatarUrl, siteLogo] = await Promise.all([
 ]);
 const coverImage = coverImageRaw ?? undefined;
 
-const aboutUrl =
-	toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
+const aboutUrl = toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
 	profileConfig,
 	authorUrl: aboutUrl,
 	avatarUrl: authorAvatarUrl,
-	description: ((settings as any)?.["bio"] ?? profileConfig.bio),
+	description: (settings as any)?.["bio"] ?? profileConfig.bio,
 });
 
 const publisher = buildPublisherEntity({
@@ -135,9 +159,7 @@ const breadcrumbItems = [
 if (entry.data.category) {
 	breadcrumbItems.push({
 		name: entry.data.category,
-		url:
-			toAbsoluteUrl(getCategoryUrl(entry.data.category), siteUrl) ??
-			siteUrl,
+		url: toAbsoluteUrl(getCategoryUrl(entry.data.category), siteUrl) ?? siteUrl,
 	});
 }
 breadcrumbItems.push({ name: entry.data.title, url: Astro.url.toString() });
@@ -164,7 +186,7 @@ const jsonLd = {
 							...(coverImage.height ? { height: coverImage.height } : {}),
 						},
 					}
-				: {}),                           
+				: {}),
 			datePublished: entry.data.published.toISOString(),
 			...(entry.data.category ? { articleSection: entry.data.category } : {}),
 			...(remarkPluginFrontmatter.words
