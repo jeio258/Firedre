@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
-import { json, serverError } from "../../lib/api";
-import { proxyCachePut, proxyEarlyResponse } from "@/lib/proxyCache";
 import { siteConfig } from "@/config";
-import { fetchMalList, type MalListKind } from "@/utils/mal-utils";
+import { withProxyGuard } from "@/lib/proxyCache";
 import type { MalListItem } from "@/types/mal";
+import { fetchMalList, type MalListKind } from "@/utils/mal-utils";
+import { json, serverError } from "../../lib/api";
 
 export const prerender = false;
 
@@ -45,31 +45,33 @@ async function fetchAll(
 
 export const GET: APIRoute = async ({ request, url, locals }) => {
 	try {
-		const early = await proxyEarlyResponse(request, url);
-		if (early) return early;
-		const settings = ((locals as { settings?: Record<string, any> })?.settings ??
-			{}) as Record<string, any>;
-		const malSettings =
-			settings?.["myanimelist"] ?? settings?.["mal"] ?? (siteConfig as any).mal ?? {};
-		const username = (malSettings.username as string | undefined) || "";
-		const clientId = (malSettings.clientId as string | undefined) || "";
-		const apiUrl =
-			(malSettings.apiUrl as string | undefined) || "https://api.myanimelist.net/v2";
+		return await withProxyGuard(request, url, async () => {
+			const settings = ((locals as { settings?: Record<string, any> })
+				?.settings ?? {}) as Record<string, any>;
+			const malSettings =
+				settings?.["myanimelist"] ??
+				settings?.["mal"] ??
+				(siteConfig as any).mal ??
+				{};
+			const username = (malSettings.username as string | undefined) || "";
+			const clientId = (malSettings.clientId as string | undefined) || "";
+			const apiUrl =
+				(malSettings.apiUrl as string | undefined) ||
+				"https://api.myanimelist.net/v2";
 
-		if (!username.trim() || !clientId.trim()) {
-			return json({ error: "MAL username / clientId 未配置" }, 400);
-		}
+			if (!username.trim() || !clientId.trim()) {
+				return json({ error: "MAL username / clientId 未配置" }, 400);
+			}
 
-		const [animeRes, mangaRes] = await Promise.allSettled([
-			fetchAll("anime", { apiUrl, username, clientId }),
-			fetchAll("manga", { apiUrl, username, clientId }),
-		]);
-		const anime = animeRes.status === "fulfilled" ? animeRes.value : [];
-		const manga = mangaRes.status === "fulfilled" ? mangaRes.value : [];
+			const [animeRes, mangaRes] = await Promise.allSettled([
+				fetchAll("anime", { apiUrl, username, clientId }),
+				fetchAll("manga", { apiUrl, username, clientId }),
+			]);
+			const anime = animeRes.status === "fulfilled" ? animeRes.value : [];
+			const manga = mangaRes.status === "fulfilled" ? mangaRes.value : [];
 
-		const body = json({ anime, manga }, 200, "private");
-		await proxyCachePut(url, body.clone());
-		return body;
+			return json({ anime, manga }, 200, "private");
+		});
 	} catch (error) {
 		return serverError(error);
 	}
