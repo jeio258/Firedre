@@ -45,6 +45,7 @@ async function searchTxSongmid(
 					"user-agent": "Mozilla/5.0",
 					referer: "https://y.qq.com/",
 				},
+				signal: AbortSignal.timeout(5000),
 			},
 		);
 		if (!res.ok) return null;
@@ -179,6 +180,8 @@ export const GET: APIRoute = async ({ url, request }) => {
 		{ windowMs: 60_000, maxRequests: 30, scope: "music-url", failOpen: true },
 		async () => {
 			const t0 = Date.now();
+			let timeoutId: ReturnType<typeof setTimeout> | undefined;
+			let timedOut = false;
 			try {
 				// 音源脚本可后台配置（src/music-sources/ 内脚本按文件名选择），读取失败用默认
 				let scriptKey = DEFAULT_LX_SCRIPT;
@@ -191,47 +194,54 @@ export const GET: APIRoute = async ({ url, request }) => {
 					// 设置读取失败不影响解析
 				}
 				const lxSource = await getLxSource(scriptKey);
-				const resolved = await Promise.race([
-					lxSource.getMusicUrl(
-						source,
-						{ [ID_FIELD[source] ?? "id"]: id, id, name, singer },
-						quality,
-					),
-					new Promise<never>((_, reject) =>
-						setTimeout(
-							() => reject(new LxError("音源解析超时")),
-							RESOLVE_TIMEOUT_MS,
+				try {
+					const resolved = await Promise.race([
+						lxSource.getMusicUrl(
+							source,
+							{ [ID_FIELD[source] ?? "id"]: id, id, name, singer },
+							quality,
 						),
-					),
-				]);
+						new Promise<never>((_, reject) => {
+							timeoutId = setTimeout(() => {
+								timedOut = true;
+								reject(new LxError("音源解析超时"));
+							}, RESOLVE_TIMEOUT_MS);
+						}),
+					]);
 
-				console.log(
-					`[music/url] ok source=${source} quality=${quality} 耗时=${Date.now() - t0}ms`,
-				);
-				const response = json(
-					{
-						ok: true,
-						url: resolved,
-						source,
-						quality,
-						name,
-						singer,
-						...(searchedPic ? { pic: searchedPic } : {}),
-					},
-					200,
-				);
-				response.headers.set(
-					"cache-control",
-					`public, max-age=${RESULT_TTL_S}`,
-				);
-				if (cachesRef) {
-					try {
-						await cachesRef.default.put(cacheKey, response.clone());
-					} catch {
-						// 缓存写入失败不影响返回
+					console.log(
+						`[music/url] ok source=${source} quality=${quality} 耗时=${Date.now() - t0}ms`,
+					);
+					const response = json(
+						{
+							ok: true,
+							url: resolved,
+							source,
+							quality,
+							name,
+							singer,
+							...(searchedPic ? { pic: searchedPic } : {}),
+						},
+						200,
+					);
+					response.headers.set(
+						"cache-control",
+						`public, max-age=${RESULT_TTL_S}`,
+					);
+					if (cachesRef) {
+						try {
+							await cachesRef.default.put(cacheKey, response.clone());
+						} catch {
+							// 缓存写入失败不影响返回
+						}
 					}
+					return response;
+				} finally {
+					clearTimeout(timeoutId);
+					// 仅超时路径取消音源网络请求：abort 作用于实例全部 inflight，
+					// 成功/失败路径调用会误伤同实例的其他并发解析
+					if (timedOut) lxSource.abortInflight();
 				}
-				return response;
 			} catch (error) {
 				const detail = error instanceof Error ? error.message : String(error);
 				console.error("[music/url] 解析失败:", detail);

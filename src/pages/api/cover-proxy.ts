@@ -1,4 +1,6 @@
 import type { APIRoute } from "astro";
+import { withRateLimit } from "../../../server/utils/rateLimiter";
+import { cfEnv } from "../../lib/api";
 
 export const prerender = false;
 
@@ -52,30 +54,50 @@ export const GET: APIRoute = async ({ request }) => {
 		cache = null;
 	}
 
-	try {
-		const upstream = await fetch(target, {
-			headers: {
-				"user-agent": "Mozilla/5.0 (compatible; FiredreCoverProxy/1.0)",
-			},
-			cf: { image: { width, quality: 80, format: "auto" }, cacheTtl: 86400 },
-		} as RequestInit);
-		const contentType = upstream.headers.get("content-type") || "";
-		if (!upstream.ok || !upstream.body || !contentType.startsWith("image/")) {
-			return redirectBack();
-		}
-		const headers = new Headers();
-		headers.set("content-type", contentType);
-		headers.set("cache-control", "public, max-age=604800");
-		const resp = new Response(upstream.body, { headers });
-		if (cache) {
+	// 开放中继防护：缓存命中已直接返回，仅上游取图计入限流；failOpen 保证可用性优先
+	return withRateLimit(
+		cfEnv,
+		request,
+		{
+			windowMs: 60_000,
+			maxRequests: 120,
+			scope: "cover-proxy",
+			failOpen: true,
+		},
+		async () => {
 			try {
-				await cache.put(request, resp.clone());
+				const upstream = await fetch(target, {
+					headers: {
+						"user-agent": "Mozilla/5.0 (compatible; FiredreCoverProxy/1.0)",
+					},
+					cf: {
+						image: { width, quality: 80, format: "auto" },
+						cacheTtl: 86400,
+					},
+				} as RequestInit);
+				const contentType = upstream.headers.get("content-type") || "";
+				if (
+					!upstream.ok ||
+					!upstream.body ||
+					!contentType.startsWith("image/")
+				) {
+					return redirectBack();
+				}
+				const headers = new Headers();
+				headers.set("content-type", contentType);
+				headers.set("cache-control", "public, max-age=604800");
+				const resp = new Response(upstream.body, { headers });
+				if (cache) {
+					try {
+						await cache.put(request, resp.clone());
+					} catch {
+						// 缓存写入失败仍返回图片
+					}
+				}
+				return resp;
 			} catch {
-				// 缓存写入失败仍返回图片
+				return redirectBack();
 			}
-		}
-		return resp;
-	} catch {
-		return redirectBack();
-	}
+		},
+	);
 };

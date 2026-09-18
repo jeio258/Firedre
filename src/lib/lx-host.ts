@@ -18,6 +18,7 @@ export type LxMusicInfo = Record<string, unknown>;
 
 export type LxSource = {
 	capabilities: Record<string, LxCapability>;
+	abortInflight(): void;
 	getMusicUrl(
 		source: string,
 		musicInfo: LxMusicInfo,
@@ -58,17 +59,22 @@ export const LX_SCRIPT_KEYS = Object.keys(execSources).map(keyOf).sort();
 
 // 各音源初始化只执行一次，之后复用（失败时清空以便重试）
 const cachedSources = new Map<string, Promise<LxSource>>();
+// 初始化串行链：脚本经 globalThis.lx 单槽注册，并发 init 会互相覆盖
+let initChain: Promise<unknown> = Promise.resolve();
 
 export function getLxSource(
 	scriptKey: string = DEFAULT_LX_SCRIPT,
 ): Promise<LxSource> {
 	const cached = cachedSources.get(scriptKey);
 	if (cached) return cached;
-	const init = initLxSource(scriptKey).catch((error: unknown) => {
-		cachedSources.delete(scriptKey);
-		throw error;
-	});
+	const init = initChain
+		.then(() => initLxSource(scriptKey))
+		.catch((error: unknown) => {
+			cachedSources.delete(scriptKey);
+			throw error;
+		});
 	cachedSources.set(scriptKey, init);
+	initChain = init.catch(() => {});
 	return init;
 }
 
@@ -88,6 +94,8 @@ async function initLxSource(scriptKey: string): Promise<LxSource> {
 	const state: { capabilities: Record<string, LxCapability> | null } = {
 		capabilities: null,
 	};
+	// 进行中的脚本网络请求，供超时后统一取消
+	const inflight = new Set<AbortController>();
 
 	const lx = {
 		version: "2.0.0",
@@ -137,6 +145,7 @@ async function initLxSource(scriptKey: string): Promise<LxSource> {
 					? optionsOrCallback
 					: maybeCallback;
 			const controller = new AbortController();
+			inflight.add(controller);
 			(async () => {
 				try {
 					const headers: Record<string, string> = {
@@ -167,6 +176,8 @@ async function initLxSource(scriptKey: string): Promise<LxSource> {
 					);
 				} catch (error) {
 					callback?.(error, null, null);
+				} finally {
+					inflight.delete(controller);
 				}
 			})();
 			return () => controller.abort();
@@ -191,6 +202,11 @@ async function initLxSource(scriptKey: string): Promise<LxSource> {
 
 	return {
 		capabilities: state.capabilities,
+		// 取消该实例全部进行中的脚本网络请求（解析超时后调用，避免后台继续占用 CPU）
+		abortInflight() {
+			for (const controller of inflight) controller.abort();
+			inflight.clear();
+		},
 		async getMusicUrl(source, musicInfo, quality) {
 			const result = await requestHandler({
 				source,

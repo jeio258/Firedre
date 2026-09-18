@@ -7,12 +7,12 @@ import {
 	type AlbumAccessParams,
 	verifyAlbumAccess,
 } from "../../utils/albumAuth";
-import { UserError } from "../utils/userError";
 import {
 	detectMediaTypeFromMime,
 	detectMediaTypeFromUrl,
 	MEDIA_EXT,
 } from "../../utils/albumMedia";
+import { UserError } from "../utils/userError";
 import {
 	assertTargetInWebDavScope,
 	resolveWebDavConfig,
@@ -184,7 +184,11 @@ export async function fetchWebDavFile(
 	if (auth) headers.Authorization = auth;
 	if (options?.range) headers.Range = options.range;
 
-	const response = await fetch(url, { headers, redirect: "manual", signal: AbortSignal.timeout(10000) });
+	const response = await fetch(url, {
+		headers,
+		redirect: "manual",
+		signal: AbortSignal.timeout(10000),
+	});
 	if (response.status >= 300 && response.status < 400) {
 		throw new Error("WebDAV 源返回重定向，出于安全已拒绝跟随");
 	}
@@ -243,11 +247,13 @@ export async function handleAlbumWebDavFile(
 	const response = await fetchWebDavFile(targetUrl, config, { range });
 	const contentType =
 		response.headers.get("content-type") || "application/octet-stream";
-	const buffer = Buffer.from(await response.arrayBuffer());
 
+	// 流式转发：整包 arrayBuffer 缓冲会被大文件撑爆 Worker 内存（Range 请求仅缓冲分片，
+	// 但上游忽略 Range 返回 200 时会读入全量）
+	if (!response.body) throw new Error("WebDAV 源未返回内容");
 	return {
 		contentType,
-		buffer,
+		body: response.body,
 		status: response.status,
 		contentRange: response.headers.get("content-range"),
 		contentLength: response.headers.get("content-length"),
