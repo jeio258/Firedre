@@ -8,15 +8,24 @@ import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-const allCssVars = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? collectUsedFontCssVars(fontConfig)
-	: new Set<string>();
+const allCssVars =
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable)
+		? collectUsedFontCssVars(fontConfig)
+		: new Set<string>();
 
 const selectedIds: string[] =
-	((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable) && ((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)
-		? Array.isArray(((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected))
-			? ((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)
-			: [((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)]
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable) &&
+	(((settings as any)?.["font"] as any)?.["selected"] ?? fontConfig.selected)
+		? Array.isArray(
+				((settings as any)?.["font"] as any)?.["selected"] ??
+					fontConfig.selected,
+			)
+			? (((settings as any)?.["font"] as any)?.["selected"] ??
+				fontConfig.selected)
+			: [
+					((settings as any)?.["font"] as any)?.["selected"] ??
+						fontConfig.selected,
+				]
 		: [];
 
 const SYSTEM_FONT_STACK =
@@ -32,23 +41,58 @@ const bodyFontFamily =
 			)
 		: SYSTEM_FONT_STACK;
 
-const bannerTitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["bannerTitleFont"] ?? fontConfig.bannerTitleFont) || ""
-	: "";
-const bannerSubtitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["bannerSubtitleFont"] ?? fontConfig.bannerSubtitleFont) || ""
-	: "";
-const navbarTitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["navbarTitleFont"] ?? fontConfig.navbarTitleFont) || ""
-	: "";
-const codeFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable) ? ((((settings as any)?.["font"]) as any)?.["codeFont"] ?? fontConfig.codeFont) || "" : "";
+const bannerTitleFontVar =
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable)
+		? (((settings as any)?.["font"] as any)?.["bannerTitleFont"] ??
+				fontConfig.bannerTitleFont) ||
+			""
+		: "";
+const bannerSubtitleFontVar =
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable)
+		? (((settings as any)?.["font"] as any)?.["bannerSubtitleFont"] ??
+				fontConfig.bannerSubtitleFont) ||
+			""
+		: "";
+const navbarTitleFontVar =
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable)
+		? (((settings as any)?.["font"] as any)?.["navbarTitleFont"] ??
+				fontConfig.navbarTitleFont) ||
+			""
+		: "";
+const codeFontVar =
+	(((settings as any)?.["font"] as any)?.["enable"] ?? fontConfig.enable)
+		? (((settings as any)?.["font"] as any)?.["codeFont"] ??
+				fontConfig.codeFont) ||
+			""
+		: "";
 
 const codeFontFamily = codeFontVar
 	? `var(${codeFontVar}, ${MONO_FONT_STACK})`
 	: MONO_FONT_STACK;
+
+// 自管分片字体：不进 Astro Fonts API，由 fonts:build 产物（public/fonts/）提供 unicode-range 分片
+const SELF_HOSTED_SPLIT: Record<string, { css: string; family: string }> = {
+	"--font-fangzheng-zizhu": {
+		css: "/fonts/fangzheng/result.css",
+		family: "Fangzheng ZhuZi A Yuan B",
+	},
+};
+
+const splitCssLinks: string[] = selectedFontVars
+	.filter((v) => !!SELF_HOSTED_SPLIT[v])
+	.map((v) => SELF_HOSTED_SPLIT[v].css);
+
+const splitVarDefs = selectedFontVars
+	.filter((v) => !!SELF_HOSTED_SPLIT[v])
+	.map((v) => `${v}: "${SELF_HOSTED_SPLIT[v].family}";`)
+	.join("\n");
+
+const astroFontVars = allCssVars.filter((v) => !SELF_HOSTED_SPLIT[v]);
 ---
 
-{Array.from(allCssVars).map((cssVar) => (
+{splitCssLinks.map((href) => <link rel="stylesheet" href={href} />)}
+
+{Array.from(astroFontVars).map((cssVar) => (
   <Font
     cssVariable={cssVar as any}
     preload={selectedFontVars.includes(cssVar)}
@@ -58,6 +102,7 @@ const codeFontFamily = codeFontVar
 <style
   set:html={`
   :root {
+    ${splitVarDefs}
     --font-code: ${codeFontFamily};
     ${bannerTitleFontVar ? `--font-banner-title: var(${bannerTitleFontVar}, inherit);` : ""}
     ${bannerSubtitleFontVar ? `--font-banner-subtitle: var(${bannerSubtitleFontVar}, inherit);` : ""}

@@ -29,7 +29,8 @@
     "d1:migrate": "npx wrangler d1 migrations apply firedre-blog --remote",
     "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
     "deploy": "pnpm build && wrangler pages deploy dist --project-name firedre",
-    "deploy:dry": "pnpm build && wrangler pages deploy dist --project-name firedre --dry-run"
+    "deploy:dry": "pnpm build && wrangler pages deploy dist --project-name firedre --dry-run",
+    "fonts:build": "node scripts/build-fonts.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -99,11 +100,20 @@
     "@types/qrcode": "^1.5.6",
     "@types/sanitize-html": "^2.16.1",
     "@vitest/coverage-v8": "^4.1.11",
+    "cn-font-split": "^7.4.3",
     "esbuild": "^0.28.2",
     "playwright": "^1.62.1",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^14.0.1",
     "vitest": "^4.1.11",
+    "wawoff2": "^2.0.1",
     "wrangler": "^4.127.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "cn-font-split",
+      "koffi",
+      "protobufjs"
+    ]
   }
 }

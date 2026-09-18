@@ -52,18 +52,12 @@ export const fontsList: FontDefinition[] = [
 		fallbacks: ["sans-serif"],
 	},
 	{
-		// 方正筑紫A圆体B（子集化 woff2：GB2312 全集 + ASCII + 项目用字，6964 CJK）
+		// 方正筑紫A圆体B（unicode-range 分片版，产物 public/fonts/fangzheng/，pnpm fonts:build 生成）
+		// provider none：不进 Astro Fonts API（单文件 1.28MB 整包 preload），由 FontSetup 直出分片 CSS
 		name: "Fangzheng ZhuZi A Yuan B",
 		cssVariable: "--font-fangzheng-zizhu",
-		provider: "local",
+		provider: "none",
 		display: "swap",
-		options: {
-			variants: [
-				{
-					src: ["./src/assets/fonts/FangzhengZhuZiA-YuanB.woff2"],
-				},
-			],
-		},
 		fallbacks: ["sans-serif"],
 	},
 ];
