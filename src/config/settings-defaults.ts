@@ -133,6 +133,7 @@ export const settingsDefaults = {
 		metingAuth: "",
 		metingFallbackApis:
 			'["https://api.injahow.cn/meting/?server=:server&type=:type&id=:id","https://api.moeyao.cn/meting/?server=:server&type=:type&id=:id"]',
+		sourceScript: "kh-v1.7.16",
 		localPlaylist:
 			'[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""},{"name":"晴天","artist":"周杰伦","source":"tx","id":"0039MnYb0qxYhV","quality":"128k","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]',
 	},

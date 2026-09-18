@@ -1,7 +1,8 @@
 import type { APIRoute } from "astro";
+import { getSettingsGroup } from "../../../../server/settings/service";
+import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import { badRequest, cfEnv, json } from "../../../lib/api";
-import { getLxSource, LxError } from "../../../lib/lx-host";
-import { withRateLimit } from "../../../server/utils/rateLimiter";
+import { DEFAULT_LX_SCRIPT, getLxSource, LxError } from "../../../lib/lx-host";
 
 export const prerender = false;
 
@@ -179,7 +180,17 @@ export const GET: APIRoute = async ({ url, request }) => {
 		async () => {
 			const t0 = Date.now();
 			try {
-				const lxSource = await getLxSource();
+				// 音源脚本可后台配置（src/music-sources/ 内脚本按文件名选择），读取失败用默认
+				let scriptKey = DEFAULT_LX_SCRIPT;
+				try {
+					const music = await getSettingsGroup(cfEnv, "music");
+					if (typeof music.sourceScript === "string" && music.sourceScript) {
+						scriptKey = music.sourceScript;
+					}
+				} catch {
+					// 设置读取失败不影响解析
+				}
+				const lxSource = await getLxSource(scriptKey);
 				const resolved = await Promise.race([
 					lxSource.getMusicUrl(
 						source,
@@ -222,13 +233,10 @@ export const GET: APIRoute = async ({ url, request }) => {
 				}
 				return response;
 			} catch (error) {
-				const detail =
-					error instanceof Error ? error.message : String(error);
+				const detail = error instanceof Error ? error.message : String(error);
 				console.error("[music/url] 解析失败:", detail);
 				const message =
-					error instanceof LxError
-						? error.message
-						: `音源解析失败：${detail}`;
+					error instanceof LxError ? error.message : `音源解析失败：${detail}`;
 				// 失败结果不缓存，便于上游恢复后立即生效
 				return json({ ok: false, message }, 502);
 			}

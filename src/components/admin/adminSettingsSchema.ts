@@ -629,6 +629,13 @@ export const GROUPS: Group[] = [
 					"每行一个，如：https://api.injahow.cn/meting/?server=:server&type=:type&id=:id",
 			},
 			{
+				name: "sourceScript",
+				label: "音源解析脚本",
+				type: "select",
+				options: [{ label: "K×H v1.7.16（内置）", value: "kh-v1.7.16" }],
+				hint: "新增音源脚本放入 src/music-sources/ 后在此追加选项",
+			},
+			{
 				name: "localPlaylist",
 				label: "本地音乐列表",
 				type: "records",
