@@ -1,12 +1,12 @@
+packages:
+  - '.'
+overrides:
+  katex: ^0.18.3
 allowBuilds:
-  '@biomejs/biome': true
-  cn-font-split: true
   esbuild: true
-  koffi: true
-  protobufjs: true
   sharp: true
   workerd: true
-onlyBuiltDependencies:
-  - cn-font-split
-  - koffi
-  - protobufjs
+  '@parcel/watcher': true
+  typeit: true
+  '@biomejs/biome': true
+  unrs-resolver: true

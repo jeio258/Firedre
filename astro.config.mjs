@@ -40,7 +40,7 @@ export default defineConfig({
 
 		const used = collectUsedFontCssVars(fontConfig);
 		return fontsList
-			.filter((f) => used.has(f.cssVariable) && f.provider !== "none")
+			.filter((f) => used.has(f.cssVariable))
 			.map((f) => {
 				let provider;
 				switch (f.provider) {
