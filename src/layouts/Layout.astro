@@ -7,7 +7,6 @@ import CodeGroupManager from "@components/features/CodeGroupManager.astro";
 import FancyboxManager from "@components/features/FancyboxManager.astro";
 import FontSetup from "@components/features/FontSetup.astro";
 import GithubCardManager from "@components/features/GithubCardManager.astro";
-import MarkdownEnhancer from "@components/features/MarkdownEnhancer.svelte";
 import MusicManager from "@components/features/MusicManager.astro";
 import MusicPlayerView from "@components/features/MusicPlayerView.astro";
 import SakuraEffect from "@components/features/SakuraEffect.astro";
@@ -511,7 +510,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     {settings.effects?.waves !== false && <WavesEffect />}
 
-    <MarkdownEnhancer client:load />
+    <script>import "../scripts/markdown-enhancer";</script>
     <FancyboxManager />
 
     <CodeGroupManager />

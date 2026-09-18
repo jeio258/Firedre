@@ -75,24 +75,45 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		const { ensureSchema } = await import("@server/posts/seed");
 		await ensureSchema(cfEnv);
 
-		// seed 与 settings 并行（seed 仅新 isolate 执行一次）
+		// seed 仅新 isolate 执行一次（后台运行，不阻塞当前请求）
 		const seedFlag = globalThis as unknown as { __FIREDRE_SEEDED__?: boolean };
-		const seedTask = seedFlag.__FIREDRE_SEEDED__
-			? Promise.resolve()
-			: (async () => {
-					seedFlag.__FIREDRE_SEEDED__ = true;
-					try {
-						const { ensureDefaultPosts } = await import("@server/posts/seed");
-						await ensureDefaultPosts(cfEnv);
-					} catch {
-						// seed 失败不影响请求
-					}
-				})();
-		const [groups, { mergeSettings }] = await Promise.all([
-			getAllSettings(cfEnv),
-			import("@server/settings/merge"),
-			seedTask,
-		]);
+		if (!seedFlag.__FIREDRE_SEEDED__) {
+			seedFlag.__FIREDRE_SEEDED__ = true;
+			(async () => {
+				try {
+					const { ensureDefaultPosts } = await import("@server/posts/seed");
+					await ensureDefaultPosts(cfEnv);
+				} catch {
+					// seed 失败不影响请求
+				}
+			})();
+		}
+		// getAllSettings isolate 级缓存：以设置版本为键（任何设置写入都会自增版本号），
+		// 命中时省去每 cache-miss 请求的全表 D1 读；TTL 兜底覆盖直改 D1 不 bump 版本的场景
+		const settingsCache = globalThis as unknown as {
+			__FIREDRE_SETTINGS_CACHE__?: {
+				version: string;
+				groups: Record<string, Record<string, unknown>>;
+				at: number;
+			};
+		};
+		let groups: Record<string, Record<string, unknown>>;
+		const cachedGroups = settingsCache.__FIREDRE_SETTINGS_CACHE__;
+		if (
+			cachedGroups &&
+			cachedGroups.version === settingsVersion &&
+			Date.now() - cachedGroups.at < 30_000
+		) {
+			groups = cachedGroups.groups;
+		} else {
+			groups = await getAllSettings(cfEnv);
+			settingsCache.__FIREDRE_SETTINGS_CACHE__ = {
+				version: settingsVersion,
+				groups,
+				at: Date.now(),
+			};
+		}
+		const { mergeSettings } = await import("@server/settings/merge");
 
 		const defaults = settingsDefaults as unknown as Record<
 			string,

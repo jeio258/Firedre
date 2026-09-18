@@ -210,7 +210,17 @@
     revokeAllSvgBlobUrls();
   }
 
-  setup();
+  // 首次绑定延迟到空闲：fancybox 核心 114KB 不随页面加载立即拉取；
+  // 用户点击图片时 pointerdown 提前触发，swup/动态内容事件仍即时绑定
+  let started = false;
+  const startOnce = () => {
+    if (started) return;
+    started = true;
+    setup();
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(() => startOnce());
+  else setTimeout(startOnce, 200);
+  document.addEventListener("pointerdown", startOnce, { once: true, capture: true });
 
   if (!window.__fancyboxInit) {
     window.__fancyboxInit = true;
