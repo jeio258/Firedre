@@ -753,12 +753,22 @@ export const GROUPS: Group[] = [
 		category: "页面配置",
 		fields: [
 			{ name: "title", label: "页面标题", type: "text" },
+			{
+				name: "favicon",
+				label: "Favicon 自动获取配置",
+				type: "records",
+				objectFields: [
+					{ key: "enabled", label: "启用(true/false)", valueType: "boolean" },
+					{ key: "api", label: "接口地址" },
+				],
+				placeholder:
+					"单行填写，字段顺序：启用(true/false) | 接口地址\n如：true | https://a.favicon.im/{domain}",
+			},
 			{ name: "description", label: "页面描述", type: "textarea" },
 			{
 				name: "groups",
 				label: "书签分组与条目",
 				type: "records",
-				wide: true,
 				groupFields: [
 					{ key: "name", label: "分组名", required: true },
 					{ key: "icon", label: "分组图标" },
@@ -777,17 +787,6 @@ export const GROUPS: Group[] = [
 				],
 				placeholder:
 					"分组行（顶格）：分组名 | 分组图标 | 分组描述 | 权重 | 启用(true/false) | 分组ID\n子项行（行首缩进两空格）：标题 | 链接 | 描述 | 图标 | 权重 | 启用(true/false)",
-			},
-			{
-				name: "favicon",
-				label: "Favicon 自动获取配置",
-				type: "records",
-				objectFields: [
-					{ key: "enabled", label: "启用(true/false)", valueType: "boolean" },
-					{ key: "api", label: "接口地址" },
-				],
-				placeholder:
-					"单行填写，字段顺序：启用(true/false) | 接口地址\n如：true | https://a.favicon.im/{domain}",
 			},
 		],
 	},
