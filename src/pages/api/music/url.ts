@@ -53,6 +53,7 @@ async function searchTxSongmid(
 						songmid?: string;
 						albummid?: string;
 						songname?: string;
+						singer?: Array<{ name?: string }>;
 					}>;
 				};
 			};
@@ -61,9 +62,18 @@ async function searchTxSongmid(
 		const first = list[0];
 		if (!first?.songmid) return null;
 		// 优先精确匹配歌名（QQ 搜索可能返回同名不同版本或相关推荐，取错会导致歌不对）
+		// 歌名相同时再优先匹配歌手，避免命中同名不同歌手的版本
 		const norm = (v: string | undefined) =>
 			(v ?? "").replace(/\s+/g, "").toLowerCase();
-		const exact = list.find((x) => norm(x.songname) === norm(name)) ?? first;
+		const nameNorm = norm(name);
+		const singerNorm = norm(singer);
+		const byName = list.filter((x) => norm(x.songname) === nameNorm);
+		const exact =
+			byName.find((x) =>
+				(x.singer ?? []).some((s) => norm(s?.name) === singerNorm),
+			) ??
+			byName[0] ??
+			first;
 		if (!exact?.songmid) return null;
 		const pic = exact.albummid
 			? `https://y.gtimg.cn/music/photo_new/T002R500x500M000${exact.albummid}.jpg`
