@@ -11,7 +11,7 @@ import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
-import { listEnabledSiteLinks, type SiteLinkView } from "../../server/siteLinks/service";
+import { listEnabledSiteLinks, type SiteLinkView } from "@server/siteLinks/service";
 import { cfEnv } from "../lib/api";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）

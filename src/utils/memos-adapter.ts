@@ -1,4 +1,3 @@
-
 import { Marked } from "marked";
 
 interface MemoAttachment {
@@ -47,13 +46,16 @@ export interface DynamicEntry {
 }
 
 const memosMarked = new Marked({ gfm: true, breaks: true });
-import { safeUrlScheme } from "../../server/utils/safeUrl";
+
+import { safeUrlScheme } from "@server/utils/safeUrl";
 
 memosMarked.use({
 	renderer: {
 		link({ href, title, tokens }) {
 			const text = this.parser.parseInline(tokens);
-			const titleAttr = title ? ` title="${String(title).replace(/"/g, "&quot;")}"` : "";
+			const titleAttr = title
+				? ` title="${String(title).replace(/"/g, "&quot;")}"`
+				: "";
 
 			const safeHref = safeUrlScheme(href);
 			if (!safeHref) {
@@ -105,7 +107,6 @@ function extractImages(memo: Memo, memosApiUrl: string): DynamicImage[] {
 	if (memo.attachments) {
 		for (const attachment of memo.attachments) {
 			if (attachment.type.startsWith("image/")) {
-
 				const attachmentId = attachment.name.split("/").pop() || "";
 				const src =
 					attachment.externalLink ||

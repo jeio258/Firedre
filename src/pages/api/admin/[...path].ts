@@ -1,7 +1,3 @@
-import type { CloudflareEnv } from "../../../../types/env";
-import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
-import { parseStringListOrEmpty } from "../../../../server/utils/json";
 import {
 	ADMIN_SESSION_COOKIE,
 	buildClearSessionCookie,
@@ -12,19 +8,22 @@ import {
 	getSessionUser,
 	resolveAdminEnv,
 	verifyAdminRequest,
-} from "../../../../server/auth/adminSession";
+} from "@server/auth/adminSession";
 import {
 	authenticateAdmin,
 	createAdminUser,
 	hasAdminUser,
 	updateAdminUserPassword,
-} from "../../../../server/auth/adminUser";
+} from "@server/auth/adminUser";
 import {
 	createD1LoginRateLimit,
 	formatLoginRateLimitMessage,
 	getRequestClientIp,
-} from "../../../../server/auth/loginRateLimit";
-import { withRateLimit } from "../../../../server/utils/rateLimiter";
+} from "@server/auth/loginRateLimit";
+import { parseStringListOrEmpty } from "@server/utils/json";
+import { withRateLimit } from "@server/utils/rateLimiter";
+import type { APIRoute } from "astro";
+import type { CloudflareEnv } from "../../../../types/env";
 import {
 	cfEnv,
 	json,
@@ -32,6 +31,7 @@ import {
 	serverError,
 	unauthorized,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
@@ -62,14 +62,18 @@ export const POST: APIRoute = async ({ params, request }) => {
 			return withRateLimit(
 				cfEnv,
 				request,
-				{ windowMs: 60_000, maxRequests: 5, scope: "admin-setup", failOpen: false },
+				{
+					windowMs: 60_000,
+					maxRequests: 5,
+					scope: "admin-setup",
+					failOpen: false,
+				},
 				async () => {
 					const body = (await request.json().catch(() => null)) as {
 						username?: string;
 						password?: string;
 					} | null;
-					if (!body)
-						return json({ message: "请求体格式错误" }, 400);
+					if (!body) return json({ message: "请求体格式错误" }, 400);
 					const username = String(body.username || "").trim();
 					const password = String(body.password || "");
 
@@ -99,8 +103,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 				username?: string;
 				password?: string;
 			} | null;
-			if (!body)
-				return json({ message: "请求体格式错误" }, 400);
+			if (!body) return json({ message: "请求体格式错误" }, 400);
 			const username = String(body.username || "").trim();
 			const password = String(body.password || "");
 			const clientIp = getRequestClientIp(request);
@@ -150,8 +153,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 				password?: string;
 			};
 			const newPassword = String(body.password || "");
-			if (!newPassword)
-				return json({ message: "密码不能为空" }, 400);
+			if (!newPassword) return json({ message: "密码不能为空" }, 400);
 			if (newPassword.length < 8)
 				return json({ message: "密码至少 8 位" }, 400);
 
@@ -216,34 +218,68 @@ export const GET: APIRoute = async ({ params, request }) => {
 async function collectAdminStats(db: CloudflareEnv["DB"]) {
 	const monthLabel = (d: Date) =>
 		`${String(d.getUTCFullYear()).slice(2)}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-	const months = new Map<string, { label: string; 发布: number; 草稿: number }>();
+	const months = new Map<
+		string,
+		{ label: string; 发布: number; 草稿: number }
+	>();
 	for (let i = 11; i >= 0; i--) {
 		const d = new Date(Date.now() - i * 30 * 86400_000);
 		const key = monthLabel(d);
 		months.set(key, { label: key, 发布: 0, 草稿: 0 });
 	}
 
-	const [postRows, trendRows, catRows, topRows, recentRows, dynCount, frCount, albCount] =
-		await Promise.all([
-			db.prepare("SELECT published, COUNT(*) AS c FROM posts GROUP BY published").all<{ published: number; c: number }>(),
-			db.prepare("SELECT date, published FROM posts").all<{ date: string; published: number }>(),
-			db.prepare(`
+	const [
+		postRows,
+		trendRows,
+		catRows,
+		topRows,
+		recentRows,
+		dynCount,
+		frCount,
+		albCount,
+	] = await Promise.all([
+		db
+			.prepare("SELECT published, COUNT(*) AS c FROM posts GROUP BY published")
+			.all<{ published: number; c: number }>(),
+		db
+			.prepare("SELECT date, published FROM posts")
+			.all<{ date: string; published: number }>(),
+		db
+			.prepare(`
         SELECT pt.value AS v, COUNT(*) AS c
         FROM post_taxonomy pt
         JOIN posts p ON p.slug = pt.post_slug
         WHERE pt.type = 'category' AND p.published = 1
         GROUP BY pt.value
-      `).all<{ v: string; c: number }>(),
-			db.prepare(
+      `)
+			.all<{ v: string; c: number }>(),
+		db
+			.prepare(
 				"SELECT slug, title, words, minutes FROM posts WHERE published = 1 ORDER BY words DESC LIMIT 6",
-			).all<{ slug: string; title: string; words: number; minutes: number }>(),
-			db.prepare(
+			)
+			.all<{ slug: string; title: string; words: number; minutes: number }>(),
+		db
+			.prepare(
 				"SELECT slug, title, categories, tags, published, pin_order, updated, date FROM posts ORDER BY COALESCE(NULLIF(updated, ''), date) DESC, date DESC LIMIT 6",
-			).all<{ slug: string; title: string; categories: string | null; tags: string | null; published: number; pin_order: number; updated: string | null; date: string }>(),
-			db.prepare("SELECT COUNT(*) AS c FROM dynamics").first<{ c: number }>(),
-			db.prepare("SELECT COUNT(*) AS c, COALESCE(SUM(enabled), 0) AS e FROM friends").first<{ c: number; e: number }>(),
-			db.prepare("SELECT COUNT(*) AS c FROM albums").first<{ c: number }>(),
-		]);
+			)
+			.all<{
+				slug: string;
+				title: string;
+				categories: string | null;
+				tags: string | null;
+				published: number;
+				pin_order: number;
+				updated: string | null;
+				date: string;
+			}>(),
+		db.prepare("SELECT COUNT(*) AS c FROM dynamics").first<{ c: number }>(),
+		db
+			.prepare(
+				"SELECT COUNT(*) AS c, COALESCE(SUM(enabled), 0) AS e FROM friends",
+			)
+			.first<{ c: number; e: number }>(),
+		db.prepare("SELECT COUNT(*) AS c FROM albums").first<{ c: number }>(),
+	]);
 
 	let published = 0;
 	let draft = 0;
@@ -267,7 +303,10 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 
 	const catMap = new Map<string, number>();
 	for (const r of catRows.results || []) {
-		const top = String(r.v || "未分类").split("/")[0].trim() || "未分类";
+		const top =
+			String(r.v || "未分类")
+				.split("/")[0]
+				.trim() || "未分类";
 		catMap.set(top, (catMap.get(top) ?? 0) + r.c);
 	}
 	const categoryDist = [...catMap.entries()]
@@ -275,13 +314,18 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 		.sort((a, b) => b.文章数 - a.文章数);
 
 	const [basicRow, tagRow] = await Promise.all([
-		db.prepare("SELECT value FROM site_settings WHERE key = 'basic'").first<{ value: string }>(),
-		db.prepare("SELECT COUNT(*) AS c FROM post_taxonomy WHERE type = 'tag'").first<{ c: number }>(),
+		db
+			.prepare("SELECT value FROM site_settings WHERE key = 'basic'")
+			.first<{ value: string }>(),
+		db
+			.prepare("SELECT COUNT(*) AS c FROM post_taxonomy WHERE type = 'tag'")
+			.first<{ c: number }>(),
 	]);
 	let siteTitle = "Firedre";
 	try {
 		const v = basicRow?.value ? JSON.parse(basicRow.value) : null;
-		if (v && typeof v.title === "string" && v.title.trim()) siteTitle = v.title.trim();
+		if (v && typeof v.title === "string" && v.title.trim())
+			siteTitle = v.title.trim();
 	} catch {
 		// 忽略
 	}
@@ -306,24 +350,31 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 			{ name: "草稿", value: draft },
 		].filter((x) => x.value > 0),
 		categoryDist,
-		topWords: ((topRows.results || []) as { slug: string; title: string; words: number; minutes: number }[]).map(
-			(r) => ({
-				slug: r.slug,
-				title: r.title,
-				words: r.words ?? 0,
-				minutes: r.minutes ?? 0,
-			}),
-		),
-		recent: ((recentRows.results || []) as {
-			slug: string;
-			title: string;
-			categories: string | null;
-			tags: string | null;
-			published: number;
-			pin_order: number;
-			updated: string | null;
-			date: string;
-		}[]).map((r) => ({
+		topWords: (
+			(topRows.results || []) as {
+				slug: string;
+				title: string;
+				words: number;
+				minutes: number;
+			}[]
+		).map((r) => ({
+			slug: r.slug,
+			title: r.title,
+			words: r.words ?? 0,
+			minutes: r.minutes ?? 0,
+		})),
+		recent: (
+			(recentRows.results || []) as {
+				slug: string;
+				title: string;
+				categories: string | null;
+				tags: string | null;
+				published: number;
+				pin_order: number;
+				updated: string | null;
+				date: string;
+			}[]
+		).map((r) => ({
 			slug: r.slug,
 			title: r.title,
 			categories: parseStringListOrEmpty(r.categories),

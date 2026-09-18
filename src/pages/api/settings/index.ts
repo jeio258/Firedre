@@ -1,14 +1,14 @@
-import type { APIRoute } from "astro";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
+import { verifyAdminRequest } from "@server/auth/adminSession";
+import { redactSensitive } from "@server/settings/sensitive";
 import {
 	getAllSettings,
 	getSettingsGroup,
-	saveSettingsGroups,
 	SETTING_GROUPS,
-	saveSettingsGroup,
 	type SettingGroup,
-} from "../../../../server/settings/service";
-import { redactSensitive } from "../../../../server/settings/sensitive";
+	saveSettingsGroup,
+	saveSettingsGroups,
+} from "@server/settings/service";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,
@@ -22,17 +22,15 @@ export const prerender = false;
 export const GET: APIRoute = async ({ url, request }) => {
 	try {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
-		const { flattenSettingsDefaults } = await import("../../../../server/settings/flatten");
+		const { flattenSettingsDefaults } = await import(
+			"@server/settings/flatten"
+		);
 		const defaults = flattenSettingsDefaults();
 		const group = url.searchParams.get("group");
 		if (group && (SETTING_GROUPS as readonly string[]).includes(group)) {
 			const db = await getSettingsGroup(cfEnv, group as never);
 			const payload = { ...(defaults[group] ?? {}), ...db };
-			return json(
-				isAdmin ? payload : redactSensitive(payload),
-				200,
-				"private",
-			);
+			return json(isAdmin ? payload : redactSensitive(payload), 200, "private");
 		}
 		const all = await getAllSettings(cfEnv);
 		const merged: Record<string, Record<string, unknown>> = {};
@@ -50,10 +48,15 @@ export const PUT: APIRoute = async ({ request }) => {
 	if (!isAdmin) return unauthorized();
 
 	// 设置修改限流：每分钟最多 20 次（D1 持久化）
-	return (await import("../../../../server/utils/rateLimiter")).withRateLimit(
+	return (await import("@server/utils/rateLimiter")).withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 20, scope: "settings-write", failOpen: false },
+		{
+			windowMs: 60_000,
+			maxRequests: 20,
+			scope: "settings-write",
+			failOpen: false,
+		},
 		async () => {
 			try {
 				const body = (await request.json().catch(() => null)) as Record<
@@ -63,10 +66,7 @@ export const PUT: APIRoute = async ({ request }) => {
 				if (!body || typeof body !== "object") return badRequest("请求体无效");
 
 				if (body.groups && typeof body.groups === "object") {
-					const groups = body.groups as Record<
-						string,
-						Record<string, unknown>
-					>;
+					const groups = body.groups as Record<string, Record<string, unknown>>;
 					const valid: Record<string, Record<string, unknown>> = {};
 					for (const [key, data] of Object.entries(groups)) {
 						if (!(SETTING_GROUPS as readonly string[]).includes(key)) continue;
@@ -94,9 +94,7 @@ export const PUT: APIRoute = async ({ request }) => {
 
 				const isFlat =
 					Object.keys(body).length > 0 &&
-					Object.values(body).every(
-						(v) => v === null || typeof v !== "object",
-					);
+					Object.values(body).every((v) => v === null || typeof v !== "object");
 				if (isFlat) {
 					await saveSettingsGroup(
 						cfEnv,
@@ -105,7 +103,9 @@ export const PUT: APIRoute = async ({ request }) => {
 					);
 					return json({ ok: true });
 				}
-				return badRequest("请求体格式无效：需 { group, data }、{ groups } 或扁平字段");
+				return badRequest(
+					"请求体格式无效：需 { group, data }、{ groups } 或扁平字段",
+				);
 			} catch (error) {
 				return serverError(error);
 			}

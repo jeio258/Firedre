@@ -17,7 +17,7 @@ import { resolveNavbarLinks } from "@/utils/navbar-i18n";
 import { url } from "@/utils/url-utils";
 import DropdownMenu from "./DropdownMenu.astro";
 import NavMenuPanel from "./NavMenuPanel.astro";
-import { listEnabledSiteLinks, type SiteLinkView } from "../../../server/siteLinks/service";
+import { listEnabledSiteLinks, type SiteLinkView } from "@server/siteLinks/service";
 import { cfEnv } from "../../lib/api";
 
 const wallpaperConfig = getWallpaperConfig(Astro.locals);

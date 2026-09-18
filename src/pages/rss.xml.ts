@@ -1,9 +1,9 @@
 import rss, { type RSSFeedItem } from "@astrojs/rss";
+import { getSettingsVersion } from "@server/settings/service";
 import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
 import { siteConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
-import { getSettingsVersion } from "../../server/settings/service";
 
 export const prerender = false;
 
@@ -16,7 +16,7 @@ function stripInvalidXmlChars(str: string): string {
 }
 
 export async function GET(context: APIContext): Promise<Response> {
-	const { listPosts } = await import("../../server/posts/service");
+	const { listPosts } = await import("@server/posts/service");
 	const { cfEnv } = await import("../lib/api");
 
 	// D1 不可用时降级输出仅频道信息的 feed，而非裸 500

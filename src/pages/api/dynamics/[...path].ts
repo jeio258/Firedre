@@ -1,11 +1,10 @@
-import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
+import { verifyAdminRequest } from "@server/auth/adminSession";
 import {
 	deleteDynamic,
 	listDynamics,
 	upsertDynamic,
-} from "../../../../server/dynamic/service";
+} from "@server/dynamic/service";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,
@@ -15,6 +14,7 @@ import {
 	unauthorized,
 	withAdmin,
 } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 

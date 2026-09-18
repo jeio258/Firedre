@@ -1,6 +1,6 @@
+import { getSettingsGroup } from "@server/settings/service";
+import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
-import { getSettingsGroup } from "../../../../server/settings/service";
-import { withRateLimit } from "../../../../server/utils/rateLimiter";
 import { badRequest, cfEnv, json } from "../../../lib/api";
 import { DEFAULT_LX_SCRIPT, getLxSource, LxError } from "../../../lib/lx-host";
 

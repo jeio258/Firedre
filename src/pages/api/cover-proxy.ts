@@ -1,5 +1,5 @@
+import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
-import { withRateLimit } from "../../../server/utils/rateLimiter";
 import { cfEnv } from "../../lib/api";
 
 export const prerender = false;

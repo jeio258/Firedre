@@ -1,5 +1,4 @@
-import type { APIRoute } from "astro";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
+import { verifyAdminRequest } from "@server/auth/adminSession";
 import {
 	createSiteLink,
 	deleteSiteLink,
@@ -7,7 +6,8 @@ import {
 	listEnabledSiteLinks,
 	listSiteLinks,
 	updateSiteLink,
-} from "../../../../server/siteLinks/service";
+} from "@server/siteLinks/service";
+import type { APIRoute } from "astro";
 import {
 	badRequest,
 	cfEnv,

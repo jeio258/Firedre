@@ -3,7 +3,7 @@ import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
 
 export interface SettingsLocals {
-	settings: import("../server/settings/service").SiteSettings;
+	settings: import("@server/settings/service").SiteSettings;
 	settingsVersion?: string;
 }
 
@@ -66,7 +66,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	try {
 		const [{ getAllSettings, SETTING_GROUPS }, { settingsDefaults }] =
 			await Promise.all([
-				import("../server/settings/service"),
+				import("@server/settings/service"),
 				import("@shared/config/settings-defaults"),
 			]);
 		const { cfEnv } = await import("./lib/api");
@@ -78,7 +78,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			: (async () => {
 					seedFlag.__FIREDRE_SEEDED__ = true;
 					try {
-						const { ensureDefaultPosts } = await import("../server/posts/seed");
+						const { ensureDefaultPosts } = await import("@server/posts/seed");
 						await ensureDefaultPosts(cfEnv);
 					} catch {
 						// seed 失败不影响请求
@@ -86,7 +86,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				})();
 		const [groups, { mergeSettings }] = await Promise.all([
 			getAllSettings(cfEnv),
-			import("../server/settings/merge"),
+			import("@server/settings/merge"),
 			seedTask,
 		]);
 

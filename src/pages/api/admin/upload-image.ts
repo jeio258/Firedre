@@ -1,5 +1,5 @@
+import { verifyAdminRequest } from "@server/auth/adminSession";
 import type { APIRoute } from "astro";
-import { verifyAdminRequest } from "../../../../server/auth/adminSession";
 import { cfEnv, json, serverError, unauthorized } from "../../../lib/api";
 
 export const prerender = false;
@@ -14,7 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
 		if (!(file instanceof File) || !file.size)
 			return json({ message: "缺少文件" }, 400);
 
-		const MAX_FILE_SIZE = 5 * 1024 * 1024;       
+		const MAX_FILE_SIZE = 5 * 1024 * 1024;
 		if (file.size > MAX_FILE_SIZE)
 			return json({ message: "文件过大，最大支持 5MB" }, 400);
 

@@ -1,5 +1,5 @@
+import { fetchWithRetry } from "@server/utils/fetchRetry";
 import type { StandardizedAnime } from "@/types/bilibili";
-import { fetchWithRetry } from "../../server/utils/fetchRetry";
 
 export interface BilibiliItem {
 	media_id: number;

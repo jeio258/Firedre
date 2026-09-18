@@ -1,16 +1,17 @@
+import { getAlbumPassword } from "@server/gallery/password";
+import { withRateLimit } from "@server/utils/rateLimiter";
+import { constantTimeEqual } from "@server/utils/timingSafe";
 import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
 import { cfEnv, serverError } from "../../../lib/api";
-import { getAlbumPassword } from "../../../../server/gallery/password";
-import { withRateLimit } from "../../../../server/utils/rateLimiter";
-import { constantTimeEqual } from "../../../../server/utils/timingSafe";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
 	try {
 		const segments = pathSegments(params);
-		if (segments.length < 2) return new Response("Bad Request", { status: 400 });
+		if (segments.length < 2)
+			return new Response("Bad Request", { status: 400 });
 
 		const album = segments[0];
 		const file = segments.slice(1).join("/");
@@ -47,7 +48,10 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 
 		// 非加密相册 / 全局上传：可公开缓存
-		return serveFile(key, "public, max-age=86400, stale-while-revalidate=604800");
+		return serveFile(
+			key,
+			"public, max-age=86400, stale-while-revalidate=604800",
+		);
 	} catch (error) {
 		return serverError(error);
 	}

@@ -1,7 +1,7 @@
+import { fetchWithRetry } from "@server/utils/fetchRetry";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { VndbUlistEntry, VndbUlistResponse } from "@/types/vndb";
-import { fetchWithRetry } from "../../server/utils/fetchRetry";
 
 export const VNDB_ULIST_FIELDS: string = [
 	"id",
@@ -34,19 +34,16 @@ export async function fetchVndbUlist(
 		headers.Authorization = `Token ${options.apiToken}`;
 	}
 
-	const response = await fetchWithRetry(
-		`${options.apiUrl}/ulist`,
-		{
-			method: "POST",
-			headers,
-			body: JSON.stringify({
-				user: options.userId,
-				fields: VNDB_ULIST_FIELDS,
-				results: options.results,
-				page: options.page,
-			}),
-		},
-	);
+	const response = await fetchWithRetry(`${options.apiUrl}/ulist`, {
+		method: "POST",
+		headers,
+		body: JSON.stringify({
+			user: options.userId,
+			fields: VNDB_ULIST_FIELDS,
+			results: options.results,
+			page: options.page,
+		}),
+	});
 
 	if (!response.ok) {
 		throw new Error(`[VNDB] 无法获取数据 (状态码: ${response.status})`);

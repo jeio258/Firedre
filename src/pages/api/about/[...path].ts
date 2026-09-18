@@ -1,5 +1,5 @@
+import { getAbout, upsertAbout } from "@server/about/service";
 import type { APIRoute } from "astro";
-import { getAbout, upsertAbout } from "../../../../server/about/service";
 import {
 	badRequest,
 	cfEnv,
@@ -13,7 +13,6 @@ export const prerender = false;
 
 export const GET: APIRoute = async () => {
 	try {
-
 		const about = await getAbout(cfEnv, { includeSource: true });
 		if (!about) return json({ message: "关于页数据不存在" }, 404);
 		return json(about);

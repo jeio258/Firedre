@@ -4,7 +4,7 @@ import Comment from "@components/comment/index.astro";
 const settings =
 	(
 		Astro.locals as {
-			settings?: import("../../../server/settings/service").SettingsShape;
+			settings?: import("@server/settings/service").SettingsShape;
 		}
 	).settings ?? {};
 
@@ -56,7 +56,7 @@ const slug = Astro.params.slug || "";
 
 // Firedre：运行时从 D1+R2 获取文章并渲染
 const [{ getPostBySlug }, { cfEnv }, { apiPostToEntry }] = await Promise.all([
-	import("../../../server/posts/service"),
+	import("@server/posts/service"),
 	import("../../lib/api"),
 	import("../../utils/post-types"),
 ]);
