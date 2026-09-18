@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { setPlantumlRuntimeConfig } from "./config/plantumlRuntime";
+import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
 
 export interface SettingsLocals {
@@ -67,7 +67,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		const [{ getAllSettings, SETTING_GROUPS }, { settingsDefaults }] =
 			await Promise.all([
 				import("../server/settings/service"),
-				import("./config/settings-defaults"),
+				import("@shared/config/settings-defaults"),
 			]);
 		const { cfEnv } = await import("./lib/api");
 

@@ -1,4 +1,4 @@
-import type { BooknavGroup, BooknavPageConfig } from "../types/booknavConfig";
+import type { BooknavGroup, BooknavPageConfig } from "@/types/booknavConfig";
 
 export const booknavPageConfig: BooknavPageConfig = {
 	// 页面标题，如果留空则使用 i18n 中的翻译

@@ -1,4 +1,4 @@
-import type { LicenseConfig } from "../types/licenseConfig";
+import type { LicenseConfig } from "@/types/licenseConfig";
 
 export const licenseConfig: LicenseConfig = {
 	enable: true,

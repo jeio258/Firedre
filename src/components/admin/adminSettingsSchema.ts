@@ -1,4 +1,4 @@
-import { fontsList } from "@/config/fontConfig";
+import { fontsList } from "@shared/config/fontConfig";
 
 export type FieldType =
 	| "text"

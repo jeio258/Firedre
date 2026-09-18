@@ -1,4 +1,4 @@
-import type { ExpressiveCodeConfig } from "../types/expressiveCodeConfig";
+import type { ExpressiveCodeConfig } from "@/types/expressiveCodeConfig";
 
 export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	darkTheme: "one-dark-pro",

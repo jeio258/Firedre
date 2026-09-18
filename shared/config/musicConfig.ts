@@ -1,4 +1,4 @@
-import type { MusicPlayerConfig } from "../types/musicConfig";
+import type { MusicPlayerConfig } from "@/types/musicConfig";
 
 export const musicPlayerConfig: MusicPlayerConfig = {
 	showInNavbar: true,

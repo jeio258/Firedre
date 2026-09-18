@@ -1,4 +1,4 @@
-import type { SakuraConfig } from "../types/effectsConfig";
+import type { SakuraConfig } from "@/types/effectsConfig";
 
 export const sakuraConfig: SakuraConfig = {
 	enable: false,

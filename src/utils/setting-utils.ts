@@ -8,15 +8,15 @@ import {
 	WALLPAPER_NONE,
 	WALLPAPER_OVERLAY,
 } from "@constants/constants";
-import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
-import { backgroundWallpaper, sakuraConfig, siteConfig } from "../config";
 import {
 	getEffectsConfigFromWindow,
 	getExpressiveCodeConfigFromWindow,
 	getPanelConfigFromWindow,
 	getSiteConfigFromWindow,
 	getWallpaperConfigFromWindow,
-} from "../config/runtime";
+} from "@shared/config/runtime";
+import type { LIGHT_DARK_MODE, WALLPAPER_MODE } from "@/types/config";
+import { backgroundWallpaper, sakuraConfig, siteConfig } from "../config";
 import { isMobileViewport } from "./breakpoints";
 import { isHomePage as checkIsHomePage } from "./layout-utils";
 

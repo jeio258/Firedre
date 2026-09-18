@@ -1,4 +1,4 @@
-import type { SidebarLayoutConfig } from "../types/sidebarConfig";
+import type { SidebarLayoutConfig } from "@/types/sidebarConfig";
 
 export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	enable: true,

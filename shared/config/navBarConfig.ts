@@ -1,4 +1,4 @@
-import type { NavBarConfig, NavBarLink } from "../types/navBarConfig";
+import type { NavBarConfig, NavBarLink } from "@/types/navBarConfig";
 
 const getDynamicNavBarConfig = (): NavBarConfig => {
 	const links: NavBarLink[] = [];

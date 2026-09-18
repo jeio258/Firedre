@@ -29,13 +29,13 @@ import PostMetadata from "@/components/layout/PostMeta.astro";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SeriesNav from "@/components/misc/SeriesNav.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
-import { licenseConfig } from "@/config/licenseConfig";
-import { profileConfig } from "@/config/profileConfig";
+import { licenseConfig } from "@shared/config/licenseConfig";
+import { profileConfig } from "@shared/config/profileConfig";
 import { getCoverConfig, getSiteConfig } from "@/config/runtime";
-import { siteConfig } from "@/config/siteConfig";
-import { sponsorConfig } from "@/config/sponsorConfig";
+import { siteConfig } from "@shared/config/siteConfig";
+import { sponsorConfig } from "@shared/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
-import { getApiUrlList, processCoverImageSync } from "@/utils/image-utils";
+import { getApiUrlList, processCoverImageSync } from "@shared/utils/image-utils";
 import {
 	getAuthorAvatarUrl,
 	getSiteLogo,

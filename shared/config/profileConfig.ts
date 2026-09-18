@@ -1,4 +1,4 @@
-import type { ProfileConfig } from "../types/profileConfig";
+import type { ProfileConfig } from "@/types/profileConfig";
 
 export const profileConfig: ProfileConfig = {
 

@@ -1,4 +1,4 @@
-import type { Live2DWidgetConfig, SpineModelConfig } from "../types/pioConfig";
+import type { Live2DWidgetConfig, SpineModelConfig } from "@/types/pioConfig";
 
 export const spineModelConfig: SpineModelConfig = {
 	enable: false,

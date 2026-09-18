@@ -1,4 +1,4 @@
-import type { PlantUMLConfig } from "../types/plantumlConfig";
+import type { PlantUMLConfig } from "@/types/plantumlConfig";
 
 export const plantumlConfig: PlantUMLConfig = {
 

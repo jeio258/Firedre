@@ -1,7 +1,7 @@
+import { getSiteConfig } from "@shared/config/runtime";
 import type { APIRoute } from "astro";
 import { getGalleryHub } from "../../server/gallery/service";
 import { getSettingsVersion } from "../../server/settings/service";
-import { getSiteConfig } from "../config/runtime";
 import { cfEnv } from "../lib/api";
 
 export const prerender = false;

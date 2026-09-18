@@ -1,4 +1,4 @@
-import type { DisplaySettingsConfig } from "../types/displaySettingsConfig";
+import type { DisplaySettingsConfig } from "@/types/displaySettingsConfig";
 import { resolveDisplaySettingsConfig } from "../utils/display-settings-utils";
 
 export const displaySettingsConfig: DisplaySettingsConfig =

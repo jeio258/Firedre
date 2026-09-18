@@ -1,4 +1,4 @@
-import type { FriendsPageConfig } from "../types/friendsConfig";
+import type { FriendsPageConfig } from "@/types/friendsConfig";
 
 // 友链页自定义内容（Firedre：数据在后台友链管理维护）
 

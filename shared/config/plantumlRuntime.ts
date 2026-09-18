@@ -1,5 +1,5 @@
-import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
-import type { PlantUMLConfig } from "../types/plantumlConfig";
+import { plantumlConfig as staticPlantumlConfig } from "@shared/config/plantumlConfig";
+import type { PlantUMLConfig } from "@/types/plantumlConfig";
 
 let currentPlantumlConfig: PlantUMLConfig = staticPlantumlConfig;
 

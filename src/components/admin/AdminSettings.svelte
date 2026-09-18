@@ -1,9 +1,9 @@
 <script lang="ts">
+import { settingsDefaults as defaultsJson } from "@shared/config/settings-defaults";
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
-import { settingsDefaults as defaultsJson } from "../../config/settings-defaults";
 import {
 	CATEGORIES,
 	type Field,
@@ -55,8 +55,8 @@ async function load() {
 			}
 			data[g.key] = merged;
 		}
-		data["nav"] = { ...(defaults["nav"] ?? {}), ...(all["nav"] ?? {}) };
-		cmtTypeVal = String(data["comment"]?.["type"] ?? "");
+		data.nav = { ...(defaults.nav ?? {}), ...(all.nav ?? {}) };
+		cmtTypeVal = String(data.comment?.type ?? "");
 	} catch {
 		loadError = "设置加载失败，请刷新重试";
 	}
@@ -118,7 +118,7 @@ async function save() {
 			}
 			out[g.key] = payload;
 		}
-		out["nav"] = { ...(data["nav"] ?? {}) };
+		out.nav = { ...(data.nav ?? {}) };
 		try {
 			await apiJson("/api/settings/", {
 				method: "PUT",
@@ -133,7 +133,7 @@ async function save() {
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 		clearDraft("站点设置");
 
-		applyHueToAdmin(data["basic"]?.hue);
+		applyHueToAdmin(data.basic?.hue);
 	} catch {
 		message = "网络错误，修改尚未保存";
 	} finally {

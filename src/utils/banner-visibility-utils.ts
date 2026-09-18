@@ -1,5 +1,5 @@
+import { getImageQuality } from "@shared/utils/image-utils";
 import { backgroundWallpaper, displaySettingsConfig } from "@/config";
-import { getImageQuality } from "@/utils/image-utils";
 import { getBackgroundImages } from "@/utils/layout-utils";
 
 export interface BannerPostMeta {
@@ -90,29 +90,34 @@ export function getBannerVisibilityState(
 		bannerPostMeta,
 	} = ctx;
 
-	const themeS = (settings?.["theme"] ?? {}) as Record<string, unknown>;
-	const effectsS = (settings?.["effects"] ?? {}) as Record<string, unknown>;
-	const panelS = (settings?.["panel"] ?? {}) as Record<string, unknown>;
+	const themeS = (settings?.theme ?? {}) as Record<string, unknown>;
+	const effectsS = (settings?.effects ?? {}) as Record<string, unknown>;
+	const panelS = (settings?.panel ?? {}) as Record<string, unknown>;
 
 	const boolOr = (v: unknown, fallback: boolean): boolean =>
 		typeof v === "boolean" ? v : fallback;
 
 	const wallpaperMode =
-		(typeof themeS["mode"] === "string" && (themeS["mode"] as string)) ||
+		(typeof themeS.mode === "string" && (themeS.mode as string)) ||
 		backgroundWallpaper.mode;
 	const isBannerMode = wallpaperMode === "banner";
 	const isFullscreenMode = wallpaperMode === "fullscreen";
 	const isOverlayMode = wallpaperMode === "overlay";
-	const isWallpaperSwitchable = boolOr(panelS["wallpaperModeSwitchable"], displaySettingsConfig.wallpaperModeSwitchable);
-	const isBackgroundEnabled =
-		wallpaperMode !== "none" || isWallpaperSwitchable;
+	const isWallpaperSwitchable = boolOr(
+		panelS.wallpaperModeSwitchable,
+		displaySettingsConfig.wallpaperModeSwitchable,
+	);
+	const isBackgroundEnabled = wallpaperMode !== "none" || isWallpaperSwitchable;
 
-	const effectsWaves = effectsS["waves"];
+	const effectsWaves = effectsS.waves;
 	const wavesConfig =
 		typeof effectsWaves === "boolean"
 			? effectsWaves
 			: backgroundWallpaper.banner?.waves?.enable;
-	const wavesSwitchable = boolOr(panelS["wavesSwitchable"], displaySettingsConfig.wavesSwitchable);
+	const wavesSwitchable = boolOr(
+		panelS.wavesSwitchable,
+		displaySettingsConfig.wavesSwitchable,
+	);
 	const wavesEnabledOnDesktop =
 		typeof wavesConfig === "object" ? wavesConfig.desktop : wavesConfig;
 	const wavesEnabledOnMobile =
@@ -120,12 +125,15 @@ export function getBannerVisibilityState(
 	const shouldRenderWaves =
 		wavesEnabledOnDesktop || wavesEnabledOnMobile || wavesSwitchable;
 
-	const effectsGradient = effectsS["gradient"];
+	const effectsGradient = effectsS.gradient;
 	const gradientConfig =
 		typeof effectsGradient === "boolean"
 			? effectsGradient
 			: backgroundWallpaper.banner?.gradient?.enable;
-	const gradientSwitchable = boolOr(panelS["gradientSwitchable"], displaySettingsConfig.gradientSwitchable);
+	const gradientSwitchable = boolOr(
+		panelS.gradientSwitchable,
+		displaySettingsConfig.gradientSwitchable,
+	);
 	const gradientEnabledOnDesktop =
 		typeof gradientConfig === "object"
 			? gradientConfig.desktop
@@ -139,8 +147,8 @@ export function getBannerVisibilityState(
 		gradientEnabledOnDesktop || gradientEnabledOnMobile || gradientSwitchable;
 
 	const homeTextEnable =
-		(typeof themeS["homeTextEnable"] === "boolean"
-			? themeS["homeTextEnable"]
+		(typeof themeS.homeTextEnable === "boolean"
+			? themeS.homeTextEnable
 			: backgroundWallpaper.common?.homeText?.enable) ?? false;
 	const showHomeText =
 		(isBannerMode || isFullscreenMode) && !!homeTextEnable && isHomePageCheck;
@@ -165,8 +173,8 @@ export function getBannerVisibilityState(
 		(isBannerMode || isFullscreenMode || isWallpaperSwitchable) &&
 		isBackgroundEnabled;
 	const dimOpacity =
-		(typeof themeS["dimOpacity"] === "number"
-			? themeS["dimOpacity"]
+		(typeof themeS.dimOpacity === "number"
+			? themeS.dimOpacity
 			: backgroundWallpaper.common?.dimOpacity) ?? 0.15;
 
 	const showBannerPageTitle =
@@ -181,20 +189,22 @@ export function getBannerVisibilityState(
 	const mobileQuality = Math.round(configQuality * 0.9);
 
 	const bannerCarouselEnabledDefault =
-		(typeof themeS["carousel"] === "boolean"
-			? themeS["carousel"]
+		(typeof themeS.carousel === "boolean"
+			? themeS.carousel
 			: backgroundWallpaper.common?.carousel?.enable) ?? false;
-	const bannerCarouselSwitchable =
-		boolOr(panelS["bannerCarouselSwitchable"], displaySettingsConfig.bannerCarouselSwitchable);
+	const bannerCarouselSwitchable = boolOr(
+		panelS.bannerCarouselSwitchable,
+		displaySettingsConfig.bannerCarouselSwitchable,
+	);
 	const bannerCarouselInterval = Math.max(
-		(typeof themeS["carouselInterval"] === "number"
-			? themeS["carouselInterval"]
+		(typeof themeS.carouselInterval === "number"
+			? themeS.carouselInterval
 			: backgroundWallpaper.common?.carousel?.interval) ?? 5000,
 		3000,
 	);
 	const bannerCarouselEffect =
-		(typeof themeS["carouselTransition"] === "string" &&
-			(themeS["carouselTransition"] as string)) ||
+		(typeof themeS.carouselTransition === "string" &&
+			(themeS.carouselTransition as string)) ||
 		(backgroundWallpaper.common?.carousel?.transitionEffect ?? "fade");
 	const hasMultipleImages =
 		backgroundImages.desktop.length > 1 || backgroundImages.mobile.length > 1;

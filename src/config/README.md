@@ -41,8 +41,8 @@ import { siteConfig, profileConfig } from "@/config";
 
 ### 直接导入单个配置
 ```typescript
-import { siteConfig } from "@/config/siteConfig";
-import { profileConfig } from "@/config/profileConfig";
+import { siteConfig } from "@shared/config/siteConfig";
+import { profileConfig } from "@shared/config/profileConfig";
 ```
 
 ## 📋 配置文件列表

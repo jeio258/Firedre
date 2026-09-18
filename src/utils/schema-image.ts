@@ -1,7 +1,7 @@
 import * as path from "node:path";
+import { profileConfig } from "@shared/config/profileConfig";
+import { siteConfig } from "@shared/config/siteConfig";
 import type { ImageMetadata } from "astro";
-import { profileConfig } from "@/config/profileConfig";
-import { siteConfig } from "@/config/siteConfig";
 import { defaultFavicons } from "@/constants/icon";
 import { isAbsoluteUrl, url } from "./url-utils";
 
@@ -77,7 +77,13 @@ export async function getRawImageUrl(
 	src: string,
 	basePath = "",
 ): Promise<string | null> {
-	if (!src || src.startsWith("http") || src.startsWith("/") || src.startsWith("data:")) return null;
+	if (
+		!src ||
+		src.startsWith("http") ||
+		src.startsWith("/") ||
+		src.startsWith("data:")
+	)
+		return null;
 	const img = await loadLocalImage(src, basePath);
 	return img ? img.src : null;
 }
@@ -144,9 +150,7 @@ const siteLogoCache = new Map<
 	} | null>
 >();
 
-export function getSiteLogo(
-	siteUrl: string = siteConfig.site_url,
-): Promise<{
+export function getSiteLogo(siteUrl: string = siteConfig.site_url): Promise<{
 	url: string;
 	width?: number;
 	height?: number;
@@ -159,9 +163,7 @@ export function getSiteLogo(
 	return p;
 }
 
-async function computeSiteLogo(
-	siteUrl: string = siteConfig.site_url,
-): Promise<{
+async function computeSiteLogo(siteUrl: string = siteConfig.site_url): Promise<{
 	url: string;
 	width?: number;
 	height?: number;

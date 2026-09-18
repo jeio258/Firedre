@@ -4,7 +4,7 @@ const settings =
 import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "@/components/layout/PostCard.astro";
 import { siteConfig } from "@/config";
-import { processCoverImageSync } from "@/utils/image-utils";
+import { processCoverImageSync } from "@shared/utils/image-utils";
 import type { PostForList } from "@/utils/post-types";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）

@@ -1,4 +1,4 @@
-import type { CoverImageConfig } from "../types/coverImageConfig";
+import type { CoverImageConfig } from "@/types/coverImageConfig";
 
 export const coverImageConfig: CoverImageConfig = {
 	enableInPost: true,

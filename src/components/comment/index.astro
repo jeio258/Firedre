@@ -1,7 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-import { commentConfig } from "@/config/commentConfig";
+import { commentConfig } from "@shared/config/commentConfig";
 import Key from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { PostForList } from "@/utils/post-types";

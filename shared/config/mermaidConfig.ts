@@ -1,4 +1,4 @@
-import type { MermaidConfig } from "../types/mermaidConfig";
+import type { MermaidConfig } from "@/types/mermaidConfig";
 
 export const mermaidConfig: MermaidConfig = {
 

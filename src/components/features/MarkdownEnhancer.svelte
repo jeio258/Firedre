@@ -1,6 +1,6 @@
 <script lang="ts">
+import { mermaidConfig } from "@shared/config/mermaidConfig";
 import { onMount } from "svelte";
-import { mermaidConfig } from "@/config/mermaidConfig";
 
 let hljsReady = false;
 
