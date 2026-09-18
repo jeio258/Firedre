@@ -24,7 +24,7 @@
   "#main-grid": {
    "rect": [
     58,
-    529,
+    900,
     1325,
     1155
    ],
@@ -47,7 +47,7 @@
     0,
     0,
     1440,
-    585
+    900
    ],
    "styles": {
     "display": "block",
@@ -66,9 +66,9 @@
   ".post-card-item": {
    "rect": [
     370,
-    601,
+    972,
     701,
-    232
+    264
    ],
    "styles": {
     "display": "flex",
@@ -80,7 +80,7 @@
     "margin": "0px",
     "borderRadius": "16px",
     "borderTopWidth": "0px",
-    "backgroundColor": "rgb(255, 255, 255)",
+    "backgroundColor": "rgba(255, 255, 255, 0.65)",
     "color": "oklch(0.25 0.02 165)"
    }
   },
@@ -113,9 +113,9 @@
   ".custom-md": {
    "rect": [
     406,
-    1036,
+    774,
     629,
-    3706
+    4014
    ],
    "styles": {
     "display": "block",
@@ -134,7 +134,7 @@
   "#post-cover": {
    "rect": [
     406,
-    634,
+    372,
     629,
     354
    ],
@@ -207,7 +207,7 @@
   "#main-grid": {
    "rect": [
     58,
-    394,
+    88,
     1325,
     1155
    ],
@@ -251,9 +251,9 @@
   "#main-grid": {
    "rect": [
     0,
-    667,
+    1112,
     834,
-    1028
+    1054
    ],
    "styles": {
     "display": "grid",
@@ -274,7 +274,7 @@
     0,
     0,
     834,
-    723
+    1112
    ],
    "styles": {
     "display": "block",
@@ -293,7 +293,7 @@
   ".post-card-item": {
    "rect": [
     312,
-    739,
+    1184,
     506,
     264
    ],
@@ -307,7 +307,7 @@
     "margin": "0px",
     "borderRadius": "16px",
     "borderTopWidth": "0px",
-    "backgroundColor": "rgb(255, 255, 255)",
+    "backgroundColor": "rgba(255, 255, 255, 0.65)",
     "color": "oklch(0.25 0.02 165)"
    }
   },
@@ -342,7 +342,7 @@
     348,
     704,
     434,
-    4126
+    4518
    ],
    "styles": {
     "display": "block",
@@ -436,7 +436,7 @@
     0,
     88,
     834,
-    1028
+    1054
    ],
    "styles": {
     "display": "grid",
@@ -478,9 +478,9 @@
   "#main-grid": {
    "rect": [
     0,
-    385,
+    667,
     375,
-    1932
+    1956
    ],
    "styles": {
     "display": "block",
@@ -501,7 +501,7 @@
     0,
     0,
     375,
-    434
+    667
    ],
    "styles": {
     "display": "block",
@@ -520,9 +520,9 @@
   ".post-card-item": {
    "rect": [
     7,
-    785,
+    1068,
     361,
-    349
+    373
    ],
    "styles": {
     "display": "flex",
@@ -534,7 +534,7 @@
     "margin": "0px",
     "borderRadius": "14px",
     "borderTopWidth": "0px",
-    "backgroundColor": "rgb(255, 255, 255)",
+    "backgroundColor": "rgba(255, 255, 255, 0.65)",
     "color": "oklch(0.25 0.02 165)"
    }
   },
@@ -569,7 +569,7 @@
     28,
     906,
     319,
-    3856
+    4249
    ],
    "styles": {
     "display": "block",
@@ -590,7 +590,7 @@
     28,
     684,
     319,
-    179
+    180
    ],
    "styles": {
     "display": "block",
