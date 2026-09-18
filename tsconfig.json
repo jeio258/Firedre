@@ -27,6 +27,12 @@
       "@layouts/*": [
         "./src/layouts/*"
       ],
+      "@shared/*": [
+        "./shared/*"
+      ],
+      "@server/*": [
+        "./server/*"
+      ],
       "@/*": [
         "./src/*"
       ]
@@ -34,7 +40,8 @@
   },
   "include": [
     ".astro/types.d.ts",
-    "src/**/*"
+    "src/**/*",
+    "shared/**/*"
   ],
   "exclude": [
     "src/music-sources"

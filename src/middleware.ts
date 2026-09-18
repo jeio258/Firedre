@@ -41,7 +41,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (isHtmlPage) {
 		try {
 			const { getSettingsVersionCached } = await import(
-				"../server/settings/service"
+				"@server/settings/service"
 			);
 			const { cfEnv } = await import("./lib/api");
 			settingsVersion = await getSettingsVersionCached(cfEnv);
