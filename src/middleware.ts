@@ -71,6 +71,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			]);
 		const { cfEnv } = await import("./lib/api");
 
+		// schema 引导先于渲染：空库首次访问自动建表，避免渲染层查询 500（isolate 内缓存零开销）
+		const { ensureSchema } = await import("@server/posts/seed");
+		await ensureSchema(cfEnv);
+
 		// seed 与 settings 并行（seed 仅新 isolate 执行一次）
 		const seedFlag = globalThis as unknown as { __FIREDRE_SEEDED__?: boolean };
 		const seedTask = seedFlag.__FIREDRE_SEEDED__
