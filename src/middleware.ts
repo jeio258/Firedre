@@ -1,10 +1,29 @@
 import { defineMiddleware } from "astro:middleware";
-import { getPlantumlConfig } from "./config/runtime";
 import { setPlantumlRuntimeConfig } from "./config/plantumlRuntime";
+import { getPlantumlConfig } from "./config/runtime";
 
 export interface SettingsLocals {
 	settings: import("../server/settings/service").SiteSettings;
 	settingsVersion?: string;
+}
+
+// 安全响应头对缓存命中与渲染路径统一生效
+function applySecurityHeaders(headers: Headers) {
+	headers.set("X-Content-Type-Options", "nosniff");
+	headers.set("X-Frame-Options", "SAMEORIGIN");
+	headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	headers.set(
+		"Strict-Transport-Security",
+		"max-age=31536000; includeSubDomains",
+	);
+	headers.set(
+		"Permissions-Policy",
+		"camera=(), microphone=(), geolocation=(), payment=()",
+	);
+	headers.set(
+		"Content-Security-Policy-Report-Only",
+		"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+	);
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -21,21 +40,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	let settingsVersion = "";
 	if (isHtmlPage) {
 		try {
-			const { getSettingsVersionCached } = await import("../server/settings/service");
+			const { getSettingsVersionCached } = await import(
+				"../server/settings/service"
+			);
 			const { cfEnv } = await import("./lib/api");
 			settingsVersion = await getSettingsVersionCached(cfEnv);
 
 			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${settingsVersion}`;
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
-				return new Response(await cached.text(), {
-					headers: {
-						"Content-Type": "text/html; charset=utf-8",
+				const headers = new Headers({
+					"Content-Type": "text/html; charset=utf-8",
 
-						"Cache-Control": "public, max-age=0, must-revalidate",
-						"X-Firedre-Cache": "CACHE-HIT",
-					},
+					"Cache-Control": "public, max-age=0, must-revalidate",
+					"X-Firedre-Cache": "CACHE-HIT",
 				});
+				applySecurityHeaders(headers);
+				return new Response(await cached.text(), { headers });
 			}
 		} catch {
 			// 缓存不可用不影响主流程
@@ -69,7 +90,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			seedTask,
 		]);
 
-		const defaults = settingsDefaults as unknown as Record<string, Record<string, unknown>>;
+		const defaults = settingsDefaults as unknown as Record<
+			string,
+			Record<string, unknown>
+		>;
 		const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
 		const merged = mergeSettings(defaults, groups, groupNames);
 
@@ -90,10 +114,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		for (const [k, v] of Object.entries(pageMap)) {
 			if (typeof basicGroup[k] === "boolean") pagesOut[v] = basicGroup[k];
 		}
-		merged.pages = { ...(merged.pages as Record<string, unknown> ?? {}), ...pagesOut };
+		merged.pages = {
+			...((merged.pages as Record<string, unknown>) ?? {}),
+			...pagesOut,
+		};
 		(context.locals as unknown as SettingsLocals).settings = merged;
 		if (settingsVersion) {
-			(context.locals as unknown as SettingsLocals).settingsVersion = settingsVersion;
+			(context.locals as unknown as SettingsLocals).settingsVersion =
+				settingsVersion;
 		}
 	} catch (e) {
 		console.warn("[middleware] 站点设置加载失败，本次请求以空配置渲染", e);
@@ -105,21 +133,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const response = await next();
 
 	// 安全响应头对所有 HTTP 方法生效（含 API 写操作的响应）
-	response.headers.set("X-Content-Type-Options", "nosniff");
-	response.headers.set("X-Frame-Options", "SAMEORIGIN");
-	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-	response.headers.set(
-		"Strict-Transport-Security",
-		"max-age=31536000; includeSubDomains",
-	);
-	response.headers.set(
-		"Permissions-Policy",
-		"camera=(), microphone=(), geolocation=(), payment=()",
-	);
-	response.headers.set(
-		"Content-Security-Policy-Report-Only",
-		"default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
-	);
+	applySecurityHeaders(response.headers);
 
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");
@@ -132,8 +146,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			!url.pathname.startsWith("/api");
 
 		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
-
-			response.headers.set("Cache-Control", "public, max-age=0, must-revalidate");
+			response.headers.set(
+				"Cache-Control",
+				"public, max-age=0, must-revalidate",
+			);
 			try {
 				const html = await response.clone().text();
 				if (html.length > 500 && html.length < 900_000) {
@@ -147,9 +163,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						}),
 					);
 				}
-			} catch {
-
-			}
+			} catch {}
 		}
 	}
 	return response;

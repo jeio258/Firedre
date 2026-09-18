@@ -1,4 +1,5 @@
 import type { CloudflareEnv } from "../../types/env";
+import { bumpContentVersion } from "../settings/service";
 import { chunkArray, uniqueNonEmpty } from "../utils/collections";
 
 // 口令静态保护：以 SESSION_SECRET 派生密钥做 AES-GCM 加密后落库，
@@ -160,6 +161,7 @@ export async function setAlbumPassword(
 		await env.DB.prepare("DELETE FROM album_passwords WHERE album_slug = ?")
 			.bind(slug)
 			.run();
+		await bumpContentVersion(env);
 		return;
 	}
 	const stored = await encryptPassword(env, trimmed);
@@ -170,6 +172,7 @@ export async function setAlbumPassword(
 	)
 		.bind(slug, stored)
 		.run();
+	await bumpContentVersion(env);
 }
 
 export async function deleteAlbumPassword(
@@ -180,4 +183,5 @@ export async function deleteAlbumPassword(
 	await env.DB.prepare("DELETE FROM album_passwords WHERE album_slug = ?")
 		.bind(slug)
 		.run();
+	await bumpContentVersion(env);
 }

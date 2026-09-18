@@ -193,6 +193,7 @@ async function updateAlbumFrontmatter(
 			next as unknown as AlbumDetailFrontmatter,
 			d1.content,
 		);
+		await bumpContentVersion(env);
 		return;
 	}
 
@@ -207,6 +208,7 @@ async function updateAlbumFrontmatter(
 		serializeFrontmatterBlock(next, content),
 		{ httpMetadata: { contentType: "text/markdown; charset=utf-8" } },
 	);
+	await bumpContentVersion(env);
 }
 
 export async function setAlbumEncryptedFlag(
