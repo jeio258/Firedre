@@ -496,7 +496,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     {shouldShowTopHighlight && <div class="top-gradient-highlight" />}
     <ConfigCarrier />
-    <MusicManager />
+    {settings.music?.enabled !== false && <MusicManager />}
     <slot />
 
     {(((settings?.music?.showInNavbar) ?? musicPlayerConfig.showInNavbar) || ((settings?.music?.showInSidebar) ?? musicPlayerConfig.showInSidebar) !== false) && settings.music?.enabled !== false && (

@@ -1,4 +1,3 @@
-
 import type { FontDefinition, FontSelectionConfig } from "@/types/fontConfig";
 
 export const fontsList: FontDefinition[] = [
@@ -46,7 +45,7 @@ export const fontsList: FontDefinition[] = [
 		options: {
 			variants: [
 				{
-					src: ["./public/assets/fonts/GreatVibes-Regular-2.otf"],
+					src: ["./src/assets/fonts/GreatVibes-Regular-2.otf"],
 				},
 			],
 		},
@@ -61,7 +60,7 @@ export const fontsList: FontDefinition[] = [
 		options: {
 			variants: [
 				{
-					src: ["./public/assets/fonts/FangzhengZhuZiA-YuanB.woff2"],
+					src: ["./src/assets/fonts/FangzhengZhuZiA-YuanB.woff2"],
 				},
 			],
 		},

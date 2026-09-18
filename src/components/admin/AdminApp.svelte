@@ -269,7 +269,7 @@ async function render(s: Section, slug?: string) {
 	persistActiveDraft();
 	section = s;
 	// 同步标签页标题：登录进入后台后不再残留「登录 -」入口标题，刷新前后一致
-	document.title = `${SECTION_TITLES[s] || "后台"} - Firedre 后台`;
+	document.title = `${title()} - Firedre 后台`;
 	viewError = "";
 	const loader = VIEWS[s];
 	if (!loader) {
