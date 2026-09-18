@@ -48,6 +48,10 @@ export function badRequest(message: string) {
 export { UserError };
 
 export function serverError(error: unknown) {
+	if (!(error instanceof UserError)) {
+		// 非预期错误必须留痕，否则生产 500 无法远程诊断
+		console.error("[api] serverError:", error);
+	}
 	const message = error instanceof UserError ? error.message : "服务器错误";
 	return json({ message }, 500);
 }
