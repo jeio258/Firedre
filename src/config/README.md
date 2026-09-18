@@ -1,36 +1,28 @@
 # 配置文件说明
 
-本目录包含 Firefly 主题的所有配置文件，采用模块化设计，每个文件负责特定的功能模块。
-
-## 📁 配置文件结构
+本目录的配置真身已迁至 `shared/config/`（双端中立层，server 与 src 共用）；本目录仅保留：
 
 ```
 src/config/
-├── index.ts                  # 配置索引文件 - 统一导出
-├── siteConfig.ts             # 站点基础配置
-├── analyticsConfig.ts        # 统计分析配置（Google Analytics、Umami、51la 等）
-├── announcementConfig.ts     # 公告配置
-├── backgroundWallpaper.ts    # 背景壁纸配置
-├── commentConfig.ts          # 评论系统配置
-├── coverImageConfig.ts       # 封面图配置
-├── displaySettingsConfig.ts  # 设置面板配置
-├── dynamicConfig.ts          # 动态页面配置
-├── effectsConfig.ts          # 动画特效配置（樱花等）
-├── expressiveCodeConfig.ts   # 代码高亮配置
-├── fontConfig.ts             # 字体配置
-├── footerConfig.ts           # 页脚配置
-├── friendsConfig.ts          # 友链配置
-├── licenseConfig.ts          # 许可证配置
-├── musicConfig.ts            # 音乐播放器配置
-├── navBarConfig.ts           # 导航栏配置（含 LinkPresets 链接预设）
-├── pioConfig.ts              # 看板娘配置（Spine、Live2D）
-├── mermaidConfig.ts          # Mermaid 图表配置
-├── plantumlConfig.ts         # PlantUML 图表配置
-├── profileConfig.ts          # 用户资料配置
-├── sidebarConfig.ts          # 侧边栏布局配置
-├── sponsorConfig.ts          # 打赏配置
-└── README.md                 # 本文件
+├── index.ts            # 配置索引 barrel（re-export @shared/config/*，统一导出）
+├── runtime.ts          # re-export shim（真身在 shared/config/runtime.ts）
+├── FooterConfig.html   # 页脚展示资源（仅 Footer.astro 使用）
+└── README.md           # 本文件
 ```
+
+配置修改请编辑 `shared/config/` 下的对应文件；`@/config` barrel 用法不变。
+
+## ⚠️ settings 三件套已知漂移（2026-09-18 结构重构时核实）
+
+后台表单 schema（`src/components/admin/adminSettingsSchema.ts`）/ 默认值（`shared/config/settings-defaults.ts`）/ 扁平化映射（`server/settings/flatten.ts`）三者字段存在以下**已核实现状差异**，统一会改变后台行为，故仅登记不修（除非实际引发 bug）：
+
+1. **默认值注入**（schema 有、defaults 无，flatten 从 runtime getter 硬编码注入）：`comment.enabled=true`、`effects.waves/gradient=true`、`effects.bannerCarousel=false`、`mermaid.enabled=true`
+2. **类型冲突**：`pio.size` defaults 为对象 `{width,height}` 而 schema 为 number；`analytics` 组 defaults 为空 `{}`
+3. **仅存在于 flatten**：`dynamic.memosEnable/memosApiUrl`、`dynamic.enabled`（const:true）
+4. **字符串化**：`sponsor.sponsors` flatten 输出 JSON 字符串（源为数组）
+5. **当前恒等但语义变换**（改动相关配置须复核 flatten）：`basic.siteUrl` 过 normalizeSiteUrl、`basic.keywords` join/split 往返、`nav.links` 映射丢弃未列字段、profile/license 的 String 强转
+6. **groups 数不一致**：defaults 29 组（多 nav/dynamic/friends/gallery/announcement 无表单组）；schema 24 组
+7. **tests 分支待同步**：main 已迁移至 `shared/` 并用 `@shared/*`/`@server/*` 别名，tests 分支旧相对路径 import 失效，merge 后需同步并跑 `pnpm test`
 
 ## 🚀 使用方式
 
