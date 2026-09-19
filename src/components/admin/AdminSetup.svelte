@@ -178,4 +178,11 @@ onMount(() => {
 	.hint a {
 		color: var(--primary);
 	}
+
+	/* 移动端表单控件字号 ≥16px，避免 iOS 聚焦自动缩放导致内容溢出 */
+	@media (max-width: 767px) {
+		input {
+			font-size: 1rem;
+		}
+	}
 </style>

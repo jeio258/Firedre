@@ -135,13 +135,13 @@ function closeDetail() {
 					placeholder={i18n(I18nKey.animeSearch)}
 					value={searchQuery}
 					oninput={handleSearch}
-					class="w-full rounded-xl border border-(--line-divider) bg-(--card-bg) py-2.5 pl-10 pr-4 text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 outline-none transition-colors focus:border-(--primary)"
+					class="w-full rounded-xl border border-(--line-divider) bg-(--card-bg) py-2.5 pl-10 pr-4 text-base md:text-sm text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 outline-none transition-colors focus:border-(--primary)"
 				/>
 			</div>
 			<select
 				value={sortBy}
 				onchange={(e) => setSort((e.target as HTMLSelectElement).value as typeof sortBy)}
-				class="rounded-xl border border-(--line-divider) bg-(--card-bg) px-3 text-sm text-neutral-600 dark:text-neutral-400 outline-none cursor-pointer shrink-0"
+				class="rounded-xl border border-(--line-divider) bg-(--card-bg) px-3 text-base md:text-sm text-neutral-600 dark:text-neutral-400 outline-none cursor-pointer shrink-0"
 			>
 				<option value="rating-desc">{i18n(I18nKey.animeRatingDesc)}</option>
 				<option value="rating-asc">{i18n(I18nKey.animeRatingAsc)}</option>
