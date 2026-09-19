@@ -108,8 +108,7 @@ dynamic-feed {
 	background: transparent;
 	color: rgb(0 0 0 / 90%);
 	padding: 0.625rem 1rem 0.625rem 2.75rem;
-	/* 物理值 16px：根字号移动端为 14px，rem 值会低于 iOS 聚焦缩放阈值 */
-	font-size: 16px;
+	font-size: 1rem;
 }
 
 @media (min-width: 768px) {
@@ -872,9 +871,9 @@ body.wallpaper-transparent .dynamic-year-select select option {
 	}
 }
 
-/* 移动端表单控件字号达物理 16px，避免 iOS 聚焦自动缩放导致内容溢出 */
+/* 移动端表单控件字号 ≥16px，避免 iOS 聚焦自动缩放导致内容溢出 */
 @media (max-width: 767px) {
 	.dynamic-year-select select {
-		font-size: 16px;
+		font-size: 1rem;
 	}
 }

@@ -325,16 +325,12 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       // 注入当前语言翻译表：客户端 i18n 直接读取，六语言全量不进 bundle
       window.__FIREDRE_I18N__ = i18nMap;
 
-      // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置；
-      // hue 仅在后台色相配置本身变化时重置，其余设置变更不影响用户自设色相
-      var PREF_KEYS = ["wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
+      // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置
+      var PREF_KEYS = ["hue","wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
       try {
         if (localStorage.getItem("settingsVersion") !== String(settingsVersion)) {
-          var hueChanged = localStorage.getItem("settingsHue") !== String(configHue);
           for (var pi = 0; pi < PREF_KEYS.length; pi++) localStorage.removeItem(PREF_KEYS[pi]);
-          if (hueChanged) localStorage.removeItem("hue");
           localStorage.setItem("settingsVersion", String(settingsVersion));
-          localStorage.setItem("settingsHue", String(configHue));
         }
       } catch (e) {}
 
