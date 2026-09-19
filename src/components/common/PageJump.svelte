@@ -3,7 +3,6 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 
 interface Props {
-
 	variant: "ellipsis" | "current";
 	currentPage: number;
 	lastPage: number;
@@ -107,7 +106,7 @@ function onKeydown(event: KeyboardEvent) {
         inputmode="numeric"
         maxlength={digits}
         aria-label={label}
-        class="focus-ring-inset w-full h-full rounded-(--radius-large) bg-transparent text-center font-bold text-(--primary)"
+        class="focus-ring-inset w-full h-full rounded-(--radius-large) bg-transparent text-center text-[16px] font-bold text-(--primary)"
         oninput={onInput}
         onkeydown={onKeydown}
         onblur={close}
@@ -133,7 +132,7 @@ function onKeydown(event: KeyboardEvent) {
     inputmode="numeric"
     maxlength={digits}
     aria-label={label}
-    class="outline-hidden h-7 p-0 border-b-2 border-(--primary) bg-transparent text-center text-base font-bold text-(--primary)"
+    class="outline-hidden h-7 p-0 border-b-2 border-(--primary) bg-transparent text-center text-[16px] font-bold text-(--primary)"
     style={`width: ${digits + 0.5}ch`}
     oninput={onInput}
     onkeydown={onKeydown}
@@ -144,7 +143,7 @@ function onKeydown(event: KeyboardEvent) {
     type="button"
     aria-label={label}
     title={label}
-    class="h-11 p-0 flex items-center justify-center cursor-pointer text-base font-bold text-(--primary)"
+    class="h-11 p-0 flex items-center justify-center cursor-pointer text-[16px] font-bold text-(--primary)"
     style={`width: ${digits + 0.5}ch`}
     onclick={open}
   >
