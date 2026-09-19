@@ -944,6 +944,8 @@ body {
 	display: grid;
 	grid-row: span 2;
 	grid-template-rows: subgrid;
+	/* 列锁定为容器宽：防止 records/json 触发器的 nowrap 预览文本按 max-content 撑破窄列 */
+	grid-template-columns: minmax(0, 1fr);
 	margin-bottom: 0.45rem;
 }
 /* profile 分组用 grid-template-areas 手动布局，不启用 subgrid */
