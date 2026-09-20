@@ -1,11 +1,11 @@
 <script lang="ts">
-import { onDestroy, onMount, tick } from "svelte";
 import { pinyin } from "pinyin-pro";
+import { onDestroy, onMount, tick } from "svelte";
 import type Vditor from "vditor";
-import { createAdminVditor } from "@/lib/adminVditor";
 import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
-import { getDraft, clearDraft } from "@/lib/adminDrafts";
+import { createAdminVditor } from "@/lib/adminVditor";
 import Switch from "./Switch.svelte";
 
 function slugifyTitle(title: string): string {
@@ -27,7 +27,10 @@ function slugifyTitle(title: string): string {
 	return parts.filter(Boolean).join("-").replace(/-{2,}/g, "-");
 }
 
-let { slug: initialSlug = "", isNew: initialIsNew = false }: { slug?: string; isNew?: boolean } = $props();
+let {
+	slug: initialSlug = "",
+	isNew: initialIsNew = false,
+}: { slug?: string; isNew?: boolean } = $props();
 
 let title = $state("");
 let published = $state("");
@@ -165,14 +168,15 @@ async function save(targetDraft: boolean) {
 		.join("\n")}\n---\n\n${content}`;
 
 	try {
-		const data = await apiJson<{ ok?: boolean; slug?: string; message?: string }>(
-			`/api/posts/${encodeURIComponent(slug)}/`,
-			{
-				method: "PUT",
-				headers: { "Content-Type": "text/markdown" },
-				body: source,
-			},
-		);
+		const data = await apiJson<{
+			ok?: boolean;
+			slug?: string;
+			message?: string;
+		}>(`/api/posts/${encodeURIComponent(slug)}/`, {
+			method: "PUT",
+			headers: { "Content-Type": "text/markdown" },
+			body: source,
+		});
 		if (!data.ok) {
 			message = data.message || "保存失败";
 			messageKind = "err";
@@ -182,7 +186,11 @@ async function save(targetDraft: boolean) {
 		messageKind = "ok";
 		clearDraft("文章");
 		if (isNew && data.slug && data.slug !== slug) {
-			history.replaceState({}, "", `/admin/posts/edit/${encodeURIComponent(data.slug)}/`);
+			history.replaceState(
+				{},
+				"",
+				`/admin/posts/edit/${encodeURIComponent(data.slug)}/`,
+			);
 			slug = data.slug;
 			isNew = false;
 		}
@@ -216,7 +224,10 @@ onMount(async () => {
 		slug?: string;
 		isNew?: boolean;
 	}>("文章");
-	if (d) {
+	// 草稿恢复前校验归属：仅当草稿 slug 与当前文章一致才应用，防止 A 的未保存内容覆盖 B
+	if (d && d.slug != null && d.slug !== slug) {
+		clearDraft("文章");
+	} else if (d) {
 		if (d.title != null) title = d.title;
 		if (d.published != null) published = d.published;
 		if (d.updated != null) updated = d.updated;
@@ -239,25 +250,29 @@ onMount(async () => {
 		}
 		clearDraft("文章");
 	}
-	return registerSaveAll("文章", () => save(draft), () => ({
-		title,
-		published,
-		updated,
-		category,
-		tagsText,
-		description,
-		image,
-		password,
-		passwordHint,
-		pinned,
-		draft,
-		series,
-		seriesOrder,
-		comment,
-		content: editor ? editor.getValue() : rawContent,
-		slug,
-		isNew,
-	}));
+	return registerSaveAll(
+		"文章",
+		() => save(draft),
+		() => ({
+			title,
+			published,
+			updated,
+			category,
+			tagsText,
+			description,
+			image,
+			password,
+			passwordHint,
+			pinned,
+			draft,
+			series,
+			seriesOrder,
+			comment,
+			content: editor ? editor.getValue() : rawContent,
+			slug,
+			isNew,
+		}),
+	);
 });
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
