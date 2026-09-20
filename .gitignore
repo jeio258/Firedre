@@ -69,3 +69,8 @@ AI_CONTEXT.md
 
 # QA 截图产物（基线 JSON 入库，截图不入库）
 scripts/qa/screenshots/
+
+# 测试与 QA 仅本地（2026-09-20：测试脚本/测试产物/日志不提交远程）
+tests/
+scripts/qa/
+.github/workflows/
