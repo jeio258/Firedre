@@ -51,6 +51,17 @@ html {
     scroll-behavior: smooth;
 }
 
+/* 移动端根字号为 14px（Layout 的 text-[14px]），rem 字号输入控件会低于
+   iOS 聚焦缩放阈值；此规则统一兜底为物理 16px，桌面与 admin 页不受影响。
+   注意：会覆盖第三方评论（Twikoo 等）输入框的原有字号。 */
+@media (max-width: 767px) {
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
 @layer components {
     :where(
         a[href],
