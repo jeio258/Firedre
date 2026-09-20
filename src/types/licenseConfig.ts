@@ -3,4 +3,5 @@ export type LicenseConfig = {
 	name: string;
 	url: string;
 	icon?: string;
+	type?: string;
 };

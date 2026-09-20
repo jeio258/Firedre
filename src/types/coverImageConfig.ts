@@ -1,9 +1,9 @@
 export type CoverImageConfig = {
-	enableInPost: boolean;                 
-	enableInPostOverlay?: boolean;                       
-	showLoading?: boolean;            
+	enableInPost: boolean;
+	enableInPostOverlay?: boolean;
+	showLoading?: boolean;
 	randomCoverImage: {
-		enable: boolean;             
-		apis: string[];            
+		enable: boolean;
+		apis: string[];
 	};
 };

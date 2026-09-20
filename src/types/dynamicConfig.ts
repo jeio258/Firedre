@@ -1,4 +1,3 @@
-
 export type DynamicConfig = {
 	title?: string;
 	description?: string;
@@ -7,10 +6,10 @@ export type DynamicConfig = {
 	itemsPerPage?: number;
 	apiUrl?: string;
 	memos?: DynamicMemosConfig;
+	enable?: boolean;
 };
 
 export type DynamicMemosConfig = {
-
 	enable: boolean;
 
 	apiUrl: string;

@@ -1,6 +1,4 @@
-
 export type PlantUMLConfig = {
-
 	enable: boolean;
 
 	server: string;

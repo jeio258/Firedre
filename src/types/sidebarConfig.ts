@@ -33,12 +33,12 @@ export type MobileBottomComponentConfig = {
 };
 
 export type WidgetSpecificConfig = {
-	hidden?: ("mobile" | "tablet" | "desktop")[];            
-	collapseThreshold?: number;        
-	calendar?: CalendarConfig;            
-	ad?: AdConfig;            
-	siteInfo?: SiteInfoConfig;              
-	dynamic?: DynamicWidgetConfig;              
+	hidden?: ("mobile" | "tablet" | "desktop")[];
+	collapseThreshold?: number;
+	calendar?: CalendarConfig;
+	ad?: AdConfig;
+	siteInfo?: SiteInfoConfig;
+	dynamic?: DynamicWidgetConfig;
 };
 
 export type DynamicWidgetConfig = {
@@ -54,20 +54,20 @@ export type CalendarConfig = {
 };
 
 export type AdConfig = {
-	title?: string;         
-	content?: string;           
-	image?: { src: string; alt?: string; link?: string; external?: boolean };        
-	link?: { text: string; url: string; external?: boolean };          
+	title?: string;
+	content?: string;
+	image?: { src: string; alt?: string; link?: string; external?: boolean };
+	link?: { text: string; url: string; external?: boolean };
 	padding?: {
 		top?: string;
 		right?: string;
 		bottom?: string;
 		left?: string;
 		all?: string;
-	};       
-	closable?: boolean;         
-	displayCount?: number;                 
-	expireDate?: string;                      
+	};
+	closable?: boolean;
+	displayCount?: number;
+	expireDate?: string;
 };
 
 export type SidebarLayoutConfig = {
@@ -76,6 +76,16 @@ export type SidebarLayoutConfig = {
 	tabletSidebar?: "left" | "right";
 	hideSidebarOnPostPage?: boolean;
 	showBothSidebarsOnPostPage?: boolean;
+	showProfile?: boolean;
+	showAnnouncement?: boolean;
+	showMusic?: boolean;
+	showCategories?: boolean;
+	showTags?: boolean;
+	showCalendar?: boolean;
+	showDynamic?: boolean;
+	showSiteInfo?: boolean;
+	showStats?: boolean;
+	showAdvertisement?: boolean;
 	leftComponents: WidgetComponentConfig[];
 	rightComponents: WidgetComponentConfig[];
 	mobileBottomComponents: MobileBottomComponentConfig[];

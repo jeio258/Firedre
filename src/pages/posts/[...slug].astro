@@ -15,6 +15,14 @@ import License from "@components/misc/License.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { licenseConfig } from "@shared/config/licenseConfig";
+import { profileConfig } from "@shared/config/profileConfig";
+import { siteConfig } from "@shared/config/siteConfig";
+import { sponsorConfig } from "@shared/config/sponsorConfig";
+import {
+	getApiUrlList,
+	processCoverImageSync,
+} from "@shared/utils/image-utils";
 import { getRelatedPosts, getSeriesPosts } from "@utils/content-utils";
 import {
 	getCategoryUrl,
@@ -29,13 +37,8 @@ import PostMetadata from "@/components/layout/PostMeta.astro";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SeriesNav from "@/components/misc/SeriesNav.astro";
 import SharePoster from "@/components/misc/SharePoster.svelte";
-import { licenseConfig } from "@shared/config/licenseConfig";
-import { profileConfig } from "@shared/config/profileConfig";
 import { getCoverConfig, getSiteConfig } from "@/config/runtime";
-import { siteConfig } from "@shared/config/siteConfig";
-import { sponsorConfig } from "@shared/config/sponsorConfig";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
-import { getApiUrlList, processCoverImageSync } from "@shared/utils/image-utils";
 import {
 	getAuthorAvatarUrl,
 	getSiteLogo,
@@ -116,13 +119,10 @@ const getDirectImageUrl = (src: string | undefined): string | null => {
 
 const posterCoverUrl = showPostCover ? null : getDirectImageUrl(processedImage);
 const posterCoverSelector = showPostCover ? "#post-cover img" : null;
-const posterAvatarUrl = getDirectImageUrl(
-	(settings as any)?.["avatar"] ?? profileConfig.avatar,
-);
-const posterAvatarSelector =
-	((settings as any)?.["avatar"] ?? profileConfig.avatar)
-		? ".profile-avatar-image img"
-		: null;
+const posterAvatarUrl = getDirectImageUrl(profileConfig.avatar);
+const posterAvatarSelector = profileConfig.avatar
+	? ".profile-avatar-image img"
+	: null;
 
 dayjs.extend(utc);
 
@@ -141,7 +141,7 @@ const authorPerson = buildPersonEntity({
 	profileConfig,
 	authorUrl: aboutUrl,
 	avatarUrl: authorAvatarUrl,
-	description: (settings as any)?.["bio"] ?? profileConfig.bio,
+	description: profileConfig.bio,
 });
 
 const publisher = buildPublisherEntity({
@@ -199,7 +199,7 @@ const jsonLd = {
 			url: Astro.url.toString(),
 			inLanguage: entry.data.lang
 				? entry.data.lang.replace("_", "-")
-				: ((settings as any)?.["lang"] ?? siteConfig.lang).replace("_", "-"),
+				: siteConfig.lang.replace("_", "-"),
 		},
 		authorPerson,
 		publisher,
@@ -423,15 +423,15 @@ const [relatedPosts, seriesData] = await Promise.all([
 
           {                 }
           {
-            (((settings as any)?.["post"] ?? siteConfig.post).sharePoster || (((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor)) && (
+            (siteConfig.post.sharePoster || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3 flex-1">
                       <div class="h-12 w-12 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70 shrink-0">
                         <Icon
-                          name={((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) &&
-                          ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                          name={sponsorConfig.showButtonInPost &&
+                          siteConfig.pages.sponsor
                             ? "material-symbols:favorite"
                             : "material-symbols:share"}
                           class="text-2xl"
@@ -440,14 +440,14 @@ const [relatedPosts, seriesData] = await Promise.all([
                       <div>
                         <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
                           {
-                            ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                            sponsorConfig.showButtonInPost && siteConfig.pages.sponsor
                               ? i18n(I18nKey.sponsorButton)
                               : i18n(I18nKey.shareOnSocial)
                           }
                         </h3>
                         <p class="text-sm text-neutral-600 dark:text-neutral-400">
                           {
-                            ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                            sponsorConfig.showButtonInPost && siteConfig.pages.sponsor
                               ? i18n(I18nKey.sponsorButtonText)
                               : i18n(I18nKey.shareOnSocialDescription)
                           }
@@ -456,24 +456,24 @@ const [relatedPosts, seriesData] = await Promise.all([
                     </div>
                     <div class="flex items-center gap-3">
                       {
-                        ((settings as any)?.["post"] ?? siteConfig.post).sharePoster && (
+                        siteConfig.post.sharePoster && (
                           <SharePoster
                             client:idle
                             title={entry.data.title}
-                            author={entry.data.author || ((settings as any)?.["name"] ?? profileConfig.name)}
+                            author={entry.data.author || profileConfig.name}
                             description={entry.data.description || entry.data.title}
                             pubDate={formatDateToYYYYMMDD(entry.data.published)}
                             coverImage={posterCoverUrl}
                             coverImageSelector={posterCoverSelector}
                             url={Astro.url.href}
-                            siteTitle={((settings as any)?.["title"] ?? siteConfig.title)}
+                            siteTitle={siteConfig.title}
                             avatar={posterAvatarUrl}
                             avatarSelector={posterAvatarSelector}
                           />
                         )
                       }
                       {
-                        ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor && (
+                        sponsorConfig.showButtonInPost && siteConfig.pages.sponsor && (
                           <a
                             href={url("/sponsor/")}
                             class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary) text-white dark:text-black/70 rounded-lg font-medium hover:bg-(--primary)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
@@ -491,7 +491,7 @@ const [relatedPosts, seriesData] = await Promise.all([
           }
 
           {
-            (settings.license?.enabled !== false) && ((((settings as any)?.["license"]) as any)?.["enable"] ?? licenseConfig.enable) && (
+            (settings.license?.enabled !== false) && (licenseConfig.enable) && (
               <License
                 title={entry.data.title}
                 id={entry.id}
@@ -513,15 +513,15 @@ const [relatedPosts, seriesData] = await Promise.all([
 
           {                 }
           {
-            (((settings as any)?.["post"] ?? siteConfig.post).sharePoster || (((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor)) && (
+            (siteConfig.post.sharePoster || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3 flex-1">
                       <div class="h-12 w-12 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70 shrink-0">
                         <Icon
-                          name={((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) &&
-                          ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                          name={sponsorConfig.showButtonInPost &&
+                          siteConfig.pages.sponsor
                             ? "material-symbols:favorite"
                             : "material-symbols:share"}
                           class="text-2xl"
@@ -530,14 +530,14 @@ const [relatedPosts, seriesData] = await Promise.all([
                       <div>
                         <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
                           {
-                            ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                            sponsorConfig.showButtonInPost && siteConfig.pages.sponsor
                               ? i18n(I18nKey.sponsorButton)
                               : i18n(I18nKey.shareOnSocial)
                           }
                         </h3>
                         <p class="text-sm text-neutral-600 dark:text-neutral-400">
                           {
-                            ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor
+                            sponsorConfig.showButtonInPost && siteConfig.pages.sponsor
                               ? i18n(I18nKey.sponsorButtonText)
                               : i18n(I18nKey.shareOnSocialDescription)
                           }
@@ -546,24 +546,24 @@ const [relatedPosts, seriesData] = await Promise.all([
                     </div>
                     <div class="flex items-center gap-3">
                       {
-                        ((settings as any)?.["post"] ?? siteConfig.post).sharePoster && (
+                        siteConfig.post.sharePoster && (
                           <SharePoster
                             client:idle
                             title={entry.data.title}
-                            author={entry.data.author || ((settings as any)?.["name"] ?? profileConfig.name)}
+                            author={entry.data.author || profileConfig.name}
                             description={entry.data.description || entry.data.title}
                             pubDate={formatDateToYYYYMMDD(entry.data.published)}
                             coverImage={posterCoverUrl}
                             coverImageSelector={posterCoverSelector}
                             url={Astro.url.href}
-                            siteTitle={((settings as any)?.["title"] ?? siteConfig.title)}
+                            siteTitle={siteConfig.title}
                             avatar={posterAvatarUrl}
                             avatarSelector={posterAvatarSelector}
                           />
                         )
                       }
                       {
-                        ((((settings as any)?.["sponsor"]) as any)?.["showButtonInPost"] ?? sponsorConfig.showButtonInPost) && ((settings as any)?.["pages"] ?? siteConfig.pages).sponsor && (
+                        sponsorConfig.showButtonInPost && siteConfig.pages.sponsor && (
                           <a
                             href={url("/sponsor/")}
                             class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary) text-white dark:text-black/70 rounded-lg font-medium hover:bg-(--primary)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
@@ -581,7 +581,7 @@ const [relatedPosts, seriesData] = await Promise.all([
           }
 
           {
-            (settings.license?.enabled !== false) && ((((settings as any)?.["license"]) as any)?.["enable"] ?? licenseConfig.enable) && (
+            (settings.license?.enabled !== false) && (licenseConfig.enable) && (
               <License
                 title={entry.data.title}
                 id={entry.id}
@@ -600,10 +600,10 @@ const [relatedPosts, seriesData] = await Promise.all([
   </div>
 
   {
-    ((settings as any)?.["post"] ?? siteConfig.post).showLastModified && (() => {
+    siteConfig.post.showLastModified && (() => {
       const lastModified = dayjs(entry.data.updated || entry.data.published);
       const dateStr = lastModified.format("YYYY-MM-DD");
-      const outdatedThreshold = ((settings as any)?.["post"] ?? siteConfig.post).outdatedThreshold ?? 1;
+      const outdatedThreshold = siteConfig.post.outdatedThreshold ?? 1;
 
       return (
         <div 

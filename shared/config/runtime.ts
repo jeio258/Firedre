@@ -40,16 +40,16 @@ function groupOf(s: SettingsLike, key: string): SettingsLike {
 	return (g && typeof g === "object" ? g : {}) as SettingsLike;
 }
 
-function str(v: unknown, fallback: string): string {
-	return typeof v === "string" && v !== "" ? v : fallback;
+function str<T extends string>(v: unknown, fallback: T): T {
+	return (typeof v === "string" && v !== "" ? v : fallback) as T;
 }
 
-function num(v: unknown, fallback: number): number {
-	return typeof v === "number" && Number.isFinite(v) ? v : fallback;
+function num<T extends number>(v: unknown, fallback: T): T {
+	return (typeof v === "number" && Number.isFinite(v) ? v : fallback) as T;
 }
-function bool(v: unknown, fallback: boolean): boolean {
-	if (typeof v === "boolean") return v;
-	if (v === "true" || v === "false") return v === "true";
+function bool<T extends boolean>(v: unknown, fallback: T): T {
+	if (typeof v === "boolean") return v as T;
+	if (v === "true" || v === "false") return (v === "true") as T;
 	return fallback;
 }
 function arr(v: unknown, fallback: unknown[]): unknown[] {
@@ -63,8 +63,9 @@ function arr(v: unknown, fallback: unknown[]): unknown[] {
 	return fallback;
 }
 
-export function getSiteConfig(locals: unknown) {
+export function getSiteConfig(locals: unknown): typeof staticSiteConfig {
 	const s = settingsOf(locals);
+	const p = groupOf(s, "post");
 	const basic = groupOf(s, "basic");
 	return {
 		...staticSiteConfig,
@@ -72,6 +73,7 @@ export function getSiteConfig(locals: unknown) {
 			basic.title ?? s.title,
 			String((staticSiteConfig as Record<string, unknown>).title ?? ""),
 		),
+		lang: str(basic.lang ?? s.lang, staticSiteConfig.lang),
 		subtitle: str(
 			basic.subtitle ?? s.subtitle,
 			String((staticSiteConfig as Record<string, unknown>).subtitle ?? ""),
@@ -105,11 +107,11 @@ export function getSiteConfig(locals: unknown) {
 		categoryStyle: str(
 			s.categoryStyle,
 			String((staticSiteConfig as Record<string, unknown>).categoryStyle ?? ""),
-		),
+		) as typeof staticSiteConfig.categoryStyle,
 		tagStyle: str(
 			s.tagStyle,
 			String((staticSiteConfig as Record<string, unknown>).tagStyle ?? ""),
-		),
+		) as typeof staticSiteConfig.tagStyle,
 		keywords: (() => {
 			const raw =
 				typeof basic.keywords === "string" && basic.keywords
@@ -136,7 +138,7 @@ export function getSiteConfig(locals: unknown) {
 					(staticSiteConfig.themeColor as Record<string, unknown>)
 						.defaultMode ?? "",
 				),
-			),
+			) as typeof staticSiteConfig.themeColor.defaultMode,
 		},
 		pages: {
 			friends: bool(s.pageFriends, staticSiteConfig.pages.friends),
@@ -149,6 +151,23 @@ export function getSiteConfig(locals: unknown) {
 			vndb: bool(s.pageVndb, staticSiteConfig.pages.vndb),
 			mal: bool(s.pageMal, staticSiteConfig.pages.mal),
 			sponsor: bool(s.pageSponsor, staticSiteConfig.pages.sponsor),
+		},
+		post: {
+			...staticSiteConfig.post,
+			showLastModified: bool(
+				p.showLastModified,
+				staticSiteConfig.post.showLastModified,
+			),
+			outdatedThreshold: num(
+				p.outdatedThreshold,
+				staticSiteConfig.post.outdatedThreshold,
+			),
+			sharePoster: bool(p.sharePoster, staticSiteConfig.post.sharePoster),
+			generateOgImages: bool(
+				p.generateOgImages,
+				staticSiteConfig.post.generateOgImages,
+			),
+			rehypeCallouts: { ...staticSiteConfig.post.rehypeCallouts },
 		},
 		card: {
 			...staticSiteConfig.card,
@@ -209,7 +228,7 @@ export function getBooknavConfig(locals: unknown) {
 	};
 }
 
-export function getProfileConfig(locals: unknown) {
+export function getProfileConfig(locals: unknown): typeof staticProfileConfig {
 	const s = settingsOf(locals);
 	const pr = groupOf(s, "profile");
 	return {
@@ -234,11 +253,14 @@ export function getProfileConfig(locals: unknown) {
 			pr.email ?? s.email,
 			String((staticProfileConfig as Record<string, unknown>).email ?? ""),
 		),
-		links: arr(pr.links ?? s.links, staticProfileConfig.links),
+		links: arr(
+			pr.links ?? s.links,
+			staticProfileConfig.links,
+		) as typeof staticProfileConfig.links,
 	};
 }
 
-export function getCommentConfig(locals: unknown) {
+export function getCommentConfig(locals: unknown): typeof staticCommentConfig {
 	const s = settingsOf(locals);
 	const c = groupOf(s, "comment");
 	return {
@@ -312,7 +334,7 @@ export function getCommentConfig(locals: unknown) {
 	};
 }
 
-export function getMusicConfig(locals: unknown) {
+export function getMusicConfig(locals: unknown): typeof staticMusicConfig {
 	const s = settingsOf(locals);
 	const m = groupOf(s, "music");
 	return {
@@ -357,7 +379,10 @@ export function getMusicConfig(locals: unknown) {
 			).map(String),
 		},
 		local: {
-			playlist: arr(m.localPlaylist, staticMusicConfig.local?.playlist ?? []),
+			playlist: arr(
+				m.localPlaylist,
+				staticMusicConfig.local?.playlist ?? [],
+			) as NonNullable<typeof staticMusicConfig.local>["playlist"],
 		},
 	};
 }
@@ -535,7 +560,7 @@ export function getWallpaperConfig(locals: unknown) {
 	};
 }
 
-export function getFooterConfig(locals: unknown) {
+export function getFooterConfig(locals: unknown): typeof staticFooterConfig {
 	const s = settingsOf(locals);
 	const f = groupOf(s, "footer");
 	return {
@@ -555,7 +580,7 @@ export function getFooterConfig(locals: unknown) {
 	};
 }
 
-export function getEffectsConfig(locals: unknown) {
+export function getEffectsConfig(locals: unknown): typeof staticEffectsConfig {
 	const s = settingsOf(locals);
 	const e = groupOf(s, "effects");
 	return {
@@ -585,7 +610,7 @@ export function getPioConfig(locals: unknown) {
 	};
 }
 
-export function getLicenseConfig(locals: unknown) {
+export function getLicenseConfig(locals: unknown): typeof staticLicenseConfig {
 	const s = settingsOf(locals);
 	const l = groupOf(s, "license");
 	return {
@@ -613,7 +638,7 @@ export function getLicenseConfig(locals: unknown) {
 	};
 }
 
-export function getSponsorConfig(locals: unknown) {
+export function getSponsorConfig(locals: unknown): typeof staticSponsorConfig {
 	const s = settingsOf(locals);
 	const sp = groupOf(s, "sponsor");
 	const sponsorsVal =
@@ -647,7 +672,7 @@ export function getSponsorConfig(locals: unknown) {
 	};
 }
 
-export function getDynamicConfig(locals: unknown) {
+export function getDynamicConfig(locals: unknown): typeof staticDynamicConfig {
 	const s = settingsOf(locals);
 	const d = groupOf(s, "dynamic");
 	return {
@@ -673,7 +698,9 @@ export function getDynamicConfig(locals: unknown) {
 	};
 }
 
-export function getAnnouncementConfig(locals: unknown) {
+export function getAnnouncementConfig(
+	locals: unknown,
+): typeof staticAnnouncementConfig {
 	const s = settingsOf(locals);
 	const a = groupOf(s, "announcement");
 	return {
@@ -703,7 +730,7 @@ export function getAnnouncementConfig(locals: unknown) {
 	};
 }
 
-export function getNavbarConfig(locals: unknown) {
+export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
 	const s = settingsOf(locals);
 	const n = groupOf(s, "nav");
 	const navItems = arr(n.navItems, staticNavConfig.links);
@@ -757,7 +784,7 @@ export function getNavbarConfig(locals: unknown) {
 	};
 }
 
-export function getSidebarConfig(locals: unknown) {
+export function getSidebarConfig(locals: unknown): typeof staticSidebarConfig {
 	const s = settingsOf(locals);
 	const sb = groupOf(s, "sidebar");
 	return {
@@ -781,7 +808,7 @@ export function getSidebarConfig(locals: unknown) {
 	};
 }
 
-export function getCoverConfig(locals: unknown) {
+export function getCoverConfig(locals: unknown): typeof staticCoverConfig {
 	const s = settingsOf(locals);
 	const c = groupOf(s, "cover");
 	let randomCoverImage = staticCoverConfig.randomCoverImage;
@@ -817,7 +844,7 @@ export function getCoverConfig(locals: unknown) {
 	};
 }
 
-export function getFontConfig(locals: unknown) {
+export function getFontConfig(locals: unknown): typeof staticFontConfig {
 	const s = settingsOf(locals);
 	const f = groupOf(s, "font");
 	return {
@@ -826,7 +853,7 @@ export function getFontConfig(locals: unknown) {
 	};
 }
 
-export function getMermaidConfig(locals: unknown) {
+export function getMermaidConfig(locals: unknown): typeof staticMermaidConfig {
 	const s = settingsOf(locals);
 	const m = groupOf(s, "mermaid");
 	return {
@@ -837,7 +864,9 @@ export function getMermaidConfig(locals: unknown) {
 	};
 }
 
-export function getPlantumlConfig(locals: unknown) {
+export function getPlantumlConfig(
+	locals: unknown,
+): typeof staticPlantumlConfig {
 	const s = settingsOf(locals);
 	const p = groupOf(s, "plantuml");
 	return {
@@ -849,7 +878,9 @@ export function getPlantumlConfig(locals: unknown) {
 	};
 }
 
-export function getAnalyticsConfig(locals: unknown) {
+export function getAnalyticsConfig(
+	locals: unknown,
+): typeof staticAnalyticsConfig {
 	const s = settingsOf(locals);
 	const a = groupOf(s, "analytics");
 	return {
@@ -878,7 +909,9 @@ export function getAnalyticsConfig(locals: unknown) {
 	};
 }
 
-export function getExpressiveCodeConfig(locals: unknown) {
+export function getExpressiveCodeConfig(
+	locals: unknown,
+): typeof staticExpressiveCodeConfig {
 	const s = settingsOf(locals);
 	const ec = groupOf(s, "expressiveCode");
 	return {
@@ -888,11 +921,14 @@ export function getExpressiveCodeConfig(locals: unknown) {
 	};
 }
 
-export function getPanelConfig(locals: unknown) {
+export function getPanelConfig(
+	locals: unknown,
+): typeof staticDisplaySettingsConfig {
 	const s = settingsOf(locals);
 	const pn = groupOf(s, "panel");
 	const d = staticDisplaySettingsConfig as unknown as Record<string, unknown>;
 	return {
+		overlaySwitchable: staticDisplaySettingsConfig.overlaySwitchable,
 		enable: bool(pn.enable, d.enable as boolean),
 		themeColorSwitchable: bool(
 			pn.themeColorSwitchable,

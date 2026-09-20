@@ -1,4 +1,3 @@
-
 export type BuiltinFontProvider =
 	| "google"
 	| "fontsource"
@@ -8,14 +7,12 @@ export type BuiltinFontProvider =
 	| "npm";
 
 export interface CustomFontProvider {
-
 	name: string;
 
 	config?: Record<string, unknown>;
 }
 
 export type FontDefinition = {
-
 	name: string;
 
 	cssVariable: string;
@@ -43,7 +40,6 @@ export type FontDefinition = {
 };
 
 export type FontSelectionConfig = {
-
 	enable: boolean;
 
 	selected: string | string[];

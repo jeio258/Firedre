@@ -1,4 +1,5 @@
 export type MusicPlayerConfig = {
+	autoplay?: boolean;
 	mode?: "meting" | "local";
 	volume?: number;
 	playMode?: "list" | "one" | "random";
@@ -27,4 +28,5 @@ export type MusicPlayerConfig = {
 			quality?: "128k" | "320k" | "flac";
 		}>;
 	};
+	enable?: boolean;
 };

@@ -1,4 +1,3 @@
-
 export interface WavesManagerLike {
 	isRunning: boolean;
 

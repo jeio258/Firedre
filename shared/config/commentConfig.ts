@@ -1,7 +1,6 @@
 import type { CommentConfig } from "@/types/commentConfig";
 
 export const commentConfig: CommentConfig = {
-
 	type: "none",
 
 	twikoo: {
@@ -31,6 +30,7 @@ export const commentConfig: CommentConfig = {
 		server: "https://artalk.example.com/",
 		locale: "zh-CN",
 		visitorCount: true,
+		siteName: "",
 	},
 
 	giscus: {

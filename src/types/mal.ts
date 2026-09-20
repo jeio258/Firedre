@@ -24,22 +24,22 @@ export type MalNode = {
 	title?: string;
 	main_picture?: MalMainPicture | null;
 	alternative_titles?: MalAlternativeTitles | null;
-	mean?: number | null;                    
-	media_type?: string;                                                                           
+	mean?: number | null;
+	media_type?: string;
 	genres?: MalGenre[];
-	start_date?: string;          
-	status?: string;                                                                    
+	start_date?: string;
+	status?: string;
 
-	num_episodes?: number;              
+	num_episodes?: number;
 	start_season?: MalStartSeason | null;
 
-	num_chapters?: number;              
+	num_chapters?: number;
 	num_volumes?: number;
 };
 
 export type MalListStatus = {
-	status?: string;                                                                                                               
-	score?: number;                
+	status?: string;
+	score?: number;
 	updated_at?: string;
 	start_date?: string;
 	finish_date?: string;

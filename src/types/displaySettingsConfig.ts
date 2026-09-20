@@ -1,9 +1,9 @@
 export type OverlaySwitchable =
 	| boolean
 	| {
-			opacity?: boolean;             
-			blur?: boolean;             
-			cardOpacity?: boolean;             
+			opacity?: boolean;
+			blur?: boolean;
+			cardOpacity?: boolean;
 	  };
 
 export type DisplaySettingsConfig = {
@@ -17,6 +17,9 @@ export type DisplaySettingsConfig = {
 	gradientSwitchable: boolean;
 	bannerTitleSwitchable: boolean;
 	bannerCarouselSwitchable: boolean;
+	overlayOpacitySwitchable?: boolean;
+	overlayBlurSwitchable?: boolean;
+	overlayCardOpacitySwitchable?: boolean;
 	overlaySwitchable: OverlaySwitchable;
 	sakuraSwitchable: boolean;
 };

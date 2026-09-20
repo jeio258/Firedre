@@ -30,8 +30,8 @@ export type SiteConfig = {
 	title: string;
 	subtitle: string;
 	site_url: string;
-	description?: string;                                       
-	keywords?: string[];                                     
+	description?: string;
+	keywords?: string[];
 
 	lang: "en" | "zh_CN" | "zh_TW" | "ja" | "ru" | "ko";
 
@@ -52,7 +52,7 @@ export type SiteConfig = {
 		radius?: number;
 	};
 
-	siteStartDate?: string;                    
+	siteStartDate?: string;
 
 	timezone?: string;
 
@@ -63,31 +63,30 @@ export type SiteConfig = {
 	}>;
 
 	navbar: {
-
 		logo?: {
 			type: "icon" | "image" | "url";
-			value: string;                        
-			valueDark?: string;                                               
-			alt?: string;           
+			value: string;
+			valueDark?: string;
+			alt?: string;
 		};
-		title?: string;                        
-		widthFull?: boolean;               
-		menuAlign?: "left" | "center";                    
-		followTheme?: boolean;                   
-		stickyNavbar?: boolean;                  
+		title?: string;
+		widthFull?: boolean;
+		menuAlign?: "left" | "center";
+		followTheme?: boolean;
+		stickyNavbar?: boolean;
 	};
 
 	pages: {
-		booknav: boolean;            
-		friends: boolean;          
-		sponsor: boolean;          
-		guestbook: boolean;           
+		booknav: boolean;
+		friends: boolean;
+		sponsor: boolean;
+		guestbook: boolean;
 		bangumi: boolean;
 		vndb: boolean;
-		mal: boolean;                    
-		gallery: boolean;          
-		bilibili: boolean;              
-		dynamic: boolean;          
+		mal: boolean;
+		gallery: boolean;
+		bilibili: boolean;
+		dynamic: boolean;
 	};
 
 	categoryBar?: boolean;
@@ -100,31 +99,30 @@ export type SiteConfig = {
 	foldArticle?: boolean;
 
 	postListLayout: {
-		defaultMode: "list" | "grid";                              
-		mobileDefaultMode?: "list" | "grid";                                               
+		defaultMode: "list" | "grid";
+		mobileDefaultMode?: "list" | "grid";
 
 		coverPosition?: "left" | "right";
-		descriptionLines?: number;                           
-		showStatsIcons?: boolean;                  
+		descriptionLines?: number;
+		showStatsIcons?: boolean;
 
 		tagsPosition?: "meta" | "bottom";
 
 		tagsBottomStyle?: "chip" | "text";
 		meta?: {
-			showPublished?: boolean;            
-			showCategory?: boolean;          
-			showTags?: boolean;          
-			tagCount?: number;        
-			showWords?: boolean;          
-			showReadingTime?: boolean;            
+			showPublished?: boolean;
+			showCategory?: boolean;
+			showTags?: boolean;
+			tagCount?: number;
+			showWords?: boolean;
+			showReadingTime?: boolean;
 		};
 		stats?: {
-			showPublished?: boolean;            
-			showWords?: boolean;          
-			showReadingTime?: boolean;            
+			showPublished?: boolean;
+			showWords?: boolean;
+			showReadingTime?: boolean;
 		};
 		grid: {
-
 			masonry: boolean;
 			// 网格模式卡片最小宽度(px)，浏览器根据容器宽度自动计算列数，默认 320
 			columnWidth?: number;
@@ -141,19 +139,19 @@ export type SiteConfig = {
 		// 控制"上次编辑时间"卡片显示的开关
 		showLastModified: boolean;
 		// 文章过期阈值（天数），超过此天数才显示"上次编辑"卡片
-		outdatedThreshold?: number;
+		outdatedThreshold: number;
 		// 是否显示分享海报按钮
-		sharePoster?: boolean;
+		sharePoster: boolean;
 		// OpenGraph图片功能
 		generateOgImages: boolean;
 	};
 
 	bangumi?: {
-		userId?: string;               
-		mode?: "static" | "dynamic";                                     
-		apiUrl?: string;                  
-		subjectBaseUrl?: string;           
-		categoryOrder?: ("anime" | "game" | "book" | "music" | "real")[];            
+		userId?: string;
+		mode?: "static" | "dynamic";
+		apiUrl?: string;
+		subjectBaseUrl?: string;
+		categoryOrder?: ("anime" | "game" | "book" | "music" | "real")[];
 
 		categories?: {
 			book?: boolean;
@@ -162,26 +160,26 @@ export type SiteConfig = {
 			game?: boolean;
 			real?: boolean;
 		};
-		nsfw?: NsfwMode;                                                  
+		nsfw?: NsfwMode;
 	};
 
 	vndb?: {
-		userId?: string;                      
-		mode?: "static" | "dynamic";                                     
-		downloadCovers?: boolean;                       
-		apiUrl?: string;               
-		vnBaseUrl?: string;                        
-		apiToken?: string;                           
-		nsfw?: NsfwMode;                                                  
+		userId?: string;
+		mode?: "static" | "dynamic";
+		downloadCovers?: boolean;
+		apiUrl?: string;
+		vnBaseUrl?: string;
+		apiToken?: string;
+		nsfw?: NsfwMode;
 	};
 
 	mal?: {
-		username?: string;                            
-		clientId?: string;                                                                       
-		apiUrl?: string;              
-		animeBaseUrl?: string;                     
-		mangaBaseUrl?: string;                     
-		nsfw?: NsfwMode;                                                  
+		username?: string;
+		clientId?: string;
+		apiUrl?: string;
+		animeBaseUrl?: string;
+		mangaBaseUrl?: string;
+		nsfw?: NsfwMode;
 	};
 
 	bilibili?: {
@@ -193,7 +191,6 @@ export type SiteConfig = {
 	};
 
 	imageOptimization?: {
-
 		formats?: "avif" | "webp" | "both";
 
 		quality?: number;

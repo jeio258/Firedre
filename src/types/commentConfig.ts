@@ -1,5 +1,5 @@
 export type CommentConfig = {
-
+	enable?: boolean;
 	type: "none" | "twikoo" | "waline" | "giscus" | "disqus" | "artalk";
 	twikoo?: {
 		envId: string;
@@ -14,29 +14,30 @@ export type CommentConfig = {
 	waline?: {
 		serverURL: string;
 		lang?: string;
-		emoji: string[];
+		emoji?: string[];
 		login?: "enable" | "force" | "disable";
 		visitorCount?: boolean; // 是否统计访问量，true 启用访问量，false 关闭
 	};
 	artalk?: {
 		server: string;
 
-		locale: string | "auto";
+		locale?: string | "auto";
 		// 是否统计访问量，true 启用访问量，false 关闭
 		visitorCount?: boolean;
+		siteName?: string;
 	};
 	giscus?: {
 		repo: string;
 		repoId: string;
 		category: string;
 		categoryId: string;
-		mapping: string;
-		strict: string;
-		reactionsEnabled: string;
-		emitMetadata: string;
-		inputPosition: string;
-		lang: string;
-		loading: string;
+		mapping?: string;
+		strict?: string;
+		reactionsEnabled?: string;
+		emitMetadata?: string;
+		inputPosition?: string;
+		lang?: string;
+		loading?: string;
 	};
 	disqus?: {
 		shortname: string;
