@@ -224,8 +224,12 @@ onMount(async () => {
 		slug?: string;
 		isNew?: boolean;
 	}>("文章");
-	// 草稿恢复前校验归属：仅当草稿 slug 与当前文章一致才应用，防止 A 的未保存内容覆盖 B
-	if (d && d.slug != null && d.slug !== slug) {
+	// 草稿归属校验：恢复需满足「同为新文章」或「同为编辑态且 slug 一致」。
+	// 新文章场景 slug 会随标题输入自动生成（挂载时为空），不能作为归属依据；
+	// 已存在文章之间靠 slug 区分，防止 A 的未保存内容覆盖 B。
+	const sameContext =
+		d != null && d.isNew === isNew && (isNew || d.slug === slug);
+	if (d && !sameContext) {
 		clearDraft("文章");
 	} else if (d) {
 		if (d.title != null) title = d.title;
