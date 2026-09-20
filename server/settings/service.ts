@@ -102,15 +102,25 @@ async function bumpSettingsVersion(env: CloudflareEnv): Promise<void> {
 			.bind(VERSION_KEY)
 			.run();
 	} catch (e) {
-		// 版本号不递增会导致前台命中旧 HTML 缓存，必须让调用方感知失败
+		// 失败向上传递，由 bumpContentVersion 统一降级（主写已成功，不应返回失败）
 		console.warn("[settings] 配置版本自增失败", e);
 		throw e;
 	}
 }
 
 export async function bumpContentVersion(env: CloudflareEnv): Promise<void> {
-	await bumpSettingsVersion(env);
-	versionCacheScope.__FIREDRE_VER_CACHE__ = undefined;
+	// 版本递增失败只影响前台缓存失效的即时性（延迟到下一次成功 bump 或 TTL 兜底），
+	// 不得让已成功的主写返回失败：无幂等键的创建接口重试会产生重复行。
+	// 失败时版本号未变，isolate 版本缓存保持有效，故不清空。
+	try {
+		await bumpSettingsVersion(env);
+		versionCacheScope.__FIREDRE_VER_CACHE__ = undefined;
+	} catch (e) {
+		console.warn(
+			"[settings] 内容版本递增失败，前台缓存将延迟失效（主写不受影响）",
+			e,
+		);
+	}
 }
 
 function groupOfKey(key: string): SettingGroup {
