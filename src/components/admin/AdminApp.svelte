@@ -432,7 +432,19 @@ function showToast(msg: string, kind: "ok" | "err" = "ok") {
 	saveToastTimer = setTimeout(() => (saveToast = ""), 2600);
 }
 
+let savingAll = $state(false);
+
 async function saveAll() {
+	if (savingAll) return;
+	savingAll = true;
+	try {
+		await runSaveAllInner();
+	} finally {
+		savingAll = false;
+	}
+}
+
+async function runSaveAllInner() {
 	const results = await runSaveAll();
 	const ok = results.filter((r) => r.ok).length;
 	const fail = results.length - ok;
@@ -561,7 +573,7 @@ onMount(() => {
 					<h1 class="crumb-page">{title()}</h1>
 				</div>
 				<div class="top-actions">
-					<button class="btn btn-primary" onclick={saveAll}>
+					<button class="btn btn-primary" onclick={saveAll} disabled={savingAll}>
 						{@html iconSvg("save")}<span class="btn-label">保存全部</span>
 					</button>
 				<a class="btn btn-primary" href="/admin/posts/new/">

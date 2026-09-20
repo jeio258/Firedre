@@ -9,6 +9,8 @@ export async function apiJson<T = unknown>(
 	const resp = await fetch(url, {
 		credentials: "include",
 		...init,
+		// 弱网下避免请求永久挂起（保存按钮无法恢复）；调用方显式传入 signal 时不覆盖
+		signal: init?.signal ?? AbortSignal.timeout(30_000),
 	});
 	const data = (await resp.json().catch(() => null)) as
 		| (T & { ok?: boolean; message?: string })

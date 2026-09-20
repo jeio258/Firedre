@@ -338,13 +338,31 @@ export async function upsertGalleryAlbum(
 export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 	if (!isValidGallerySlug(slug)) throw new UserError("相册 slug 格式无效");
 
+	// 级联清理相册专属照片对象（_uploads 共享池不受影响），防 R2 孤儿累积
+	const prefix = `gallery/${slug}/files/`;
+	let removedFiles = 0;
+	let cursor: string | undefined;
+	try {
+		do {
+			const page = await env.BUCKET.list({ prefix, cursor });
+			for (const obj of page.objects ?? []) {
+				await env.BUCKET.delete(obj.key);
+				removedFiles++;
+			}
+			cursor = page.truncated ? page.cursor : undefined;
+		} while (cursor);
+	} catch (e) {
+		// 清理失败不阻断删除主流程，残留对象可由运维按前缀补删
+		console.warn(`[gallery] 相册 ${slug} 照片对象清理失败`, e);
+	}
+
 	await deleteAlbumFromD1(env, slug);
 	await env.BUCKET.delete(galleryAlbumR2Key(slug));
 	await deleteAlbumPassword(env, slug);
 	await bumpContentVersion(env);
 
 	const hub = await getGalleryHub(env, { includeSource: true });
-	if (!hub?.source) return { slug, removedFromHub: false };
+	if (!hub?.source) return { slug, removedFromHub: false, removedFiles };
 
 	const parsed = parseHubSource(hub.source);
 	const nextSlugs = normalizeAlbumSlugs(parsed.frontmatter.albums).filter(
@@ -356,7 +374,7 @@ export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 		serializeHubMarkdown(parsed.frontmatter, parsed.content),
 	);
 
-	return { slug, removedFromHub: true };
+	return { slug, removedFromHub: true, removedFiles };
 }
 
 export async function setAlbumPhotos(

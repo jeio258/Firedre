@@ -1,4 +1,5 @@
 import { verifyAdminRequest } from "@server/auth/adminSession";
+import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
 import { cfEnv, json, serverError, unauthorized } from "../../../lib/api";
 
@@ -8,6 +9,17 @@ export const POST: APIRoute = async ({ request }) => {
 	const isAdmin = await verifyAdminRequest(request, cfEnv);
 	if (!isAdmin) return unauthorized();
 
+	return withRateLimit(
+		cfEnv,
+		request,
+		{ windowMs: 60_000, maxRequests: 10, scope: "upload-image", failOpen: false },
+		async () => {
+			return handleUpload(request);
+		},
+	);
+}
+
+async function handleUpload(request: Request) {
 	try {
 		const form = await request.formData();
 		const file = form.get("file");
@@ -44,7 +56,8 @@ export const POST: APIRoute = async ({ request }) => {
 			bmp: ["image/bmp"],
 		};
 		const validMimes = mimeMap[ext] || [];
-		if (mimeType && validMimes.length > 0 && !validMimes.includes(mimeType)) {
+		// MIME 缺失同样拒绝：无 Content-Type 的文件内容不可信
+		if (!validMimes.includes(mimeType)) {
 			return json({ message: "文件内容与扩展名不匹配" }, 400);
 		}
 
