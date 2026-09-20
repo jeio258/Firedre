@@ -11,11 +11,6 @@ import { collectUsedFontCssVars } from "@/utils/fontHelper";
 const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
-const fontItems = Array.from(allCssVars).map((cssVar) => ({
-	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
-	cssVariable: cssVar as any,
-	preload: selectedFontVars.includes(cssVar),
-}));
 
 const selectedIds: string[] =
 	fontConfig.enable && fontConfig.selected
@@ -30,6 +25,12 @@ const SYSTEM_FONT_STACK =
 const MONO_FONT_STACK =
 	'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
 const selectedFontVars = selectedIds.filter((v) => v !== "system");
+
+const fontItems = Array.from(allCssVars).map((cssVar) => ({
+	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
+	cssVariable: cssVar as any,
+	preload: selectedFontVars.includes(cssVar),
+}));
 const bodyFontFamily =
 	selectedFontVars.length > 0
 		? [...selectedFontVars.map((v) => `var(${v})`), SYSTEM_FONT_STACK].join(
