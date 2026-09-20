@@ -1,16 +1,21 @@
+import { getSiteConfig } from "@shared/config/runtime";
 import type { APIRoute } from "astro";
 
-const robotsTxt = `
-User-agent: *
-Disallow: /_astro/
+export const prerender = false;
 
-Sitemap: ${new URL("sitemap.xml", import.meta.env.SITE).href}
-`.trim();
-
-export const GET: APIRoute = () => {
-	return new Response(robotsTxt, {
-		headers: {
-			"Content-Type": "text/plain; charset=utf-8",
-		},
+export const GET: APIRoute = async (context) => {
+	const cfg = getSiteConfig(context.locals);
+	const base = cfg.site_url.replace(/\/+$/, "");
+	const body = [
+		"User-agent: *",
+		"Allow: /",
+		"Disallow: /admin/",
+		"Disallow: /api/admin/",
+		"",
+		`Sitemap: ${base}/sitemap.xml`,
+		"",
+	].join("\n");
+	return new Response(body, {
+		headers: { "Content-Type": "text/plain; charset=utf-8" },
 	});
 };

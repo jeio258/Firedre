@@ -13,7 +13,7 @@ import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
-
+import { getTranslation } from "@i18n/translation";
 import {
 	analyticsConfig,
 	backgroundWallpaper,
@@ -23,7 +23,6 @@ import {
 	siteConfig,
 } from "@/config";
 import { getExpressiveCodeConfig } from "@/config/runtime";
-import { getTranslation } from "@i18n/translation";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -32,8 +31,16 @@ import {
 } from "@/constants/constants";
 import { toClientSettings } from "@/utils/client-settings";
 import { isHomePage } from "@/utils/layout-utils";
-import { getAuthorAvatarUrl, getRawImageUrl, getSiteLogo } from "@/utils/schema-image";
-import { buildSiteGraph, safeJsonLd, toAbsoluteUrl } from "@/utils/schema-utils";
+import {
+	getAuthorAvatarUrl,
+	getRawImageUrl,
+	getSiteLogo,
+} from "@/utils/schema-image";
+import {
+	buildSiteGraph,
+	safeJsonLd,
+	toAbsoluteUrl,
+} from "@/utils/schema-utils";
 
 import "@/styles/main.css";
 import "@/styles/variables.styl";
@@ -46,6 +53,8 @@ interface Props {
 	setOGTypeArticle?: boolean;
 	postSlug?: string;
 	postCoverImage?: string;
+	publishedTime?: Date | string;
+	modifiedTime?: Date | string;
 	hasWallpaper?: boolean;
 	wallpaperPreloadUrl?: string | null;
 }
@@ -57,6 +66,8 @@ let {
 	setOGTypeArticle,
 	postSlug,
 	postCoverImage,
+	publishedTime,
+	modifiedTime,
 	hasWallpaper = false,
 	wallpaperPreloadUrl,
 } = Astro.props;
@@ -76,17 +87,20 @@ const settings =
 		}
 	).settings ?? {};
 
-const configHue = settings.hue ?? (settings?.["themeColor"] ?? siteConfig.themeColor).hue;
+const configHue =
+	settings.hue ?? (settings?.["themeColor"] ?? siteConfig.themeColor).hue;
 
 const navbarTransparentMode =
-	((settings?.["theme"])?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.transparentMode || "semi";
+	(settings?.["theme"]?.["banner"] ?? backgroundWallpaper.banner)?.navbar
+		?.transparentMode || "semi";
 // 判断是否应该显示顶部高光效果（只在full和semifull模式下显示）
 const shouldShowTopHighlight =
 	navbarTransparentMode === "full" || navbarTransparentMode === "semifull";
 
 const NAVBAR_PANEL_MIN_BLUR = 2;
 const navbarPanelBlur = Math.max(
-	((settings?.["theme"])?.["banner"] ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
+	(settings?.["theme"]?.["banner"] ?? backgroundWallpaper.banner)?.navbar
+		?.blur ?? 20,
 	NAVBAR_PANEL_MIN_BLUR,
 );
 
@@ -101,7 +115,9 @@ const effectiveDescription =
 let pageTitle: string;
 const siteSubtitle = (settings?.["subtitle"] ?? siteConfig.subtitle) || "";
 
-const siteIdentity = siteSubtitle ? `${effectiveTitle} - ${siteSubtitle}` : effectiveTitle;
+const siteIdentity = siteSubtitle
+	? `${effectiveTitle} - ${siteSubtitle}`
+	: effectiveTitle;
 if (title) {
 	pageTitle = `${title} - ${siteIdentity}`;
 } else {
@@ -116,24 +132,27 @@ if ((settings?.["post"] ?? siteConfig.post).generateOgImages && postSlug) {
 }
 
 if (!lang) {
-	lang = `${(settings?.["lang"] ?? siteConfig.lang)}`;
+	lang = `${settings?.["lang"] ?? siteConfig.lang}`;
 }
 const siteLang = lang.replace("_", "-");
 
 // 作者个人页（/about/）绝对 URL，作为 Person.url
-const effectiveSiteUrl = settings.siteUrl || (settings?.["site_url"] ?? siteConfig.site_url);
+const effectiveSiteUrl =
+	settings.siteUrl || (settings?.["site_url"] ?? siteConfig.site_url);
 
 const avatarUrl = await getAuthorAvatarUrl(effectiveSiteUrl);
 // 头像 preload：默认头像（未被后台替换）时预取静态文件，提前加载 LCP 图
 const avatarPreloadUrl =
-	(!(settings?.["avatar"]) || (settings?.["avatar"] === profileConfig.avatar)) &&
+	(!settings?.["avatar"] || settings?.["avatar"] === profileConfig.avatar) &&
 	profileConfig.avatar
 		? await getRawImageUrl(profileConfig.avatar).catch(() => null)
 		: null;
 const aboutUrl = toAbsoluteUrl("/about/", effectiveSiteUrl) ?? effectiveSiteUrl;
+// canonical 基于站点域名 + 路径（去查询串/Host 差异），避免参数变体产生重复收录
+const canonicalUrl =
+	toAbsoluteUrl(Astro.url.pathname, effectiveSiteUrl) ?? Astro.url.toString();
 
 const siteLogo = await getSiteLogo(effectiveSiteUrl);
-
 ---
 
 <!doctype html>
@@ -186,28 +205,48 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     })()}
     <meta name="author" content={(settings?.["profile"]?.["name"] as string | undefined) ?? (settings?.["name"] ?? profileConfig.name)} />
 
-    <link rel="canonical" href={Astro.url} />
+    <link rel="canonical" href={canonicalUrl} />
     {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
     {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} fetchpriority="high" />}
     <meta property="og:site_name" content={effectiveTitle} />
-    <meta property="og:url" content={Astro.url} />
+    <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
     <meta
       property="og:description"
       content={description || effectiveDescription || pageTitle}
     />
-    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
-    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    <meta
+      property="og:image"
+      content={ogImageUrl ?? (typeof siteLogo === "string" ? siteLogo : siteLogo?.url)}
+    />
+    <meta
+      name="twitter:image"
+      content={ogImageUrl ?? (typeof siteLogo === "string" ? siteLogo : siteLogo?.url)}
+    />
     {
       setOGTypeArticle ? (
-        <meta property="og:type" content="article" />
+        <>
+          <meta property="og:type" content="article" />
+          {publishedTime && (
+            <meta
+              property="article:published_time"
+              content={publishedTime instanceof Date ? publishedTime.toISOString() : publishedTime}
+            />
+          )}
+          {modifiedTime && (
+            <meta
+              property="article:modified_time"
+              content={modifiedTime instanceof Date ? modifiedTime.toISOString() : modifiedTime}
+            />
+          )}
+        </>
       ) : (
         <meta property="og:type" content="website" />
       )
     }
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:url" content={canonicalUrl} />
     <meta name="twitter:title" content={pageTitle} />
     <meta
       name="twitter:description"

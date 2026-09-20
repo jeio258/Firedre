@@ -26,6 +26,8 @@ interface Props {
 	setOGTypeArticle?: boolean;
 	postSlug?: string;
 	postCoverImage?: string;
+	publishedTime?: Date | string;
+	modifiedTime?: Date | string;
 	postCategory?: string;
 	headings?: MarkdownHeading[];
 	encrypted?: boolean;
@@ -50,7 +52,10 @@ const wallpaperConfig = getWallpaperConfig(Astro.locals);
 const toImageArray = (v: unknown): string[] => {
 	if (Array.isArray(v)) return (v as string[]).map(String).filter(Boolean);
 	if (typeof v === "string" && v)
-		return v.split(",").map((s) => s.trim()).filter(Boolean);
+		return v
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
 	return [];
 };
 const wallpaperSrc = (wallpaperConfig.src ?? {}) as {
@@ -72,6 +77,8 @@ const {
 	setOGTypeArticle,
 	postSlug,
 	postCoverImage,
+	publishedTime,
+	modifiedTime,
 	postCategory,
 	headings = [],
 	encrypted = false,
@@ -85,8 +92,10 @@ const shouldRenderCategoryBar =
 	typeof categoryBarSetting === "boolean"
 		? categoryBarSetting
 		: !!((settings as any)?.["categoryBar"] ?? siteConfig.categoryBar);
-const navbarWidthFull = ((settings as any)?.["navbar"] ?? siteConfig.navbar).widthFull ?? false;
-const stickyNavbar = ((settings as any)?.["navbar"] ?? siteConfig.navbar).stickyNavbar ?? false;
+const navbarWidthFull =
+	((settings as any)?.["navbar"] ?? siteConfig.navbar).widthFull ?? false;
+const stickyNavbar =
+	((settings as any)?.["navbar"] ?? siteConfig.navbar).stickyNavbar ?? false;
 
 const banner = getBannerVisibilityState(
 	{
@@ -119,7 +128,7 @@ const {
 } = sidebar;
 ---
 
-<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl}>
+<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} publishedTime={publishedTime} modifiedTime={modifiedTime} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl}>
 
 <slot slot="head" name="head" />
 <HeaderTopRow stickyNavbar={stickyNavbar} navbarWidthFull={navbarWidthFull} />
