@@ -1,11 +1,7 @@
 #!/bin/bash
-# 防护：①tests/ 不得提交到 main；②暂存的 TS/JS/Svelte 过 biome
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "$BRANCH" = "main" ] && git diff --cached --name-only | grep -q "^tests/"; then
-  echo "ERROR: tests/ 不应提交到 main（测试保留在 tests 分支）" >&2
-  exit 1
-fi
-FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js|svelte)$' | grep -v 'src/music-sources/' || true)
+# 暂存的 TS/JS/Svelte/Astro 过 biome（排除 vendored 的 src/music-sources/）
+# 注：2026-09-20 起 tests/ 已并入 main，原"防 tests/ 进 main"规则随策略变更移除
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|js|svelte|astro)$' | grep -v 'src/music-sources/' || true)
 if [ -n "$FILES" ]; then
   npx biome check $FILES || exit 1
 fi

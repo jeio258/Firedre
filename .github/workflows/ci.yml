@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        # 版本由 package.json 的 packageManager 字段驱动（11.22.0）；
+        # 此处不得再声明 version，否则 action-setup 报 Multiple versions of pnpm specified
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm astro check
+      - run: pnpm type-check:server
+      - run: pnpm test
+      - run: node scripts/qa/biome-baseline.mjs
+      - run: pnpm build
