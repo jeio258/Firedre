@@ -414,6 +414,13 @@ let preview = $derived.by(() => {
 		line-height: 1.6;
 		resize: vertical;
 	}
+
+	/* 移动端输入控件字号达物理 16px（admin 根字号恒 16px），防 iOS 聚焦缩放 */
+	@media (max-width: 767px) {
+		.re-area {
+			font-size: 1rem;
+		}
+	}
 	.re-err {
 		margin: 0;
 		font-size: 0.75rem;

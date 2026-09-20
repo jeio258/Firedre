@@ -1,267 +1,282 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import Switch from "./Switch.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { registerSaveAll } from "@/lib/adminSave";
+import Switch from "./Switch.svelte";
 
-	let { slug = "" } = $props();
+let { slug = "" } = $props();
 
-	let isNew = $derived(slug === "");
+let isNew = $derived(slug === "");
 
-	let loaded = $state(false);
-	let saving = $state(false);
-	let message = $state("");
+let loaded = $state(false);
+let saving = $state(false);
+let message = $state("");
 
-	let newSlug = $state("");
+let newSlug = $state("");
 
-	let hadEncrypted = $state(false);
+let hadEncrypted = $state(false);
 
-	let formTitle = $state("");
-	let formDate = $state("");
-	let formLocation = $state("");
-	let formTags = $state("");
-	let formCover = $state("");
-	let formDesc = $state("");
+let formTitle = $state("");
+let formDate = $state("");
+let formLocation = $state("");
+let formTags = $state("");
+let formCover = $state("");
+let formDesc = $state("");
 
-	let photosText = $state("");
-	let photos: Array<{ url: string; type?: string; poster?: string; date?: string }> = $state([]);
+let photosText = $state("");
+let photos: Array<{
+	url: string;
+	type?: string;
+	poster?: string;
+	date?: string;
+}> = $state([]);
 
-	let hasPassword = $state(false);
-	let passwordInput = $state("");
-	let passwordMsg = $state("");
-	let passwordSaving = $state(false);
+let hasPassword = $state(false);
+let passwordInput = $state("");
+let passwordMsg = $state("");
+let passwordSaving = $state(false);
 
-	let imgbedEnabled = $state(false);
-	let imgbedEndpoint = $state("");
-	let imgbedDir = $state("");
-	let imgbedDirSaving = $state(false);
-	let imgbedDirMsg = $state("");
-	let imgbedMsg = $state("");
-	let imgbedFetching = $state(false);
+let imgbedEnabled = $state(false);
+let imgbedEndpoint = $state("");
+let imgbedDir = $state("");
+let imgbedDirSaving = $state(false);
+let imgbedDirMsg = $state("");
+let imgbedMsg = $state("");
+let imgbedFetching = $state(false);
 
-	function parsePhotosText(text: string) {
-		return text
-			.split("\n")
-			.map((line) => line.trim())
-			.filter(Boolean)
-			.map((line) => {
-				const [url, ...rest] = line.split(/\s+/);
-				const meta = rest[0] || "";
-				return { url, type: meta === "video" || meta === "image" ? meta : undefined };
-			});
+function parsePhotosText(text: string) {
+	return text
+		.split("\n")
+		.map((line) => line.trim())
+		.filter(Boolean)
+		.map((line) => {
+			const [url, ...rest] = line.split(/\s+/);
+			const meta = rest[0] || "";
+			return {
+				url,
+				type: meta === "video" || meta === "image" ? meta : undefined,
+			};
+		});
+}
+
+function photosToText(list: Array<{ url: string; type?: string }>) {
+	return list.map((p) => (p.type ? `${p.url} ${p.type}` : p.url)).join("\n");
+}
+
+async function loadImgbedStatus() {
+	try {
+		const data = await apiJson<{
+			imgbedEnabled?: boolean;
+			imgbedEndpoint?: string;
+			imgbedDir?: string;
+		}>("/api/settings/?group=gallery");
+		imgbedEnabled = data.imgbedEnabled === true;
+		imgbedEndpoint = data.imgbedEndpoint ?? "";
+		imgbedDir = data.imgbedDir ?? "";
+	} catch {
+		// 读取失败保持默认状态
 	}
+}
 
-	function photosToText(list: Array<{ url: string; type?: string }>) {
-		return list.map((p) => (p.type ? `${p.url} ${p.type}` : p.url)).join("\n");
+async function saveImgbedDir() {
+	imgbedDirSaving = true;
+	imgbedDirMsg = "";
+	try {
+		await apiJson("/api/settings/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				group: "gallery",
+				data: { imgbedDir: imgbedDir.trim() },
+			}),
+		});
+		imgbedDirMsg = "已保存图床目录（留空 = 根目录）";
+	} catch (err) {
+		imgbedDirMsg = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		imgbedDirSaving = false;
 	}
+}
 
-	async function loadImgbedStatus() {
-		try {
-			const data = await apiJson<{
-				imgbedEnabled?: boolean;
-				imgbedEndpoint?: string;
-				imgbedDir?: string;
-			}>("/api/settings/?group=gallery");
-			imgbedEnabled = data.imgbedEnabled === true;
-			imgbedEndpoint = data.imgbedEndpoint ?? "";
-			imgbedDir = data.imgbedDir ?? "";
-		} catch {
-			// 读取失败保持默认状态
-		}
+async function fetchFromImgbed() {
+	imgbedFetching = true;
+	imgbedMsg = "";
+	const targetSlug = (isNew ? newSlug.trim() : slug).trim();
+	if (!targetSlug) {
+		imgbedMsg = "请先填写相册 slug，再拉取图床图片";
+		imgbedFetching = false;
+		return;
 	}
+	try {
+		const data = await apiJson<{ count?: number }>(
+			`/api/gallery/${encodeURIComponent(targetSlug)}/imgbed/photos/`,
+			{ method: "POST" },
+		);
+		imgbedMsg = `已从图床获取 ${data.count} 张图片`;
+		await load();
+	} catch (err) {
+		imgbedMsg = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		imgbedFetching = false;
+	}
+}
 
-	async function saveImgbedDir() {
-		imgbedDirSaving = true;
-		imgbedDirMsg = "";
-		try {
-			await apiJson("/api/settings/", {
+async function loadPasswordState() {
+	try {
+		const data = await apiJson<{ hasPassword?: boolean }>(
+			`/api/gallery/${encodeURIComponent(slug)}/password/`,
+		);
+		hasPassword = !!data.hasPassword;
+	} catch {
+		// 读取失败保持默认未设置状态
+	}
+}
+
+async function savePassword() {
+	passwordSaving = true;
+	passwordMsg = "";
+	try {
+		const data = await apiJson<{ hasPassword?: boolean }>(
+			`/api/gallery/${encodeURIComponent(slug)}/password/`,
+			{
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					group: "gallery",
-					data: { imgbedDir: imgbedDir.trim() },
-				}),
-			});
-			imgbedDirMsg = "已保存图床目录（留空 = 根目录）";
+				body: JSON.stringify({ password: passwordInput }),
+			},
+		);
+		hasPassword = !!data.hasPassword;
+		passwordInput = "";
+		passwordMsg = hasPassword ? "已设置相册密码" : "已清除相册密码";
+	} catch (err) {
+		passwordMsg = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		passwordSaving = false;
+	}
+}
+
+async function clearPassword() {
+	passwordSaving = true;
+	passwordMsg = "";
+	try {
+		await apiJson(`/api/gallery/${encodeURIComponent(slug)}/password/`, {
+			method: "DELETE",
+		});
+		hasPassword = false;
+		passwordInput = "";
+		passwordMsg = "已清除相册密码";
+	} catch (err) {
+		passwordMsg = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		passwordSaving = false;
+	}
+}
+
+async function load() {
+	if (!isNew) {
+		try {
+			const data = await apiJson<{ frontmatter?: Record<string, unknown> }>(
+				`/api/gallery/${encodeURIComponent(slug)}/`,
+			);
+			const fm = data?.frontmatter || {};
+			formTitle = String(fm.title || "");
+			formDate = String(fm.date || "");
+			formLocation = String(fm.location || "");
+			formTags = Array.isArray(fm.tags) ? fm.tags.join(", ") : "";
+			formCover = String(fm.cover || "");
+			formDesc = String(fm.desc || "");
+			hadEncrypted = fm.encrypted === true;
+			photos = Array.isArray(fm.photos)
+				? (
+						fm.photos as Array<{
+							url: string;
+							type?: string;
+							poster?: string;
+							date?: string;
+						}>
+					).filter((p) => p?.url)
+				: [];
+			photosText = photosToText(photos);
 		} catch (err) {
-			imgbedDirMsg = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			imgbedDirSaving = false;
+			message = err instanceof TypeError ? "网络错误" : "加载失败";
 		}
 	}
+	loaded = true;
+	loadPasswordState();
+	loadImgbedStatus();
+}
 
-	async function fetchFromImgbed() {
-		imgbedFetching = true;
-		imgbedMsg = "";
-		const targetSlug = (isNew ? newSlug.trim() : slug).trim();
+function buildFrontmatter() {
+	const fm: Record<string, unknown> = {
+		layout: "gallery-album",
+		source: "local",
+	};
+	if (formTitle.trim()) fm.title = formTitle.trim();
+	if (formDate.trim()) fm.date = formDate.trim();
+	if (formLocation.trim()) fm.location = formLocation.trim();
+	if (formCover.trim()) fm.cover = formCover.trim();
+	if (formDesc.trim()) fm.desc = formDesc.trim();
+	if (hadEncrypted) fm.encrypted = true;
+	const tags = formTags
+		.split(/[,，]/)
+		.map((t) => t.trim())
+		.filter(Boolean);
+	if (tags.length) fm.tags = tags;
+	const parsedPhotos = parsePhotosText(photosText);
+	if (parsedPhotos.length) fm.photos = parsedPhotos;
+	return fm;
+}
+
+async function save() {
+	saving = true;
+	message = "";
+	let targetSlug = slug;
+	if (isNew) {
+		targetSlug = newSlug.trim();
 		if (!targetSlug) {
-			imgbedMsg = "请先填写相册 slug，再拉取图床图片";
-			imgbedFetching = false;
+			message = "请填写相册 slug";
+			saving = false;
 			return;
 		}
-		try {
-			const data = await apiJson<{ count?: number }>(
-				`/api/gallery/${encodeURIComponent(targetSlug)}/imgbed/photos/`,
-				{ method: "POST" },
-			);
-			imgbedMsg = `已从图床获取 ${data.count} 张图片`;
-			await load();
-		} catch (err) {
-			imgbedMsg = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			imgbedFetching = false;
-		}
 	}
-
-	async function loadPasswordState() {
-		try {
-			const data = await apiJson<{ hasPassword?: boolean }>(
-				`/api/gallery/${encodeURIComponent(slug)}/password/`,
-			);
-			hasPassword = !!data.hasPassword;
-		} catch {
-			// 读取失败保持默认未设置状态
-		}
-	}
-
-	async function savePassword() {
-		passwordSaving = true;
-		passwordMsg = "";
-		try {
-			const data = await apiJson<{ hasPassword?: boolean }>(
-				`/api/gallery/${encodeURIComponent(slug)}/password/`,
-				{
-					method: "PUT",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ password: passwordInput }),
-				},
-			);
-			hasPassword = !!data.hasPassword;
-			passwordInput = "";
-			passwordMsg = hasPassword ? "已设置相册密码" : "已清除相册密码";
-		} catch (err) {
-			passwordMsg = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			passwordSaving = false;
-		}
-	}
-
-	async function clearPassword() {
-		passwordSaving = true;
-		passwordMsg = "";
-		try {
-			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/password/`, {
-				method: "DELETE",
-			});
-			hasPassword = false;
-			passwordInput = "";
-			passwordMsg = "已清除相册密码";
-		} catch (err) {
-			passwordMsg = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			passwordSaving = false;
-		}
-	}
-
-	async function load() {
-		if (!isNew) {
-			try {
-				const data = await apiJson<{ frontmatter?: Record<string, unknown> }>(
-					`/api/gallery/${encodeURIComponent(slug)}/`,
-				);
-				const fm = data?.frontmatter || {};
-				formTitle = String(fm.title || "");
-				formDate = String(fm.date || "");
-				formLocation = String(fm.location || "");
-				formTags = Array.isArray(fm.tags) ? fm.tags.join(", ") : "";
-				formCover = String(fm.cover || "");
-				formDesc = String(fm.desc || "");
-				hadEncrypted = fm.encrypted === true;
-				photos = Array.isArray(fm.photos)
-					? (fm.photos as Array<{ url: string; type?: string; poster?: string; date?: string }>).filter((p) => p?.url)
-					: [];
-				photosText = photosToText(photos);
-			} catch (err) {
-				message = err instanceof TypeError ? "网络错误" : "加载失败";
-			}
-		}
-		loaded = true;
-		loadPasswordState();
-		loadImgbedStatus();
-	}
-
-	function buildFrontmatter() {
-		const fm: Record<string, unknown> = {
-			layout: "gallery-album",
-			source: "local",
-		};
-		if (formTitle.trim()) fm.title = formTitle.trim();
-		if (formDate.trim()) fm.date = formDate.trim();
-		if (formLocation.trim()) fm.location = formLocation.trim();
-		if (formCover.trim()) fm.cover = formCover.trim();
-		if (formDesc.trim()) fm.desc = formDesc.trim();
-		if (hadEncrypted) fm.encrypted = true;
-		const tags = formTags
-			.split(/[,，]/)
-			.map((t) => t.trim())
-			.filter(Boolean);
-		if (tags.length) fm.tags = tags;
-		const parsedPhotos = parsePhotosText(photosText);
-		if (parsedPhotos.length) fm.photos = parsedPhotos;
-		return fm;
-	}
-
-	async function save() {
-		saving = true;
-		message = "";
-		let targetSlug = slug;
+	const fm = buildFrontmatter();
+	try {
+		await apiJson(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ frontmatter: fm, content: "" }),
+		});
 		if (isNew) {
-			targetSlug = newSlug.trim();
-			if (!targetSlug) {
-				message = "请填写相册 slug";
-				saving = false;
-				return;
-			}
-		}
-		const fm = buildFrontmatter();
-		try {
-			await apiJson(`/api/gallery/${encodeURIComponent(targetSlug)}/`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ frontmatter: fm, content: "" }),
-			});
-			if (isNew) {
-				window.location.href = `/admin/gallery/${encodeURIComponent(targetSlug)}/`;
-				return;
-			}
-			message = "已保存";
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			saving = false;
-		}
-	}
-
-	async function removeAlbum() {
-		if (!confirm(`确定删除相册「${slug}」？此操作不可恢复。`)) return;
-		saving = true;
-		try {
-			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
-				method: "DELETE",
-			});
-			window.location.href = "/admin/gallery/";
+			window.location.href = `/admin/gallery/${encodeURIComponent(targetSlug)}/`;
 			return;
-		} catch (err) {
-			message = err instanceof TypeError ? "网络错误" : "删除失败";
-		} finally {
-			saving = false;
 		}
+		message = "已保存";
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		saving = false;
 	}
+}
 
-	onMount(() => {
-		load();
-		return registerSaveAll("相册", save);
-	});
+async function removeAlbum() {
+	if (!confirm(`确定删除相册「${slug}」？此操作不可恢复。`)) return;
+	saving = true;
+	try {
+		await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
+			method: "DELETE",
+		});
+		window.location.href = "/admin/gallery/";
+		return;
+	} catch (err) {
+		message = err instanceof TypeError ? "网络错误" : "删除失败";
+	} finally {
+		saving = false;
+	}
+}
+
+onMount(() => {
+	load();
+	return registerSaveAll("相册", save);
+});
 </script>
 
 <div class="crud-page" style="max-width:none">
@@ -437,6 +452,13 @@
 		width: 100%;
 		box-sizing: border-box;
 		font-family: inherit;
+	}
+
+	/* 移动端输入控件字号达物理 16px（admin 根字号恒 16px），防 iOS 聚焦缩放 */
+	@media (max-width: 767px) {
+		.ctrl {
+			font-size: 1rem;
+		}
 	}
 	.ctrl.mono {
 		font-family: ui-monospace, monospace;
