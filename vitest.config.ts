@@ -1,10 +1,13 @@
-import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	resolve: {
 		alias: {
+			// 顺序注意：@shared/@server 须在 @ 之前（Vite 按键序做前缀替换）
 			"@i18n": fileURLToPath(new URL("./src/i18n", import.meta.url)),
+			"@shared": fileURLToPath(new URL("./shared", import.meta.url)),
+			"@server": fileURLToPath(new URL("./server", import.meta.url)),
 			"@": fileURLToPath(new URL("./src", import.meta.url)),
 			"@constants": fileURLToPath(new URL("./src/constants", import.meta.url)),
 		},
