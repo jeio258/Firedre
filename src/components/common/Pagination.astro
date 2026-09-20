@@ -4,11 +4,11 @@ import { Icon } from "astro-icon/components";
 import PageJump from "@/components/common/PageJump.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import { url } from "@/utils/url-utils";
 import {
 	computePaginationPages,
 	PAGINATION_ELLIPSIS,
 } from "@/utils/pagination-window";
+import { url } from "@/utils/url-utils";
 
 interface Props {
 	page: Page;
@@ -61,7 +61,7 @@ const jumpHrefFirst = url("/");
 
       <div class="btn-card flex items-center rounded-(--radius-large) px-4 h-11 gap-1.5">
         <PageJump
-          client:idle
+          client:load
           variant="current"
           currentPage={page.currentPage}
           lastPage={page.lastPage}
@@ -120,7 +120,7 @@ const jumpHrefFirst = url("/");
           if (p == HIDDEN)
             return (
               <PageJump
-                client:idle
+                client:load
                 variant="ellipsis"
                 currentPage={page.currentPage}
                 lastPage={page.lastPage}

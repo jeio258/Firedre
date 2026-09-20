@@ -37,6 +37,7 @@ const processedLinks = Astro.props.links;
                                class="group flex justify-between items-center py-2 pl-6 pr-1 rounded-lg gap-8
                                    hover:bg-(--btn-plain-bg-hover) active:bg-(--btn-plain-bg-active) transition"
                                target={child.external ? "_blank" : null}
+                               rel={child.external ? "noopener noreferrer" : null}
                             >
                                 <div class="flex items-center transition text-black/60 dark:text-white/60 font-medium group-hover:text-(--primary) group-active:text-(--primary)">
 									{child.icon && <SafeIcon name={child.icon} class="text-[1.1rem] mr-2" />}
@@ -55,6 +56,7 @@ const processedLinks = Astro.props.links;
                     hover:bg-(--btn-plain-bg-hover) active:bg-(--btn-plain-bg-active) transition
                 "
                    target={link.external ? "_blank" : null}
+                        rel={link.external ? "noopener noreferrer" : null}
                 >
                     <div class="flex items-center transition text-black/75 dark:text-white/75 font-bold group-hover:text-(--primary) group-active:text-(--primary)">
 						{link.icon && <SafeIcon name={link.icon} class="text-[1.1rem] mr-2" />}

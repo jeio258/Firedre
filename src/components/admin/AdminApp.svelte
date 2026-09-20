@@ -12,6 +12,7 @@ let username = $state("");
 let checkFailed = $state(false);
 let section = $state<Section>("dashboard");
 let sidebarOpen = $state(false);
+// biome-ignore lint/suspicious/noExplicitAny: 动态视图组件 Props 各异，无法静态收窄
 let View = $state<import("svelte").Component<any> | null>(null);
 let viewProps = $state<Record<string, unknown>>({});
 let viewError = $state("");
@@ -192,7 +193,7 @@ function adminDrawerBreakpoint(): number {
 	const v = getComputedStyle(document.documentElement)
 		.getPropertyValue("--admin-drawer-bp")
 		.trim();
-	const n = Number.parseInt(v);
+	const n = Number.parseInt(v, 10);
 	return Number.isFinite(n) ? n : 767;
 }
 function toggleSidebar() {
@@ -317,7 +318,7 @@ async function handleNav(event: MouseEvent) {
 	const anchor = (event.target as HTMLElement).closest("a");
 	if (!anchor) return;
 	const href = anchor.getAttribute("href");
-	if (!href || !href.startsWith("/admin/")) return;
+	if (!href?.startsWith("/admin/")) return;
 	if (anchor.getAttribute("target") === "_blank") return;
 	if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 	event.preventDefault();
@@ -329,7 +330,7 @@ async function handleNav(event: MouseEvent) {
 	const url = new URL(href, window.location.origin);
 	if (url.pathname === window.location.pathname) return;
 	window.history.pushState({}, "", href);
-	navigate(href);
+	await navigate(href);
 }
 
 async function checkAuth() {
@@ -449,10 +450,19 @@ onMount(() => {
 	} catch (e) {}
 	checkAuth();
 	document.addEventListener("click", handleNav);
+	const onDocClick = (e: MouseEvent) => {
+		// 点击 user-menu 外部时收起下拉/密码面板
+		if (!userMenuOpen) return;
+		const t = e.target as HTMLElement;
+		if (!t.closest(".user-menu")) userMenuOpen = false;
+	};
+	document.addEventListener("click", onDocClick);
 	const onPopState = () => navigate(window.location.pathname);
 	window.addEventListener("popstate", onPopState);
 	return () => {
 		document.removeEventListener("click", handleNav);
+		document.removeEventListener("click", onDocClick);
+		if (saveToastTimer) clearTimeout(saveToastTimer);
 		window.removeEventListener("popstate", onPopState);
 	};
 });

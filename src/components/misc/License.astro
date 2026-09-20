@@ -1,14 +1,12 @@
 ---
-import { Icon } from "astro-icon/components";
 import { profileConfig } from "@shared/config/profileConfig";
+import { Icon } from "astro-icon/components";
 import { getLicenseConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
-
-
 
 interface Props {
 	title: string;
@@ -84,6 +82,7 @@ const licenseIcon = licenseName
       <a
         href={licenseName ? licenseUrl || undefined : licenseConf.url}
         target="_blank"
+        rel="noopener noreferrer"
         class="link text-(--primary) line-clamp-2"
         >{licenseName || licenseConf.name}</a
       >

@@ -1,5 +1,3 @@
-
-
 export function navigateToPage(
 	url: string,
 	options?: {
@@ -19,7 +17,7 @@ export function navigateToPage(
 		url.startsWith("https://") ||
 		url.startsWith("//")
 	) {
-		window.open(url, "_blank");
+		window.open(url, "_blank", "noopener,noreferrer");
 		return;
 	}
 
@@ -47,7 +45,6 @@ export function navigateToPage(
 			fallbackNavigation(url, options);
 		}
 	} else {
-
 		fallbackNavigation(url, options);
 	}
 }

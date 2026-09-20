@@ -1,22 +1,29 @@
 ---
 import fs from "node:fs";
 import path from "node:path";
+import {
+	listEnabledSiteLinks,
+	type SiteLinkView,
+} from "@server/siteLinks/service";
 import { footerConfig } from "@/config";
 import { getFooterConfig, getProfileConfig } from "@/config/runtime";
-import { listEnabledSiteLinks, type SiteLinkView } from "@server/siteLinks/service";
+import { url } from "@/utils/url-utils";
 import { cfEnv } from "../../lib/api";
 
-import { url } from "@/utils/url-utils";
 const footerConfigRuntime = getFooterConfig(Astro.locals);
 const profileConfigRuntime = getProfileConfig(Astro.locals);
 
-const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(cfEnv, "footer", Astro.locals);
+const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(
+	cfEnv,
+	"footer",
+	Astro.locals,
+);
 
 const currentYear = new Date().getFullYear();
 
 // 读取FooterConfig.html文件内容
 let customFooterHtml = "";
-if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
+if (footerConfigRuntime.enable ?? footerConfig.enable) {
 	try {
 		const footerConfigPath = path.join(
 			process.cwd(),
@@ -55,12 +62,14 @@ if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
       <a
         class="transition link text-(--primary) font-medium"
         target="_blank"
+        rel="noopener noreferrer"
         href={url("rss.xml")}>RSS</a
       >
       <span aria-hidden="true">/</span>
       <a
         class="transition link text-(--primary) font-medium"
         target="_blank"
+        rel="noopener noreferrer"
         href={url("sitemap.xml")}>Sitemap</a
       >
     </div>
@@ -69,12 +78,12 @@ if ((footerConfigRuntime.enable ?? footerConfig.enable)) {
     )}
     {footerConfigRuntime.icp && (
       <div class="mx-0.5 my-2.5 flex justify-center flex-wrap">
-        <a class="link" href="https://beian.miit.gov.cn/" target="_blank">{String(footerConfigRuntime.icp)}</a>
+        <a class="link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">{String(footerConfigRuntime.icp)}</a>
       </div>
     )}
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
       <span>Powered by</span>
-      <a class="transition link text-(--primary) font-medium" target="_blank" href="https://astro.build">Astro</a>
+      <a class="transition link text-(--primary) font-medium" target="_blank" rel="noopener noreferrer" href="https://astro.build">Astro</a>
       <span aria-hidden="true">&</span>
       {footerLinks.map((fl) => (
         <a class="transition link text-(--primary) font-medium" target={/^https?:\/\//i.test(fl.url) ? "_blank" : undefined} href={fl.url}>{fl.name}</a>
