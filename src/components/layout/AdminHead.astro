@@ -6,8 +6,10 @@ interface Props {
 	defaultHue?: string | number;
 }
 const { defaultMode = "light", defaultHue = "165" } = Astro.props;
-const settings = (Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+const settings =
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 ---
+<meta name="robots" content="noindex, nofollow" />
 <FaviconLinks settings={settings} />
 <link rel="stylesheet" href="/admin/admin.css" />
 <!-- Vditor 主样式：必须由所有后台页面引入（后台为 SPA 视图切换，不重载 head），

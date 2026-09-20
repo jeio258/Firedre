@@ -319,7 +319,7 @@ const logoVariants = await Promise.all(
             </div>
         </div>
         {(musicConfigRuntime.showInNavbar && musicConfigRuntime.enable !== false) && (
-            <div id="music-nav-panel" class="float-panel float-panel-closed absolute transition-all right-16 p-2 pt-4.5 w-80 z-50" data-floating-panel data-floating-panel-trigger="music-player-switch" inert aria-hidden="true">
+            <div id="music-nav-panel" class="float-panel float-panel-closed absolute transition-all right-16 p-2 pt-4.5 w-80 max-w-[calc(100vw-1.5rem)] z-50" data-floating-panel data-floating-panel-trigger="music-player-switch" inert aria-hidden="true">
                 <MusicPlayer />
             </div>
         )}

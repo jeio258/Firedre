@@ -62,12 +62,15 @@ onMount(() => {
 	}
 
 	// 如果是system模式，监听系统主题变化
+	let cleanupSystemWatch: (() => void) | null = null;
 	if (storedTheme === SYSTEM_MODE) {
 		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 		const handleSystemChange = () => {
 			updateDisplayedMode();
 		};
 		mediaQuery.addEventListener("change", handleSystemChange);
+		cleanupSystemWatch = () =>
+			mediaQuery.removeEventListener("change", handleSystemChange);
 	}
 
 	const handleContentReplace = () => {
@@ -89,7 +92,6 @@ onMount(() => {
 	}
 
 	const handleThemeChange = () => {
-
 		if (mode !== SYSTEM_MODE) {
 			const newTheme = getStoredTheme();
 			mode = newTheme;
@@ -104,6 +106,7 @@ onMount(() => {
 
 	return () => {
 		window.removeEventListener("theme-change", handleThemeChange);
+		cleanupSystemWatch?.();
 	};
 });
 </script>

@@ -10,10 +10,10 @@ import type {
 	PostRecord,
 	PostsListResponse,
 } from "../../types/posts";
-import { normalizePinOrder, sortPostsByPinOrder } from "../../utils/pinOrder";
 import { bumpContentVersion } from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
+import { normalizePinOrder, sortPostsByPinOrder } from "../utils/pinOrder";
 import { UserError } from "../utils/userError";
 import {
 	decodePostSlug,

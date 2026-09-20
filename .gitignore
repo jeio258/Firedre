@@ -1,5 +1,4 @@
 # build output
-/dist/
 
 # generated vndb covers
 public/vndb-covers/
@@ -36,15 +35,14 @@ yarn.lock
 # docs
 Firefly-docs/
 
-# 开发工作树与本地计划（不提交远程）
+# 开发工作树（不提交远程）
 .worktrees/
-docs/superpowers/
 
 # lite 版本
 Firefly-Lite/
 
-cache/
-package/
+/cache/
+/package/
 .obsidian/
 
 # vibe coding
@@ -67,8 +65,7 @@ docs/
 CODEBUDDY.md
 AI_CONTEXT.md
 
-# QA 截图产物（基线 JSON 入库，截图不入库）
-scripts/qa/screenshots/
+# QA 与测试产物整体仅本地（tests/ 与 scripts/qa/ 已退出跟踪）
 
 # 测试与 QA 仅本地（2026-09-20：测试脚本/测试产物/日志不提交远程）
 tests/
