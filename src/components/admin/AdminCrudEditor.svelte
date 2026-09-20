@@ -1,172 +1,176 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import { type Snippet } from "svelte";
-	import Switch from "./Switch.svelte";
+import { onMount, type Snippet } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import Switch from "./Switch.svelte";
 
-	export type CrudFieldType = "text" | "number" | "checkbox" | "select";
+export type CrudFieldType = "text" | "number" | "checkbox" | "select";
 
-	export interface CrudField {
-		key: string;
-		label: string;
-		type: CrudFieldType;
-		placeholder?: string;
-		options?: { value: string; label: string }[];
-		required?: boolean;
+export interface CrudField {
+	key: string;
+	label: string;
+	type: CrudFieldType;
+	placeholder?: string;
+	options?: { value: string; label: string }[];
+	required?: boolean;
 
-		toPayload?: (v: string | number | boolean) => unknown;
+	toPayload?: (v: string | number | boolean) => unknown;
+}
+
+interface Props {
+	apiPath: string;
+	title: string;
+	addLabel: string;
+	entityName: string;
+	fields: CrudField[];
+	identify: (item: Record<string, unknown>) => string;
+	extraBlock?: Snippet;
+	configBlock?: Snippet;
+	children: Snippet;
+}
+
+let {
+	apiPath,
+	title,
+	addLabel,
+	entityName,
+	fields,
+	identify,
+	extraBlock,
+	configBlock,
+	children,
+}: Props = $props();
+
+type Item = Record<string, unknown>;
+
+let items: Item[] = $state([]);
+let loading = $state(true);
+let saving = $state(false);
+let message = $state("");
+let error = $state("");
+let showForm = $state(false);
+let editingId: number | null = $state(null);
+let formValues: Record<string, string | number | boolean> = $state({});
+
+function defaultValues(): Record<string, string | number | boolean> {
+	const v: Record<string, string | number | boolean> = {};
+	for (const f of fields) {
+		if (f.type === "number") v[f.key] = 0;
+		else if (f.type === "checkbox") v[f.key] = true;
+		else if (f.type === "select") v[f.key] = f.options?.[0]?.value ?? "";
+		else v[f.key] = "";
 	}
+	return v;
+}
 
-	interface Props {
-		apiPath: string;
-		title: string;
-		addLabel: string;
-		entityName: string;
-		fields: CrudField[];
-		identify: (item: Record<string, unknown>) => string;
-		extraBlock?: Snippet;
-		configBlock?: Snippet;
-		children: Snippet;
+async function load() {
+	loading = true;
+	error = "";
+	try {
+		const data = await apiJson<{ items?: unknown[] }>(apiPath);
+		items = Array.isArray(data.items) ? (data.items as Item[]) : [];
+	} catch {
+		error = "网络错误";
 	}
+	loading = false;
+}
 
-		let {
-		apiPath,
-		title,
-		addLabel,
-		entityName,
-		fields,
-		identify,
-		extraBlock,
-		configBlock,
-		children,
-	}: Props = $props();
+function openCreate() {
+	editingId = null;
+	formValues = defaultValues();
+	showForm = true;
+	message = "";
+}
 
-	type Item = Record<string, unknown>;
+function openEdit(item: Item) {
+	editingId = item.id as number;
+	formValues = defaultValues();
+	for (const f of fields) {
+		const raw = item[f.key];
+		if (typeof raw === "boolean" || typeof raw === "number")
+			formValues[f.key] = raw;
+		else if (raw != null) formValues[f.key] = String(raw);
+	}
+	showForm = true;
+	message = "";
+}
 
-	let items: Item[] = $state([]);
-	let loading = $state(true);
-	let saving = $state(false);
-	let message = $state("");
-	let error = $state("");
-	let showForm = $state(false);
-	let editingId: number | null = $state(null);
-	let formValues: Record<string, string | number | boolean> = $state({});
+function cancelForm() {
+	showForm = false;
+	editingId = null;
+	message = "";
+}
 
-	function defaultValues(): Record<string, string | number | boolean> {
-		const v: Record<string, string | number | boolean> = {};
+async function submit() {
+	for (const f of fields) {
+		if (f.required) {
+			const v = formValues[f.key];
+			if (v === undefined || v === null || String(v).trim() === "") {
+				message = `${f.label.replace(/\s*\*$/, "")}不能为空`;
+				return false;
+			}
+		}
+	}
+	saving = true;
+	message = "";
+	try {
+		const payload: Record<string, unknown> = {};
 		for (const f of fields) {
-			if (f.type === "number") v[f.key] = 0;
-			else if (f.type === "checkbox") v[f.key] = true;
-			else if (f.type === "select") v[f.key] = f.options?.[0]?.value ?? "";
-			else v[f.key] = "";
+			const v = formValues[f.key];
+			payload[f.key] = f.toPayload ? f.toPayload(v) : v;
 		}
-		return v;
-	}
-
-	async function load() {
-		loading = true;
-		error = "";
-		try {
-			const data = await apiJson<{ items?: unknown[] }>(apiPath);
-			items = Array.isArray(data.items) ? (data.items as Item[]) : [];
-		} catch {
-			error = "网络错误";
-		}
-		loading = false;
-	}
-
-	function openCreate() {
-		editingId = null;
-		formValues = defaultValues();
-		showForm = true;
-		message = "";
-	}
-
-	function openEdit(item: Item) {
-		editingId = item.id as number;
-		formValues = defaultValues();
-		for (const f of fields) {
-			const raw = item[f.key];
-			if (typeof raw === "boolean" || typeof raw === "number") formValues[f.key] = raw;
-			else if (raw != null) formValues[f.key] = String(raw);
-		}
-		showForm = true;
-		message = "";
-	}
-
-	function cancelForm() {
+		const url = editingId ? `${apiPath}${editingId}/` : apiPath;
+		await apiJson(url, {
+			method: editingId ? "PUT" : "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload),
+		});
+		message = "已保存";
+		clearDraft("友链");
 		showForm = false;
 		editingId = null;
-		message = "";
-	}
-
-	async function submit() {
-		for (const f of fields) {
-			if (f.required) {
-				const v = formValues[f.key];
-				if (v === undefined || v === null || String(v).trim() === "") {
-					message = `${f.label.replace(/\s*\*$/, "")}不能为空`;
-					return;
-				}
-			}
-		}
-		saving = true;
-		message = "";
-		try {
-			const payload: Record<string, unknown> = {};
-			for (const f of fields) {
-				const v = formValues[f.key];
-				payload[f.key] = f.toPayload ? f.toPayload(v) : v;
-			}
-			const url = editingId ? `${apiPath}${editingId}/` : apiPath;
-			await apiJson(url, {
-				method: editingId ? "PUT" : "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(payload),
-			});
-			message = "已保存";
-			clearDraft("友链");
-			showForm = false;
-			editingId = null;
-			await load();
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			saving = false;
-		}
-	}
-
-	async function remove(item: Item) {
-		if (!window.confirm(`确定删除${entityName}「${identify(item)}」吗？`)) return;
-		try {
-			await apiJson(`${apiPath}${item.id}/`, { method: "DELETE" });
-			if (editingId === item.id) cancelForm();
-			message = "已删除";
-			await load();
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		}
-	}
-
-	onMount(async () => {
 		await load();
-		const d = getDraft<{
-			showForm?: boolean;
-			editingId?: number | null;
-			formValues?: Record<string, string | number | boolean>;
-		}>("友链");
-		if (d) {
-			showForm = d.showForm ?? false;
-			editingId = d.editingId ?? null;
-			if (d.formValues) formValues = d.formValues;
-			clearDraft("友链");
-		}
-		return registerSaveAll("友链", () => {
-			if (showForm) submit();
-		}, () => ({ showForm, editingId, formValues }));
-	});
+		return true;
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+		return false;
+	} finally {
+		saving = false;
+	}
+}
+
+async function remove(item: Item) {
+	if (!window.confirm(`确定删除${entityName}「${identify(item)}」吗？`)) return;
+	try {
+		await apiJson(`${apiPath}${item.id}/`, { method: "DELETE" });
+		if (editingId === item.id) cancelForm();
+		message = "已删除";
+		await load();
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+	}
+}
+
+onMount(async () => {
+	await load();
+	const d = getDraft<{
+		showForm?: boolean;
+		editingId?: number | null;
+		formValues?: Record<string, string | number | boolean>;
+	}>("友链");
+	if (d) {
+		showForm = d.showForm ?? false;
+		editingId = d.editingId ?? null;
+		if (d.formValues) formValues = d.formValues;
+		clearDraft("友链");
+	}
+	return registerSaveAll(
+		"友链",
+		() => (showForm ? submit() : true),
+		() => ({ showForm, editingId, formValues }),
+	);
+});
 </script>
 
 <div class="crud-page">

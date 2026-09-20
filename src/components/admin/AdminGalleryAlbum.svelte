@@ -235,7 +235,7 @@ async function save() {
 		if (!targetSlug) {
 			message = "请填写相册 slug";
 			saving = false;
-			return;
+			return false;
 		}
 	}
 	const fm = buildFrontmatter();
@@ -247,11 +247,13 @@ async function save() {
 		});
 		if (isNew) {
 			window.location.href = `/admin/gallery/${encodeURIComponent(targetSlug)}/`;
-			return;
+			return true;
 		}
 		message = "已保存";
+		return true;
 	} catch (err) {
 		message = err instanceof Error ? err.message : "网络错误";
+		return false;
 	} finally {
 		saving = false;
 	}

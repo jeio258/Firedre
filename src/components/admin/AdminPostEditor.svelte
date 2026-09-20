@@ -156,7 +156,7 @@ async function save(targetDraft: boolean) {
 		message = "标题与正文不能为空";
 		messageKind = "err";
 		saving = false;
-		return;
+		return false;
 	}
 	const fm = buildFrontmatter();
 	const source = `---\n${Object.entries(fm)
@@ -180,7 +180,7 @@ async function save(targetDraft: boolean) {
 		if (!data.ok) {
 			message = data.message || "保存失败";
 			messageKind = "err";
-			return;
+			return false;
 		}
 		message = targetDraft ? "已保存草稿" : "已发布";
 		messageKind = "ok";
@@ -195,9 +195,11 @@ async function save(targetDraft: boolean) {
 			isNew = false;
 		}
 		setTimeout(() => (message = ""), 2200);
+		return true;
 	} catch (e) {
 		message = e instanceof Error ? e.message : "网络错误";
 		messageKind = "err";
+		return false;
 	} finally {
 		saving = false;
 	}

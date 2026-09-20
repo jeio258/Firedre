@@ -1,124 +1,126 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import AdminPageConfig from "./AdminPageConfig.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import AdminPageConfig from "./AdminPageConfig.svelte";
 
-	type AlbumSummary = {
-		slug: string;
-		title: string;
-		date?: string;
-		count?: number;
-		encrypted?: boolean;
-		source?: string;
-		cover?: string;
-	};
+type AlbumSummary = {
+	slug: string;
+	title: string;
+	date?: string;
+	count?: number;
+	encrypted?: boolean;
+	source?: string;
+	cover?: string;
+};
 
-	let albums: AlbumSummary[] = $state([]);
-	let loading = $state(true);
-	let message = $state("");
-	let savingOrder = $state(false);
+let albums: AlbumSummary[] = $state([]);
+let loading = $state(true);
+let message = $state("");
+let savingOrder = $state(false);
 
-	async function load() {
-		try {
-			const data = await apiJson<{ albums?: AlbumSummary[] }>("/api/gallery/");
-			albums = data.albums || [];
-		} catch {
-			message = "加载失败";
-		}
-		loading = false;
+async function load() {
+	try {
+		const data = await apiJson<{ albums?: AlbumSummary[] }>("/api/gallery/");
+		albums = data.albums || [];
+	} catch {
+		message = "加载失败";
 	}
+	loading = false;
+}
 
-	function editHref(slug: string) {
-		return `/admin/gallery/${encodeURIComponent(slug)}/`;
+function editHref(slug: string) {
+	return `/admin/gallery/${encodeURIComponent(slug)}/`;
+}
+
+function create() {
+	window.location.href = "/admin/gallery/new/";
+}
+
+async function remove(slug: string) {
+	if (!confirm(`确定删除相册「${slug}」？`)) return;
+	try {
+		await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
+			method: "DELETE",
+		});
+		albums = albums.filter((a) => a.slug !== slug);
+	} catch (err) {
+		alert(err instanceof TypeError ? "网络错误" : "删除失败");
 	}
+}
 
-	function create() {
-		window.location.href = "/admin/gallery/new/";
-	}
+let dragIndex = $state(-1);
 
-	async function remove(slug: string) {
-		if (!confirm(`确定删除相册「${slug}」？`)) return;
-		try {
-			await apiJson(`/api/gallery/${encodeURIComponent(slug)}/`, {
-				method: "DELETE",
-			});
-			albums = albums.filter((a) => a.slug !== slug);
-		} catch (err) {
-			alert(err instanceof TypeError ? "网络错误" : "删除失败");
-		}
-	}
+function onDragStart(index: number) {
+	dragIndex = index;
+}
 
-	let dragIndex = $state(-1);
+function onDragOver(event: DragEvent, index: number) {
+	event.preventDefault();
+	if (index === dragIndex) return;
+	const list = [...albums];
+	const [moved] = list.splice(dragIndex, 1);
+	list.splice(index, 0, moved);
+	albums = list;
+	dragIndex = index;
+}
 
-	function onDragStart(index: number) {
-		dragIndex = index;
-	}
+function onDrop(event: DragEvent) {
+	event.preventDefault();
+	dragIndex = -1;
+	void saveOrder();
+}
 
-	function onDragOver(event: DragEvent, index: number) {
+// 键盘替代：聚焦卡片后用 ←/→ 调整顺序
+function moveAlbum(index: number, delta: number) {
+	const target = index + delta;
+	if (target < 0 || target >= albums.length) return;
+	const list = [...albums];
+	const [moved] = list.splice(index, 1);
+	list.splice(target, 0, moved);
+	albums = list;
+	dragIndex = target;
+	void saveOrder();
+}
+
+function onCardKeydown(event: KeyboardEvent, index: number) {
+	if (event.key === "ArrowLeft") {
 		event.preventDefault();
-		if (index === dragIndex) return;
-		const list = [...albums];
-		const [moved] = list.splice(dragIndex, 1);
-		list.splice(index, 0, moved);
-		albums = list;
-		dragIndex = index;
-	}
-
-	function onDrop(event: DragEvent) {
+		moveAlbum(index, -1);
+	} else if (event.key === "ArrowRight") {
 		event.preventDefault();
-		dragIndex = -1;
-		void saveOrder();
+		moveAlbum(index, 1);
 	}
+}
 
-	// 键盘替代：聚焦卡片后用 ←/→ 调整顺序
-	function moveAlbum(index: number, delta: number) {
-		const target = index + delta;
-		if (target < 0 || target >= albums.length) return;
-		const list = [...albums];
-		const [moved] = list.splice(index, 1);
-		list.splice(target, 0, moved);
-		albums = list;
-		dragIndex = target;
-		void saveOrder();
+async function saveOrder() {
+	if (savingOrder) return true;
+	savingOrder = true;
+	try {
+		await apiJson("/api/gallery/order/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ slugs: albums.map((a) => a.slug) }),
+		});
+		clearDraft("相册排序");
+		return true;
+	} catch {
+		return false;
+	} finally {
+		savingOrder = false;
 	}
+}
 
-	function onCardKeydown(event: KeyboardEvent, index: number) {
-		if (event.key === "ArrowLeft") {
-			event.preventDefault();
-			moveAlbum(index, -1);
-		} else if (event.key === "ArrowRight") {
-			event.preventDefault();
-			moveAlbum(index, 1);
-		}
+onMount(async () => {
+	await load();
+	const d = getDraft<{ albums?: AlbumSummary[] }>("相册排序");
+	if (d?.albums) {
+		albums = d.albums;
+		clearDraft("相册排序");
 	}
-
-	async function saveOrder() {
-		if (savingOrder) return;
-		savingOrder = true;
-		try {
-			await apiJson("/api/gallery/order/", {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ slugs: albums.map((a) => a.slug) }),
-			});
-			clearDraft("相册排序");
-		} catch {
-		} finally {
-			savingOrder = false;
-		}
-	}
-
-	onMount(async () => {
-		await load();
-		const d = getDraft<{ albums?: AlbumSummary[] }>("相册排序");
-		if (d?.albums) {
-			albums = d.albums;
-			clearDraft("相册排序");
-		}
-		return registerSaveAll("相册排序", saveOrder, () => ({ albums }));
-	});
+	return registerSaveAll("相册排序", saveOrder, () => ({ albums }));
+});
 </script>
 
 <div class="crud-page">

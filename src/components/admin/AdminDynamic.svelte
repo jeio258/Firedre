@@ -1,163 +1,167 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import Switch from "./Switch.svelte";
-	import AdminPageConfig from "./AdminPageConfig.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import AdminPageConfig from "./AdminPageConfig.svelte";
+import Switch from "./Switch.svelte";
 
-	type DynamicItem = {
-		id: string;
-		content: string;
-		html?: string;
-		published: number;
-		pinned: boolean;
-		location?: string;
-	};
+type DynamicItem = {
+	id: string;
+	content: string;
+	html?: string;
+	published: number;
+	pinned: boolean;
+	location?: string;
+};
 
-	let items = $state<DynamicItem[]>([]);
-	let loading = $state(true);
-	let saving = $state(false);
-	let message = $state("");
-	let error = $state("");
+let items = $state<DynamicItem[]>([]);
+let loading = $state(true);
+let saving = $state(false);
+let message = $state("");
+let error = $state("");
 
-	let editingId = $state("");
-	let formContent = $state("");
-	let formPinned = $state(false);
-	let formLocation = $state("");
-	let formPublished = $state(0);
-	let showForm = $state(false);
+let editingId = $state("");
+let formContent = $state("");
+let formPinned = $state(false);
+let formLocation = $state("");
+let formPublished = $state(0);
+let showForm = $state(false);
 
-	async function load() {
-		loading = true;
-		error = "";
-		try {
-			const data = await apiJson<{ items?: unknown[] }>("/api/dynamics/");
-			items = Array.isArray(data.items) ? (data.items as DynamicItem[]) : [];
-		} catch {
-			error = "网络错误";
-		}
-		loading = false;
+async function load() {
+	loading = true;
+	error = "";
+	try {
+		const data = await apiJson<{ items?: unknown[] }>("/api/dynamics/");
+		items = Array.isArray(data.items) ? (data.items as DynamicItem[]) : [];
+	} catch {
+		error = "网络错误";
 	}
+	loading = false;
+}
 
-	function formatDate(ms: number): string {
-		if (!ms) return "";
-		return new Date(ms).toLocaleString("zh-CN", {
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
+function formatDate(ms: number): string {
+	if (!ms) return "";
+	return new Date(ms).toLocaleString("zh-CN", {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+	});
+}
+
+function truncate(text: string, n = 80): string {
+	if (!text) return "";
+	return text.length > n ? `${text.slice(0, n)}…` : text;
+}
+
+function openCreate() {
+	editingId = "";
+	formContent = "";
+	formPinned = false;
+	formLocation = "";
+	formPublished = 0;
+	showForm = true;
+	message = "";
+}
+
+function openEdit(item: DynamicItem) {
+	editingId = item.id;
+	formContent = item.content;
+	formPinned = item.pinned;
+	formLocation = item.location || "";
+	formPublished = item.published;
+	showForm = true;
+	message = "";
+}
+
+function cancelForm() {
+	showForm = false;
+	editingId = "";
+	formPublished = 0;
+	message = "";
+}
+
+async function submit() {
+	if (!formContent.trim()) {
+		message = "动态内容不能为空";
+		return false;
+	}
+	saving = true;
+	message = "";
+	try {
+		await apiJson("/api/dynamics/", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				id: editingId || undefined,
+				content: formContent,
+				published: formPublished || undefined,
+				pinned: formPinned,
+				location: formLocation || undefined,
+			}),
 		});
-	}
-
-	function truncate(text: string, n = 80): string {
-		if (!text) return "";
-		return text.length > n ? `${text.slice(0, n)}…` : text;
-	}
-
-	function openCreate() {
-		editingId = "";
-		formContent = "";
-		formPinned = false;
-		formLocation = "";
-		formPublished = 0;
-		showForm = true;
-		message = "";
-	}
-
-	function openEdit(item: DynamicItem) {
-		editingId = item.id;
-		formContent = item.content;
-		formPinned = item.pinned;
-		formLocation = item.location || "";
-		formPublished = item.published;
-		showForm = true;
-		message = "";
-	}
-
-	function cancelForm() {
+		message = "已保存";
+		clearDraft("动态");
 		showForm = false;
 		editingId = "";
-		formPublished = 0;
-		message = "";
-	}
-
-	async function submit() {
-		if (!formContent.trim()) {
-			message = "动态内容不能为空";
-			return;
-		}
-		saving = true;
-		message = "";
-		try {
-			await apiJson("/api/dynamics/", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					id: editingId || undefined,
-					content: formContent,
-					published: formPublished || undefined,
-					pinned: formPinned,
-					location: formLocation || undefined,
-				}),
-			});
-			message = "已保存";
-			clearDraft("动态");
-			showForm = false;
-			editingId = "";
-			await load();
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			saving = false;
-		}
-	}
-
-	async function remove(item: DynamicItem) {
-		if (!window.confirm(`确定删除这条动态吗？\n${truncate(item.content, 40)}`)) return;
-		try {
-			await apiJson(`/api/dynamics/${encodeURIComponent(item.id)}/`, {
-				method: "DELETE",
-			});
-			if (editingId === item.id) cancelForm();
-			message = "已删除";
-			await load();
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		}
-	}
-
-	onMount(async () => {
 		await load();
-		const d = getDraft<{
-			showForm?: boolean;
-			editingId?: string;
-			formContent?: string;
-			formPinned?: boolean;
-			formLocation?: string;
-			formPublished?: number;
-		}>("动态");
-		if (d) {
-			showForm = d.showForm ?? false;
-			editingId = d.editingId ?? "";
-			formContent = d.formContent ?? "";
-			formPinned = d.formPinned ?? false;
-			formLocation = d.formLocation ?? "";
-			formPublished = d.formPublished ?? 0;
-			clearDraft("动态");
-		}
-		return registerSaveAll("动态", () => {
-			if (showForm) submit();
-		}, () => ({
+		return true;
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+	} finally {
+		saving = false;
+	}
+}
+
+async function remove(item: DynamicItem) {
+	if (!window.confirm(`确定删除这条动态吗？\n${truncate(item.content, 40)}`))
+		return;
+	try {
+		await apiJson(`/api/dynamics/${encodeURIComponent(item.id)}/`, {
+			method: "DELETE",
+		});
+		if (editingId === item.id) cancelForm();
+		message = "已删除";
+		await load();
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+	}
+}
+
+onMount(async () => {
+	await load();
+	const d = getDraft<{
+		showForm?: boolean;
+		editingId?: string;
+		formContent?: string;
+		formPinned?: boolean;
+		formLocation?: string;
+		formPublished?: number;
+	}>("动态");
+	if (d) {
+		showForm = d.showForm ?? false;
+		editingId = d.editingId ?? "";
+		formContent = d.formContent ?? "";
+		formPinned = d.formPinned ?? false;
+		formLocation = d.formLocation ?? "";
+		formPublished = d.formPublished ?? 0;
+		clearDraft("动态");
+	}
+	return registerSaveAll(
+		"动态",
+		() => (showForm ? submit() : true),
+		() => ({
 			showForm,
 			editingId,
 			formContent,
 			formPinned,
 			formLocation,
 			formPublished,
-		}));
-	});
+		}),
+	);
+});
 </script>
 
 <div class="crud-page">

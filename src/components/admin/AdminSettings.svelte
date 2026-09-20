@@ -128,14 +128,16 @@ async function save() {
 		} catch (err) {
 			if (err instanceof TypeError) throw err;
 			message = `保存失败：${err instanceof Error ? err.message : ""}`;
-			return;
+			return false;
 		}
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 		clearDraft("站点设置");
 
 		applyHueToAdmin(data.basic?.hue);
+		return true;
 	} catch {
 		message = "网络错误，修改尚未保存";
+		return false;
 	} finally {
 		saving = false;
 	}

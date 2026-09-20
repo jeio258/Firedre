@@ -1,65 +1,66 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import AdminPageConfig from "./AdminPageConfig.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import AdminPageConfig from "./AdminPageConfig.svelte";
 
-	let title = $state("公告栏");
-	let content = $state("");
-	let loading = $state(true);
-	let saving = $state(false);
-	let message = $state("");
+let title = $state("公告栏");
+let content = $state("");
+let loading = $state(true);
+let saving = $state(false);
+let message = $state("");
 
-	async function load() {
-		try {
-			const data = await apiJson("/api/notice/");
-			title = data.title || "公告栏";
+async function load() {
+	try {
+		const data = await apiJson("/api/notice/");
+		title = data.title || "公告栏";
 
-			if (Array.isArray(data.sections)) {
-				for (const section of data.sections) {
-					if (section?.lines?.length) {
-						content = section.lines[0]?.text ?? "";
-						break;
-					}
+		if (Array.isArray(data.sections)) {
+			for (const section of data.sections) {
+				if (section?.lines?.length) {
+					content = section.lines[0]?.text ?? "";
+					break;
 				}
 			}
-		} catch {
 		}
-		loading = false;
-	}
-
-	async function save() {
-		saving = true;
-		message = "";
-		try {
-			await apiJson("/api/notice/", {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					title,
-					sections: [{ label: "", lines: [{ text: content }] }],
-				}),
-			});
-			message = "已保存";
-			clearDraft("公告");
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			saving = false;
-		}
+	} catch {}
+	loading = false;
 }
 
-	onMount(async () => {
-		await load();
-		const d = getDraft<{ title?: string; content?: string }>("公告");
-		if (d) {
-			if (d.title != null) title = d.title;
-			if (d.content != null) content = d.content;
-			clearDraft("公告");
-		}
-		return registerSaveAll("公告", save, () => ({ title, content }));
-	});
+async function save() {
+	saving = true;
+	message = "";
+	try {
+		await apiJson("/api/notice/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				title,
+				sections: [{ label: "", lines: [{ text: content }] }],
+			}),
+		});
+		message = "已保存";
+		clearDraft("公告");
+		return true;
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+		return false;
+	} finally {
+		saving = false;
+	}
+}
+
+onMount(async () => {
+	await load();
+	const d = getDraft<{ title?: string; content?: string }>("公告");
+	if (d) {
+		if (d.title != null) title = d.title;
+		if (d.content != null) content = d.content;
+		clearDraft("公告");
+	}
+	return registerSaveAll("公告", save, () => ({ title, content }));
+});
 </script>
 
 <div class="crud-page">

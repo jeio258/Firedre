@@ -1,7 +1,11 @@
 // 顶栏「保存全部」的统一注册中心：各编辑器挂载时登记自己的保存逻辑与中文名称
 import { setDraft } from "./adminDrafts";
 
-export type SaveHandler = () => void | Promise<void>;
+// handler 返回 false 表示保存失败（runSaveAll 据此汇总成败）；返回 true/undefined 视为成功
+export type SaveHandler = () =>
+	| boolean
+	| undefined
+	| Promise<boolean | undefined>;
 
 // 以面板名为键，避免重复注册互相覆盖；同名重注册自动取最新
 const handlers = new Map<string, SaveHandler>();
@@ -41,8 +45,8 @@ export function runSaveAll(): Promise<SaveResult[]> {
 	return Promise.all(
 		[...handlers].map(async ([label, handler]) => {
 			try {
-				await handler();
-				return { label, ok: true } as SaveResult;
+				const r = await handler();
+				return { label, ok: r !== false } as SaveResult;
 			} catch (e) {
 				console.error("[save-all]", label, e);
 				return { label, ok: false, error: e } as SaveResult;

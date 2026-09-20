@@ -1,100 +1,128 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
 
-	type SiteLinkItem = {
-		id: number;
-		name: string;
-		url: string;
-		icon: string;
-		location: "navbar" | "footer" | "profile" | "sponsor";
-		kind?: "link" | "qr";
-		enabled: boolean;
-		sortOrder?: number;
-	};
+type SiteLinkItem = {
+	id: number;
+	name: string;
+	url: string;
+	icon: string;
+	location: "navbar" | "footer" | "profile" | "sponsor";
+	kind?: "link" | "qr";
+	enabled: boolean;
+	sortOrder?: number;
+};
 
-	const LOCATION_LABELS: Record<SiteLinkItem["location"], string> = {
-		navbar: "导航栏「链接」下拉",
-		footer: "页脚 Powered by",
-		profile: "侧栏资料卡",
-		sponsor: "打赏方式（二维码/跳转）",
-	};
+const LOCATION_LABELS: Record<SiteLinkItem["location"], string> = {
+	navbar: "导航栏「链接」下拉",
+	footer: "页脚 Powered by",
+	profile: "侧栏资料卡",
+	sponsor: "打赏方式（二维码/跳转）",
+};
 
-	const fields: CrudField[] = [
-		{ key: "name", label: "名称 *", type: "text", placeholder: "如：GitHub", required: true },
-		{ key: "url", label: "链接地址 *", type: "text", placeholder: "https://github.com/you", required: true },
-		{ key: "icon", label: "图标（Iconify 名称，可选）", type: "text", placeholder: "fa7-brands:github" },
-		{
-			key: "location",
-			label: "展示位置 *",
-			type: "select",
-			options: (Object.keys(LOCATION_LABELS) as SiteLinkItem["location"][]).map((v) => ({
+const fields: CrudField[] = [
+	{
+		key: "name",
+		label: "名称 *",
+		type: "text",
+		placeholder: "如：GitHub",
+		required: true,
+	},
+	{
+		key: "url",
+		label: "链接地址 *",
+		type: "text",
+		placeholder: "https://github.com/you",
+		required: true,
+	},
+	{
+		key: "icon",
+		label: "图标（Iconify 名称，可选）",
+		type: "text",
+		placeholder: "fa7-brands:github",
+	},
+	{
+		key: "location",
+		label: "展示位置 *",
+		type: "select",
+		options: (Object.keys(LOCATION_LABELS) as SiteLinkItem["location"][]).map(
+			(v) => ({
 				value: v,
 				label: LOCATION_LABELS[v],
-			})),
-			required: true,
-		},
-		{
-			key: "kind",
-			label: "类型（打赏方式时用）",
-			type: "select",
-			options: [
-				{ value: "link", label: "跳转链接（外链/前往打赏）" },
-				{ value: "qr", label: "二维码图片（收款码）" },
-			],
-		},
-		{ key: "sortOrder", label: "排序（同位置从小到大）", type: "number", toPayload: (v) => Number(v) || 0 },
-		{ key: "enabled", label: "启用（显示在前台对应位置）", type: "checkbox" },
-	];
+			}),
+		),
+		required: true,
+	},
+	{
+		key: "kind",
+		label: "类型（打赏方式时用）",
+		type: "select",
+		options: [
+			{ value: "link", label: "跳转链接（外链/前往打赏）" },
+			{ value: "qr", label: "二维码图片（收款码）" },
+		],
+	},
+	{
+		key: "sortOrder",
+		label: "排序（同位置从小到大）",
+		type: "number",
+		toPayload: (v) => Number(v) || 0,
+	},
+	{ key: "enabled", label: "启用（显示在前台对应位置）", type: "checkbox" },
+];
 
-	let siteUrl = $state("");
-	let siteUrlSaving = $state(false);
-	let siteUrlMsg = $state("");
+let siteUrl = $state("");
+let siteUrlSaving = $state(false);
+let siteUrlMsg = $state("");
 
-	async function loadSiteUrl() {
-		try {
-			const settings = await apiJson<Record<string, unknown>>("/api/settings/?group=basic");
-			siteUrl = String((settings as { siteUrl?: unknown }).siteUrl ?? "");
-		} catch {
-			// 域名加载失败不影响链接列表
-		}
+async function loadSiteUrl() {
+	try {
+		const settings = await apiJson<Record<string, unknown>>(
+			"/api/settings/?group=basic",
+		);
+		siteUrl = String((settings as { siteUrl?: unknown }).siteUrl ?? "");
+	} catch {
+		// 域名加载失败不影响链接列表
 	}
+}
 
-	async function saveSiteUrl() {
-		const val = siteUrl.trim();
-		if (!val) {
-			siteUrlMsg = "域名不能为空";
-			return;
-		}
-		siteUrlSaving = true;
-		siteUrlMsg = "";
-		try {
-			await apiJson("/api/settings/", {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ groups: { basic: { siteUrl: val } } }),
-			});
-			siteUrlMsg = "域名已保存 ✓";
-			clearDraft("站点链接");
-		} catch (err) {
-			siteUrlMsg = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			siteUrlSaving = false;
-		}
+async function saveSiteUrl() {
+	const val = siteUrl.trim();
+	if (!val) {
+		siteUrlMsg = "域名不能为空";
+		return false;
 	}
+	siteUrlSaving = true;
+	siteUrlMsg = "";
+	try {
+		await apiJson("/api/settings/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ groups: { basic: { siteUrl: val } } }),
+		});
+		siteUrlMsg = "域名已保存 ✓";
+		clearDraft("站点链接");
+		return true;
+	} catch (err) {
+		siteUrlMsg = err instanceof Error ? err.message : "网络错误";
+		return false;
+	} finally {
+		siteUrlSaving = false;
+	}
+}
 
-	onMount(async () => {
-		await loadSiteUrl();
-		const d = getDraft<{ siteUrl?: string }>("站点链接");
-		if (d?.siteUrl != null) {
-			siteUrl = d.siteUrl;
-			clearDraft("站点链接");
-		}
-		return registerSaveAll("站点链接", saveSiteUrl, () => ({ siteUrl }));
-	});
+onMount(async () => {
+	await loadSiteUrl();
+	const d = getDraft<{ siteUrl?: string }>("站点链接");
+	if (d?.siteUrl != null) {
+		siteUrl = d.siteUrl;
+		clearDraft("站点链接");
+	}
+	return registerSaveAll("站点链接", saveSiteUrl, () => ({ siteUrl }));
+});
 </script>
 
 <AdminCrudEditor

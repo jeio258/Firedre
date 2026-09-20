@@ -1,87 +1,89 @@
 <script lang="ts">
-	import { onDestroy, onMount, tick } from "svelte";
-	import type Vditor from "vditor";
-	import { createAdminVditor } from "@/lib/adminVditor";
-	import { registerSaveAll } from "@/lib/adminSave";
-	import { getDraft, clearDraft } from "@/lib/adminDrafts";
-	import { apiJson } from "@/lib/adminApi";
+import { onDestroy, onMount, tick } from "svelte";
+import type Vditor from "vditor";
+import { apiJson } from "@/lib/adminApi";
+import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { registerSaveAll } from "@/lib/adminSave";
+import { createAdminVditor } from "@/lib/adminVditor";
 
-	let { section = "about", apiPath = "/api/about/" } = $props();
+let { section = "about", apiPath = "/api/about/" } = $props();
 
-	let editor: Vditor | null = null;
-	let vditorThemeObserver: MutationObserver | null = null;
-	let rawContent = $state("");
-	let saving = $state(false);
-	let message = $state("");
-	let loaded = $state(false);
+let editor: Vditor | null = null;
+let vditorThemeObserver: MutationObserver | null = null;
+let rawContent = $state("");
+let saving = $state(false);
+let message = $state("");
+let loaded = $state(false);
 
-	const titles: Record<string, string> = {
-		about: "关于页",
-	};
+const titles: Record<string, string> = {
+	about: "关于页",
+};
 
-	async function load() {
-		try {
-			const data = await apiJson<{ source?: string }>(apiPath);
-			rawContent = data.source ?? "";
-		} catch (err) {
-			// 内容不存在（非 2xx）保持空白，仅网络错误提示
-			if (err instanceof TypeError) message = "加载失败";
-		}
-		loaded = true;
-		await tick();
-		initEditor();
+async function load() {
+	try {
+		const data = await apiJson<{ source?: string }>(apiPath);
+		rawContent = data.source ?? "";
+	} catch (err) {
+		// 内容不存在（非 2xx）保持空白，仅网络错误提示
+		if (err instanceof TypeError) message = "加载失败";
+	}
+	loaded = true;
+	await tick();
+	initEditor();
+}
+
+async function initEditor() {
+	if (editor) {
+		editor.setValue(rawContent);
+		return;
 	}
 
-	async function initEditor() {
-		if (editor) {
-			editor.setValue(rawContent);
-			return;
-		}
-
-		editor = await createAdminVditor("vditor-editor", {
-			value: rawContent,
-			height: 520,
-			onThemeObserver: (mo) => (vditorThemeObserver = mo),
-		});
-	}
-
-	async function save() {
-		saving = true;
-		message = "";
-		const content = editor ? editor.getValue() : rawContent;
-		if (!content.trim()) {
-			message = "内容不能为空";
-			saving = false;
-			return;
-		}
-		try {
-			await apiJson(apiPath, {
-				method: "PUT",
-				headers: { "Content-Type": "text/markdown" },
-				body: content,
-			});
-			message = "已保存";
-			clearDraft("关于页");
-		} catch (err) {
-			message = err instanceof Error ? err.message : "网络错误";
-		} finally {
-			saving = false;
-		}
-	}
-
-	onMount(async () => {
-		await load();
-		const d = getDraft<{ content?: string }>("关于页");
-		if (d?.content != null) {
-			rawContent = d.content;
-			if (editor) editor.setValue(d.content);
-			clearDraft("关于页");
-		}
-		return registerSaveAll("关于页", save, () => ({
-			content: editor ? editor.getValue() : rawContent,
-		}));
+	editor = await createAdminVditor("vditor-editor", {
+		value: rawContent,
+		height: 520,
+		onThemeObserver: (mo) => (vditorThemeObserver = mo),
 	});
-	onDestroy(() => vditorThemeObserver?.disconnect());
+}
+
+async function save() {
+	saving = true;
+	message = "";
+	const content = editor ? editor.getValue() : rawContent;
+	if (!content.trim()) {
+		message = "内容不能为空";
+		saving = false;
+		return false;
+	}
+	try {
+		await apiJson(apiPath, {
+			method: "PUT",
+			headers: { "Content-Type": "text/markdown" },
+			body: content,
+		});
+		message = "已保存";
+		clearDraft("关于页");
+		return true;
+	} catch (err) {
+		message = err instanceof Error ? err.message : "网络错误";
+		return false;
+	} finally {
+		saving = false;
+	}
+}
+
+onMount(async () => {
+	await load();
+	const d = getDraft<{ content?: string }>("关于页");
+	if (d?.content != null) {
+		rawContent = d.content;
+		if (editor) editor.setValue(d.content);
+		clearDraft("关于页");
+	}
+	return registerSaveAll("关于页", save, () => ({
+		content: editor ? editor.getValue() : rawContent,
+	}));
+});
+onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
 <div class="crud-page">
