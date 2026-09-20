@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 import DynamicSidebar from "@/components/widget/DynamicSidebar.svelte";
@@ -13,8 +14,6 @@ import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-
-
 interface Props {
 	class?: string;
 	style?: string;
@@ -26,10 +25,10 @@ const showTitle = widgetConfig?.showTitle !== false;
 const configuredLimit = widgetConfig?.specificConfig?.dynamic?.limit ?? 3;
 const limit = Math.max(1, Math.floor(configuredLimit));
 
-const apiUrl = ((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl)?.startsWith("http")
-	? ((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl)
-	: url(((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl) || "/api/dynamic.json");
-const memos = ((((settings as any)?.["dynamic"]) as any)?.["memos"] ?? dynamicConfig.memos);
+const apiUrl = dynamicConfig.apiUrl?.startsWith("http")
+	? dynamicConfig.apiUrl
+	: url(dynamicConfig.apiUrl || "/api/dynamic.json");
+const memos = dynamicConfig.memos;
 ---
 
 {

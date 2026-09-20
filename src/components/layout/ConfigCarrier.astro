@@ -1,15 +1,16 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-import { backgroundWallpaper, siteConfig } from "@/config";
+
+import { getWallpaperConfig } from "@shared/config/runtime";
+import { siteConfig } from "@/config";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
-
 ---
 
 <div
   id="config-carrier"
-  data-hue={((settings as any)?.["hue"] ?? (((settings as any)?.["themeColor"] ?? siteConfig.themeColor).hue))}
-  data-wallpaper-mode={((((settings as any)?.["theme"]) as any)?.["mode"] ?? backgroundWallpaper.mode)}
+  data-hue={siteConfig.themeColor.hue}
+  data-wallpaper-mode={getWallpaperConfig(Astro.locals).mode}
 >
 </div>

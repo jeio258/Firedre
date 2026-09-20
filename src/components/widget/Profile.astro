@@ -1,12 +1,15 @@
 ---
-import { Icon } from "astro-icon/components";
-import SafeIcon from "@/components/common/SafeIcon.astro";
-import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import {
+	listEnabledSiteLinks,
+	type SiteLinkView,
+} from "@server/siteLinks/service";
 import { profileConfig } from "@shared/config/profileConfig";
+import { Icon } from "astro-icon/components";
+import ImageWrapper from "@/components/common/ImageWrapper.astro";
+import SafeIcon from "@/components/common/SafeIcon.astro";
 import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
 import { getRawImageUrl } from "@/utils/schema-image";
 import { url } from "@/utils/url-utils";
-import { listEnabledSiteLinks, type SiteLinkView } from "@server/siteLinks/service";
 import { cfEnv } from "../../lib/api";
 
 const settings =
@@ -25,23 +28,17 @@ const rawAvatarUrl =
 		? await getRawImageUrl(profileConfig.avatar)
 		: null;
 const effectiveName =
-	((settings as any)?.["profile"]?.["name"] as string | undefined) ||
+	profileConfig.name ||
 	settings.name ||
 	settings.author ||
 	profileConfig.name ||
 	"";
 // 个人简介（后台可配置；静态 config 为兜底）
 const effectiveBio =
-	((settings as any)?.["profile"]?.["bio"] as string | undefined) ||
-	(settings as any)?.["bio"] ||
-	profileConfig.bio ||
-	"";
+	profileConfig.bio || profileConfig.bio || profileConfig.bio || "";
 // 所在地 / 邮箱（后台可配置；静态 config 为兜底）
-const effectiveLocation =
-	((settings as any)?.["profile"]?.["location"] as string | undefined) ||
-	"";
-const effectiveEmail =
-	((settings as any)?.["profile"]?.["email"] as string | undefined) || "";
+const effectiveLocation = profileConfig.location || "";
+const effectiveEmail = profileConfig.email || "";
 // 社交链接（后台可配置；统一数组处理）
 const profileLinks = (
 	await listEnabledSiteLinks(cfEnv, "profile", Astro.locals)

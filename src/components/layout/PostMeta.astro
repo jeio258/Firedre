@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { Icon } from "astro-icon/components";
 import { commentConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
@@ -9,8 +10,6 @@ import { formatDateToYYYYMMDD } from "@/utils/date-utils";
 import { getCategoryUrl, getTagUrl } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
-
-
 
 export interface Props {
 	published: Date;
@@ -187,8 +186,8 @@ const visibleTags =
 
   {
     !isHome &&
-      ((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) === "twikoo" &&
-      ((((settings as any)?.["comment"]) as any)?.["twikoo"] ?? commentConfig.twikoo)?.visitorCount &&
+      commentConfig.type === "twikoo" &&
+      commentConfig.twikoo?.visitorCount &&
       id && (
         <div class="flex items-center">
           <div class="meta-icon">
@@ -209,8 +208,8 @@ const visibleTags =
 
   {
     !isHome &&
-      ((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) === "waline" &&
-      ((((settings as any)?.["comment"]) as any)?.["waline"] ?? commentConfig.waline)?.visitorCount &&
+      commentConfig.type === "waline" &&
+      commentConfig.waline?.visitorCount &&
       id && (
         <div class="flex items-center">
           <div class="meta-icon">
@@ -234,8 +233,8 @@ const visibleTags =
 
   {
     !isHome &&
-      ((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) === "artalk" &&
-      ((((settings as any)?.["comment"]) as any)?.["artalk"] ?? commentConfig.artalk)?.visitorCount &&
+      commentConfig.type === "artalk" &&
+      commentConfig.artalk?.visitorCount &&
       id && (
         <div class="flex items-center">
           <div class="meta-icon">

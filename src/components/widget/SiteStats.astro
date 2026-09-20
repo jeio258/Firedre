@@ -25,9 +25,7 @@ const showTitle = widgetConfig?.showTitle !== false;
 const settings =
 	(Astro.locals as { settings?: { siteStartDate?: string } }).settings ?? {};
 const siteStartDate =
-	settings.siteStartDate ||
-	((settings as any)?.["siteStartDate"] ?? siteConfig.siteStartDate) ||
-	"2025-01-01";
+	settings.siteStartDate || siteConfig.siteStartDate || "2025-01-01";
 
 const [posts, categories, tags] = await Promise.all([
 	fetchPostsForStats(),

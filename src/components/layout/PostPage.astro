@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { getPostUrlBySlug } from "@utils/url-utils";
 import PostCard from "@/components/layout/PostCard.astro";
 import { siteConfig } from "@/config";
@@ -15,13 +16,13 @@ const interval = 50;
 
 type PostEntry = PostForList;
 
-const masonryEnabled = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).grid.masonry;
-const columnWidth = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).grid.columnWidth || 280;
+const masonryEnabled = siteConfig.postListLayout.grid.masonry;
+const columnWidth = siteConfig.postListLayout.grid.columnWidth || 280;
 
 // 根据配置设置初始布局模式，避免闪烁
-const defaultLayout = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).defaultMode || "list";
+const defaultLayout = siteConfig.postListLayout.defaultMode || "list";
 const mobileDefaultLayout =
-	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).mobileDefaultMode || defaultLayout;
+	siteConfig.postListLayout.mobileDefaultMode || defaultLayout;
 const initialLayoutClass =
 	defaultLayout === "grid"
 		? "post-grid-auto grid-mode"
@@ -29,7 +30,7 @@ const initialLayoutClass =
 
 // 列表模式封面位置，只有 left 需要额外样式，right 是默认布局
 const coverPositionClass =
-	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).coverPosition === "left" ? " cover-left" : "";
+	siteConfig.postListLayout.coverPosition === "left" ? " cover-left" : "";
 ---
 
 

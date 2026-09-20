@@ -66,6 +66,7 @@ function arr(v: unknown, fallback: unknown[]): unknown[] {
 export function getSiteConfig(locals: unknown): typeof staticSiteConfig {
 	const s = settingsOf(locals);
 	const p = groupOf(s, "post");
+	const pl = groupOf(s, "postListLayout");
 	const basic = groupOf(s, "basic");
 	return {
 		...staticSiteConfig,
@@ -151,6 +152,14 @@ export function getSiteConfig(locals: unknown): typeof staticSiteConfig {
 			vndb: bool(s.pageVndb, staticSiteConfig.pages.vndb),
 			mal: bool(s.pageMal, staticSiteConfig.pages.mal),
 			sponsor: bool(s.pageSponsor, staticSiteConfig.pages.sponsor),
+		},
+		foldArticle: bool(
+			s.foldArticle,
+			staticSiteConfig.foldArticle !== false,
+		) as boolean,
+		postListLayout: {
+			...staticSiteConfig.postListLayout,
+			...(typeof pl === "object" && pl ? (pl as Record<string, unknown>) : {}),
 		},
 		post: {
 			...staticSiteConfig.post,
@@ -695,6 +704,9 @@ export function getDynamicConfig(locals: unknown): typeof staticDynamicConfig {
 		...(typeof d.profileUrl === "string" && d.profileUrl
 			? { profileUrl: d.profileUrl }
 			: {}),
+		...(d.memos && typeof d.memos === "object"
+			? { memos: d.memos as typeof staticDynamicConfig.memos }
+			: {}),
 	};
 }
 
@@ -850,6 +862,22 @@ export function getFontConfig(locals: unknown): typeof staticFontConfig {
 	return {
 		...staticFontConfig,
 		...(typeof f.scale === "number" ? { fontScale: f.scale } : {}),
+		...(typeof f.enable === "boolean" ? { enable: f.enable } : {}),
+		...(typeof f.selected === "string" || Array.isArray(f.selected)
+			? { selected: f.selected as typeof staticFontConfig.selected }
+			: {}),
+		...(typeof f.bannerTitleFont === "string" && f.bannerTitleFont
+			? { bannerTitleFont: f.bannerTitleFont }
+			: {}),
+		...(typeof f.bannerSubtitleFont === "string" && f.bannerSubtitleFont
+			? { bannerSubtitleFont: f.bannerSubtitleFont }
+			: {}),
+		...(typeof f.navbarTitleFont === "string" && f.navbarTitleFont
+			? { navbarTitleFont: f.navbarTitleFont }
+			: {}),
+		...(typeof f.codeFont === "string" && f.codeFont
+			? { codeFont: f.codeFont }
+			: {}),
 	};
 }
 

@@ -8,15 +8,20 @@ import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
-const allCssVars = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
+const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
+const fontItems = Array.from(allCssVars).map((cssVar) => ({
+	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
+	cssVariable: cssVar as any,
+	preload: selectedFontVars.includes(cssVar),
+}));
 
 const selectedIds: string[] =
-	((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable) && ((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)
-		? Array.isArray(((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected))
-			? ((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)
-			: [((((settings as any)?.["font"]) as any)?.["selected"] ?? fontConfig.selected)]
+	fontConfig.enable && fontConfig.selected
+		? Array.isArray(fontConfig.selected)
+			? fontConfig.selected
+			: [fontConfig.selected]
 		: [];
 
 const SYSTEM_FONT_STACK =
@@ -32,26 +37,26 @@ const bodyFontFamily =
 			)
 		: SYSTEM_FONT_STACK;
 
-const bannerTitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["bannerTitleFont"] ?? fontConfig.bannerTitleFont) || ""
+const bannerTitleFontVar = fontConfig.enable
+	? fontConfig.bannerTitleFont || ""
 	: "";
-const bannerSubtitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["bannerSubtitleFont"] ?? fontConfig.bannerSubtitleFont) || ""
+const bannerSubtitleFontVar = fontConfig.enable
+	? fontConfig.bannerSubtitleFont || ""
 	: "";
-const navbarTitleFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable)
-	? ((((settings as any)?.["font"]) as any)?.["navbarTitleFont"] ?? fontConfig.navbarTitleFont) || ""
+const navbarTitleFontVar = fontConfig.enable
+	? fontConfig.navbarTitleFont || ""
 	: "";
-const codeFontVar = ((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable) ? ((((settings as any)?.["font"]) as any)?.["codeFont"] ?? fontConfig.codeFont) || "" : "";
+const codeFontVar = fontConfig.enable ? fontConfig.codeFont || "" : "";
 
 const codeFontFamily = codeFontVar
 	? `var(${codeFontVar}, ${MONO_FONT_STACK})`
 	: MONO_FONT_STACK;
 ---
 
-{Array.from(allCssVars).map((cssVar) => (
+{fontItems.map(({ cssVariable, preload }) => (
   <Font
-    cssVariable={cssVar as any}
-    preload={selectedFontVars.includes(cssVar)}
+    cssVariable={cssVariable}
+    preload={preload}
   />
 ))}
 
@@ -65,7 +70,7 @@ const codeFontFamily = codeFontVar
   }
 
   ${
-		((((settings as any)?.["font"]) as any)?.["enable"] ?? fontConfig.enable) &&
+		fontConfig.enable &&
 		(bannerTitleFontVar ||
 			bannerSubtitleFontVar ||
 			navbarTitleFontVar ||

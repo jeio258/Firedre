@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { siteConfig } from "@/config";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -26,7 +27,7 @@ const groups = Array.from(grouped.entries())
 	.map(([year, yearPosts]) => ({ year, posts: yearPosts }))
 	.sort((a, b) => b.year - a.year);
 
-const foldArticle = ((settings as any)?.["foldArticle"] ?? siteConfig.foldArticle) !== false;
+const foldArticle = siteConfig.foldArticle !== false;
 const collapseAllButFirst = foldArticle && groups.length > 1;
 
 function formatDate(date: Date) {

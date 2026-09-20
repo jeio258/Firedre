@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
 import { licenseConfig } from "@/config";
@@ -59,7 +60,7 @@ const siteDomain = siteUrl
 	? siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
 	: "unknown";
 
-const licenseName = ((((settings as any)?.["license"]) as any)?.["enable"] ?? licenseConfig.enable) ? ((((settings as any)?.["license"]) as any)?.["name"] ?? licenseConfig.name) : "None";
+const licenseName = licenseConfig.enable ? licenseConfig.name : "None";
 
 const mainItems = [
 	{
