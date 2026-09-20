@@ -1,5 +1,6 @@
 import type { AboutDetail } from "../../types/about";
 import type { CloudflareEnv } from "../../types/env";
+import { bumpContentVersion } from "../settings/service";
 import { getAboutFromSource, normalizeAboutSource } from "./source";
 
 const ABOUT_R2_KEY = "about/index.md";
@@ -21,6 +22,7 @@ export async function upsertAbout(env: CloudflareEnv, source: string) {
 	await env.BUCKET.put(ABOUT_R2_KEY, normalized, {
 		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
 	});
+	await bumpContentVersion(env);
 
 	const detail = await getAboutFromSource(normalized);
 	return {

@@ -1,7 +1,13 @@
 import type { CloudflareEnv } from "../../types/env";
+import { bumpContentVersion } from "../settings/service";
 import { UserError } from "./userError";
 
-export interface CrudConfig<TRecord, TInput, TNormalized = Record<string, unknown>, TView = TRecord> {
+export interface CrudConfig<
+	TRecord,
+	TInput,
+	TNormalized = Record<string, unknown>,
+	TView = TRecord,
+> {
 	table: string;
 
 	columns: string[];
@@ -19,17 +25,19 @@ export interface CrudConfig<TRecord, TInput, TNormalized = Record<string, unknow
 	notFoundMessage: string;
 }
 
-export function createCrudService<TRecord, TInput, TNormalized = Record<string, unknown>, TView = TRecord>(
-	cfg: CrudConfig<TRecord, TInput, TNormalized, TView>,
-) {
+export function createCrudService<
+	TRecord,
+	TInput,
+	TNormalized = Record<string, unknown>,
+	TView = TRecord,
+>(cfg: CrudConfig<TRecord, TInput, TNormalized, TView>) {
 	const cols = cfg.columns.join(", ");
 	const placeholders = cfg.columns.map(() => "?").join(", ");
 	const setters = cfg.columns.map((c) => `${c} = ?`).join(", ");
-	const bindAll = (input: TNormalized) =>
-		cfg.toParams(input);
+	const bindAll = (input: TNormalized) => cfg.toParams(input);
 
 	const toView = (row: TRecord): TView =>
-		(cfg.toView ? cfg.toView(row) : (row as unknown as TView));
+		cfg.toView ? cfg.toView(row) : (row as unknown as TView);
 
 	async function list(env: CloudflareEnv): Promise<TView[]> {
 		const { results } = await env.DB.prepare(
@@ -38,7 +46,10 @@ export function createCrudService<TRecord, TInput, TNormalized = Record<string, 
 		return (results || []).map(toView);
 	}
 
-	async function listEnabled(env: CloudflareEnv, raw?: unknown): Promise<TView[]> {
+	async function listEnabled(
+		env: CloudflareEnv,
+		raw?: unknown,
+	): Promise<TView[]> {
 		let sql = `SELECT * FROM ${cfg.table} WHERE enabled = 1`;
 		const bind: unknown[] = [];
 		if (cfg.enabledFilter && raw !== undefined) {
@@ -56,9 +67,9 @@ export function createCrudService<TRecord, TInput, TNormalized = Record<string, 
 	}
 
 	async function get(env: CloudflareEnv, id: number): Promise<TView | null> {
-		const row = await env.DB.prepare(
-			`SELECT * FROM ${cfg.table} WHERE id = ?`,
-		).bind(id).first<TRecord>();
+		const row = await env.DB.prepare(`SELECT * FROM ${cfg.table} WHERE id = ?`)
+			.bind(id)
+			.first<TRecord>();
 		return row ? toView(row) : null;
 	}
 
@@ -66,30 +77,42 @@ export function createCrudService<TRecord, TInput, TNormalized = Record<string, 
 		const input = cfg.normalize(raw);
 		const result = await env.DB.prepare(
 			`INSERT INTO ${cfg.table} (${cols}, updated_at) VALUES (${placeholders}, datetime('now'))`,
-		).bind(...bindAll(input)).run();
+		)
+			.bind(...bindAll(input))
+			.run();
 		const id = Number(result.meta.last_row_id);
 		const created = await get(env, id);
 		if (!created) throw new UserError("创建失败");
+		await bumpContentVersion(env);
 		return created;
 	}
 
-	async function update(env: CloudflareEnv, id: number, raw: TInput): Promise<TView> {
+	async function update(
+		env: CloudflareEnv,
+		id: number,
+		raw: TInput,
+	): Promise<TView> {
 		const exists = await get(env, id);
 		if (!exists) throw new UserError(cfg.notFoundMessage);
 		const input = cfg.normalize(raw);
 		await env.DB.prepare(
 			`UPDATE ${cfg.table} SET ${setters}, updated_at = datetime('now') WHERE id = ?`,
-		).bind(...bindAll(input), id).run();
+		)
+			.bind(...bindAll(input), id)
+			.run();
 		const updated = await get(env, id);
 		if (!updated) throw new UserError(cfg.notFoundMessage);
+		await bumpContentVersion(env);
 		return updated;
 	}
 
 	async function remove(env: CloudflareEnv, id: number): Promise<boolean> {
-		const result = await env.DB.prepare(
-			`DELETE FROM ${cfg.table} WHERE id = ?`,
-		).bind(id).run();
-		return (result.meta.changes ?? 0) > 0;
+		const result = await env.DB.prepare(`DELETE FROM ${cfg.table} WHERE id = ?`)
+			.bind(id)
+			.run();
+		const removed = (result.meta.changes ?? 0) > 0;
+		if (removed) await bumpContentVersion(env);
+		return removed;
 	}
 
 	return { list, listEnabled, get, create, update, remove };

@@ -1,7 +1,8 @@
 import type { CloudflareEnv } from "../../types/env";
 import type { NoticeBoard, NoticeBoardDetail } from "../../types/notice";
-import { normalizeNoticeBoard, parseNoticePayload } from "./normalize";
+import { bumpContentVersion } from "../settings/service";
 import { UserError } from "../utils/userError";
+import { normalizeNoticeBoard, parseNoticePayload } from "./normalize";
 
 const NOTICE_ROW_ID = 1;
 
@@ -59,6 +60,7 @@ export async function upsertNotice(
   `)
 		.bind(NOTICE_ROW_ID, normalized.title, JSON.stringify(normalized.sections))
 		.run();
+	await bumpContentVersion(env);
 
 	const detail = await getNotice(env);
 	if (!detail) throw new UserError("保存公告栏失败");
