@@ -5,6 +5,8 @@ import { setTimeout as delay } from "node:timers/promises";
 export const QA_ADMIN_USER = process.env.QA_ADMIN_USER || "admin";
 export const QA_ADMIN_PASS = process.env.QA_ADMIN_PASS || "localqa2026";
 const DEFAULT_PORT = Number(process.env.QA_PORT || 8787);
+// startPreview 记住端口，stopPreview 据此按端口兜底清理
+let lastPreviewPort = null;
 
 const results = [];
 
@@ -104,6 +106,7 @@ async function portReady(base) {
 }
 
 export async function startPreview(port = DEFAULT_PORT) {
+	lastPreviewPort = port;
 	if (!existsSync("dist")) {
 		throw new Error("未找到 dist/，请先执行 pnpm build");
 	}
@@ -138,6 +141,14 @@ export function stopPreview(proc) {
 	try {
 		execFileSync("pkill", ["-9", "-x", "workerd"], { stdio: "ignore" });
 	} catch {}
+	// 兜底：daemon 化的 wrangler 可能幸存并重启 workerd，按端口强制释放
+	const port = lastPreviewPort;
+	lastPreviewPort = null;
+	if (port) {
+		try {
+			execFileSync("fuser", ["-k", `${port}/tcp`], { stdio: "ignore" });
+		} catch {}
+	}
 }
 
 export async function launchBrowser(viewport = { width: 1440, height: 900 }, opts = {}) {

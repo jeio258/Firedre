@@ -16,21 +16,8 @@
     "active": false
    }
   ],
-  "toggles": [
-   {
-    "label": "卡片边框和阴影",
-    "on": false
-   },
-   {
-    "label": "卡片跟随主题色",
-    "on": false
-   }
-  ],
+  "toggles": [],
   "resets": [
-   {
-    "disabled": true,
-    "hidden": true
-   },
    {
     "disabled": true,
     "hidden": true
@@ -41,9 +28,11 @@
    }
   ],
   "sliders": [
-   "0~360:165"
+   "20~100:100",
+   "0~20:0",
+   "20~100:65"
   ],
-  "textLen": 49
+  "textLen": 71
  },
  {
   "label": "tab-外观",
@@ -106,30 +95,9 @@
    {
     "text": "特效",
     "active": false
-   },
-   {
-    "text": "壁纸轮播",
-    "active": false
    }
   ],
-  "toggles": [
-   {
-    "label": "首页壁纸标题",
-    "on": true
-   },
-   {
-    "label": "壁纸轮播",
-    "on": false
-   },
-   {
-    "label": "水波纹动画",
-    "on": true
-   },
-   {
-    "label": "渐变过渡",
-    "on": true
-   }
-  ],
+  "toggles": [],
   "resets": [
    {
     "disabled": true,
@@ -140,8 +108,12 @@
     "hidden": true
    }
   ],
-  "sliders": [],
-  "textLen": 61
+  "sliders": [
+   "20~100:100",
+   "0~20:0",
+   "20~100:65"
+  ],
+  "textLen": 71
  },
  {
   "label": "tab-特效",
@@ -189,30 +161,6 @@
     "label": "卡片跟随主题色",
     "from": false,
     "to": true
-   },
-   {
-    "tab": "壁纸",
-    "label": "首页壁纸标题",
-    "from": true,
-    "to": false
-   },
-   {
-    "tab": "壁纸",
-    "label": "壁纸轮播",
-    "from": false,
-    "to": true
-   },
-   {
-    "tab": "壁纸",
-    "label": "水波纹动画",
-    "from": true,
-    "to": false
-   },
-   {
-    "tab": "壁纸",
-    "label": "渐变过渡",
-    "from": true,
-    "to": false
    },
    {
     "tab": "特效",

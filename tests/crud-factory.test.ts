@@ -169,6 +169,12 @@ beforeAll(() => {
 	db = new DatabaseSync(":memory:");
 	db.exec(PROBE_DDL);
 	db.exec(BROKEN_ID_DDL);
+	// bumpContentVersion 写 site_settings，与生产迁移 0001 的 DDL 对齐
+	db.exec(`CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+)`);
 	env = { DB: makeD1(db) };
 });
 
