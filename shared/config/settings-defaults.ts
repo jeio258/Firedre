@@ -5,7 +5,7 @@ export const settingsDefaults = {
 		title: "Firefly",
 		subtitle: "Demo site",
 		description:
-			"Firefly 是一款基于 Astro 框架和 Fuwari 模板开发的清新美观且现代化个人博客主题模板，专为技术爱好者和内容创作者设计。该主题融合了现代 Web 技术栈，提供了丰富的功能模块和高度可定制的界面，让您能够轻松打造出专业且美观的个人博客网站。",
+			"Firedre 是基于 Astro Firefly 主题深度云原生化改造的个人博客，全站运行于 Cloudflare Pages / D1 / R2：文章、动态、相册、书签导航、追番数据与留言板一应俱全，后台可视化管理，无需服务器即可稳定运行。",
 		siteUrl: "https://firedre.994613.xyz",
 		siteStartDate: "2025-01-01",
 		timezone: "Asia/Shanghai",
@@ -25,7 +25,8 @@ export const settingsDefaults = {
 		pageVndb: false,
 		pageMal: true,
 		pageSponsor: true,
-		keywords: "Firefly,Fuwari,Astro,ACGN,博客,技术博客,静态博客",
+		keywords:
+			"Firedre,Astro,Firefly,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
 	},
 	panel: {
 		enable: false,
