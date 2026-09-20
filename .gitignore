@@ -74,3 +74,6 @@ scripts/qa/screenshots/
 tests/
 scripts/qa/
 .github/workflows/
+
+# 测试配置仅本地（tests/ 与 scripts/qa/ 同步退出远程）
+vitest.config.ts
