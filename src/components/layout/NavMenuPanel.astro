@@ -358,7 +358,7 @@ const navTitle = siteConfig.navbar.title || siteConfig.title;
         });
     }
 
-    function setDropdownExpanded(dropdown: Element, isExpanded: boolean) {
+    function setDropdownExpanded(dropdown, isExpanded) {
         dropdown.setAttribute("data-expanded", isExpanded.toString());
         const trigger = dropdown.querySelector("[data-mobile-dropdown-trigger]");
         trigger?.setAttribute("aria-expanded", isExpanded.toString());
