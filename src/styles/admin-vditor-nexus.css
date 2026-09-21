@@ -68,6 +68,37 @@
 	padding: 4px 8px;
 }
 
+/* ---------- 深色内容区：Vditor 内容色硬编码，此处按 nexusdown 令牌兜底 ---------- */
+.vditor.vditor--dark .vditor-reset blockquote:not(.callout) {
+	color: #94a3b8;
+	border-left-color: #334155;
+	background-color: transparent;
+}
+
+.vditor.vditor--dark .vditor-reset table tr {
+	background-color: #172033;
+	border-top-color: #334155;
+}
+
+.vditor.vditor--dark .vditor-reset table tbody tr:nth-child(2n) {
+	background-color: #111827;
+}
+
+.vditor.vditor--dark .vditor-reset table td,
+.vditor.vditor--dark .vditor-reset table th {
+	border-color: #334155;
+}
+
+.vditor.vditor--dark .vditor-reset pre > code {
+	background-color: #0d1526;
+	background-image: none;
+	border: 1px solid #334155;
+}
+
+.vditor.vditor--dark .vditor-reset code:not(.hljs):not(.highlight-chroma) {
+	background-color: rgba(96, 165, 250, 0.18);
+}
+
 /* ---------- 深色（nexusdown dark 令牌） ---------- */
 .vditor.vditor--dark {
 	--border-color: #334155;

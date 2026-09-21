@@ -1,8 +1,14 @@
 // Vditor 后台明暗跟随：类同时加到 .vditor root 与 html（弹窗/面板在 body 末，需 html 继承）
+const CONTENT_THEME_PATH = "/vditor/dist/css/content-theme";
+
+let vditorCtor: typeof import("vditor").default | null = null;
+
 export function syncVditorTheme(root: HTMLElement): void {
 	const dark = document.documentElement.classList.contains("dark");
 	document.documentElement.classList.toggle("vditor--dark", dark);
 	root.classList.toggle("vditor--dark", dark);
+	// 内容区（表格/引用/代码块）颜色硬编码，靠官方 content-theme CSS 切换
+	vditorCtor?.setContentTheme(dark ? "dark" : "light", CONTENT_THEME_PATH);
 }
 
 // 监听 html class 变化并同步当前 Vditor 实例
@@ -55,12 +61,19 @@ export async function createAdminVditor(
 	},
 ): Promise<VditorInstance> {
 	const { default: Vditor } = await import("vditor");
+	vditorCtor = Vditor;
+	const dark = document.documentElement.classList.contains("dark");
 	return new Vditor(selector, {
 		height: options.height,
 		mode: "wysiwyg",
 		value: options.value,
 		cdn: "/vditor",
 		cache: { enable: false },
+		theme: dark ? "dark" : "classic",
+		preview: {
+			theme: { current: dark ? "dark" : "light", path: CONTENT_THEME_PATH },
+			hljs: { style: dark ? "github-dark" : "github" },
+		},
 		toolbar: [...ADMIN_TOOLBAR],
 		...(options.upload ? { upload: options.upload } : {}),
 		after: () => {
