@@ -40,14 +40,22 @@
     backdrop-filter: blur(var(--navbar-surface-blur, 0px));
 }
 
-#navbar.navbar-sticky-shadow>div {
-    box-shadow: var(--shadow-navbar) !important;
+/* 通用滚动阴影：下滑到内容区时给导航栏加向下投影，与内容区分层。
+   #navbar > div 的 box-shadow 会被各壁纸/透明模式规则（main.css 的 @layer components、特异性更高）覆盖，
+   所以把投影加到没有冲突的父级 #navbar 上；#navbar 本身无 border-radius，需同步圆角让阴影随底部圆角 */
+#navbar {
+    border-radius: 0 0 0.75rem 0.75rem;
 }
 
-:root.dark #navbar.navbar-sticky-shadow>div {
-    box-shadow: var(--shadow-navbar-dark) !important;
+#navbar.navbar-sticky-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
+:root.dark #navbar.navbar-sticky-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* semifull 模式的透明阶段不单独显示 sticky shadow，避免 8px 和 50px 两段跳变 */
 html[data-has-wallpaper] #navbar[data-transparent-mode="semifull"]:not(.scrolled).navbar-sticky-shadow>div {
     box-shadow: none !important;
 }

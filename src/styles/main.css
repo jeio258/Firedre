@@ -313,6 +313,10 @@ html {
     .float-panel-closed * {
         @apply pointer-events-none
     }
+    /* 移动端导航抽屉打开时锁定背景滚动（由 floating-panel-utils 按 data-floating-panel-scroll-lock 切换） */
+    body.menu-open {
+        overflow: hidden;
+    }
     .search-panel mark {
         @apply bg-transparent text-(--primary)
     }

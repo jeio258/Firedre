@@ -1,11 +1,11 @@
-import { siteConfig } from "@/config";
+import { expressiveCodeConfig, navbarMode, siteConfig } from "@/config";
 import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
 	BANNER_HEIGHT_NON_HOME,
 } from "@/constants/constants";
 import type { WALLPAPER_MODE } from "@/types/config";
-import { isBannerMode } from "@/utils/banner-utils";
+import { isBannerMode, isFullscreenMode } from "@/utils/banner-utils";
 import { isMobileViewport, isTabletOrBelowViewport } from "@/utils/breakpoints";
 import { scheduleContentOverflowEnhancements } from "@/utils/content-overflow-utils";
 import { initializeFloatingPanels } from "@/utils/floating-panel-utils";
@@ -24,8 +24,6 @@ import {
 	updateNavbarTransparency,
 } from "@/utils/setting-utils";
 import { pathsEqual, url } from "@/utils/url-utils";
-
-const stickyNavbar = siteConfig.navbar.stickyNavbar ?? false;
 
 function startProgressBar(): void {
 	const bar = document.getElementById("progress-bar");
@@ -111,15 +109,17 @@ function registerSwupHooks(): void {
 			}
 
 			const navbar = document.getElementById("navbar-wrapper");
-			if (navbar && stickyNavbar) {
+			if (navbar && navbarMode === "fixed") {
 				navbar.classList.remove("navbar-hidden");
-			} else if (isBannerMode() && navbar) {
+			} else if (navbar && (isBannerMode() || isFullscreenMode())) {
 				const currentIsHome = document.body.classList.contains("is-home");
-				const threshold =
-					window.innerHeight *
-						((currentIsHome ? BANNER_HEIGHT_HOME : BANNER_HEIGHT_NON_HOME) /
-							100) -
-					88;
+				// fullscreen 首页内容在 100lvh（视图顶）；banner 按横幅高度阈值
+				const threshold = isFullscreenMode()
+					? window.innerHeight - 88
+					: window.innerHeight *
+							((currentIsHome ? BANNER_HEIGHT_HOME : BANNER_HEIGHT_NON_HOME) /
+								100) -
+						88;
 				if (document.documentElement.scrollTop >= threshold) {
 					navbar.classList.add("navbar-hidden");
 				}

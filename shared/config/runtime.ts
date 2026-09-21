@@ -1,4 +1,5 @@
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
+import type { NavbarMode } from "@/types/navBarConfig";
 import type { SponsorItem } from "@/types/sponsorConfig";
 import { normalizeSiteUrl } from "../utils/url-utils";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
@@ -774,6 +775,17 @@ export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
 			nb.stickyNavbar,
 			Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
 		),
+		navbarMode: ((): NavbarMode => {
+			const rm = nb.navbarMode;
+			if (rm === "static" || rm === "fixed" || rm === "dynamic") return rm;
+			// 兼容旧 stickyNavbar：true→fixed，false→static
+			return bool(
+				nb.stickyNavbar,
+				Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
+			)
+				? "fixed"
+				: "static";
+		})(),
 		logo: (nb.logo && typeof nb.logo === "object"
 			? nb.logo
 			: siteNavbar?.logo) as unknown,

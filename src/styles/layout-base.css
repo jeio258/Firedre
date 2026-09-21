@@ -101,7 +101,7 @@
     @apply -translate-y-full;
   }
 
-  body:not(.sticky-navbar) #navbar-wrapper {
+  body:not(.sticky-navbar):not(.dynamic-navbar) #navbar-wrapper {
     transition: translate 0.2s ease-out;
   }
 
@@ -125,6 +125,36 @@
     opacity: 1 !important;
     transform: none !important;
     translate: none !important;
+  }
+
+  /* 动态导航栏：固定在顶部，但可随滚动按 translate 显隐。注意不要写 translate:none，否则无法隐藏 */
+  body.dynamic-navbar #top-row {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 80 !important;
+    height: 4.5rem !important;
+  }
+  body.dynamic-navbar #navbar-wrapper {
+    position: static !important;
+    transition: translate 0.2s ease-out;
+  }
+  /* sticky 侧边栏与导航栏显隐同步：显示 5.5rem，隐藏 1rem */
+  body.dynamic-navbar #sidebar-sticky,
+  body.dynamic-navbar #left-sidebar-sticky,
+  body.dynamic-navbar #right-sidebar-sticky {
+    top: 5.5rem !important;
+  }
+  body.dynamic-navbar.dynamic-navbar-hidden #sidebar-sticky,
+  body.dynamic-navbar.dynamic-navbar-hidden #left-sidebar-sticky,
+  body.dynamic-navbar.dynamic-navbar-hidden #right-sidebar-sticky {
+    top: 1rem !important;
+  }
+  body.dynamic-navbar #sidebar-sticky,
+  body.dynamic-navbar #left-sidebar-sticky,
+  body.dynamic-navbar #right-sidebar-sticky {
+    transition: top 0.2s ease-out;
   }
 }
 

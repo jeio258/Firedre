@@ -550,10 +550,17 @@ html[data-wallpaper-mode="fullscreen"] body:not(.is-home) #wallpaper-wrapper .ba
     display: none !important;
 }
 
-html[data-wallpaper-mode="fullscreen"] body:not(.sticky-navbar) #top-row {
+/* Fullscreen 非首页 + 非固定导航栏：无 hero，隐藏 top-row 占位，避免顶部空白 */
+html[data-wallpaper-mode="fullscreen"] body:not(.is-home):not(.sticky-navbar):not(.dynamic-navbar) #top-row {
     height: 0 !important;
     overflow: visible !important;
     transition: none !important;
+}
+
+/* 让 sticky 导航栏跨壁纸滑动、滚到内容区才释放；去掉 transition:none 使 .navbar-hidden 下滑可动画 */
+html[data-wallpaper-mode="fullscreen"] body.is-home:not(.sticky-navbar):not(.dynamic-navbar) #top-row {
+    height: calc(100lvh);
+    overflow: visible !important;
 }
 
 #wallpaper-wrapper.wallpaper-fullscreen img,
@@ -609,7 +616,7 @@ body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .scroll-down-indicato
 
 #wallpaper-wrapper.wallpaper-fullscreen .scroll-down-indicator {
     display: flex;
-    position: absolute;
+    position: fixed;
     bottom: 5rem;
     left: 50%;
     transform: translateX(-50%);
@@ -644,7 +651,7 @@ body:not(.is-home) #wallpaper-wrapper.wallpaper-fullscreen .scroll-down-indicato
 
 html[data-wallpaper-mode="fullscreen"] body.is-home #wallpaper-wrapper .scroll-down-indicator {
     display: flex;
-    position: absolute;
+    position: fixed;
     bottom: 5rem;
     left: 50%;
     transform: translateX(-50%);
@@ -680,6 +687,16 @@ html[data-wallpaper-mode="fullscreen"] #wallpaper-wrapper .scroll-down-indicator
 
 html:not([data-wallpaper-mode="overlay"]):not([data-wallpaper-mode="none"]):not([data-wallpaper-mode="banner"]) body.sticky-navbar #main-grid {
     scroll-margin-top: 5.5rem;
+}
+
+/* dynamic（固定在顶部，可能未隐藏）下滚动到内容区时给 main-grid 留出 5.5rem，避免被导航栏遮挡 */
+html:not([data-wallpaper-mode="overlay"]):not([data-wallpaper-mode="none"]):not([data-wallpaper-mode="banner"]) body.dynamic-navbar #main-grid {
+    scroll-margin-top: 5.5rem;
+}
+
+/* static（无固定导航栏）只需 1rem 间距 */
+html:not([data-wallpaper-mode="overlay"]):not([data-wallpaper-mode="none"]):not([data-wallpaper-mode="banner"]) body:not(.sticky-navbar):not(.dynamic-navbar) #main-grid {
+    scroll-margin-top: 1rem;
 }
 
 @media (max-width: 1023px) {

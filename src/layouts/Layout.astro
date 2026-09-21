@@ -20,6 +20,7 @@ import {
 	displaySettingsConfig,
 	musicPlayerConfig,
 	profileConfig,
+	resolveNavbarMode,
 	siteConfig,
 } from "@/config";
 import { getExpressiveCodeConfig } from "@/config/runtime";
@@ -86,6 +87,13 @@ const settings =
 			settings?: LayoutSettings;
 		}
 	).settings ?? {};
+
+// 导航栏模式（后台设置优先，静态配置兑底；static/fixed/dynamic）
+const navbarMode = resolveNavbarMode(
+	(settings?.["navbar"] ?? siteConfig.navbar) as Parameters<
+		typeof resolveNavbarMode
+	>[0],
+);
 
 const configHue =
 	settings.hue ?? (settings?.["themeColor"] ?? siteConfig.themeColor).hue;
@@ -500,7 +508,8 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     class:list={[
       {
         "is-home": isHomePageCheck,
-        "sticky-navbar": (settings?.["navbar"] ?? siteConfig.navbar).stickyNavbar ?? false,
+        "sticky-navbar": navbarMode === "fixed",
+        "dynamic-navbar": navbarMode === "dynamic",
       },
     ]}
   >

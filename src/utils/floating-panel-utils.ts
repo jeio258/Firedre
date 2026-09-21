@@ -46,6 +46,12 @@ function syncFloatingPanelState(panel: HTMLElement): void {
 	if (wasOpen === true && !isOpen) {
 		panel.dispatchEvent(new Event(FLOATING_PANEL_CLOSE_EVENT));
 	}
+
+	// 带 data-floating-panel-scroll-lock 的面板打开时锁定背景滚动（app drawer 行为）；
+	// 该函数在初始化/class 变化/Swup 重扫时都会跑，各类关闭路径都会同步滚动锁。
+	if (panel.hasAttribute("data-floating-panel-scroll-lock")) {
+		document.body.classList.toggle("menu-open", isOpen);
+	}
 }
 
 function setFloatingPanelOpen(panel: HTMLElement, isOpen: boolean): void {

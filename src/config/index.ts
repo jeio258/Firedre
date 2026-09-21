@@ -20,6 +20,21 @@ export { plantumlConfig } from "@shared/config/plantumlConfig";
 export { profileConfig } from "@shared/config/profileConfig";
 export { sidebarLayoutConfig } from "@shared/config/sidebarConfig";
 export { siteConfig } from "@shared/config/siteConfig";
+
+import { siteConfig } from "@shared/config/siteConfig";
+import type { NavbarMode } from "../types/navBarConfig";
+
+/** 解析导航栏模式：navbarMode 优先，否则按旧 stickyNavbar 兼容映射（true→fixed，false→static） */
+export function resolveNavbarMode(navbar: {
+	navbarMode?: NavbarMode;
+	stickyNavbar?: boolean;
+}): NavbarMode {
+	if (navbar.navbarMode) return navbar.navbarMode;
+	return navbar.stickyNavbar === false ? "static" : "fixed";
+}
+
+/** 当前导航栏模式（已按 navbarMode / 旧 stickyNavbar 解析），供各消费方统一读取 */
+export const navbarMode: NavbarMode = resolveNavbarMode(siteConfig.navbar);
 export { sponsorConfig } from "@shared/config/sponsorConfig";
 export type {
 	AdConfig,

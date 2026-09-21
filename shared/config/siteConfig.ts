@@ -1,3 +1,4 @@
+import type { NavbarMode } from "@/types/navBarConfig";
 import type { SiteConfig } from "@/types/siteConfig";
 import { resolvePageToggles } from "../utils/page-toggle-utils";
 import { resolveSiteLang } from "../utils/site-config-utils";
@@ -77,7 +78,9 @@ export const siteConfig: SiteConfig = {
 		// 菜单对齐方式：left 左对齐，center 居中
 		menuAlign: "center",
 		followTheme: false,
-		stickyNavbar: true,
+		// 导航栏模式：static（不固定，随页面滚动消失）/ fixed（固定在顶部常显）/ dynamic（固定在顶部，下滑隐藏、轻微上滑显示）
+		// 保持 Firedre 原行为（原 stickyNavbar: true → fixed）
+		navbarMode: "fixed" as NavbarMode,
 	},
 
 	// 用于统计站点运行天数
