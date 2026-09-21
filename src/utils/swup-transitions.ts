@@ -1,4 +1,8 @@
-import { expressiveCodeConfig, navbarMode, siteConfig } from "@/config";
+import {
+	expressiveCodeConfig,
+	resolveClientNavbarMode,
+	siteConfig,
+} from "@/config";
 import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
@@ -24,6 +28,9 @@ import {
 	updateNavbarTransparency,
 } from "@/utils/setting-utils";
 import { pathsEqual, url } from "@/utils/url-utils";
+
+// 导航栏模式：后台运行时设置优先（window.__FIREFLY_SETTINGS__），静态配置兜底
+const navbarMode = resolveClientNavbarMode();
 
 function startProgressBar(): void {
 	const bar = document.getElementById("progress-bar");

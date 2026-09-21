@@ -1034,6 +1034,9 @@ export function getWallpaperConfigFromWindow() {
 export function getPanelConfigFromWindow() {
 	return getPanelConfig({ settings: windowSettings() });
 }
+export function getNavbarConfigFromWindow() {
+	return getNavbarConfig({ settings: windowSettings() });
+}
 export function getExpressiveCodeConfigFromWindow() {
 	return getExpressiveCodeConfig({ settings: windowSettings() });
 }

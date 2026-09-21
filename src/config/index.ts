@@ -21,6 +21,7 @@ export { profileConfig } from "@shared/config/profileConfig";
 export { sidebarLayoutConfig } from "@shared/config/sidebarConfig";
 export { siteConfig } from "@shared/config/siteConfig";
 
+import { getNavbarConfigFromWindow } from "@shared/config/runtime";
 import { siteConfig } from "@shared/config/siteConfig";
 import type { NavbarMode } from "../types/navBarConfig";
 
@@ -35,6 +36,15 @@ export function resolveNavbarMode(navbar: {
 
 /** 当前导航栏模式（已按 navbarMode / 旧 stickyNavbar 解析），供各消费方统一读取 */
 export const navbarMode: NavbarMode = resolveNavbarMode(siteConfig.navbar);
+
+let clientNavbarMode: NavbarMode | null = null;
+
+/** 客户端导航栏模式：后台运行时设置（window.__FIREFLY_SETTINGS__）优先，静态配置兜底 */
+export function resolveClientNavbarMode(): NavbarMode {
+	if (clientNavbarMode) return clientNavbarMode;
+	clientNavbarMode = resolveNavbarMode(getNavbarConfigFromWindow());
+	return clientNavbarMode;
+}
 export { sponsorConfig } from "@shared/config/sponsorConfig";
 export type {
 	AdConfig,
