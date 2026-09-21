@@ -1,0 +1,94 @@
+/*
+ * Vditor 皮肤：nexusdown 设计令牌
+ * 双写选择器（.vditor.vditor）确保覆盖 vditor 自带变量，与加载顺序无关
+ */
+
+/* ---------- 浅色 ---------- */
+.vditor.vditor {
+	--border-color: #e5e7eb;
+	--second-color: rgba(107, 114, 128, 0.36);
+	--panel-background-color: #ffffff;
+	--panel-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+	--toolbar-background-color: #fafafa;
+	--toolbar-icon-color: #6b7280;
+	--toolbar-icon-hover-color: #2563eb;
+	--toolbar-height: 48px;
+	--toolbar-divider-margin-top: 12px;
+	--textarea-background-color: #ffffff;
+	--textarea-text-color: #1f2937;
+	--count-background-color: transparent;
+	--heading-border-color: #e5e7eb;
+	--blockquote-color: #6b7280;
+
+	border-radius: 8px;
+}
+
+.vditor.vditor .vditor-toolbar {
+	padding: 6px 10px;
+}
+
+.vditor.vditor .vditor-toolbar__item .vditor-tooltipped {
+	width: 32px;
+	border-radius: 5px;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.vditor.vditor .vditor-toolbar__item .vditor-tooltipped:hover,
+.vditor.vditor .vditor-toolbar__item .vditor-tooltipped:focus {
+	color: var(--toolbar-icon-hover-color);
+	background-color: #eef2f7;
+}
+
+.vditor.vditor .vditor-toolbar__item .vditor-tooltipped.vditor-menu--current {
+	color: var(--toolbar-icon-hover-color);
+	background-color: #dbeafe;
+}
+
+.vditor.vditor .vditor-panel {
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+}
+
+.vditor.vditor .vditor-input:focus {
+	background-color: var(--panel-background-color);
+	box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.vditor.vditor .vditor-reset {
+	line-height: 1.65;
+}
+
+.vditor.vditor .vditor-wysiwyg pre.vditor-reset {
+	padding: 20px 24px;
+}
+
+.vditor.vditor .vditor-counter {
+	padding: 4px 8px;
+}
+
+/* ---------- 深色（nexusdown dark 令牌） ---------- */
+.vditor.vditor--dark {
+	--border-color: #334155;
+	--second-color: rgba(148, 163, 184, 0.36);
+	--panel-background-color: #111827;
+	--panel-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+	--toolbar-background-color: #172033;
+	--toolbar-icon-color: #94a3b8;
+	--toolbar-icon-hover-color: #60a5fa;
+	--textarea-background-color: #111827;
+	--textarea-text-color: #e5e7eb;
+	--count-background-color: transparent;
+	--heading-border-color: #334155;
+	--blockquote-color: #94a3b8;
+}
+
+.vditor.vditor--dark .vditor-toolbar__item .vditor-tooltipped:hover,
+.vditor.vditor--dark .vditor-toolbar__item .vditor-tooltipped:focus {
+	background-color: #263449;
+}
+
+.vditor.vditor--dark .vditor-toolbar__item .vditor-tooltipped.vditor-menu--current {
+	background-color: rgba(96, 165, 250, 0.16);
+}

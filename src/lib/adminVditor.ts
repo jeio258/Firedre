@@ -8,11 +8,37 @@ export function syncVditorTheme(root: HTMLElement): void {
 // 监听 html class 变化并同步当前 Vditor 实例
 export function observeVditorTheme(root: HTMLElement): MutationObserver {
 	const mo = new MutationObserver(() => syncVditorTheme(root));
-	mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+	mo.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["class"],
+	});
 	return mo;
 }
 
 type VditorInstance = import("vditor").default;
+
+// 后台发文高频项，精简到单行放得下（nexusdown 式单行工具栏）
+const ADMIN_TOOLBAR = [
+	"headings",
+	"bold",
+	"italic",
+	"strike",
+	"|",
+	"quote",
+	"list",
+	"ordered-list",
+	"check",
+	"|",
+	"inline-code",
+	"code",
+	"table",
+	"link",
+	"upload",
+	"|",
+	"undo",
+	"redo",
+	"edit-mode",
+];
 
 /** 统一的 Vditor 初始化：所见即所得模式 + 本地 CDN + 明暗主题跟随 */
 export async function createAdminVditor(
@@ -20,7 +46,11 @@ export async function createAdminVditor(
 	options: {
 		value: string;
 		height: number;
-		upload?: { url: string; fieldName: string; headers: Record<string, string> };
+		upload?: {
+			url: string;
+			fieldName: string;
+			headers: Record<string, string>;
+		};
 		onThemeObserver: (mo: MutationObserver) => void;
 	},
 ): Promise<VditorInstance> {
@@ -31,6 +61,7 @@ export async function createAdminVditor(
 		value: options.value,
 		cdn: "/vditor",
 		cache: { enable: false },
+		toolbar: [...ADMIN_TOOLBAR],
 		...(options.upload ? { upload: options.upload } : {}),
 		after: () => {
 			const root = document.querySelector<HTMLElement>(".vditor");
