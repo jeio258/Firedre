@@ -6,10 +6,7 @@ import {
 } from "@/constants/constants";
 import type { WALLPAPER_MODE } from "@/types/config";
 import { isBannerMode } from "@/utils/banner-utils";
-import {
-	isMobileViewport,
-	isTabletOrBelowViewport,
-} from "@/utils/breakpoints";
+import { isMobileViewport, isTabletOrBelowViewport } from "@/utils/breakpoints";
 import { scheduleContentOverflowEnhancements } from "@/utils/content-overflow-utils";
 import { initializeFloatingPanels } from "@/utils/floating-panel-utils";
 import {
@@ -58,7 +55,9 @@ function syncDocumentTitle(visit: { to?: { html?: string } }): void {
 	if (!raw || raw === document.title) return;
 	let decoded = raw;
 	try {
-		decoded = new DOMParser().parseFromString(`<title>${raw}</title>`, "text/html").title || raw;
+		decoded =
+			new DOMParser().parseFromString(`<title>${raw}</title>`, "text/html")
+				.title || raw;
 	} catch {
 		decoded = raw;
 	}
@@ -81,11 +80,9 @@ function finishProgressBar(): void {
 }
 
 function registerSwupHooks(): void {
-
 	window.swup.hooks.on(
 		"link:click",
 		(_visit: unknown, { el }: { el: HTMLAnchorElement }) => {
-
 			document.documentElement.style.setProperty("--content-delay", "0ms");
 
 			// 软导航开始即关闭全部浮动面板，避免移动菜单等残留遮挡新页
@@ -129,34 +126,39 @@ function registerSwupHooks(): void {
 			}
 		},
 	);
-	window.swup.hooks.on("content:replace", (visit: { to?: { html?: string } }) => {
+	window.swup.hooks.on(
+		"content:replace",
+		(visit: { to?: { html?: string } }) => {
+			syncDocumentTitle(visit);
 
-		syncDocumentTitle(visit);
+			initializeFloatingPanels();
 
-		initializeFloatingPanels();
+			// 只处理katex元素的容器，使用浏览器原生滚动条
+			scheduleContentOverflowEnhancements();
 
-		// 只处理katex元素的容器，使用浏览器原生滚动条
-		scheduleContentOverflowEnhancements();
+			import("@/utils/icon-loader").then(({ initIconLoader }) => {
+				initIconLoader();
+			});
 
-				import("@/utils/icon-loader").then(({ initIconLoader }) => {
-			initIconLoader();
-		});
+			const navbar = document.getElementById("navbar");
+			if (navbar) {
+				const transparentMode = navbar.getAttribute("data-transparent-mode");
+				const navWallpaperMode = document.documentElement.getAttribute(
+					"data-wallpaper-mode",
+				);
 
-		const navbar = document.getElementById("navbar");
-		if (navbar) {
-			const transparentMode = navbar.getAttribute("data-transparent-mode");
-			const navWallpaperMode = document.documentElement.getAttribute(
-				"data-wallpaper-mode",
-			);
-
-			if (transparentMode === "semifull" && navWallpaperMode !== "fullscreen") {
-				// 重新调用初始化函数来重新绑定滚动事件
-				if (typeof window.initSemifullScrollDetection === "function") {
-					window.initSemifullScrollDetection();
+				if (
+					transparentMode === "semifull" &&
+					navWallpaperMode !== "fullscreen"
+				) {
+					// 重新调用初始化函数来重新绑定滚动事件
+					if (typeof window.initSemifullScrollDetection === "function") {
+						window.initSemifullScrollDetection();
+					}
 				}
 			}
-		}
-	});
+		},
+	);
 	window.swup.hooks.on("visit:start", (visit: { to: { url: string } }) => {
 		// Start progress bar（WAAPI 合成线程动画，不强制回流）
 		startProgressBar();
@@ -169,21 +171,18 @@ function registerSwupHooks(): void {
 		) as HTMLElement | null;
 
 		if (isHomePage !== wasHome && contentPanel) {
-			const oldTop = contentPanel.getBoundingClientRect().top; 			bodyElement.classList.toggle("is-home", isHomePage);
-			const newTop = contentPanel.getBoundingClientRect().top; 			const delta = oldTop - newTop;
+			const oldTop = contentPanel.getBoundingClientRect().top;
+			bodyElement.classList.toggle("is-home", isHomePage);
+			const newTop = contentPanel.getBoundingClientRect().top;
+			const delta = oldTop - newTop;
 
 			if (delta !== 0 && Math.abs(delta) <= window.innerHeight * 0.75) {
-
-				contentPanel.style.willChange = "transform";
+				// 不再设置 will-change:transform——会把整页内容预提升为合成层，软导航后旧光栅残留发糊 (#615)
 				contentPanel.style.transition = "none";
 				contentPanel.style.transform = `translateY(${delta}px)`;
 				void contentPanel.offsetWidth;
 				contentPanel.style.transition = "";
 				contentPanel.style.transform = "";
-				window.setTimeout(
-					() => contentPanel.style.removeProperty("will-change"),
-					260,
-				);
 			}
 		}
 
@@ -225,7 +224,7 @@ function registerSwupHooks(): void {
 		}
 	});
 	window.swup.hooks.on("page:view", () => {
-				updateMainGridCols();
+		updateMainGridCols();
 		updateSidebarComponentsVisibility();
 
 		const heightExtend = document.getElementById("page-height-extend");
@@ -256,7 +255,7 @@ function registerSwupHooks(): void {
 				if (postListContainer) {
 					postListContainer.style.transition = "";
 				}
-			}, 600);                                                
+			}, 600);
 		}
 
 		const storedTheme =
@@ -265,7 +264,7 @@ function registerSwupHooks(): void {
 			"light";
 		let isDark = false;
 
-				if (storedTheme === "system") {
+		if (storedTheme === "system") {
 			isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 		} else {
 			isDark = storedTheme === "dark";

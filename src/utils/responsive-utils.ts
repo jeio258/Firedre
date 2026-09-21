@@ -29,9 +29,9 @@ export function getResponsiveSidebarConfig(): ResponsiveSidebarConfig {
 		position !== "left" &&
 		sidebarLayoutConfig.rightComponents.some((comp) => comp.enable);
 
-	const mobileShowSidebar = false;                  
-	const tabletShowSidebar = sidebarLayoutConfig.enable;              
-	const desktopShowSidebar = sidebarLayoutConfig.enable;               
+	const mobileShowSidebar = false;
+	const tabletShowSidebar = sidebarLayoutConfig.enable;
+	const desktopShowSidebar = sidebarLayoutConfig.enable;
 
 	return {
 		isBothSidebars,
@@ -56,11 +56,9 @@ export function generateGridClasses(config: ResponsiveSidebarConfig): {
 		config.hasRightComponents
 	) {
 		if (config.tabletSidebar === "right") {
-
 			gridCols =
 				"grid-cols-1 md:grid-cols-[1fr_17.5rem] xl:grid-cols-[17.5rem_1fr_17.5rem]";
 		} else {
-
 			gridCols =
 				"grid-cols-1 md:grid-cols-[17.5rem_1fr] xl:grid-cols-[17.5rem_1fr_17.5rem]";
 		}
@@ -113,8 +111,8 @@ export function generateRightSidebarClasses(
 			"md:row-end-3",
 			"md:col-span-1",
 			"md:max-w-70",
-			"md:col-start-2",           
-			"xl:col-start-3",           
+			"md:col-start-2",
+			"xl:col-start-3",
 		);
 	} else if (config.isBothSidebars) {
 		// 双侧栏+平板端显示左侧栏（默认）：仅1280px+显示
@@ -193,7 +191,10 @@ export function generateMainContentClasses(
 	}
 
 	classes.push("min-w-0");
-	classes.push("overflow-hidden");
+	// 只裁横向、纵向放开：评论区浮层（如 Waline 表情面板）需能溢出内容列；
+	// clip 不产生滚动容器，不影响列内吸顶（上游 #636）
+	classes.push("overflow-x-clip");
+	classes.push("overflow-y-visible");
 
 	return classes.join(" ");
 }

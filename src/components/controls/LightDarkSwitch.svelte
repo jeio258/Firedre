@@ -3,7 +3,6 @@ import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
 import DropdownItem from "@/components/common/DropdownItem.svelte";
-import DropdownPanel from "@/components/common/DropdownPanel.svelte";
 import Icon from "@/components/common/Icon.svelte";
 import { DARK_MODE, LIGHT_MODE, SYSTEM_MODE } from "@/constants/constants";
 import type { LIGHT_DARK_MODE } from "@/types/config.ts";
@@ -111,7 +110,7 @@ onMount(() => {
 });
 </script>
 
-<div class="relative z-50">
+<div class="z-50">
 	<button aria-label="Light/Dark Mode" aria-haspopup="menu" aria-controls="theme-mode-panel" aria-expanded="false" class="relative btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90" id="scheme-switch">
         <div class="absolute inset-0 flex items-center justify-center" class:opacity-0={displayedMode !== LIGHT_MODE}>
             <Icon icon="material-symbols:wb-sunny-outline-rounded" class="text-[1.25rem]"></Icon>
@@ -120,9 +119,8 @@ onMount(() => {
             <Icon icon="material-symbols:dark-mode-outline-rounded" class="text-[1.25rem]"></Icon>
         </div>
     </button>
-    <div id="theme-mode-panel" class="absolute transition float-panel-closed top-11 -right-2 pt-5 z-50" role="menu" aria-labelledby="scheme-switch" data-floating-panel data-floating-panel-trigger="scheme-switch" inert aria-hidden="true">
-        <DropdownPanel>
-            <DropdownItem
+    <div id="theme-mode-panel" class="float-panel float-panel-closed absolute transition-all top-21 right-4 p-2 z-50" role="menu" aria-labelledby="scheme-switch" data-floating-panel data-floating-panel-trigger="scheme-switch" inert aria-hidden="true">
+        <DropdownItem
                 role="menuitem"
                 isActive={mode === LIGHT_MODE}
                 isLast={false}
@@ -149,6 +147,5 @@ onMount(() => {
                 <Icon icon="material-symbols:brightness-auto-outline-rounded" class="text-[1.25rem] mr-3"></Icon>
                 {i18n(I18nKey.systemMode)}
             </DropdownItem>
-        </DropdownPanel>
     </div>
 </div>
