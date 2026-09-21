@@ -1,13 +1,11 @@
 import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 
 export const backgroundWallpaper: BackgroundWallpaperConfig = {
-
 	mode: "banner",
 	// 是否启用背景视频播放，配置后将在导航栏显示视频播放按钮
 	playerEnable: true,
 
 	src: {
-
 		desktop: [
 			"assets/images/DesktopWallpaper/d1.avif",
 			"assets/images/DesktopWallpaper/d2.avif",
@@ -48,7 +46,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 			],
 			subtitleSize: "1.5rem",
 			typewriter: {
-
 				enable: true,
 				// 打字速度（毫秒）
 				speed: 100,
@@ -95,17 +92,16 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	},
 	// Banner模式特有配置
 	banner: {
-
 		position: "0% 20%",
 
 		postInfo: {
 			mode: "description",
 		},
 		navbar: {
-
 			transparentMode: "semi",
 
-			blur: 5,
+			// 导航栏毛玻璃模糊度（同时驱动导航玻璃与浮动面板/子菜单），0 即关闭
+			blur: 12,
 		},
 		// 水波纹动画效果配置，开启会影响页面性能，增加内存占用，请根据自己的喜好开启
 		waves: {
@@ -125,7 +121,6 @@ export const backgroundWallpaper: BackgroundWallpaperConfig = {
 	},
 	// 覆盖透明覆盖模式特有配置
 	overlay: {
-
 		zIndex: 0,
 		opacity: 0.8,
 		blur: 10,
