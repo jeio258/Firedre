@@ -1,3 +1,4 @@
+import type { SettingsView } from "@server/settings/service";
 import type { APIRoute } from "astro";
 import { siteConfig } from "@/config";
 import { withProxyGuard } from "@/lib/proxyCache";
@@ -46,18 +47,18 @@ async function fetchAll(
 export const GET: APIRoute = async ({ request, url, locals }) => {
 	try {
 		return await withProxyGuard(request, url, async () => {
-			const settings = ((locals as { settings?: Record<string, any> })
-				?.settings ?? {}) as Record<string, any>;
-			const malSettings =
-				settings?.["myanimelist"] ??
-				settings?.["mal"] ??
-				(siteConfig as any).mal ??
+			type MalGroup = NonNullable<typeof siteConfig.mal> & {
+				username?: string;
+			};
+			const settings = (locals as { settings?: SettingsView } | undefined)
+				?.settings;
+			const malSettings: MalGroup =
+				((settings?.myanimelist ?? settings?.mal) as MalGroup | undefined) ??
+				siteConfig.mal ??
 				{};
-			const username = (malSettings.username as string | undefined) || "";
-			const clientId = (malSettings.clientId as string | undefined) || "";
-			const apiUrl =
-				(malSettings.apiUrl as string | undefined) ||
-				"https://api.myanimelist.net/v2";
+			const username = malSettings.username || "";
+			const clientId = malSettings.clientId || "";
+			const apiUrl = malSettings.apiUrl || "https://api.myanimelist.net/v2";
 
 			if (!username.trim() || !clientId.trim()) {
 				return json({ error: "MAL username / clientId 未配置" }, 400);

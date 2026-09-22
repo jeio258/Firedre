@@ -1,14 +1,11 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import {
 	getImageFormats,
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@shared/utils/image-utils";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
-import { coverImageConfig } from "@/config";
+import { getCoverConfig } from "@/config/runtime";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
@@ -75,10 +72,7 @@ const sizes = preview
 	: "(max-width: 768px) 100vw, 828px";
 const quality = configQuality;
 
-const showLoading =
-	((settings as any)?.["cover"] as any)?.["showLoading"] ??
-	coverImageConfig.showLoading ??
-	true;
+const showLoading = getCoverConfig(Astro.locals).showLoading;
 
 // 检查远程图片是否需要 referrerpolicy
 const remoteReferrerPolicy =

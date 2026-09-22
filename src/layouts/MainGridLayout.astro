@@ -90,7 +90,7 @@ const categoryBarSetting = (settings as { categoryBar?: unknown }).categoryBar;
 const shouldRenderCategoryBar =
 	typeof categoryBarSetting === "boolean"
 		? categoryBarSetting
-		: !!((settings as any)?.["categoryBar"] ?? siteConfig.categoryBar);
+		: !!(categoryBarSetting ?? siteConfig.categoryBar);
 // 导航栏配置统一走运行时入口（D1 的 nav 组；静态仅极端兜底）
 const navbarConfigRuntime = getNavbarConfig(Astro.locals);
 const navbarWidthFull = navbarConfigRuntime.widthFull ?? false;

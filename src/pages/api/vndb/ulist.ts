@@ -1,3 +1,4 @@
+import type { SettingsView } from "@server/settings/service";
 import type { APIRoute } from "astro";
 import { siteConfig } from "@/config";
 import { json, serverError } from "@/lib/api";
@@ -10,17 +11,16 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, url, locals }) => {
 	try {
 		return await withProxyGuard(request, url, async () => {
-			const settings = ((locals as { settings?: Record<string, any> })
-				?.settings ?? {}) as Record<string, any>;
-			const vndbSettings = settings?.["vndb"] ?? (siteConfig as any).vndb ?? {};
-			const userId =
-				(vndbSettings.username as string | undefined) ||
-				(vndbSettings.userId as string | undefined) ||
-				"";
-			const apiToken = (vndbSettings.apiToken as string | undefined) || "";
-			const apiUrl =
-				(vndbSettings.apiUrl as string | undefined) ||
-				"https://api.vndb.org/kana";
+			type VndbGroup = NonNullable<typeof siteConfig.vndb> & {
+				username?: string;
+			};
+			const settings = (locals as { settings?: SettingsView } | undefined)
+				?.settings;
+			const vndbSettings: VndbGroup =
+				(settings?.vndb as VndbGroup | undefined) ?? siteConfig.vndb ?? {};
+			const userId = vndbSettings.username || vndbSettings.userId || "";
+			const apiToken = vndbSettings.apiToken || "";
+			const apiUrl = vndbSettings.apiUrl || "https://api.vndb.org/kana";
 
 			if (!userId.trim() || userId === "you-user-id" || !apiToken.trim()) {
 				return json({ error: "VNDB userId / apiToken 未配置" }, 400);

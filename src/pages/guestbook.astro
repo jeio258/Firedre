@@ -1,13 +1,10 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/common.css";
 import Comment from "@components/comment/index.astro";
 import Markdown from "@components/common/Markdown.astro";
 import { Icon } from "astro-icon/components";
 import { commentConfig } from "@/config";
-import { getSiteConfig } from "@/config/runtime";
+import { getCommentConfig, getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
@@ -32,9 +29,7 @@ try {
 }
 
 const isCommentEnabled =
-	commentConfig?.type &&
-	(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) !==
-		"none";
+	commentConfig?.type && getCommentConfig(Astro.locals).type !== "none";
 
 const title = i18n(I18nKey.guestbook);
 const description = i18n(I18nKey.guestbookDescription);

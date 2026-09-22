@@ -112,7 +112,7 @@ function buildIconDataUrl(icon: string, color: string): string | null {
 }
 
 function resolveSiteLogoSource(color: string, size: number): string | null {
-	const logo = ((settings as any)?.["navbar"] ?? siteConfig.navbar).logo;
+	const logo = siteConfig.navbar.logo;
 	if (!logo?.value) return null;
 
 	if (logo.type === "icon") {

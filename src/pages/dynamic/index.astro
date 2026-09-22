@@ -22,7 +22,7 @@ if (!getSiteConfig(Astro.locals).pages.dynamic) {
 	return Astro.redirect("/404/");
 }
 
-// 后台设置（动态主路径）→ 静态动态配置（极端兜底）；类型化读取，避免 as any
+// 后台设置（动态主路径）→ 静态动态配置（极端兜底）；类型化读取，避免显式 any 断言
 const dynamicSettings: DynamicConfig =
 	(settings["dynamic"] as DynamicConfig | undefined) ?? {};
 const commentSettings = (settings["comment"] ?? {}) as Partial<CommentConfig>;

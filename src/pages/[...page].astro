@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/card-grid.css";
 import "@/styles/banner-home.css";
 import Pagination from "@/components/common/Pagination.astro";
@@ -19,10 +16,8 @@ const { listPosts } = await import("@server/posts/service");
 const { cfEnv } = await import("../lib/api");
 
 const pageNum = Astro.params.page ? Number(Astro.params.page) : 1;
-const pageSize = Math.max(
-	1,
-	((settings as any)?.["pagination"] ?? siteConfig.pagination).postsPerPage,
-);
+// 分页大小来自静态 siteConfig（无对应设置组）
+const pageSize = Math.max(1, siteConfig.pagination.postsPerPage);
 const result = await listPosts(cfEnv, { page: pageNum, pageSize });
 const posts = result.posts.map(apiPostToPostForList);
 const totalPages = Math.max(1, Math.ceil(result.total / pageSize));

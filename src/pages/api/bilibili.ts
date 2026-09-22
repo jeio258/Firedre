@@ -1,3 +1,4 @@
+import type { SettingsView } from "@server/settings/service";
 import type { APIRoute } from "astro";
 import { siteConfig } from "@/config";
 import { withProxyGuard } from "@/lib/proxyCache";
@@ -10,12 +11,12 @@ export const prerender = false;
 export const GET: APIRoute = async ({ request, url, locals }) => {
 	try {
 		return await withProxyGuard(request, url, async () => {
-			const settings = ((locals as { settings?: Record<string, any> })
-				?.settings ?? {}) as Record<string, any>;
+			const settings = (locals as { settings?: SettingsView } | undefined)
+				?.settings;
 			const uid =
 				url.searchParams.get("uid")?.trim() ||
-				settings?.["bilibili"]?.uid ||
-				(siteConfig as any).bilibili?.uid;
+				(settings?.bilibili as { uid?: string } | undefined)?.uid ||
+				siteConfig.bilibili?.uid;
 			if (!uid) {
 				return json({ error: "bilibili uid 未配置" }, 400);
 			}

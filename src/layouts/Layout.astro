@@ -77,8 +77,8 @@ const isHomePageCheck = isHomePage(Astro.url.pathname);
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）
 // 实际存储为「分组 + 扁平」并存：basic/theme/post 等分组键与扁平键都可读，
-// 故在 SettingsShape 之上放开索引签名，避免各处 as any 断言。
-// TODO(A2-后续)：深层读取（settings.theme.overlay.* 等）需分组类型化后再切 SettingsView（现为 25 处待类型化）
+// 故在 SettingsShape 之上放开索引签名，避免各处显式 any 断言。
+// TODO(A2-后续)：深层读取（settings.theme.overlay.* 等）需分组类型化后再切 SettingsView（现约 25 处待类型化）
 type LayoutSettings = import("@server/settings/service").SettingsShape &
 	Record<string, any>;
 
