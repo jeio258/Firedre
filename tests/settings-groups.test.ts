@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { flattenSettingsDefaults } from "../server/settings/flatten";
 import { SETTING_GROUPS } from "../server/settings/service";
 
-const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt"];
+const REMOVED_DEAD_GROUPS = ["widgets", "expressive", "encrypt"]; // 注：plantuml/expressiveCode 是活组（schema+defaults+flatten 均在），勿加入此表
 
 describe("SETTING_GROUPS 已清除死配置组", () => {
-	it("四个死组（widgets/expressive/encrypt/plantuml）不再出现", () => {
+	it("死组（widgets/expressive/encrypt）不再出现", () => {
 		for (const g of REMOVED_DEAD_GROUPS) {
 			expect(SETTING_GROUPS).not.toContain(g);
 		}
