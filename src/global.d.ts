@@ -77,6 +77,23 @@ declare global {
 
 		__coverImageInit?: boolean;
 
+		// Calendar 组件：内联脚本注入的配置与跨页缓存（F-1 类型化补齐）
+		__fireflyCalendarConfig: {
+			monthNames: string[];
+			weekDays: string[];
+			yearText: string;
+			currentLang: string;
+			calendarDataUrl: string;
+			postUrlPrefix: string;
+			heatmapWeekTemplate: string;
+		};
+		__allPostMetaCache?: Array<{
+			id: string | number;
+			title: string;
+			published: string;
+		}>;
+		__calendarInit?: boolean;
+
 		__floatingTOCAutoCloseInit?: boolean;
 
 		__postPageInit?: boolean;

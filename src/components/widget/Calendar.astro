@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import { siteConfig } from "@shared/config/siteConfig";
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
@@ -122,11 +119,9 @@ const postUrlPrefix = url("/posts/");
 window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, calendarDataUrl, postUrlPrefix, heatmapWeekTemplate };
 </script>
 <script>
-  // @ts-nocheck
   import { escapeHtml } from "@/utils/escape-html";
   const __cfg = window.__fireflyCalendarConfig;
   const monthNames = __cfg.monthNames;
-  const weekDays = __cfg.weekDays;
   const yearText = __cfg.yearText;
   const currentLang = __cfg.currentLang;
   const calendarDataUrl = __cfg.calendarDataUrl;
@@ -135,9 +130,10 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
   let displayYear = new Date().getFullYear();
   let displayMonth = new Date().getMonth();
   let currentView = 'day'; // 'day' | 'month' | 'year'
-  let postDateMap = {};
-  let allPostsData = [];
-  let availableYears = [];
+  type CalendarPost = { id: string | number; title: string; published: string };
+  let postDateMap: Record<string, CalendarPost[]> = {};
+  let allPostsData: CalendarPost[] = [];
+  let availableYears: number[] = [];
 
   async function fetchData() {
     try {
@@ -151,7 +147,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       }
 
       postDateMap = {};
-      const yearsSet = new Set();
+      const yearsSet = new Set<number>();
       allPostsData.forEach(post => {
         const date = new Date(post.published);
         const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -205,9 +201,9 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
           : `background-color: var(--primary); opacity: ${opacityLevels[level]}`;
 
         const tooltip = heatmapWeekTemplate
-          .replace('{month}', month + 1)
-          .replace('{week}', week + 1)
-          .replace('{count}', count);
+          .replace('{month}', String(month + 1))
+          .replace('{week}', String(week + 1))
+          .replace('{count}', String(count));
         cellsHtml += `<div class="heatmap-cell rounded-sm" style="${bgStyle}" data-tooltip="${tooltip}" data-month="${month}"></div>`;
       }
     }
@@ -215,7 +211,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
     gridEl.querySelectorAll('.heatmap-cell[data-month]').forEach(cell => {
       cell.addEventListener('click', () => {
-        const m = parseInt(cell.getAttribute('data-month'));
+        const m = parseInt(cell.getAttribute('data-month') ?? '', 10);
         displayMonth = m;
         currentView = 'day';
         renderCalendar();
@@ -421,7 +417,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
     container.querySelectorAll('[data-month]').forEach(el => {
       el.addEventListener('click', () => {
-        displayMonth = parseInt(el.getAttribute('data-month'));
+        displayMonth = parseInt(el.getAttribute('data-month') ?? '', 10);
         currentView = 'day';
         renderCalendar();
       });
@@ -447,7 +443,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
     container.querySelectorAll('[data-year]').forEach(el => {
       el.addEventListener('click', () => {
-        displayYear = parseInt(el.getAttribute('data-year'));
+        displayYear = parseInt(el.getAttribute('data-year') ?? '', 10);
         currentView = 'month';
         renderCalendar();
       });
@@ -455,7 +451,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
   }
 
   // 显示当月所有文章
-  function showMonthlyPosts(currentMonthPosts) {
+  function showMonthlyPosts(currentMonthPosts: CalendarPost[]) {
     const postsWrapper = document.getElementById('calendar-posts');
     const postsList = document.getElementById('calendar-posts-list');
     const divider = document.getElementById('calendar-posts-divider');
@@ -483,13 +479,13 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     }
   }
 
-  function setupClickHandlers(currentMonthPosts) {
+  function setupClickHandlers(currentMonthPosts: CalendarPost[]) {
     const postsWrapper = document.getElementById('calendar-posts');
-    const calendarDays = document.querySelectorAll('.calendar-day[data-date]');
+    const calendarDays = document.querySelectorAll<HTMLElement>('.calendar-day[data-date]');
     const postsList = document.getElementById('calendar-posts-list');
     const divider = document.getElementById('calendar-posts-divider');
 
-    let currentSelectedDay = null;
+    let currentSelectedDay: HTMLElement | null = null;
 
     calendarDays.forEach(dayElement => {
       dayElement.addEventListener('click', () => {
@@ -540,7 +536,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     });
   }
 
-  function changeMonth(delta) {
+  function changeMonth(delta: number) {
     if (currentView === 'day') {
       displayMonth += delta;
       if (displayMonth > 11) {
