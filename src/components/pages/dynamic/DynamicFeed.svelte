@@ -1,11 +1,14 @@
 <script lang="ts">
 import { onMount, tick } from "svelte";
 import ClientPagination from "@/components/common/ClientPagination.svelte";
-import { formatDynamicLocalDate, formatTimezoneOffset } from "@/utils/date-utils";
+import {
+	formatDynamicLocalDate,
+	formatTimezoneOffset,
+} from "@/utils/date-utils";
 import { fetchMemos } from "@/utils/memos-adapter";
+import { sanitizeDynamicHtml } from "@/utils/sanitize-html";
 import { registerDynamicGallery } from "./dynamic-gallery";
 import { registerDynamicInlineComments } from "./dynamic-inline-comments";
-import { sanitizeDynamicHtml } from "@/utils/sanitize-html";
 
 type DynamicImage = {
 	alt: string;
@@ -219,7 +222,7 @@ function createItem(entry: DynamicData) {
 		}
 	}
 
-	const comments = root.querySelector<HTMLElement>("dynamic-inline-comments");
+	const comments = root.querySelector<HTMLElement>("page-inline-comments");
 	if (comments) {
 		if (showComments) {
 			comments.dataset.src = `/dynamic/comments/?path=${encodeURIComponent(
@@ -322,21 +325,21 @@ onMount(() => {
 </script>
 
 {#if loading}
-	<div class="dynamic-loading card-base" role="status">
-		<span class="dynamic-loading-spinner" aria-hidden="true"></span>
+	<div class="page-loading card-base" role="status">
+		<span class="page-loading-spinner" aria-hidden="true"></span>
 		<p>{loadingText}</p>
 	</div>
 {:else if failed || entries.length === 0}
-	<div class="dynamic-empty card-base">
+	<div class="page-empty card-base">
 		<p>{emptyText}</p>
 	</div>
 {:else if filtered.length === 0}
-	<div class="dynamic-no-results card-base">
+	<div class="page-no-results card-base">
 		<p>{noResultsText}</p>
 	</div>
 {/if}
 
-<div class="dynamic-feed" bind:this={list}></div>
+<div class="page-feed" bind:this={list}></div>
 
 {#if !loading && !failed}
 	<ClientPagination

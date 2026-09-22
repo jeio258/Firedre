@@ -1,5 +1,5 @@
 export function registerDynamicInlineComments(): void {
-	if (customElements.get("dynamic-inline-comments")) return;
+	if (customElements.get("page-inline-comments")) return;
 
 	class DynamicInlineComments extends HTMLElement {
 		private frame?: HTMLIFrameElement;
@@ -65,7 +65,7 @@ export function registerDynamicInlineComments(): void {
 
 		private load(panel: HTMLElement) {
 			const frame = document.createElement("iframe");
-			frame.className = "dynamic-comment-frame";
+			frame.className = "page-comment-frame";
 			frame.src = this.dataset.src || "";
 			frame.title =
 				this.querySelector<HTMLElement>("[data-comment-toggle] span")
@@ -77,5 +77,5 @@ export function registerDynamicInlineComments(): void {
 		}
 	}
 
-	customElements.define("dynamic-inline-comments", DynamicInlineComments);
+	customElements.define("page-inline-comments", DynamicInlineComments);
 }

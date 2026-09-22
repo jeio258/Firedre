@@ -75,8 +75,8 @@ const memos =
 					<strong data-dynamic-page-count>0</strong>
 					<span>{i18n(I18nKey.dynamic)}</span>
 				</div>
-				<div class="dynamic-filter">
-					<label class="dynamic-search">
+				<div class="page-filter">
+					<label class="page-search">
 						<Icon name="material-symbols:search-rounded" />
 						<input
 							type="search"
@@ -84,7 +84,7 @@ const memos =
 							placeholder={i18n(I18nKey.dynamicSearch)}
 						/>
 					</label>
-					<label class="dynamic-year-select">
+					<label class="page-year-select">
 						<Icon name="material-symbols:calendar-month-rounded" />
 						<select data-year-select aria-label={i18n(I18nKey.year)}>
 							<option value="all">{i18n(I18nKey.dynamicAllYears)}</option>
