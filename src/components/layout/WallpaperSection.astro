@@ -232,9 +232,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
 
     {state.hasMultipleImages && (
     <script>
-        // @ts-nocheck
         (function initBannerCarousel() {
-            var container = document.getElementById('banner-images-container');
+            const container = document.getElementById('banner-images-container');
             if (!container) return;
 
             var WALLPAPER_BANNER = 'banner';
@@ -256,32 +255,33 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 return mode === WALLPAPER_BANNER || mode === 'fullscreen';
             }
 
-            function fadeInWhenLoaded(root) {
-                var ph = root.querySelector('.lqip-placeholder');
-                var img = root.querySelector('img');
+            function fadeInWhenLoaded(root: Element) {
+                const ph = root.querySelector('.lqip-placeholder');
+                const img = root.querySelector<HTMLImageElement>('img');
                 if (!img) return;
+                const imgEl = img;
                 function done() {
-                    img.style.opacity = '1';
+                    imgEl.style.opacity = '1';
                     if (ph) ph.classList.add('loaded');
                 }
-                if (img.complete && img.naturalWidth > 0) {
+                if (imgEl.complete && imgEl.naturalWidth > 0) {
                     done();
                 } else {
-                    img.addEventListener('load', done, { once: true });
-                    img.addEventListener('error', function () {
+                    imgEl.addEventListener('load', done, { once: true });
+                    imgEl.addEventListener('error', function () {
                         if (ph) ph.classList.add('loaded');
                     }, { once: true });
                 }
             }
 
             // 把 <template> 里的图片实例化进 DOM —— 插入的那一刻才开始下载
-            function materialize(slideEl, high) {
+            function materialize(slideEl: Element, high: boolean) {
                 if (!slideEl) return false;
                 var tpl = slideEl.querySelector('template');
                 if (!tpl) return false;
-                var frag = tpl.content.cloneNode(true);
+                var frag = tpl.content.cloneNode(true) as DocumentFragment;
                 if (high) {
-                    var img = frag.querySelector('img');
+                    var img = frag.querySelector<HTMLImageElement>('img');
                     if (img) {
                         img.setAttribute('fetchpriority', 'high');
 
@@ -289,7 +289,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         img.style.opacity = '1';
                     }
 
-                    var ph = frag.querySelector('.lqip-placeholder');
+                    var ph = frag.querySelector<HTMLElement>('.lqip-placeholder');
                     if (ph) ph.style.transition = 'none';
                 }
                 slideEl.appendChild(frag);
@@ -299,14 +299,15 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             }
 
             // 预取下一张，避免切换时闪一帧黑
-            function materializeAhead(slides, index) {
+            function materializeAhead(slides: HTMLElement[], index: number) {
                 if (slides.length < 2) return;
                 materialize(slides[(index + 1) % slides.length], false);
             }
 
             // 获取当前设备可见的 slide-item
-            function getVisibleSlides() {
-                var all = container.querySelectorAll('.slide-item');
+            function getVisibleSlides(): HTMLElement[] {
+                if (!container) return [];
+                var all = container.querySelectorAll<HTMLElement>('.slide-item');
                 var isLg = window.innerWidth >= 1024;
                 var visible = [];
                 for (var i = 0; i < all.length; i++) {
@@ -321,14 +322,14 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 return visible;
             }
 
-            function getCurrentIndex(slides) {
+            function getCurrentIndex(slides: HTMLElement[]) {
                 for (var i = 0; i < slides.length; i++) {
                     if (slides[i].classList.contains('active')) return i;
                 }
                 return 0;
             }
 
-            function applySlideChange(slides, nextIndex) {
+            function applySlideChange(slides: HTMLElement[], nextIndex: number) {
                 // Slide 效果需要 prev-waiting 辅助类
                 if (effect === 'slide') {
                     for (var i = 0; i < slides.length; i++) {
@@ -352,7 +353,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 }
             }
 
-            function changeToSlide(targetIndex, resetProgress) {
+            function changeToSlide(targetIndex: number, resetProgress = false) {
                 var slides = getVisibleSlides();
                 if (slides.length <= 1) return;
                 if (transitioning) return;
@@ -376,7 +377,12 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 }
             }
 
-            var appState = {
+            var appState: {
+                isPlaying: boolean;
+                autoPlayTimer: ReturnType<typeof setTimeout> | null;
+                touchStartX: number;
+                touchEndX: number;
+            } = {
                 isPlaying: false,
                 autoPlayTimer: null,
                 touchStartX: 0,
@@ -435,10 +441,12 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             }, { passive: true });
 
             window.addEventListener('bannerCarouselChange', function(e) {
-                e.detail && e.detail.enabled ? startAutoPlay() : stopAutoPlay();
+                var d = (e as CustomEvent<{ enabled?: boolean }>).detail;
+                d && d.enabled ? startAutoPlay() : stopAutoPlay();
             });
             window.addEventListener('wallpaperModeChange', function(e) {
-                if (e.detail && (e.detail.mode === 'banner' || e.detail.mode === 'fullscreen')) {
+                var dm = (e as CustomEvent<{ mode?: string }>).detail;
+                if (dm && (dm.mode === 'banner' || dm.mode === 'fullscreen')) {
                     if (isCarouselEnabled()) startAutoPlay();
                 } else {
                     stopAutoPlay();
@@ -501,17 +509,16 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
 
     {!state.hasMultipleImages && (
     <script>
-        // @ts-nocheck
         (function initBannerSingle() {
-            var container = document.getElementById('banner-images-container');
+            const container = document.getElementById('banner-images-container');
             if (!container) return;
 
-            function materialize(slot, high) {
+            function materialize(slot: Element, high: boolean) {
                 var tpl = slot.querySelector('template');
                 if (!tpl) return;
-                var frag = tpl.content.cloneNode(true);
-                var img = frag.querySelector('img');
-                var phFrag = frag.querySelector('.lqip-placeholder');
+                var frag = tpl.content.cloneNode(true) as DocumentFragment;
+                var img = frag.querySelector<HTMLImageElement>('img');
+                var phFrag = frag.querySelector<HTMLElement>('.lqip-placeholder');
                 if (img && high) {
                     img.setAttribute('fetchpriority', 'high');
 
@@ -523,13 +530,14 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 slot.appendChild(frag);
                 tpl.remove();
                 // Layout 的全局淡入只扫解析期的图片，克隆进来的要自己接管
-                var ph = slot.querySelector('.lqip-placeholder');
+                var ph = slot.querySelector<HTMLElement>('.lqip-placeholder');
                 if (!img) return;
+                var imgEl = img;
                 function done() {
-                    img.style.opacity = '1';
+                    imgEl.style.opacity = '1';
                     if (ph) ph.classList.add('loaded');
                 }
-                if (img.complete && img.naturalWidth > 0) done();
+                if (imgEl.complete && imgEl.naturalWidth > 0) done();
                 else {
                     img.addEventListener('load', done, { once: true });
                     img.addEventListener('error', function () {
@@ -539,6 +547,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             }
 
             function sync() {
+                if (!container) return;
                 var all = container.querySelectorAll('.banner-image-slot');
                 var isLg = window.innerWidth >= 1024;
                 for (var i = 0; i < all.length; i++) {
