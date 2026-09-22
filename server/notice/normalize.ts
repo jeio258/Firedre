@@ -4,8 +4,8 @@ import type {
 	NoticeLineInput,
 	NoticeSection,
 } from "../../types/notice";
-import { UserError } from "../utils/userError";
 import { safeUrlScheme } from "../utils/safeUrl";
+import { UserError } from "../utils/userError";
 
 export function isSafeNoticeUrl(raw: unknown): boolean {
 	return safeUrlScheme(raw) !== null;
@@ -61,7 +61,6 @@ export function parseNoticePayload(raw: string): NoticeBoard {
 	try {
 		parsed = JSON.parse(raw);
 	} catch {
-
 		throw new UserError("公告内容格式无效，需为 JSON 格式 { title, sections }");
 	}
 	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))

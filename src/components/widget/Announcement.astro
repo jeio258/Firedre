@@ -1,12 +1,12 @@
 ---
+import { getNotice } from "@server/notice/service";
 import { Icon } from "astro-icon/components";
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
+import { getAnnouncementConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { cfEnv } from "@/lib/api";
 import type { WidgetComponentConfig } from "@/types/config";
-import { getAnnouncementConfig } from "@/config/runtime";
-import { getNotice } from "@server/notice/service";
 import type { NoticeSection } from "../../../types/notice";
 
 interface Props {

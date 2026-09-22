@@ -1,5 +1,3 @@
-
-
 // 常量(与原实现一一对应)
 
 export const VIEWBOX = { x: 0, y: 24, w: 150, h: 28 } as const;
@@ -11,13 +9,12 @@ export const WAVE_PATH_X_MIN: number = -160;
 
 export const WAVE_PATH_X_MAX: number = 192;
 
-export const WAVE_X_MIN: number = WAVE_PATH_X_MIN + 48;        
-export const WAVE_X_MAX: number = WAVE_PATH_X_MAX + 48;       
+export const WAVE_X_MIN: number = WAVE_PATH_X_MIN + 48;
+export const WAVE_X_MAX: number = WAVE_PATH_X_MAX + 48;
 
 export const WAVE_STRIP_W: number = WAVE_X_MAX - WAVE_X_MIN;
 
 export interface WavesLayer {
-
 	y: number;
 
 	alpha: number;

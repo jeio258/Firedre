@@ -11,7 +11,6 @@ export const spineModelConfig: SpineModelConfig = {
 	},
 
 	position: {
-
 		corner: "bottom-left",
 		offsetX: 0,
 		offsetY: 0,
@@ -137,8 +136,8 @@ export const live2dWidgetConfig: Live2DWidgetConfig = {
 		interval: 6000,
 		// 位置偏移量（px），基于默认位置（模型正上方居中）进行微调
 		offset: {
-			x: 0,             
-			y: 0,             
+			x: 0,
+			y: 0,
 		},
 	},
 	responsive: {

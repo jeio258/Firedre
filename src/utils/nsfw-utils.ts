@@ -39,7 +39,7 @@ export function isBangumiNsfw(item: UserSubjectCollection): boolean {
 		...(item.tags ?? []),
 		...(item.subject?.tags ?? []).map((t) => t.name),
 	];
-	return names.some((n) => NSFW_KEYWORDS.includes(n));        
+	return names.some((n) => NSFW_KEYWORDS.includes(n));
 }
 
 export function filterNsfw<T>(

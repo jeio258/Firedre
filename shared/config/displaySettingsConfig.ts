@@ -3,7 +3,6 @@ import { resolveDisplaySettingsConfig } from "../utils/display-settings-utils";
 
 export const displaySettingsConfig: DisplaySettingsConfig =
 	resolveDisplaySettingsConfig({
-
 		enable: false,
 
 		themeColorSwitchable: true,

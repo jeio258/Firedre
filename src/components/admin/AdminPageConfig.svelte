@@ -1,60 +1,61 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { apiJson } from "@/lib/adminApi";
-	import Switch from "./Switch.svelte";
+import { onMount } from "svelte";
+import { apiJson } from "@/lib/adminApi";
+import Switch from "./Switch.svelte";
 
-	interface Props {
-		group: string;
-		enableKey: string;
-		enableLabel: string;
-		title: string;
-		titleField?: string;
-		descField?: string;
-	}
+interface Props {
+	group: string;
+	enableKey: string;
+	enableLabel: string;
+	title: string;
+	titleField?: string;
+	descField?: string;
+}
 
-	let {
-		group,
-		enableKey,
-		enableLabel,
-		title,
-		titleField = "",
-		descField = "",
-	}: Props = $props();
+let {
+	group,
+	enableKey,
+	enableLabel,
+	title,
+	titleField = "",
+	descField = "",
+}: Props = $props();
 
-	let enabled = $state(false);
-	let titleVal = $state("");
-	let descVal = $state("");
-	let loading = $state(true);
-	let saving = $state(false);
+let enabled = $state(false);
+let titleVal = $state("");
+let descVal = $state("");
+let loading = $state(true);
+let saving = $state(false);
 
-	async function load() {
-		loading = true;
-		try {
-			const data = await apiJson<Record<string, unknown>>(`/api/settings/?group=${group}`);
-			enabled = Boolean(data[enableKey]);
-			if (titleField) titleVal = String(data[titleField] ?? "");
-			if (descField) descVal = String(data[descField] ?? "");
-		} catch {
-		}
-		loading = false;
-	}
+async function load() {
+	loading = true;
+	try {
+		const data = await apiJson<Record<string, unknown>>(
+			`/api/settings/?group=${group}`,
+		);
+		enabled = Boolean(data[enableKey]);
+		if (titleField) titleVal = String(data[titleField] ?? "");
+		if (descField) descVal = String(data[descField] ?? "");
+	} catch {}
+	loading = false;
+}
 
-	async function toggle() {
+async function toggle() {
+	enabled = !enabled;
+	saving = true;
+	try {
+		await apiJson("/api/settings/", {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ groups: { [group]: { [enableKey]: enabled } } }),
+		});
+	} catch {
 		enabled = !enabled;
-		saving = true;
-		try {
-			await apiJson("/api/settings/", {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ groups: { [group]: { [enableKey]: enabled } } }),
-			});
-		} catch {
-			enabled = !enabled;
-		}
-		saving = false;
 	}
+	saving = false;
+}
 
-	onMount(load);
+onMount(load);
 </script>
 
 <details class="modcfg">

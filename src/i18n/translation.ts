@@ -24,9 +24,20 @@ const maps: LangMap = await (async () => {
 		const injected = window.__FIREDRE_I18N__;
 		if (injected) {
 			return Object.fromEntries(
-				["en", "en_us", "en_gb", "en_au", "zh_cn", "zh_tw", "ja", "ja_jp", "ru", "ru_ru", "ko", "ko_kr"].map(
-					(l) => [l, injected],
-				),
+				[
+					"en",
+					"en_us",
+					"en_gb",
+					"en_au",
+					"zh_cn",
+					"zh_tw",
+					"ja",
+					"ja_jp",
+					"ru",
+					"ru_ru",
+					"ko",
+					"ko_kr",
+				].map((l) => [l, injected]),
 			);
 		}
 		return {};

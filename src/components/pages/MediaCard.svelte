@@ -3,35 +3,35 @@ import type { Snippet } from "svelte";
 import { getFailedCovers, markCoverFailed } from "@/utils/failed-covers";
 
 interface Props {
-  href: string;
-  coverSrcs: string[];
-  failedCoversKey: string;
-  statusText: string;
-  statusColor: string;
-  title: string;
-  placeholder: string;
-  loadImage?: boolean;
-  score?: number;
-  imageBlur?: boolean;
-  altTitle?: string;
-  tags?: string[];
-  middle?: Snippet;
+	href: string;
+	coverSrcs: string[];
+	failedCoversKey: string;
+	statusText: string;
+	statusColor: string;
+	title: string;
+	placeholder: string;
+	loadImage?: boolean;
+	score?: number;
+	imageBlur?: boolean;
+	altTitle?: string;
+	tags?: string[];
+	middle?: Snippet;
 }
 
 const {
-  href,
-  coverSrcs,
-  failedCoversKey,
-  statusText,
-  statusColor,
-  title,
-  placeholder,
-  loadImage = false,
-  score = 0,
-  imageBlur = false,
-  altTitle = "",
-  tags = [],
-  middle,
+	href,
+	coverSrcs,
+	failedCoversKey,
+	statusText,
+	statusColor,
+	title,
+	placeholder,
+	loadImage = false,
+	score = 0,
+	imageBlur = false,
+	altTitle = "",
+	tags = [],
+	middle,
 }: Props = $props();
 
 const visibleTags = $derived(tags.slice(0, 2));
@@ -40,31 +40,31 @@ const hiddenTagCount = $derived(Math.max(tags.length - visibleTags.length, 0));
 let initialSrc = $state("");
 
 $effect(() => {
-  const sources = coverSrcs;
-  initialSrc = sources[0] || "";
-  if (typeof window === "undefined" || sources.length === 0) return;
-  const failed = getFailedCovers(failedCoversKey);
-  const firstGood = sources.find((url) => !failed.has(url));
-  if (firstGood) initialSrc = firstGood;
+	const sources = coverSrcs;
+	initialSrc = sources[0] || "";
+	if (typeof window === "undefined" || sources.length === 0) return;
+	const failed = getFailedCovers(failedCoversKey);
+	const firstGood = sources.find((url) => !failed.has(url));
+	if (firstGood) initialSrc = firstGood;
 });
 
 function handleLoad(e: Event) {
-  const img = e.currentTarget as HTMLImageElement;
-  img.style.opacity = "1";
-  const ph = img.parentElement?.querySelector(".lqip-placeholder");
-  if (ph) ph.classList.add("loaded");
+	const img = e.currentTarget as HTMLImageElement;
+	img.style.opacity = "1";
+	const ph = img.parentElement?.querySelector(".lqip-placeholder");
+	if (ph) ph.classList.add("loaded");
 }
 
 function handleError(e: Event) {
-  const img = e.currentTarget as HTMLImageElement;
-  const current = img.src;
-  markCoverFailed(current, failedCoversKey);
-  const idx = coverSrcs.indexOf(current);
-  if (idx >= 0 && idx < coverSrcs.length - 1) {
-    img.src = coverSrcs[idx + 1];
-  } else {
-    img.style.display = "none";
-  }
+	const img = e.currentTarget as HTMLImageElement;
+	const current = img.src;
+	markCoverFailed(current, failedCoversKey);
+	const idx = coverSrcs.indexOf(current);
+	if (idx >= 0 && idx < coverSrcs.length - 1) {
+		img.src = coverSrcs[idx + 1];
+	} else {
+		img.style.display = "none";
+	}
 }
 </script>
 

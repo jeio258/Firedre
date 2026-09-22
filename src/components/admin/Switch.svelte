@@ -1,11 +1,11 @@
 <script lang="ts">
-	interface Props {
-		on: boolean;
-		label: string;
-		toggle: () => void;
-		disabled?: boolean;
-	}
-	let { on, label, toggle, disabled = false }: Props = $props();
+interface Props {
+	on: boolean;
+	label: string;
+	toggle: () => void;
+	disabled?: boolean;
+}
+let { on, label, toggle, disabled = false }: Props = $props();
 </script>
 
 <button

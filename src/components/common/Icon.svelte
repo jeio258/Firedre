@@ -1,5 +1,4 @@
 <script lang="ts">
-
 import Iconify, { addCollection } from "@iconify/svelte/offline";
 
 import iconsData from "@/constants/icons-data.json";

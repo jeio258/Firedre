@@ -1,5 +1,3 @@
-
-
 // 加密邮箱（去掉 "mailto:" 前缀后 base64 编码，SSR 侧使用）
 export function encodeMailto(url: string): string {
 	return Buffer.from(url.replace("mailto:", "")).toString("base64");

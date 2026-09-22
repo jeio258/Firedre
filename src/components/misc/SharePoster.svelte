@@ -21,8 +21,8 @@ export let avatarSelector: string | null = null;
 let showModal = false;
 let posterImage: string | null = null;
 let generating = false;
-let themeColor = "#558e88";                
-const headerTextColor = "#1f2937";                 
+let themeColor = "#558e88";
+const headerTextColor = "#1f2937";
 
 onMount(() => {
 	// Get theme color from CSS variable
@@ -116,7 +116,6 @@ function resolveSiteLogoSource(color: string, size: number): string | null {
 	if (!logo?.value) return null;
 
 	if (logo.type === "icon") {
-
 		return (
 			serializeNavbarIcon(color, size) ?? buildIconDataUrl(logo.value, color)
 		);
@@ -261,16 +260,15 @@ async function generatePoster() {
 		let descHeight = 0;
 		if (description) {
 			ctx.font = `${14 * scale}px 'Roboto', sans-serif`;
-			const descLines = getLines(ctx, description, contentWidth - 16 * scale);                              
+			const descLines = getLines(ctx, description, contentWidth - 16 * scale);
 
 			const maxDescLines = 6;
 			const displayDescLines = descLines.slice(0, maxDescLines);
 			const descLineHeight = 25 * scale; // 1.8 line-height approx
 			descHeight = displayDescLines.length * descLineHeight;
 			currentY += descHeight;
-
 		} else {
-			currentY += 8 * scale;                          
+			currentY += 8 * scale;
 		}
 
 		currentY += 16 * scale;
@@ -413,11 +411,11 @@ async function generatePoster() {
 			ctx.fillText(line, padding, drawY);
 			drawY += titleLineHeight;
 		});
-		drawY += 16 * scale - (titleLineHeight - 24 * scale);                               
+		drawY += 16 * scale - (titleLineHeight - 24 * scale);
 
 		if (description) {
 			ctx.fillStyle = "#e5e7eb";
-			const descLineH = descHeight;               
+			const descLineH = descHeight;
 
 			drawRoundedRect(
 				ctx,
@@ -438,12 +436,11 @@ async function generatePoster() {
 				ctx.fillText(line, padding + 16 * scale, drawY);
 				drawY += 25 * scale; // line height
 			});
-
 		} else {
 			drawY += 8 * scale;
 		}
 
-		drawY += 8 * scale;                       
+		drawY += 8 * scale;
 		ctx.beginPath();
 		ctx.strokeStyle = "#f3f4f6";
 		ctx.lineWidth = 1 * scale;

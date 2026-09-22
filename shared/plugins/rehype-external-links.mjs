@@ -5,9 +5,7 @@ export default function rehypeExternalLinks(options = {}) {
 	let siteHost = "";
 	try {
 		siteHost = new URL(siteUrl).host;
-	} catch (_e) {
-
-	}
+	} catch (_e) {}
 
 	return (tree) => {
 		visit(tree, "element", (node) => {
@@ -23,9 +21,7 @@ export default function rehypeExternalLinks(options = {}) {
 			if (siteHost) {
 				try {
 					if (new URL(href).host === siteHost) return;
-				} catch (_e) {
-
-				}
+				} catch (_e) {}
 			}
 
 			node.properties.target = "_blank";

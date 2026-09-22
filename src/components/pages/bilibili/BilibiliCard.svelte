@@ -21,7 +21,6 @@ function handleLoad(e: Event) {
 function handleClick() {
 	onclick?.(anime);
 }
-
 </script>
 
 <div

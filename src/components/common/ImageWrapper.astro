@@ -1,14 +1,14 @@
 ---
 import { Image, Picture } from "astro:assets";
 import * as path from "node:path";
-import type { ImageMetadata } from "astro";
-import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import {
 	getFallbackFormat,
 	getImageFormats,
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@shared/utils/image-utils";
+import type { ImageMetadata } from "astro";
+import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
 
@@ -74,7 +74,7 @@ if (isLocal) {
 	const files = import.meta.glob<ImageMetadata>(
 		"../../**/*.{png,jpg,jpeg,webp,avif}",
 		{
-			"import": "default",
+			import: "default",
 		},
 	);
 	let normalizedPath = path

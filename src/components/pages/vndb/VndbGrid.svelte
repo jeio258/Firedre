@@ -74,7 +74,9 @@ async function loadDynamicData() {
 	try {
 		while (true) {
 			if (maxTotal > 0 && allItems.length >= maxTotal) break;
-			const resp = await fetch(`/api/vndb/ulist/?page=${page}&results=${limit}`);
+			const resp = await fetch(
+				`/api/vndb/ulist/?page=${page}&results=${limit}`,
+			);
 			if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 			const data = await resp.json();
 			const batch = data.results || [];

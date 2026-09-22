@@ -1,5 +1,3 @@
-
-
 import type { SearchResult } from "@/global";
 import { escapeHtml } from "@/utils/escape-html";
 

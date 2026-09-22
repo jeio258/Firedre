@@ -1,5 +1,3 @@
-
-
 import type { SakuraConfig } from "@/types/effectsConfig";
 import type { SakuraWorkerInboundMessage } from "@/types/sakura-worker";
 

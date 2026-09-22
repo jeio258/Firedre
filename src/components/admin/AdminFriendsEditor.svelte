@@ -1,49 +1,55 @@
 <script lang="ts">
-	import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
-	import AdminPageConfig from "./AdminPageConfig.svelte";
+import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
+import AdminPageConfig from "./AdminPageConfig.svelte";
 
-	type FriendItem = {
-		id: number;
-		title: string;
-		imgurl: string;
-		desc: string;
-		siteurl: string;
-		tags: string[];
-		weight: number;
-		enabled: boolean;
-	};
+type FriendItem = {
+	id: number;
+	title: string;
+	imgurl: string;
+	desc: string;
+	siteurl: string;
+	tags: string[];
+	weight: number;
+	enabled: boolean;
+};
 
-	const fields: CrudField[] = [
-		{ key: "title", label: "名称 *", type: "text", placeholder: "友链名称", required: true },
-		{
-			key: "imgurl",
-			label: "头像地址 *",
-			type: "text",
-			placeholder: "https://example.com/avatar.png",
-			required: true,
-		},
-		{
-			key: "siteurl",
-			label: "友链地址 *",
-			type: "text",
-			placeholder: "https://example.com",
-			required: true,
-		},
-		{ key: "desc", label: "描述", type: "text", placeholder: "一句介绍" },
-		{
-			key: "tags",
-			label: "标签（逗号分隔）",
-			type: "text",
-			placeholder: "如：Blog, 技术",
-			toPayload: (v) =>
-				String(v)
-					.split(",")
-					.map((t) => t.trim())
-					.filter(Boolean),
-		},
-		{ key: "weight", label: "排序权重", type: "number" },
-		{ key: "enabled", label: "启用（显示在友链页）", type: "checkbox" },
-	];
+const fields: CrudField[] = [
+	{
+		key: "title",
+		label: "名称 *",
+		type: "text",
+		placeholder: "友链名称",
+		required: true,
+	},
+	{
+		key: "imgurl",
+		label: "头像地址 *",
+		type: "text",
+		placeholder: "https://example.com/avatar.png",
+		required: true,
+	},
+	{
+		key: "siteurl",
+		label: "友链地址 *",
+		type: "text",
+		placeholder: "https://example.com",
+		required: true,
+	},
+	{ key: "desc", label: "描述", type: "text", placeholder: "一句介绍" },
+	{
+		key: "tags",
+		label: "标签（逗号分隔）",
+		type: "text",
+		placeholder: "如：Blog, 技术",
+		toPayload: (v) =>
+			String(v)
+				.split(",")
+				.map((t) => t.trim())
+				.filter(Boolean),
+	},
+	{ key: "weight", label: "排序权重", type: "number" },
+	{ key: "enabled", label: "启用（显示在友链页）", type: "checkbox" },
+];
 </script>
 
 <AdminCrudEditor

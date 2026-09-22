@@ -1,5 +1,3 @@
-import { fontsList } from "@shared/config/fontConfig";
-
 export type FieldType =
 	| "text"
 	| "number"

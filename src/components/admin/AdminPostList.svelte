@@ -23,7 +23,9 @@ async function load() {
 	loading = true;
 	error = "";
 	try {
-		const data = await apiJson<{ posts?: PostItem[] }>("/api/posts/?pageSize=200");
+		const data = await apiJson<{ posts?: PostItem[] }>(
+			"/api/posts/?pageSize=200",
+		);
 		posts = data.posts || [];
 	} catch {
 		error = "加载失败";
@@ -52,7 +54,8 @@ async function doDelete(slug: string): Promise<boolean> {
 async function batchDelete() {
 	const list = [...selected];
 	if (list.length === 0) return;
-	if (!confirm(`确定删除选中的 ${list.length} 篇文章？此操作不可恢复。`)) return;
+	if (!confirm(`确定删除选中的 ${list.length} 篇文章？此操作不可恢复。`))
+		return;
 	deleting = true;
 	for (const slug of list) {
 		if (await doDelete(slug)) {
@@ -86,7 +89,8 @@ let filtered = $derived(
 			p.title.toLowerCase().includes(search.toLowerCase()) ||
 			p.slug.toLowerCase().includes(search.toLowerCase());
 		const hitStatus =
-			status === "all" || (status === "published" ? p.published === 1 : p.published === 0);
+			status === "all" ||
+			(status === "published" ? p.published === 1 : p.published === 0);
 		return hitSearch && hitStatus;
 	}),
 );

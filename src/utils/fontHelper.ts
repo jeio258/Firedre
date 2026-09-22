@@ -1,5 +1,3 @@
-
-
 import type { FontSelectionConfig } from "../types/fontConfig";
 
 export function collectUsedFontCssVars(

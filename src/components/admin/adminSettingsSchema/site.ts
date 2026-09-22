@@ -1,4 +1,4 @@
-import type { Field, Group } from "./types";
+import type { Group } from "./types";
 
 export const siteGroups: Group[] = [
 	{

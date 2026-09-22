@@ -1,8 +1,4 @@
-import {
-	expressiveCodeConfig,
-	resolveClientNavbarMode,
-	siteConfig,
-} from "@/config";
+import { resolveClientNavbarMode, siteConfig } from "@/config";
 import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,

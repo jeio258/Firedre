@@ -1,79 +1,79 @@
 <script lang="ts">
-	import { tick } from "svelte";
+import { tick } from "svelte";
 
-	interface Props {
-		value?: unknown;
-		placeholder?: string;
-		fieldLabel?: string;
-		onChange?: (v: unknown) => void;
+interface Props {
+	value?: unknown;
+	placeholder?: string;
+	fieldLabel?: string;
+	onChange?: (v: unknown) => void;
+}
+let {
+	value = "",
+	placeholder = "",
+	fieldLabel = "",
+	onChange = () => {},
+}: Props = $props();
+
+let open = $state(false);
+let text = $state("");
+let error = $state("");
+let areaEl: HTMLTextAreaElement | undefined = $state();
+
+async function openModal() {
+	try {
+		text = value == null || value === "" ? "" : JSON.stringify(value, null, 2);
+	} catch {
+		text = String(value ?? "");
 	}
-	let {
-		value = "",
-		placeholder = "",
-		fieldLabel = "",
-		onChange = () => {},
-	}: Props = $props();
+	error = "";
+	open = true;
+	await tick();
+	areaEl?.focus();
+}
 
-	let open = $state(false);
-	let text = $state("");
-	let error = $state("");
-	let areaEl: HTMLTextAreaElement | undefined = $state();
+function onKeydown(e: KeyboardEvent) {
+	if (open && e.key === "Escape") open = false;
+}
 
-	async function openModal() {
-		try {
-			text = value == null || value === "" ? "" : JSON.stringify(value, null, 2);
-		} catch {
-			text = String(value ?? "");
-		}
+function validate(): boolean {
+	if (text.trim() === "") {
 		error = "";
-		open = true;
-		await tick();
-		areaEl?.focus();
+		return true;
 	}
-
-	function onKeydown(e: KeyboardEvent) {
-		if (open && e.key === "Escape") open = false;
+	try {
+		JSON.parse(text);
+		error = "";
+		return true;
+	} catch (e) {
+		error = (e as Error).message;
+		return false;
 	}
+}
 
-	function validate(): boolean {
-		if (text.trim() === "") {
-			error = "";
-			return true;
-		}
-		try {
-			JSON.parse(text);
-			error = "";
-			return true;
-		} catch (e) {
-			error = (e as Error).message;
-			return false;
-		}
-	}
+function format() {
+	if (validate()) text = JSON.stringify(JSON.parse(text), null, 2);
+}
 
-	function format() {
-		if (validate()) text = JSON.stringify(JSON.parse(text), null, 2);
-	}
-
-	function save() {
-		if (text.trim() === "") {
-			onChange("");
-			open = false;
-			return;
-		}
-		if (!validate()) return;
-		onChange(JSON.parse(text));
+function save() {
+	if (text.trim() === "") {
+		onChange("");
 		open = false;
+		return;
 	}
+	if (!validate()) return;
+	onChange(JSON.parse(text));
+	open = false;
+}
 
-	let preview = $derived.by(() => {
-		if (value == null || value === "") return "（空）点击编辑";
-		try {
-			const s = JSON.stringify(value);
-			return s.length > 46 ? s.slice(0, 46) + "…" : s;
-		} catch {
-			return String(value);
-		}
-	});
+let preview = $derived.by(() => {
+	if (value == null || value === "") return "（空）点击编辑";
+	try {
+		const s = JSON.stringify(value);
+		return s.length > 46 ? s.slice(0, 46) + "…" : s;
+	} catch {
+		return String(value);
+	}
+});
 </script>
 
 <svelte:window onkeydown={onKeydown} />

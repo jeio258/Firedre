@@ -1,5 +1,3 @@
-
-
 let bodyObserver: MutationObserver | null = null;
 
 export function initIconLoader(): void {
@@ -74,7 +72,6 @@ export function initIconLoader(): void {
 			setTimeout(() => {
 				observer.disconnect();
 				if (!checkIconLoaded()) {
-
 				}
 			}, 5000);
 		}

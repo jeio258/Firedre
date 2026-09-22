@@ -1,13 +1,12 @@
 <script lang="ts">
-
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import { onMount } from "svelte";
 import { formatDynamicDate, formatDynamicLocalDate } from "@/utils/date-utils";
 import { fetchWithDedup } from "@/utils/fetch-dedup";
 import { fetchMemos } from "@/utils/memos-adapter";
-import { url } from "@/utils/url-utils";
 import { dynamicHtmlToText } from "@/utils/sanitize-html";
+import { url } from "@/utils/url-utils";
 
 interface DynamicEntry {
 	id: string;

@@ -1,5 +1,3 @@
-
-
 export function getFailedCovers(key: string): Set<string> {
 	try {
 		return new Set(JSON.parse(localStorage.getItem(key) || "[]"));
@@ -14,7 +12,5 @@ export function markCoverFailed(url: string, key: string): void {
 		failed.add(url);
 		const arr = [...failed];
 		localStorage.setItem(key, JSON.stringify(arr.slice(-200)));
-	} catch {
-
-	}
+	} catch {}
 }

@@ -10,7 +10,7 @@ interface Props {
 }
 
 const config = {
-	...(comment.artalk ?? {}) as Record<string, unknown>,
+	...((comment.artalk ?? {}) as Record<string, unknown>),
 	server: comment.artalk?.server || "",
 	site: comment.artalk?.siteName || siteTitle,
 	el: "#artalk",

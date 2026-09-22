@@ -1,6 +1,6 @@
+import type { ImageFormat } from "@/types/config";
 import { coverImageConfig } from "../config/coverImageConfig";
 import { siteConfig } from "../config/siteConfig";
-import type { ImageFormat } from "@/types/config";
 
 function getSeedHash(seed?: string): number {
 	return seed

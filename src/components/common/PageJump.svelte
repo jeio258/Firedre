@@ -3,7 +3,6 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 
 interface Props {
-
 	variant: "ellipsis" | "current";
 	currentPage: number;
 	lastPage: number;

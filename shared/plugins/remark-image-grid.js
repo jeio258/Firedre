@@ -147,7 +147,6 @@ function processGridBlocks(children) {
 
 export function remarkImageGrid() {
 	return (tree) => {
-
 		const processContainer = (node) => {
 			if (Array.isArray(node.children)) {
 				for (const child of node.children) {

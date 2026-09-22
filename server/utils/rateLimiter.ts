@@ -1,10 +1,7 @@
-
-
 import type { CloudflareEnv } from "../../types/env";
 import { getClientIp } from "./clientIp";
 
 export interface RateLimitConfig {
-
 	windowMs: number;
 
 	maxRequests: number;
@@ -95,7 +92,9 @@ async function pruneExpiredWindows(
 	windowMs: number,
 ) {
 	await db
-		.prepare("DELETE FROM rate_limits WHERE kind = 'window' AND window_started_at < ?")
+		.prepare(
+			"DELETE FROM rate_limits WHERE kind = 'window' AND window_started_at < ?",
+		)
 		.bind(now - windowMs)
 		.run();
 }

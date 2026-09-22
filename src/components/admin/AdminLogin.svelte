@@ -50,8 +50,7 @@ async function submit(event: SubmitEvent) {
 				const me = await fetch("/api/admin/me/", { credentials: "include" });
 				const meData = await me.json();
 				if (meData.authenticated) break;
-			} catch {
-			}
+			} catch {}
 			if (attempt === 0) await new Promise((r) => setTimeout(r, 400));
 		}
 		if (onSuccess) {

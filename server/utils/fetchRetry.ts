@@ -8,11 +8,7 @@ export interface FetchRetryOptions {
 export async function fetchWithRetry(
 	url: string,
 	init: RequestInit = {},
-	{
-		timeoutMs = 10_000,
-		retries = 1,
-		backoffMs = 300,
-	}: FetchRetryOptions = {},
+	{ timeoutMs = 10_000, retries = 1, backoffMs = 300 }: FetchRetryOptions = {},
 ): Promise<Response> {
 	let lastError: unknown;
 	for (let attempt = 0; attempt <= retries; attempt++) {

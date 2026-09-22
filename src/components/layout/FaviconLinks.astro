@@ -14,9 +14,7 @@ const rawFaviconUrl = settings
 const faviconUrl = typeof rawFaviconUrl === "string" ? rawFaviconUrl : "";
 
 // 解析顺序：settings.faviconUrl 覆盖 → siteConfig.favicon（默认 firefly-32.png）→ defaultFavicons
-const settingsFavicon = faviconUrl
-	? ([{ src: faviconUrl }] as Favicon[])
-	: [];
+const settingsFavicon = faviconUrl ? ([{ src: faviconUrl }] as Favicon[]) : [];
 const favicons: Favicon[] =
 	settingsFavicon.length > 0
 		? settingsFavicon

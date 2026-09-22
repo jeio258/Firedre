@@ -49,7 +49,10 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 				};
 			}
 
-			await db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(key(ip)).run();
+			await db
+				.prepare("DELETE FROM rate_limits WHERE key = ?")
+				.bind(key(ip))
+				.run();
 			return { allowed: true };
 		},
 
@@ -68,7 +71,10 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 		},
 
 		async clear(ip) {
-			await db.prepare("DELETE FROM rate_limits WHERE key = ?").bind(key(ip)).run();
+			await db
+				.prepare("DELETE FROM rate_limits WHERE key = ?")
+				.bind(key(ip))
+				.run();
 		},
 	};
 }

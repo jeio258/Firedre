@@ -10,6 +10,8 @@ export function parseStringList(
 	}
 }
 
-export function parseStringListOrEmpty(raw: string | null | undefined): string[] {
+export function parseStringListOrEmpty(
+	raw: string | null | undefined,
+): string[] {
 	return parseStringList(raw) ?? [];
 }

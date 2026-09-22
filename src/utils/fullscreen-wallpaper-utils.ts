@@ -2,12 +2,12 @@ import { backgroundWallpaper } from "@/config";
 import { isTabletOrBelowViewport } from "@/utils/breakpoints";
 import { pathsEqual, url } from "@/utils/url-utils";
 
-const TITLE_FADE_RATIO = 0.5;                    
-const BLUR_RAMP_SCROLL = 300;                                       
-const BLUR_QUANTIZE_STEP = 2;                                  
+const TITLE_FADE_RATIO = 0.5;
+const BLUR_RAMP_SCROLL = 300;
+const BLUR_QUANTIZE_STEP = 2;
 let parallaxTicking = false;
-let cachedMaxBlur: number | null = null;                                        
-let lastWrittenBlur = "";                                      
+let cachedMaxBlur: number | null = null;
+let lastWrittenBlur = "";
 
 export function updateFullscreenTitleParallax(): void {
 	const html = document.documentElement;
@@ -124,9 +124,9 @@ export function initFullscreenWallpaper(): void {
 		syncFullscreenBlur();
 	});
 	window.addEventListener("wallpaperModeChange", syncFullscreenOverlays);
-	updateFullscreenTitleParallax();                     
-	syncFullscreenOverlays();                   
-	syncFullscreenBlur();                 
+	updateFullscreenTitleParallax();
+	syncFullscreenOverlays();
+	syncFullscreenBlur();
 
 	const wrapper = document.getElementById("wallpaper-wrapper");
 	if (!wrapper) return;

@@ -5,74 +5,95 @@ import type { NsfwMode } from "@/types/nsfw";
 import type { VndbUlistEntry } from "@/types/vndb";
 import { isVndbNsfw } from "@/utils/nsfw-utils";
 import {
-  formatVndbLength,
-  getVndbStatusText,
-  normalizeVndbLabel,
+	formatVndbLength,
+	getVndbStatusText,
+	normalizeVndbLabel,
 } from "@/utils/vndb-utils";
 import MediaCard from "../MediaCard.svelte";
 
 interface Props {
-  item: VndbUlistEntry;
-  loadImage?: boolean;
-  vnBaseUrl?: string;
-  nsfw?: NsfwMode; // NSFW 处理："off" | "blur" | "hide"
+	item: VndbUlistEntry;
+	loadImage?: boolean;
+	vnBaseUrl?: string;
+	nsfw?: NsfwMode; // NSFW 处理："off" | "blur" | "hide"
 }
 
 const {
-  item,
-  loadImage = false,
-  vnBaseUrl = "https://vndb.org/",
-  nsfw = "off",
+	item,
+	loadImage = false,
+	vnBaseUrl = "https://vndb.org/",
+	nsfw = "off",
 }: Props = $props();
 
 const STATUS_COLORS: Record<string, string> = {
-  wishlist: "bg-blue-500",
-  playing: "bg-yellow-500",
-  finished: "bg-green-500",
-  stalled: "bg-orange-500",
-  dropped: "bg-red-500",
-  unknown: "bg-gray-500",
+	wishlist: "bg-blue-500",
+	playing: "bg-yellow-500",
+	finished: "bg-green-500",
+	stalled: "bg-orange-500",
+	dropped: "bg-red-500",
+	unknown: "bg-gray-500",
 };
 
 const firstLabel = $derived(
-  (item.labels || []).find((label) =>
-    ["wishlist", "playing", "finished", "stalled", "dropped"].includes(
-      normalizeVndbLabel(label.label),
-    ),
-  )?.label ||
-    item.labels?.[0]?.label ||
-    "",
+	(item.labels || []).find((label) =>
+		["wishlist", "playing", "finished", "stalled", "dropped"].includes(
+			normalizeVndbLabel(label.label),
+		),
+	)?.label ||
+		item.labels?.[0]?.label ||
+		"",
 );
 const labelKey = $derived(normalizeVndbLabel(firstLabel));
 const statusText = $derived(
-  firstLabel ? getVndbStatusText(labelKey, firstLabel) : i18n(I18nKey.vndbStatusUnknown),
+	firstLabel
+		? getVndbStatusText(labelKey, firstLabel)
+		: i18n(I18nKey.vndbStatusUnknown),
 );
 const statusColor = $derived(STATUS_COLORS[labelKey] || "bg-gray-500");
 
 const title = $derived(item.vn?.alttitle || item.vn?.title || "VNDB");
-const altTitle = $derived(item.vn?.title && item.vn.title !== title ? item.vn.title : "");
-const year = $derived(item.vn?.released ? item.vn.released.substring(0, 4) : "");
-const imageUrl = $derived(item.vn?.image?.url || item.vn?.image?.thumbnail || "");
+const altTitle = $derived(
+	item.vn?.title && item.vn.title !== title ? item.vn.title : "",
+);
+const year = $derived(
+	item.vn?.released ? item.vn.released.substring(0, 4) : "",
+);
+const imageUrl = $derived(
+	item.vn?.image?.url || item.vn?.image?.thumbnail || "",
+);
 const coverSrcs = $derived(imageUrl ? [imageUrl] : []);
 const imageBlur = $derived(nsfw === "blur" && isVndbNsfw(item));
 const userVote = $derived(item.vote);
 const rating = $derived(item.vn?.rating);
 const voteCount = $derived(item.vn?.votecount);
-const lengthText = $derived(formatVndbLength(item.vn?.length, item.vn?.length_minutes));
+const lengthText = $derived(
+	formatVndbLength(item.vn?.length, item.vn?.length_minutes),
+);
 const developerText = $derived(
-  (item.vn?.developers || []).slice(0, 2).map((p) => p.name).join(" / "),
+	(item.vn?.developers || [])
+		.slice(0, 2)
+		.map((p) => p.name)
+		.join(" / "),
 );
 const languageText = $derived(
-  (item.vn?.languages || []).slice(0, 4).map((l) => l.toUpperCase()).join(" / "),
+	(item.vn?.languages || [])
+		.slice(0, 4)
+		.map((l) => l.toUpperCase())
+		.join(" / "),
 );
 const platformText = $derived(
-  (item.vn?.platforms || []).slice(0, 4).map((p) => p.toUpperCase()).join(" / "),
+	(item.vn?.platforms || [])
+		.slice(0, 4)
+		.map((p) => p.toUpperCase())
+		.join(" / "),
 );
 const metaText = $derived(
-  [developerText, languageText, platformText].filter(Boolean).join(" · "),
+	[developerText, languageText, platformText].filter(Boolean).join(" · "),
 );
 const notes = $derived(item.notes || "");
-const playRange = $derived([item.started, item.finished].filter(Boolean).join(" ~ "));
+const playRange = $derived(
+	[item.started, item.finished].filter(Boolean).join(" ~ "),
+);
 const tags = $derived((item.vn?.tags || []).map((tag) => tag.name));
 const link = $derived(`${vnBaseUrl}${item.vn?.id || item.id}`);
 </script>

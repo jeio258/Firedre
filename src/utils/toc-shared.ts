@@ -1,9 +1,6 @@
-
-
 import { escapeHtmlAttr } from "@/utils/escape-html";
 
 export interface TocInput {
-
 	depth: number;
 
 	slug: string;

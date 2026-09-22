@@ -1,7 +1,7 @@
 export const LIGHT_MODE = "light",
 	DARK_MODE = "dark",
 	SYSTEM_MODE = "system";
-export const DEFAULT_THEME: typeof LIGHT_MODE = LIGHT_MODE;                                                      
+export const DEFAULT_THEME: typeof LIGHT_MODE = LIGHT_MODE;
 
 // Wallpaper modes
 export const WALLPAPER_BANNER = "banner",

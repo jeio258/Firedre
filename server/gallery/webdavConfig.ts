@@ -1,5 +1,3 @@
-
-
 import type { CloudflareEnv } from "../../types/env";
 
 export interface AlbumWebDavConfigRow {

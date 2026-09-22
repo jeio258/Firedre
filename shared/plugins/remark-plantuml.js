@@ -1,6 +1,6 @@
 import { visit } from "unist-util-visit";
-import { buildUrl, encodePlantUML, injectTheme } from "./plantuml-encoder.js";
 import { getPlantumlRuntimeConfig } from "../config/plantumlRuntime";
+import { buildUrl, encodePlantUML, injectTheme } from "./plantuml-encoder.js";
 
 export function remarkPlantuml() {
 	return (tree) => {

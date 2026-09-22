@@ -1,5 +1,3 @@
-
-
 const markdownImagePattern = /!\[([^\]]*)\]\((\S+?)(?:\s+["']([^"']*)["'])?\)/g;
 
 export function extractDynamicImages(

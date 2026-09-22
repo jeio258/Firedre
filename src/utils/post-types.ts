@@ -1,5 +1,3 @@
-
-
 export interface PostFrontmatterLike {
 	title: string;
 	published: Date;

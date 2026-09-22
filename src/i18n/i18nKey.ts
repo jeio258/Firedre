@@ -151,7 +151,6 @@ enum I18nKey {
 	bangumiCategoryGame = "bangumiCategoryGame",
 	bangumiCategoryReal = "bangumiCategoryReal",
 
-
 	vndb = "vndb",
 	vndbSubtitle = "vndbSubtitle",
 	vndbFilterAll = "vndbFilterAll",
@@ -377,7 +376,6 @@ enum I18nKey {
 	copyLink = "copyLink",
 	savePoster = "savePoster",
 	scanToRead = "scanToRead",
-
 
 	gallery = "gallery",
 	galleryDescription = "galleryDescription",

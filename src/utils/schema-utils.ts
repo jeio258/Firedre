@@ -1,5 +1,10 @@
 import type { ProfileConfig, SiteConfig } from "@/types/config";
-import { getSearchUrl, isAbsoluteUrl, normalizeSiteUrl, url } from "./url-utils";
+import {
+	getSearchUrl,
+	isAbsoluteUrl,
+	normalizeSiteUrl,
+	url,
+} from "./url-utils";
 
 export function toAbsoluteUrl(
 	src: string | undefined | null,
@@ -63,7 +68,6 @@ export interface PersonEntityOpts {
 }
 
 function resolveSiteRoot(site: URL | string): string {
-
 	const raw = site instanceof URL ? site.href : normalizeSiteUrl(site);
 	const baseUrl = new URL(raw);
 	return new URL(url("/"), baseUrl).toString();

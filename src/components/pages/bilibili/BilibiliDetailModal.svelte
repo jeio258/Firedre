@@ -31,7 +31,6 @@ function handleKeydown(e: KeyboardEvent) {
 		onclose();
 	}
 }
-
 </script>
 
 <svelte:window onkeydown={handleKeydown} />

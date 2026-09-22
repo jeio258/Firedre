@@ -1,12 +1,16 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import {
+	getApiUrlList,
+	processCoverImageSync,
+} from "@shared/utils/image-utils";
 import { Icon } from "astro-icon/components";
 import CoverImage from "@/components/common/CoverImage.astro";
 import PostMetadata from "@/components/layout/PostMeta.astro";
 import PostStats from "@/components/layout/PostStats.astro";
 import { siteConfig } from "@/config";
-import { getApiUrlList, processCoverImageSync } from "@shared/utils/image-utils";
 import type { PostForList } from "@/utils/post-types";
 import { getTagUrl } from "@/utils/url-utils";
 
@@ -58,15 +62,21 @@ const hasCover =
 const coverWidth = "30%";
 
 const gridCoverFullWidth =
-	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).grid.coverFullWidth ?? false;
+	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).grid
+		.coverFullWidth ?? false;
 
 const descriptionLines = Math.max(
 	0,
-	Math.trunc(((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).descriptionLines ?? 2),
+	Math.trunc(
+		((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout)
+			.descriptionLines ?? 2,
+	),
 );
 
 // PostMeta 配置
-const metaConfig = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).meta ?? {};
+const metaConfig =
+	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).meta ??
+	{};
 const showCategory = metaConfig.showCategory ?? true;
 const metaShowTags = metaConfig.showTags ?? true;
 const metaTagCount =
@@ -78,17 +88,22 @@ const metaShowReadingTime = metaConfig.showReadingTime ?? true;
 const metaShowPublished = metaConfig.showPublished ?? true;
 
 // PostStats 配置
-const statsConfig = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).stats ?? {};
+const statsConfig =
+	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).stats ??
+	{};
 const statsShowPublished = statsConfig.showPublished ?? true;
 const statsShowWords = statsConfig.showWords ?? true;
 const statsShowReadingTime = statsConfig.showReadingTime ?? true;
 
-const tagsPosition = ((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsPosition ?? "meta";
+const tagsPosition =
+	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout)
+		.tagsPosition ?? "meta";
 const showTagsInMeta = metaShowTags && tagsPosition === "meta";
 const showTagsAtBottom = metaShowTags && tagsPosition === "bottom";
-	// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
+// 底部标签样式："chip" 按钮样式，"text" 纯文字无底色
 const bottomTagsAsText =
-	(((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout).tagsBottomStyle ?? "chip") === "text";
+	(((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout)
+		.tagsBottomStyle ?? "chip") === "text";
 const descriptionClampLines = String(descriptionLines);
 const shouldClampDescription = descriptionLines > 0;
 

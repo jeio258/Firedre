@@ -1,9 +1,7 @@
-
-
 import type { AlbumPhoto } from "../../types/album";
 import { detectMediaTypeFromMime, MEDIA_EXT } from "../../utils/albumMedia";
-import { UserError } from "../utils/userError";
 import { fetchWithRetry } from "../utils/fetchRetry";
+import { UserError } from "../utils/userError";
 
 export interface ImgbedListFile {
 	name: string;

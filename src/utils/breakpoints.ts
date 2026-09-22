@@ -9,7 +9,5 @@ export function isMobileViewport(): boolean {
 }
 
 export function isTabletOrBelowViewport(): boolean {
-	return (
-		typeof window !== "undefined" && window.innerWidth < BREAKPOINT_TABLET
-	);
+	return typeof window !== "undefined" && window.innerWidth < BREAKPOINT_TABLET;
 }

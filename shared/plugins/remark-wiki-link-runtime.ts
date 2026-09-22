@@ -1,5 +1,3 @@
-
-
 import { slug } from "github-slugger";
 import { getApiUrlList, processCoverImageSync } from "../utils/image-utils";
 

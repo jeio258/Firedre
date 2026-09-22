@@ -38,7 +38,9 @@ export async function encryptContent(
 	const authTag = combinedBuf.slice(combinedBuf.length - TAG_LENGTH);
 	const ciphertext = combinedBuf.slice(0, combinedBuf.length - TAG_LENGTH);
 
-	const out = new Uint8Array(SALT_LENGTH + IV_LENGTH + TAG_LENGTH + ciphertext.length);
+	const out = new Uint8Array(
+		SALT_LENGTH + IV_LENGTH + TAG_LENGTH + ciphertext.length,
+	);
 	out.set(salt, 0);
 	out.set(iv, SALT_LENGTH);
 	out.set(authTag, SALT_LENGTH + IV_LENGTH);

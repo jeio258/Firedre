@@ -1,30 +1,34 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+import { onMount } from "svelte";
 
-	// 面积/折线图：发布 vs 草稿 双序列，颜色由外部传入（运行时取主题令牌）
-	interface Props {
-		data?: { label: string; 发布: number; 草稿: number }[];
-		colors?: { 发布: string; 草稿: string };
-		height?: number;
-	}
-	let { data = [], colors = { 发布: "#0f766e", 草稿: "#0ea5e9" }, height = 240 }: Props = $props();
+// 面积/折线图：发布 vs 草稿 双序列，颜色由外部传入（运行时取主题令牌）
+interface Props {
+	data?: { label: string; 发布: number; 草稿: number }[];
+	colors?: { 发布: string; 草稿: string };
+	height?: number;
+}
+let {
+	data = [],
+	colors = { 发布: "#0f766e", 草稿: "#0ea5e9" },
+	height = 240,
+}: Props = $props();
 
-	let w = $state(0);
-	let gridColor = $state("rgba(148, 163, 184, 0.35)");
-	let textColor = $state("#94a3b8");
-	let chartColors = $state({ ...colors });
+let w = $state(0);
+let gridColor = $state("rgba(148, 163, 184, 0.35)");
+let textColor = $state("#94a3b8");
+let chartColors = $state({ ...colors });
 
-	function palette() {
-		const cs = getComputedStyle(document.documentElement);
-		gridColor = "var(--line-divider)";
-		textColor = "var(--text-muted)";
-		chartColors = {
-			发布: cs.getPropertyValue("--primary").trim() || chartColors.发布,
-			草稿: chartColors.草稿,
-		};
-	}
+function palette() {
+	const cs = getComputedStyle(document.documentElement);
+	gridColor = "var(--line-divider)";
+	textColor = "var(--text-muted)";
+	chartColors = {
+		发布: cs.getPropertyValue("--primary").trim() || chartColors.发布,
+		草稿: chartColors.草稿,
+	};
+}
 
-	onMount(palette);
+onMount(palette);
 </script>
 
 <div class="chart-wrap" bind:clientWidth={w} style="width:100%;height:{height}px">

@@ -1,13 +1,14 @@
 import type { APIRoute } from "astro";
-import { pathSegments } from "../../../lib/routePath";
 import { cfEnv, serverError } from "../../../lib/api";
+import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
 export const GET: APIRoute = async ({ params }) => {
 	try {
 		const segments = pathSegments(params);
-		if (segments.length < 2) return new Response("Bad Request", { status: 400 });
+		if (segments.length < 2)
+			return new Response("Bad Request", { status: 400 });
 
 		const slug = segments[0];
 		const file = segments.slice(1).join("/");

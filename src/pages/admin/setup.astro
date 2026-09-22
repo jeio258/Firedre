@@ -1,15 +1,19 @@
 ---
 export const prerender = false;
 
-import AdminSetup from "../../components/admin/AdminSetup.svelte";
 import AdminHead from "@components/layout/AdminHead.astro";
+import AdminSetup from "../../components/admin/AdminSetup.svelte";
 import "@/styles/variables.styl";
 
-const settings = (Astro.locals as { settings?: { hue?: number; themeColor?: { hue?: number } } })
-	?.settings ?? {};
+const settings =
+	(
+		Astro.locals as {
+			settings?: { hue?: number; themeColor?: { hue?: number } };
+		}
+	)?.settings ?? {};
 const configHue = settings.hue ?? settings.themeColor?.hue ?? 165;
 const defaultMode =
-	((settings as unknown as Record<string, unknown>)?.defaultMode) as string ??
+	((settings as unknown as Record<string, unknown>)?.defaultMode as string) ??
 	"light";
 ---
 <!doctype html>

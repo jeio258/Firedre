@@ -5,7 +5,6 @@ export function sanitizeGalleryAlbumForPublic(
 	hasPassword: boolean,
 ): GalleryAlbumDetail {
 	if (!hasPassword) {
-
 		return {
 			...detail,
 			frontmatter: {

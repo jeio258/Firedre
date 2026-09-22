@@ -1,5 +1,3 @@
-
-
 const UNSAFE_TAG_NAMES = new Set([
 	"script",
 	"object",
@@ -47,7 +45,9 @@ function sanitizeSrcset(value: unknown): string | undefined {
 		const [url, ...descriptor] = part.split(/\s+/);
 		const clean = sanitizeUrl(url);
 		if (clean === undefined) continue; // 丢弃危险候选
-		cleaned.push(descriptor.length ? `${clean} ${descriptor.join(" ")}` : clean);
+		cleaned.push(
+			descriptor.length ? `${clean} ${descriptor.join(" ")}` : clean,
+		);
 	}
 	return cleaned.length ? cleaned.join(", ") : undefined;
 }
@@ -66,7 +66,6 @@ export function sanitizeUrl(value: unknown): string | undefined {
 	)
 		return undefined;
 	if (lower.startsWith("data:")) {
-
 		if (!lower.startsWith("data:image/") || lower.includes("svg"))
 			return undefined;
 	}
@@ -106,9 +105,7 @@ export function sanitizeHast(node: unknown): unknown {
 		}
 	}
 	if (Array.isArray(n?.children)) {
-		n.children = n.children
-			.map(sanitizeHast)
-			.filter((child) => child !== null);
+		n.children = n.children.map(sanitizeHast).filter((child) => child !== null);
 	}
 	return n;
 }
@@ -124,8 +121,7 @@ export function redactPostSecrets<T>(post: T): T {
 	const copy = { ...(post as Record<string, unknown>) };
 	const isEncrypted = Boolean(
 		copy.password ??
-			(copy as { frontmatter?: { password?: unknown } }).frontmatter
-				?.password,
+			(copy as { frontmatter?: { password?: unknown } }).frontmatter?.password,
 	);
 	delete copy.password;
 	delete copy.passwordHint;

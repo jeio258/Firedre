@@ -1,10 +1,7 @@
-
-
 import type { CloudflareEnv } from "../../types/env";
 import { getSettingsGroup } from "../settings/service";
 
 export interface ImgbedConfig {
-
 	enabled: boolean;
 
 	endpoint: string;

@@ -1,5 +1,3 @@
-
-
 import lqipData from "@constants/lqips.json";
 
 const lqips: Record<string, string> = lqipData as Record<string, string>;

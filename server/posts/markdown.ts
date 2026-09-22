@@ -1,5 +1,3 @@
-
-
 export function stripMarkdown(content: string) {
 	return content
 		.replace(/```[\s\S]*?```/g, " ")

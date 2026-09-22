@@ -1,4 +1,3 @@
-
 import { h } from "hastscript";
 import githubCardData from "../constants/github-card-data.json" with {
 	type: "json",

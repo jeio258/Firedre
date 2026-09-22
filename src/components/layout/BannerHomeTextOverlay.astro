@@ -11,16 +11,28 @@ interface Props {
 
 const { showHomeText, initialRandomSubtitle } = Astro.props;
 const wallpaper = getWallpaperConfig(Astro.locals);
-const homeText = wallpaper.common?.homeText as {
-	enable?: boolean;
-	title?: string;
-	titleSize?: string;
-	subtitle?: string[];
-	subtitleSize?: string;
-	typewriter?: { enable?: boolean; speed?: number; deleteSpeed?: number; pauseTime?: number };
-	links?: Array<{ url: string; name?: string; icon?: string; showName?: boolean }>;
-	linksEnable?: boolean;
-} | undefined;
+const homeText = wallpaper.common?.homeText as
+	| {
+			enable?: boolean;
+			title?: string;
+			titleSize?: string;
+			subtitle?: string[];
+			subtitleSize?: string;
+			typewriter?: {
+				enable?: boolean;
+				speed?: number;
+				deleteSpeed?: number;
+				pauseTime?: number;
+			};
+			links?: Array<{
+				url: string;
+				name?: string;
+				icon?: string;
+				showName?: boolean;
+			}>;
+			linksEnable?: boolean;
+	  }
+	| undefined;
 const homeTextLinks = homeText?.links;
 const homeTextLinksEnable = homeText?.linksEnable !== false;
 const subtitles = homeText?.subtitle || [];

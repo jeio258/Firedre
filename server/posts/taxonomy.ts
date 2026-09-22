@@ -5,8 +5,12 @@ import type {
 	PostFrontmatter,
 	TagCountItem,
 } from "../../types/posts";
-import { categoryPathFromFrontmatter, normalizeTags, resolveCategories } from "./frontmatter";
 import { runDbBatch } from "../utils/dbBatch";
+import {
+	categoryPathFromFrontmatter,
+	normalizeTags,
+	resolveCategories,
+} from "./frontmatter";
 
 export type { ArchiveMonthItem, CategoryTreeNode, TagCountItem };
 

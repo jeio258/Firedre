@@ -12,12 +12,17 @@ export const POST: APIRoute = async ({ request }) => {
 	return withRateLimit(
 		cfEnv,
 		request,
-		{ windowMs: 60_000, maxRequests: 10, scope: "upload-image", failOpen: false },
+		{
+			windowMs: 60_000,
+			maxRequests: 10,
+			scope: "upload-image",
+			failOpen: false,
+		},
 		async () => {
 			return handleUpload(request);
 		},
 	);
-}
+};
 
 async function handleUpload(request: Request) {
 	try {
@@ -85,4 +90,4 @@ async function handleUpload(request: Request) {
 	} catch (error) {
 		return serverError(error);
 	}
-};
+}

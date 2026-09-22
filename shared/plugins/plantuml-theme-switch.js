@@ -1,4 +1,3 @@
-
 (() => {
 	if (window.plantumlThemeInit) return;
 	window.plantumlThemeInit = true;

@@ -1,5 +1,3 @@
-
-
 export const DIAGRAM_CONTAINER = "diagram-container";
 export const DIAGRAM_WRAPPER = "diagram-wrapper";
 

@@ -6,7 +6,7 @@ const FONT_OPTIONS: SelectOption[] = [
 	...fontsList.map((f) => ({ label: f.name, value: f.cssVariable })),
 ];
 
-import type { Field, Group } from "./types";
+import type { Group } from "./types";
 
 export const featureGroups: Group[] = [
 	{
