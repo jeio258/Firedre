@@ -96,9 +96,9 @@ export const settingsDefaults = {
 	},
 	font: {
 		enable: true,
-		codeFont: "",
-		bannerTitleFont: "",
-		bannerSubtitleFont: "",
+		codeFont: "--font-jetbrains-mono",
+		bannerTitleFont: "--font-zen-maru-gothic",
+		bannerSubtitleFont: "--font-inter",
 		navbarTitleFont: "",
 	},
 	comment: {

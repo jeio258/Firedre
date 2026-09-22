@@ -29,4 +29,5 @@ export type MusicPlayerConfig = {
 		}>;
 	};
 	enable?: boolean;
+	sourceScript?: string;
 };

@@ -27,7 +27,7 @@ type FlatGroup = Record<string, unknown>;
 // 反射取值说明：表单字段名 → 源结构化配置中的取值规则
 // - string        : 点路径，按反射逐层取值（支持重命名，如 "site_url" → 表单 siteUrl）
 // - { path, join }: 数组按分隔符 join 成字符串（兜底空串）
-// - { path, json }: 数组 JSON.stringify（兜底空串）
+// - { path, json }: 值 JSON.stringify（数组与对象均可；兜底空串）
 // - { const }     : 固定常量（源中无对应字段，如 artalkSiteName: ""）
 type Spec =
 	| string
@@ -48,7 +48,7 @@ function resolve(src: AnyObj, spec: Spec): unknown {
 	if (typeof spec === "string") return getByPath(src, spec);
 	if ("const" in spec) return spec.const;
 	const v = getByPath(src, spec.path);
-	if ("json" in spec) return Array.isArray(v) ? JSON.stringify(v) : "";
+	if ("json" in spec) return v === undefined ? "" : JSON.stringify(v);
 	if ("join" in spec) return Array.isArray(v) ? v.join(spec.join ?? ",") : "";
 	return v;
 }
@@ -100,6 +100,7 @@ const SCHEMA: Record<
 			pageVndb: "pages.vndb",
 			pageMal: "pages.mal",
 			pageSponsor: "pages.sponsor",
+			faviconUrl: "favicon.0.src",
 		},
 	},
 	profile: {
@@ -146,6 +147,9 @@ const SCHEMA: Record<
 			metingAuth: "meting.auth",
 			metingFallbackApis: { path: "meting.fallbackApis", json: true },
 			localPlaylist: { path: "local.playlist", json: true },
+			enabled: "enable",
+			autoplay: "autoplay",
+			sourceScript: "sourceScript",
 		},
 	},
 	theme: {
@@ -213,6 +217,10 @@ const SCHEMA: Record<
 			qrCode: "qrCode",
 			usage: "usage",
 			sponsors: "sponsors",
+			title: "title",
+			description: "description",
+			showButtonInPost: "showButtonInPost",
+			showSponsorsList: "showSponsorsList",
 		},
 	},
 	dynamic: {
@@ -258,6 +266,12 @@ const SCHEMA: Record<
 		fields: {
 			hideSidebarOnPostPage: "hideSidebarOnPostPage",
 			noSidebarContentWidth: "noSidebarContentWidth",
+			showProfile: "showProfile",
+			showAnnouncement: "showAnnouncement",
+			showMusic: "showMusic",
+			showCategories: "showCategories",
+			showTags: "showTags",
+			showCalendar: "showCalendar",
 		},
 	},
 	cover: {
@@ -266,11 +280,22 @@ const SCHEMA: Record<
 			enable: "enable",
 			defaultImage: "defaultImage",
 			configurable: "configurable",
+			showLoading: "showLoading",
+			enableInPost: "enableInPost",
+			enableInPostOverlay: "enableInPostOverlay",
+			randomCoverImage: { path: "randomCoverImage", json: true },
 		},
 	},
 	font: {
 		src: () => getFontConfig({}) as AnyObj,
-		fields: { scale: "fontScale" },
+		fields: {
+			scale: "fontScale",
+			enable: "enable",
+			bannerTitleFont: "bannerTitleFont",
+			bannerSubtitleFont: "bannerSubtitleFont",
+			navbarTitleFont: "navbarTitleFont",
+			codeFont: "codeFont",
+		},
 	},
 	mermaid: {
 		src: () => getMermaidConfig({}) as AnyObj,

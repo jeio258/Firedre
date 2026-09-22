@@ -375,6 +375,7 @@ export function getMusicConfig(locals: unknown): typeof staticMusicConfig {
 			((staticMusicConfig as Record<string, unknown>).autoplay as boolean) ??
 				false,
 		),
+		sourceScript: str(m.sourceScript, staticMusicConfig.sourceScript ?? ""),
 		mode: str(m.mode, (staticMusicConfig.mode ?? "local") as string) as
 			| "meting"
 			| "local",

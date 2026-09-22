@@ -14,6 +14,9 @@ export const musicPlayerConfig: MusicPlayerConfig = {
 
 	showLyrics: false,
 
+	// 音源解析脚本版本（与 settings-defaults.music.sourceScript 同值）
+	sourceScript: "kh-v1.7.16",
+
 	meting: {
 		api: "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r",
 
