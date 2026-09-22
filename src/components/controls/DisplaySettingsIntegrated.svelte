@@ -7,6 +7,7 @@ import {
 } from "@constants/constants";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import type { SettingsView } from "@server/settings/service";
 import {
 	BREAKPOINT_COMPACT,
 	BREAKPOINT_TABLET,
@@ -56,6 +57,7 @@ import {
 	displaySettingsConfig,
 	siteConfig,
 } from "@/config";
+import { getPanelConfig, getWallpaperConfig } from "@/config/runtime";
 import type { WALLPAPER_MODE } from "@/types/config";
 
 type OverlaySliderItem = {
@@ -73,40 +75,33 @@ type OverlaySliderItem = {
 
 type TabKey = "appearance" | "wallpaper" | "effects";
 
-let { settings: _settingsProp = {} } = $props();
-const settings =
+let { settings: _settingsProp = {} as SettingsView } = $props();
+// D1 组值优先（SSR 注入 prop），回退窗口注入值；形状由 SettingsView 描述
+const settings: SettingsView =
 	_settingsProp &&
 	typeof _settingsProp === "object" &&
 	Object.keys(_settingsProp).length > 0
 		? _settingsProp
 		: ((typeof window !== "undefined"
-				? (window as any).__FIREFLY_SETTINGS__
+				? window.__FIREFLY_SETTINGS__
 				: undefined) ?? {});
-
-// 后台可编辑的面板开关（静态 displaySettingsConfig 为兜底）
-const __panel = (() => {
-	const s = (settings as any)?.panel ?? {};
-	return s as Record<string, unknown>;
-})();
-const panelBool = (k: string, fallback: boolean) =>
-	typeof __panel[k] === "boolean" ? (__panel[k] as boolean) : fallback;
-const panelNum = (k: string, fallback: number) =>
-	typeof __panel[k] === "number" ? (__panel[k] as number) : fallback;
+// 后台可编辑项统一走 runtime 收敛入口（内部含静态兜底与类型归一）
+const panelView = getPanelConfig({ settings });
+const wallpaperView = getWallpaperConfig({ settings });
+// overlaySwitchable 在静态配置中为嵌套对象（getPanelConfig 无对应扁平兜底），此处保留本组件兜底
+const panelFlag = (k: string, fallback: boolean) => {
+	const v = settings.panel?.[k];
+	return typeof v === "boolean" ? v : fallback;
+};
 
 let hue = $state(getHue());
 const defaultHue = getDefaultHue();
-let wallpaperMode: WALLPAPER_MODE = $state(
-	((settings as any)?.["theme"] as any)?.["mode"] ?? backgroundWallpaper.mode,
-);
-const defaultWallpaperMode =
-	((settings as any)?.["theme"] as any)?.["mode"] ?? backgroundWallpaper.mode;
+let wallpaperMode: WALLPAPER_MODE = $state(wallpaperView.mode);
+const defaultWallpaperMode = wallpaperView.mode;
 let currentLayout: "list" | "grid" = $state("list");
-const defaultLayout = (
-	(settings as any)?.["postListLayout"] ?? siteConfig.postListLayout
-).defaultMode;
+const defaultLayout = siteConfig.postListLayout.defaultMode;
 const mobileDefaultLayout =
-	((settings as any)?.["postListLayout"] ?? siteConfig.postListLayout)
-		.mobileDefaultMode || defaultLayout;
+	siteConfig.postListLayout.mobileDefaultMode || defaultLayout;
 let mounted = $state(false);
 let isSmallScreen = $state(
 	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_WIDE : false,
@@ -140,57 +135,22 @@ const defaultCardBorderEnabled = getDefaultCardBorderEnabled();
 let cardFollowThemeEnabled = $state(false);
 const defaultCardFollowThemeEnabled = getDefaultCardFollowThemeEnabled();
 
-const isWallpaperSwitchable = panelBool(
-	"wallpaperModeSwitchable",
-	displaySettingsConfig.wallpaperModeSwitchable,
-);
-const allowLayoutSwitch = panelBool(
-	"layoutSwitchable",
-	displaySettingsConfig.layoutSwitchable,
-);
+const isWallpaperSwitchable = panelView.wallpaperModeSwitchable;
+const allowLayoutSwitch = panelView.layoutSwitchable;
 let effectiveDefaultLayout = $derived(
 	isMobileWidth ? mobileDefaultLayout : defaultLayout,
 );
-const showThemeColor = panelBool(
-	"themeColorSwitchable",
-	displaySettingsConfig.themeColorSwitchable,
-);
-const isWavesSwitchable = panelBool(
-	"wavesSwitchable",
-	displaySettingsConfig.wavesSwitchable,
-);
-const isGradientSwitchable = panelBool(
-	"gradientSwitchable",
-	displaySettingsConfig.gradientSwitchable,
-);
+const showThemeColor = panelView.themeColorSwitchable;
+const isWavesSwitchable = panelView.wavesSwitchable;
+const isGradientSwitchable = panelView.gradientSwitchable;
 // 检查是否启用横幅标题配置（功能开关，非用户切换开关）
-const isBannerTitleEnabled =
-	(
-		((settings as any)?.["theme"] as any)?.["common"] ??
-		backgroundWallpaper.common
-	)?.homeText?.enable ?? false;
+const isBannerTitleEnabled = wallpaperView.common?.homeText?.enable ?? false;
 const isBannerTitleSwitchable =
-	isBannerTitleEnabled &&
-	panelBool(
-		"bannerTitleSwitchable",
-		displaySettingsConfig.bannerTitleSwitchable,
-	);
-const isBannerCarouselSwitchable = panelBool(
-	"bannerCarouselSwitchable",
-	displaySettingsConfig.bannerCarouselSwitchable,
-);
-const isSakuraSwitchable = panelBool(
-	"sakuraSwitchable",
-	displaySettingsConfig.sakuraSwitchable,
-);
-const isCardBorderSwitchable = panelBool(
-	"cardBorderSwitchable",
-	displaySettingsConfig.cardBorderSwitchable,
-);
-const isCardFollowThemeSwitchable = panelBool(
-	"cardFollowThemeSwitchable",
-	displaySettingsConfig.cardFollowThemeSwitchable,
-);
+	isBannerTitleEnabled && panelView.bannerTitleSwitchable;
+const isBannerCarouselSwitchable = panelView.bannerCarouselSwitchable;
+const isSakuraSwitchable = panelView.sakuraSwitchable;
+const isCardBorderSwitchable = panelView.cardBorderSwitchable;
+const isCardFollowThemeSwitchable = panelView.cardFollowThemeSwitchable;
 // 是否有任何横幅设置可显示（后续添加新设置时在此处添加条件）
 const hasBannerSettings =
 	isWavesSwitchable ||
@@ -204,19 +164,19 @@ const overlaySwitchableObj =
 		? overlaySwitchableConfig
 		: {};
 
-const isOverlaySettingsSwitchable = panelBool(
+const isOverlaySettingsSwitchable = panelFlag(
 	"overlayOpacitySwitchable",
 	overlaySwitchableObj.opacity ?? overlaySwitchableConfig === true,
 );
-const isOverlayOpacitySwitchable = panelBool(
+const isOverlayOpacitySwitchable = panelFlag(
 	"overlayOpacitySwitchable",
 	overlaySwitchableObj.opacity ?? false,
 );
-const isOverlayBlurSwitchable = panelBool(
+const isOverlayBlurSwitchable = panelFlag(
 	"overlayBlurSwitchable",
 	overlaySwitchableObj.blur ?? false,
 );
-const isOverlayCardOpacitySwitchable = panelBool(
+const isOverlayCardOpacitySwitchable = panelFlag(
 	"overlayCardOpacitySwitchable",
 	overlaySwitchableObj.cardOpacity ?? false,
 );
@@ -227,10 +187,7 @@ const hasOverlaySettings =
 		isOverlayCardOpacitySwitchable);
 
 const isFullscreenBlurRampEnabled = $derived.by(() => {
-	const enable = (
-		((settings as any)?.["theme"] as any)?.["fullscreen"] ??
-		backgroundWallpaper.fullscreen
-	)?.blurRamp?.enable;
+	const enable = backgroundWallpaper.fullscreen?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;
 	if (!enable) return true;
 	return isMobileViewport ? enable.mobile : enable.desktop;
@@ -255,7 +212,7 @@ let cardSettingsIsDefault = $derived(
 		(!isCardFollowThemeSwitchable ||
 			cardFollowThemeEnabled === defaultCardFollowThemeEnabled),
 );
-const isPanelEnabled = panelBool("enable", displaySettingsConfig.enable);
+const isPanelEnabled = panelView.enable;
 const hasAnyContent =
 	isPanelEnabled &&
 	(showThemeColor ||

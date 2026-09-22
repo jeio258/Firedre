@@ -37,6 +37,9 @@ declare global {
 		spine: any;
 		closeAnnouncement: () => void;
 
+		// SSR 注入的客户端设置（形状由 SettingsView 描述）
+		__FIREFLY_SETTINGS__?: import("@server/settings/service").SettingsView;
+
 		semifullScrollHandler?: (() => void) | undefined;
 		initSemifullScrollDetection?: () => void;
 	}
