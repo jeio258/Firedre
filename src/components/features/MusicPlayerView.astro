@@ -52,11 +52,11 @@ const viewConfigStr = JSON.stringify({
 window.__fireflyMusicViewConfig = viewConfigStr;
 </script>
 <script>
-// @ts-nocheck
 (function () {
-    var cfg = JSON.parse(window.__fireflyMusicViewConfig);
+    var cfg = JSON.parse(window.__fireflyMusicViewConfig ?? '{}');
 
-    var mgr = window.__fireflyMusic;
+    // 空值由下方 if (!mgr) 守卫兜底；此处断言一次避免闭包内窄化丢失（编译期，无运行改动）
+    const mgr = window.__fireflyMusic as NonNullable<typeof window.__fireflyMusic>;
     if (!mgr) return;
 
     var initScheduled = false;
@@ -75,55 +75,57 @@ window.__fireflyMusicViewConfig = viewConfigStr;
 
         // N1：仅在用户与音乐 UI 交互时初始化。此前在 load 后经 requestIdleCallback(timeout 2000) 自动初始化，
         // 导致每个页面首屏都请求第三方 meting API（实测 13-20s 的最慢资源）；播放器无 autoplay 实现，故无功能损失。
-        function isMusicTarget(t) {
-            return !!(t && t.closest && t.closest('#music-player-switch, #music-nav-panel, .music-player-widget'));
+        function isMusicTarget(t: EventTarget | null) {
+            return !!(t && t instanceof Element && t.closest('#music-player-switch, #music-nav-panel, .music-player-widget'));
         }
-        function onIntent(e) {
+        function onIntent(e: Event) {
             if (isMusicTarget(e.target)) go();
         }
-        function onIntentKey(e) {
+        function onIntentKey(e: KeyboardEvent) {
             if ((e.key === 'Enter' || e.key === ' ') && isMusicTarget(e.target)) go();
         }
         document.addEventListener('click', onIntent, true);
         document.addEventListener('keydown', onIntentKey, true);
     }
 
-    function initWidget(widget) {
+    function initWidget(widget: HTMLElement) {
 
+        // 组件模板保证这些节点存在（下方 _critical 守卫兜底）；q() 仅做编译期收窄，不改运行逻辑
+        const q = <T extends Element>(sel: string): T => widget.querySelector(sel) as T;
         var ui = {
             widget: widget,
-            loading: widget.querySelector('.music-loading'),
-            cover: widget.querySelector('.music-cover'),
-            title: widget.querySelector('.music-title'),
-            artist: widget.querySelector('.music-artist'),
-            progressBar: widget.querySelector('.progress-bar'),
-            progressThumb: widget.querySelector('.progress-thumb'),
-            progressContainer: widget.querySelector('.progress-container'),
-            currentTime: widget.querySelector('.current-time'),
-            totalTime: widget.querySelector('.total-time'),
-            btnPlay: widget.querySelector('.btn-play'),
-            iconPlay: widget.querySelector('.icon-play'),
-            iconPause: widget.querySelector('.icon-pause'),
-            btnPrev: widget.querySelector('.btn-prev'),
-            btnNext: widget.querySelector('.btn-next'),
-            btnRepeat: widget.querySelector('.btn-repeat'),
-            iconRepeat: widget.querySelector('.icon-repeat'),
-            iconRepeatOne: widget.querySelector('.icon-repeat-one'),
-            iconShuffle: widget.querySelector('.icon-shuffle'),
-            btnMute: widget.querySelector('.btn-mute'),
-            iconVolHigh: widget.querySelector('.icon-vol-high'),
-            iconVolMute: widget.querySelector('.icon-vol-mute'),
-            volContainer: widget.querySelector('.vol-container'),
-            volBar: widget.querySelector('.vol-bar'),
-            btnLrc: widget.querySelector('.btn-lrc-toggle'),
-            iconLrcOn: widget.querySelector('.icon-lrc-on'),
-            iconLrcOff: widget.querySelector('.icon-lrc-off'),
-            lrcDrawer: widget.querySelector('.lrc-drawer'),
-            lrcContainer: widget.querySelector('.lrc-container'),
-            btnDrawer: widget.querySelector('.btn-drawer-toggle'),
-            playlistDrawer: widget.querySelector('.playlist-drawer'),
-            playlistContainer: widget.querySelector('.playlist-container'),
-            itemTemplate: document.getElementById('playlist-item-template')
+            loading: q<HTMLElement>('.music-loading'),
+            cover: q<HTMLImageElement>('.music-cover'),
+            title: q<HTMLElement>('.music-title'),
+            artist: q<HTMLElement>('.music-artist'),
+            progressBar: q<HTMLElement>('.progress-bar'),
+            progressThumb: q<HTMLElement>('.progress-thumb'),
+            progressContainer: q<HTMLElement>('.progress-container'),
+            currentTime: q<HTMLElement>('.current-time'),
+            totalTime: q<HTMLElement>('.total-time'),
+            btnPlay: q<HTMLButtonElement>('.btn-play'),
+            iconPlay: q<HTMLElement>('.icon-play'),
+            iconPause: q<HTMLElement>('.icon-pause'),
+            btnPrev: q<HTMLButtonElement>('.btn-prev'),
+            btnNext: q<HTMLButtonElement>('.btn-next'),
+            btnRepeat: q<HTMLButtonElement>('.btn-repeat'),
+            iconRepeat: q<HTMLElement>('.icon-repeat'),
+            iconRepeatOne: q<HTMLElement>('.icon-repeat-one'),
+            iconShuffle: q<HTMLElement>('.icon-shuffle'),
+            btnMute: q<HTMLButtonElement>('.btn-mute'),
+            iconVolHigh: q<HTMLElement>('.icon-vol-high'),
+            iconVolMute: q<HTMLElement>('.icon-vol-mute'),
+            volContainer: q<HTMLElement>('.vol-container'),
+            volBar: q<HTMLElement>('.vol-bar'),
+            btnLrc: q<HTMLButtonElement>('.btn-lrc-toggle'),
+            iconLrcOn: q<HTMLElement>('.icon-lrc-on'),
+            iconLrcOff: q<HTMLElement>('.icon-lrc-off'),
+            lrcDrawer: q<HTMLElement>('.lrc-drawer'),
+            lrcContainer: q<HTMLElement>('.lrc-container'),
+            btnDrawer: q<HTMLButtonElement>('.btn-drawer-toggle'),
+            playlistDrawer: q<HTMLElement>('.playlist-drawer'),
+            playlistContainer: q<HTMLElement>('.playlist-container'),
+            itemTemplate: document.getElementById('playlist-item-template') as HTMLTemplateElement
         };
 
         // 无封面曲目的占位图（黑胶唱片样式，data URI 零依赖）
@@ -137,7 +139,30 @@ window.__fireflyMusicViewConfig = viewConfigStr;
 
         var ITEM_H = 42;
         var OVERSCAN = 8;
-        var local = {
+        type ViewTrack = {
+            pic?: string;
+            name?: string;
+            artist?: string;
+            source?: string;
+            id?: string | number;
+            url?: string;
+            lrc?: string;
+            [K: string]: unknown;
+        };
+        var local: {
+            isUserScrolling: boolean;
+            scrollTimeout: ReturnType<typeof setTimeout> | null;
+            currentLrcIndex: number;
+            vs: {
+                playlist: ViewTrack[];
+                currentIndex: number;
+                renderedStart: number;
+                renderedEnd: number;
+                renderedEls: Record<number, HTMLElement>;
+                scrollRaf: number;
+                drawerOpen: boolean;
+            };
+        } = {
             isUserScrolling: false,
             scrollTimeout: null,
             currentLrcIndex: -1,
@@ -152,7 +177,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         };
 
-        function setLoading(bool) {
+        function setLoading(bool: boolean) {
             if (bool) {
                 ui.loading.classList.remove('opacity-0', 'pointer-events-none');
             } else {
@@ -160,7 +185,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function updatePlayStateUI(isPlaying) {
+        function updatePlayStateUI(isPlaying: boolean) {
             if (isPlaying) {
                 ui.btnPlay.classList.add('bg-(--primary)', 'text-white', 'hover:brightness-110');
                 ui.btnPlay.classList.remove('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary)');
@@ -180,8 +205,8 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
             var activeItems = ui.playlistContainer.querySelectorAll('.playlist-item[aria-current="true"]');
             activeItems.forEach(function (item) {
-                var eqBars = item.querySelector('.eq-bars');
-                var playIcon = item.querySelector('.eq-play-icon');
+                var eqBars = item.querySelector<HTMLElement>('.eq-bars') as HTMLElement;
+                var playIcon = item.querySelector<HTMLElement>('.eq-play-icon') as HTMLElement;
                 if (isPlaying) {
                     eqBars.classList.remove('hidden');
                     eqBars.classList.add('flex');
@@ -194,7 +219,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             });
         }
 
-        function updateModeUI(playMode) {
+        function updateModeUI(playMode: number) {
             var primaryColor = 'text-(--primary)';
             if (playMode === 0) {
                 ui.btnRepeat.className = 'p-2 active:scale-95 transition-colors text-neutral-300 dark:text-neutral-600 hover:text-(--primary)';
@@ -214,7 +239,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function updateVolumeUI(volume, isMuted) {
+        function updateVolumeUI(volume: number, isMuted: boolean) {
             var pct = isMuted ? 0 : volume * 100;
             ui.volBar.style.width = pct + '%';
             ui.volContainer.setAttribute('aria-valuenow', Math.round(pct).toString());
@@ -227,12 +252,12 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function updateTrackUI(track) {
+        function updateTrackUI(track: ViewTrack) {
             if (!track) return;
-            ui.title.innerText = track.name;
-            ui.title.title = track.name;
-            ui.artist.innerText = track.artist;
-            ui.artist.title = track.artist;
+            ui.title.innerText = String(track.name);
+            ui.title.title = String(track.name);
+            ui.artist.innerText = String(track.artist);
+            ui.artist.title = String(track.artist);
 
             if (track.pic) {
                 ui.cover.classList.add('opacity-0');
@@ -258,11 +283,11 @@ window.__fireflyMusicViewConfig = viewConfigStr;
 
         var PRIMARY_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#6366f1';
 
-        function vsApplyActiveStyle(el, isActive) {
-            var overlay = el.querySelector('.item-active-overlay');
-            var title = el.querySelector('.item-title');
-            var eqBars = el.querySelector('.eq-bars');
-            var playIcon = el.querySelector('.eq-play-icon');
+        function vsApplyActiveStyle(el: Element, isActive: boolean) {
+            var overlay = el.querySelector<HTMLElement>('.item-active-overlay') as HTMLElement;
+            var title = el.querySelector<HTMLElement>('.item-title') as HTMLElement;
+            var eqBars = el.querySelector<HTMLElement>('.eq-bars') as HTMLElement;
+            var playIcon = el.querySelector<HTMLElement>('.eq-play-icon') as HTMLElement;
             var isPlaying = mgr.getState().isPlaying;
             if (isActive) {
                 el.classList.add('bg-neutral-100', 'dark:bg-white/10');
@@ -288,21 +313,22 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function vsCreateItemEl(idx) {
+        function vsCreateItemEl(idx: number) {
             var vs = local.vs;
             var track = vs.playlist[idx];
-            var clone = ui.itemTemplate.content.cloneNode(true);
-            var itemEl = clone.querySelector('.playlist-item');
-            var img = clone.querySelector('.item-cover');
-            var title = clone.querySelector('.item-title');
-            var artist = clone.querySelector('.item-artist');
+            var clone = ui.itemTemplate.content.cloneNode(true) as DocumentFragment;
+            // 模板保证 .playlist-item 存在；断言一次（编译期）
+            var itemEl = clone.querySelector<HTMLElement>('.playlist-item') as HTMLElement;
+            var img = clone.querySelector<HTMLImageElement>('.item-cover') as HTMLImageElement;
+            var title = clone.querySelector<HTMLElement>('.item-title') as HTMLElement;
+            var artist = clone.querySelector<HTMLElement>('.item-artist') as HTMLElement;
 
             img.src = track.pic || '';
             img.alt = track.name + ' - ' + track.artist;
-            title.innerText = track.name;
-            artist.innerText = track.artist;
+            title.innerText = String(track.name);
+            artist.innerText = String(track.artist);
 
-            itemEl.dataset.index = idx;
+            itemEl.dataset.index = String(idx);
             itemEl.setAttribute('role', 'option');
             itemEl.setAttribute('aria-label', track.name + ' - ' + track.artist);
             itemEl.onclick = function () { mgr.playTrackByIndex(idx); };
@@ -316,7 +342,8 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             if (idx === vs.currentIndex) {
                 vsApplyActiveStyle(itemEl, true);
             }
-            return clone;
+            // 返回元素而非仅含该元素的 fragment：DOM 结果等价，且类型自洽（renderedEls 存 HTMLElement）
+            return itemEl;
         }
 
         function vsCommitRange() {
@@ -366,8 +393,9 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             vs.renderedEls = {};
             var children = container.children;
             for (var ci = 0; ci < children.length; ci++) {
-                var idx = parseInt(children[ci].dataset.index);
-                if (!isNaN(idx)) vs.renderedEls[idx] = children[ci];
+                var childEl = children[ci] as HTMLElement;
+                var idx = parseInt(childEl.dataset.index ?? '');
+                if (!isNaN(idx)) vs.renderedEls[idx] = childEl;
             }
 
             vs.renderedStart = start;
@@ -387,7 +415,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             ui.playlistContainer.style.height = (local.vs.playlist.length * ITEM_H) + 'px';
         }
 
-        function renderPlaylist(playlist, currentIndex) {
+        function renderPlaylist(playlist: ViewTrack[], currentIndex: number) {
             var vs = local.vs;
             vs.playlist = playlist;
             vs.currentIndex = currentIndex;
@@ -402,7 +430,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function updatePlaylistActiveUI(currentIndex) {
+        function updatePlaylistActiveUI(currentIndex: number) {
             var vs = local.vs;
             var oldIndex = vs.currentIndex;
             vs.currentIndex = currentIndex;
@@ -422,7 +450,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             }
         }
 
-        function renderLyricsUI(lyrics, status) {
+        function renderLyricsUI(lyrics: Array<{ time: number; text: string }>, status: string) {
             local.currentLrcIndex = -1;
             ui.lrcContainer.innerHTML = '';
             if (status === 'loading') {
@@ -441,7 +469,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 var lineEl = document.createElement('div');
                 lineEl.className = 'lrc-line transition-all duration-300 text-sm text-neutral-400 py-1 cursor-pointer hover:text-(--primary)';
                 lineEl.innerText = line.text;
-                lineEl.dataset.index = index;
+                lineEl.dataset.index = String(index);
                 lineEl.setAttribute('role', 'option');
                 lineEl.setAttribute('aria-label', line.text);
                 lineEl.onclick = function () {
@@ -451,7 +479,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             });
         }
 
-        function updateLrcHighlight(index) {
+        function updateLrcHighlight(index: number) {
             if (index === local.currentLrcIndex) return;
             local.currentLrcIndex = index;
 
@@ -468,7 +496,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
 
             // Auto-scroll unless user is scrolling
             if (index !== -1 && !local.isUserScrolling) {
-                var line = ui.lrcContainer.querySelector('.lrc-line[data-index="' + index + '"]');
+                var line = ui.lrcContainer.querySelector<HTMLElement>('.lrc-line[data-index="' + index + '"]');
                 if (line) {
                     var containerHeight = ui.lrcContainer.clientHeight;
                     var lineOffset = line.offsetTop;
@@ -515,11 +543,13 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             ui.cover.style.animationPlayState = s.isPlaying ? 'running' : 'paused';
         }
 
-        var handlers = {};
+        var handlers: Record<string, EventListener> = {};
 
-        function on(name, fn) {
-            handlers[name] = fn;
-            window.addEventListener(name, fn);
+        function on(name: string, fn: (e: CustomEvent) => void) {
+            // CustomEvent 回调与 EventListener 的形参逆变由此处一次性断言（编译期）
+            const handler = fn as EventListener;
+            handlers[name] = handler;
+            window.addEventListener(name, handler);
         }
 
         on('fm:init', function (e) {
@@ -661,13 +691,13 @@ window.__fireflyMusicViewConfig = viewConfigStr;
         });
 
         function resetScrollTimeout() {
-            clearTimeout(local.scrollTimeout);
+            clearTimeout(local.scrollTimeout ?? undefined);
             local.scrollTimeout = setTimeout(function () {
                 local.isUserScrolling = false;
                 // Snap back to current lyric
                 var s = mgr.getState();
                 if (s.currentLrcIndex >= 0) {
-                    var line = ui.lrcContainer.querySelector('.lrc-line[data-index="' + s.currentLrcIndex + '"]');
+                    var line = ui.lrcContainer.querySelector<HTMLElement>('.lrc-line[data-index="' + s.currentLrcIndex + '"]');
                     if (line) {
                         var containerHeight = ui.lrcContainer.clientHeight;
                         var lineOffset = line.offsetTop;
@@ -705,7 +735,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                             window.removeEventListener(name, handlers[name]);
                         });
                         observer.disconnect();
-                        clearTimeout(local.scrollTimeout);
+                        clearTimeout(local.scrollTimeout ?? undefined);
                         return;
                     }
                 }
@@ -727,7 +757,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
     }
 
     function initAll() {
-        var widgets = document.querySelectorAll('.music-player-widget');
+        var widgets = document.querySelectorAll<HTMLElement>('.music-player-widget');
         for (var i = 0; i < widgets.length; i++) {
             var w = widgets[i];
             if (w.dataset.musicInit === '1') continue;
