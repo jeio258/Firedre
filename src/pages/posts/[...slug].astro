@@ -256,6 +256,7 @@ const [relatedPosts, seriesData] = await Promise.all([
             <CoverImage
               id="post-cover"
               src={processedImage}
+              alt={entry.data.title}
               basePath={""}
               class="h-full"
               preview={false}

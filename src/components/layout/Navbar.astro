@@ -205,14 +205,14 @@ const logoVariants = await Promise.all(
                     client:load
                 />
                 {(musicConfigRuntime.showInNavbar && musicConfigRuntime.enable !== false) && (
-                    <button aria-label={i18n(I18nKey.music)} aria-controls="music-nav-panel" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90" id="music-player-switch">
+                    <button aria-label={i18n(I18nKey.music)} aria-controls="music-nav-panel" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90" id="music-player-switch">
                         <Icon name="material-symbols:music-note-rounded" class="text-[1.25rem]"></Icon>
                     </button>
                 )}
                 {wallpaperConfig.playerEnable && wallpaperConfig.mode !== "none" && (
                     <button
                         aria-label={i18n(I18nKey.videoPlay)}
-						class="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90"
+						class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90"
                         id="bg-player-toggle"
                         data-i18n-play={i18n(I18nKey.videoPlay)}
                         data-i18n-pause={i18n(I18nKey.videoPause)}
@@ -222,7 +222,7 @@ const logoVariants = await Promise.all(
                     </button>
                 )}
                 {hasDisplaySettings && (
-                        <button aria-label="Display Settings" aria-controls="display-setting" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-9 w-9 md:h-11 md:w-11 active:scale-90" id="display-settings-switch">
+                        <button aria-label="Display Settings" aria-controls="display-setting" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90" id="display-settings-switch">
                             <Icon name="material-symbols:palette-outline" class="text-[1.25rem]"></Icon>
                         </button>
                 )}
@@ -232,11 +232,11 @@ const logoVariants = await Promise.all(
                   href={url("/admin/")}
                   aria-label="后台管理"
                   title="后台管理"
-                  class="btn-plain scale-animation rounded-lg w-9 h-9 md:w-11 md:h-11 active:scale-90"
+                  class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90"
                 >
                   <Icon name="material-symbols:admin-panel-settings" class="text-[1.25rem]" />
                 </a>
-                <button aria-label="Menu" aria-controls="nav-menu-panel" aria-expanded="false" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-9 h-9 md:w-11 md:h-11 active:scale-90 lg:hidden!" id="nav-menu-switch">
+                <button aria-label="Menu" aria-controls="nav-menu-panel" aria-expanded="false" name="Nav Menu" class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90 lg:hidden!" id="nav-menu-switch">
                     <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
                 </button>
             </div>
