@@ -10,8 +10,7 @@ import { updateSidebarStickySpacing } from "@/utils/grid-layout-utils";
 const backToTopBtn = document.getElementById("back-to-top-btn");
 const navbar = document.getElementById("navbar-wrapper");
 
-// 导航栏模式：后台运行时设置优先（window.__FIREFLY_SETTINGS__），静态配置兜底
-const navbarMode = resolveClientNavbarMode();
+// 导航栏模式：每次调用时解析（设置变更实时生效；内部有身份缓存）
 
 // 动态导航栏：记录上一次滚动位置，用于判断滚动方向（下滑隐藏 / 上滑显示）
 let lastScrollTop = 0;
@@ -40,11 +39,11 @@ export function scrollFunction(): void {
 		});
 	}
 
-	if (navbarMode === "fixed" && navbar) {
+	if (resolveClientNavbarMode() === "fixed" && navbar) {
 		operations.push(() => {
 			navbar.classList.remove("navbar-hidden");
 		});
-	} else if (navbarMode === "dynamic" && navbar) {
+	} else if (resolveClientNavbarMode() === "dynamic" && navbar) {
 		// 动态：下滑隐藏 / 轻微上滑立即显示 / 滚回顶部(<80px)常显
 		const delta = scrollTop - lastScrollTop;
 		lastScrollTop = scrollTop;

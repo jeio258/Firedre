@@ -285,9 +285,6 @@ const [relatedPosts, seriesData] = await Promise.all([
             </div>
             <div class="absolute inset-x-0 bottom-0 px-6 md:px-9 pt-10 pb-3 bg-gradient-to-t from-black/80 via-black/45 to-transparent">
               <div
-                data-pagefind-body
-                data-pagefind-weight="10"
-                data-pagefind-meta="title"
                 class="mb-2 text-xl md:text-2xl font-bold leading-tight text-white"
               >
                 {entry.data.title}
@@ -360,9 +357,7 @@ const [relatedPosts, seriesData] = await Promise.all([
         !usePostCoverOverlay && (
           <div class="relative onload-animation">
             <div
-              data-pagefind-body
-              data-pagefind-weight="10"
-              data-pagefind-meta="title"
+
               class="transition w-full block font-bold mb-3
                         text-3xl md:text-[2.25rem]/[2.75rem]
                         text-black/90 dark:text-white/90

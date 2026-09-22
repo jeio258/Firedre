@@ -372,6 +372,9 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       // 注入当前语言翻译表：客户端 i18n 直接读取，六语言全量不进 bundle
       window.__FIREDRE_I18N__ = i18nMap;
 
+      // 设置实时感知（L2）：SSR 版本号落地为 data 属性，供 settings-live 模块比对
+      document.documentElement.setAttribute("data-settings-version", String(settingsVersion));
+
       // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置；
       // hue 仅在后台色相配置本身变化时重置，其余设置变更不影响用户自设色相
       var PREF_KEYS = ["wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
@@ -563,6 +566,7 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     {settings.effects?.waves !== false && <WavesEffect />}
 
     <script>import "../scripts/markdown-enhancer";</script>
+    <script>import "@/utils/settings-live";</script>
     <FancyboxManager />
 
     <CodeGroupManager />

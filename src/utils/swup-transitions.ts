@@ -29,9 +29,6 @@ import {
 } from "@/utils/setting-utils";
 import { pathsEqual, url } from "@/utils/url-utils";
 
-// 导航栏模式：后台运行时设置优先（window.__FIREFLY_SETTINGS__），静态配置兜底
-const navbarMode = resolveClientNavbarMode();
-
 function startProgressBar(): void {
 	const bar = document.getElementById("progress-bar");
 	if (!bar) return;
@@ -116,7 +113,7 @@ function registerSwupHooks(): void {
 			}
 
 			const navbar = document.getElementById("navbar-wrapper");
-			if (navbar && navbarMode === "fixed") {
+			if (navbar && resolveClientNavbarMode() === "fixed") {
 				navbar.classList.remove("navbar-hidden");
 			} else if (navbar && (isBannerMode() || isFullscreenMode())) {
 				const currentIsHome = document.body.classList.contains("is-home");

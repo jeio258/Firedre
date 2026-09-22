@@ -37,12 +37,18 @@ export function resolveNavbarMode(navbar: {
 /** 当前导航栏模式（已按 navbarMode / 旧 stickyNavbar 解析），供各消费方统一读取 */
 export const navbarMode: NavbarMode = resolveNavbarMode(siteConfig.navbar);
 
+let cachedSettingsSrc: unknown = null;
 let clientNavbarMode: NavbarMode | null = null;
 
-/** 客户端导航栏模式：后台运行时设置（window.__FIREFLY_SETTINGS__）优先，静态配置兜底 */
+/** 客户端导航栏模式：后台运行时设置（window.__FIREFLY_SETTINGS__）优先，静态配置兜底。
+ *  settings-live 更新注入对象后（对象身份变化）自动重解析，实现设置变更实时生效 */
 export function resolveClientNavbarMode(): NavbarMode {
-	if (clientNavbarMode) return clientNavbarMode;
-	clientNavbarMode = resolveNavbarMode(getNavbarConfigFromWindow());
+	const src = (window as { __FIREFLY_SETTINGS__?: unknown })
+		.__FIREFLY_SETTINGS__;
+	if (clientNavbarMode === null || src !== cachedSettingsSrc) {
+		cachedSettingsSrc = src;
+		clientNavbarMode = resolveNavbarMode(getNavbarConfigFromWindow());
+	}
 	return clientNavbarMode;
 }
 export { sponsorConfig } from "@shared/config/sponsorConfig";

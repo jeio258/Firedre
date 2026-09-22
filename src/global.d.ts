@@ -15,16 +15,6 @@ declare global {
 		floatingTOCListenersInitialized?: boolean;
 		// biome-ignore lint/suspicious/noExplicitAny: External library
 		spinePlayerInstance?: any;
-		pagefind: {
-			search: (query: string) => Promise<{
-				results: Array<{
-					data: () => Promise<SearchResult>;
-				}>;
-			}>;
-		};
-
-		__loadPagefind?: () => Promise<void>;
-		__pagefindLoading?: Promise<void>;
 		__fireflyMusicConfig?: string;
 		__fireflyMusicViewConfig?: string;
 		__fireflyMusic?: {
