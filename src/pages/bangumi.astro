@@ -1,6 +1,13 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+// D1 bangumi 组优先，静态 siteConfig.bangumi 兜底
+type BangumiGroup = NonNullable<typeof siteConfig.bangumi> & {
+	enabled?: boolean;
+	username?: string;
+};
+const bg: BangumiGroup =
+	(settings as { bangumi?: BangumiGroup }).bangumi ?? siteConfig.bangumi ?? {};
 
 import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
@@ -18,33 +25,16 @@ if (!getSiteConfig(Astro.locals).pages.bangumi) {
 }
 
 const bangumiConfig = {
-	username:
-		((settings as any)?.["bangumi"]?.username ??
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.userId) ||
-		"",
-	apiUrl:
-		((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.apiUrl ||
-		"https://api.bangumi.one",
-	subjectBaseUrl:
-		((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.subjectBaseUrl ||
-		"https://bangumi.one/subject/",
+	username: (bg.username ?? bg.userId) || "",
+	apiUrl: bg.apiUrl || "https://api.bangumi.one",
+	subjectBaseUrl: bg.subjectBaseUrl || "https://bangumi.one/subject/",
 	// 从配置文件中读取各分类是否启用，若未配置则使用默认值
 	categories: {
-		book:
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
-				?.book ?? true,
-		anime:
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
-				?.anime ?? true,
-		music:
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
-				?.music ?? true,
-		game:
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
-				?.game ?? true,
-		real:
-			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
-				?.real ?? false,
+		book: bg.categories?.book ?? true,
+		anime: bg.categories?.anime ?? true,
+		music: bg.categories?.music ?? true,
+		game: bg.categories?.game ?? true,
+		real: bg.categories?.real ?? false,
 	},
 	pagination: {
 		limit: 50,
@@ -52,7 +42,7 @@ const bangumiConfig = {
 		maxTotal: 1000,
 	},
 	// NSFW 处理："off" | "blur" | "hide"
-	nsfw: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.nsfw ?? "off",
+	nsfw: bg.nsfw ?? "off",
 };
 
 // 检查是否已配置 Bangumi 用户ID
@@ -100,7 +90,7 @@ const isUserIdConfigured =
                 username: bangumiConfig.username!,
                 apiUrl: bangumiConfig.apiUrl,
                 categories: bangumiConfig.categories,
-                categoryOrder: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categoryOrder || [],
+                categoryOrder: bg.categoryOrder || [],
                 pagination: bangumiConfig.pagination,
                 nsfw: bangumiConfig.nsfw,
               }}

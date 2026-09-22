@@ -1,6 +1,11 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+// D1 组覆盖值（后台设置）优先，静态 config 兜底
+type SponsorGroup = Partial<typeof sponsorConfig>;
+const sponsorSettings: SponsorGroup =
+	(settings as { sponsor?: SponsorGroup }).sponsor ?? {};
+const commentType = (settings as { comment?: { type?: string } }).comment?.type;
 
 import "@/styles/pages/common.css";
 import "@/styles/pages/sponsor.css";
@@ -28,17 +33,13 @@ if (!getSiteConfig(Astro.locals).pages.sponsor) {
 
 const isCommentEnabled =
 	commentConfig?.type &&
-	(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) !==
-		"none" &&
-	(((settings as any)?.["sponsor"] as any)?.["showComment"] ??
-		sponsorConfig.showComment) !== false;
+	(commentType ?? commentConfig.type) !== "none" &&
+	(sponsorSettings.showComment ?? sponsorConfig.showComment) !== false;
 
 const title =
-	(((settings as any)?.["sponsor"] as any)?.["title"] ?? sponsorConfig.title) ||
-	i18n(I18nKey.sponsorTitle);
+	(sponsorSettings.title ?? sponsorConfig.title) || i18n(I18nKey.sponsorTitle);
 const description =
-	(((settings as any)?.["sponsor"] as any)?.["description"] ??
-		sponsorConfig.description) ||
+	(sponsorSettings.description ?? sponsorConfig.description) ||
 	i18n(I18nKey.sponsorDescription);
 
 const sponsorSiteLinks = await listEnabledSiteLinks(cfEnv, "sponsor");
@@ -50,13 +51,10 @@ const enabledMethods = sponsorSiteLinks.map((l: SiteLinkView) => ({
 	description: "",
 	enabled: true,
 }));
-const sponsors =
-	(((settings as any)?.["sponsor"] as any)?.["sponsors"] ??
-		sponsorConfig.sponsors) ||
-	[];
+const sponsors = (sponsorSettings.sponsors ?? sponsorConfig.sponsors) || [];
 const showSponsorsList =
-	(((settings as any)?.["sponsor"] as any)?.["showSponsorsList"] ??
-		sponsorConfig.showSponsorsList) !== false;
+	(sponsorSettings.showSponsorsList ?? sponsorConfig.showSponsorsList) !==
+	false;
 
 // LQIP 渐变占位
 function getQrLqipProps(qrCode: string) {
@@ -78,13 +76,13 @@ function getQrLqipProps(qrCode: string) {
             {description && <p>{description}</p>}
           </div>
         </div>
-        {((((settings as any)?.["sponsor"]) as any)?.["usage"] ?? sponsorConfig.usage) && (
+        {(sponsorSettings.usage ?? sponsorConfig.usage) && (
           <div class="mb-8 p-4 rounded-lg bg-(--primary)/8 dark:bg-(--btn-regular-bg) border border-(--primary)/30 dark:border-none backdrop-blur-xs shadow-xs usage-info-box">
             <div class="flex items-start gap-2">
               <Icon name="material-symbols:info-outline" class="text-(--primary) text-lg shrink-0 mt-0.5" />
               <p class="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
                 <span class="font-semibold text-(--primary)"></span>
-                {((((settings as any)?.["sponsor"]) as any)?.["usage"] ?? sponsorConfig.usage)}
+                {(sponsorSettings.usage ?? sponsorConfig.usage)}
               </p>
             </div>
           </div>
