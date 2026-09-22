@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import VndbGrid from "@/components/pages/vndb/VndbGrid.svelte";
@@ -17,28 +14,25 @@ if (!getSiteConfig(Astro.locals).pages.vndb) {
 	return Astro.redirect("/404/");
 }
 
+// D1 vndb 组优先，静态 siteConfig.vndb 兜底
+type VndbGroup = NonNullable<typeof siteConfig.vndb> & { username?: string };
+const vndb: VndbGroup =
+	(Astro.locals.settings as { vndb?: VndbGroup } | undefined)?.vndb ??
+	siteConfig.vndb ??
+	{};
+
 const vndbConfig = {
-	userId:
-		((settings as any)?.["vndb"]?.username ??
-			((settings as any)?.["vndb"] ?? siteConfig.vndb)?.userId) ||
-		"",
-	apiUrl:
-		((settings as any)?.["vndb"] ?? siteConfig.vndb)?.apiUrl ||
-		"https://api.vndb.org/kana",
-	vnBaseUrl:
-		((settings as any)?.["vndb"] ?? siteConfig.vndb)?.vnBaseUrl ||
-		"https://vndb.org/",
-	apiToken: ((settings as any)?.["vndb"] ?? siteConfig.vndb)?.apiToken || "",
+	userId: (vndb.username ?? vndb.userId) || "",
+	apiUrl: vndb.apiUrl || "https://api.vndb.org/kana",
+	vnBaseUrl: vndb.vnBaseUrl || "https://vndb.org/",
+	apiToken: vndb.apiToken || "",
 	pagination: {
 		limit: 100,
 		delay: 100,
 		maxTotal: 1000,
 	},
 	// NSFW 处理："off" | "blur" | "hide"
-	nsfw: (((settings as any)?.["vndb"] ?? siteConfig.vndb)?.nsfw ?? "blur") as
-		| "off"
-		| "blur"
-		| "hide",
+	nsfw: (vndb.nsfw ?? "blur") as "off" | "blur" | "hide",
 };
 
 // 检查是否已配置 VNDB 用户ID

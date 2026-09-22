@@ -1,28 +1,28 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import { Icon } from "astro-icon/components";
 import "@/styles/markdown.css";
 import "@/styles/markdown-extend.styl";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import DynamicGallery from "@/components/pages/dynamic/DynamicGallery.astro";
 import DynamicInlineComments from "@/components/pages/dynamic/DynamicInlineComments.astro";
-import { dynamicConfig, profileConfig } from "@/config";
+import { dynamicConfig } from "@/config";
+import { getDynamicConfig, getProfileConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
+// 后台可编辑项统一走 runtime 收敛入口（内部含静态兜底）
+const profile = getProfileConfig(Astro.locals);
+const dynamic = getDynamicConfig(Astro.locals);
+
 const profileLabel = i18n(I18nKey.dynamicProfile).replace(
 	"{name}",
-	(settings as any)?.["name"] ?? profileConfig.name,
+	profile.name,
 );
 const profileUrl = url(
-	(((settings as any)?.["dynamic"] as any)?.["profileUrl"] ??
-		dynamicConfig.profileUrl) ||
-		"/about/",
+	(dynamic.profileUrl ?? dynamicConfig.profileUrl) || "/about/",
 );
 ---
 
@@ -32,8 +32,8 @@ const profileUrl = url(
 			<header class="page-entry-header">
 				<a href={profileUrl} class="page-avatar" aria-label={profileLabel}>
 					<ImageWrapper
-						src={((settings as any)?.["avatar"] ?? profileConfig.avatar) || ""}
-						alt={((settings as any)?.["name"] ?? profileConfig.name)}
+						src={profile.avatar || ""}
+						alt={profile.name}
 						widths={[96]}
 						sizes="48px"
 						loading="lazy"
@@ -42,7 +42,7 @@ const profileUrl = url(
 				</a>
 				<div class="page-identity">
 					<a href={profileUrl} class="page-author" aria-label={profileLabel}>
-						<strong data-dynamic-author>{((settings as any)?.["name"] ?? profileConfig.name)}</strong>
+						<strong data-dynamic-author>{profile.name}</strong>
 					</a>
 					<div class="page-meta">
 						<a class="page-time" data-dynamic-permalink>
