@@ -48,7 +48,9 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
         {                                                     }
         {backgroundImages.mobile.map((src, index) => (
             <div class:list={["slide-item block lg:hidden", index === 0 && "active"]} data-index={index}>
-                <template>
+                {index === 0 ? (
+                    /* 首图直接渲染：轮播图位于 <template> 内需等 JS 实例化才开始下载，
+                       首图不进模板可在解析期即发起请求（等价预加载），修 LCP */
                     <ImageWrapper
                         alt="Mobile background image of the blog"
                         class="object-cover h-full w-full"
@@ -58,13 +60,45 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         widths={[640, 828]}
                         sizes="100vw"
                         loading="eager"
+                        fetchpriority="high"
+                        fadeIn={false}
                         quality={state.mobileQuality}
                     />
-                </template>
+                ) : (
+                    <template>
+                        <ImageWrapper
+                            alt="Mobile background image of the blog"
+                            class="object-cover h-full w-full"
+                            src={src}
+                            position={backgroundWallpaper.banner?.position}
+                            width={828}
+                            widths={[640, 828]}
+                            sizes="100vw"
+                            loading="eager"
+                            quality={state.mobileQuality}
+                        />
+                    </template>
+                )}
             </div>
         ))}
         {backgroundImages.desktop.map((src, index) => (
             <div class:list={["slide-item hidden lg:block", index === 0 && "active"]} data-index={index}>
+                {index === 0 ? (
+                    /* 首图直接渲染（同移动端说明）：not in <template> → 解析期即下载 */
+                    <ImageWrapper
+                        alt="Desktop background image of the blog"
+                        class="object-cover h-full"
+                        src={src}
+                        position={backgroundWallpaper.banner?.position}
+                        width={1920}
+                        widths={[1280, 1920]}
+                        sizes="100vw"
+                        loading="eager"
+                        fetchpriority="high"
+                        fadeIn={false}
+                        quality={state.configQuality}
+                    />
+                ) : (
                 <template>
                     <ImageWrapper
                         alt="Desktop background image of the blog"
@@ -78,6 +112,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         quality={state.configQuality}
                     />
                 </template>
+                )}
             </div>
         ))}
         <noscript>
