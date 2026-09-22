@@ -65,38 +65,4 @@ export const extensionGroups: Group[] = [
 			{ name: "umamiId", label: "Umami 站点 ID", type: "text" },
 		],
 	},
-	{
-		key: "pio",
-		title: "Live2D / Spine 模型",
-		category: "扩展功能",
-		fields: [
-			{ name: "enabled", label: "启用看板娘", type: "boolean" },
-			{
-				name: "type",
-				label: "模型类型",
-				type: "select",
-				options: [
-					{ label: "Live2D", value: "live2d" },
-					{ label: "Spine", value: "spine" },
-				],
-			},
-			{ name: "model", label: "模型 ID / 路径", type: "text" },
-			{
-				name: "position",
-				label: "位置",
-				type: "select",
-				options: [
-					{ label: "左下角", value: "bottom-left" },
-					{ label: "右下角", value: "bottom-right" },
-				],
-			},
-			{ name: "size", label: "尺寸", type: "number" },
-			{
-				name: "opacity",
-				label: "看板娘透明度 (0-1)",
-				type: "number",
-				placeholder: "0-1",
-			},
-		],
-	},
 ];

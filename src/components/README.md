@@ -66,7 +66,6 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 - `CoverImage.astro` - 封面图组件（支持本地图片和随机图API）
 - `ImageWrapper.astro` - 图片包装器（支持本地和远程图片）
 - `Markdown.astro` - Markdown 内容样式包装器
-- `PioMessageBox.astro` - 消息框组件（Live2D/Spine 消息显示）
 
 **分页组件**
 - `ClientPagination.svelte` - 客户端分页（JavaScript 控制）
@@ -90,7 +89,6 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 - `SidebarTOC.astro` - 侧边栏目录组件
 - `SiteInfo.astro` - 站点信息组件
 - `SiteStats.astro` - 站点统计组件
-- `SpineModel.astro` - Spine 看板娘组件
 - `Tags.astro` - 标签组件
 
 ### ✨ features/ - 全局功能特效组件
@@ -106,10 +104,8 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 **功能组件**
 - `EncryptedContent.astro` - 加密内容组件
 - `EncryptedPost.astro` - 加密文章组件
-- `Live2DWidget.astro` - Live2D 看板娘组件
 - `MusicPlayer.astro` - 音乐播放器 UI 视图控制器（纯 UI，委托 MusicManager 进行播放控制）
 - `SakuraEffect.astro` - 樱花飘落特效
-- `SpineModel.astro` - Spine 看板娘组件
 - `TypewriterText.astro` - 打字机动画效果
 
 ### 📃 pages/ - 页面特定组件

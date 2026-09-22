@@ -12,7 +12,6 @@ import {
 	getMermaidConfig,
 	getMusicConfig,
 	getNavbarConfig,
-	getPioConfig,
 	getPlantumlConfig,
 	getProfileConfig,
 	getSidebarConfig,
@@ -195,15 +194,6 @@ const SCHEMA: Record<
 			icp: "icp",
 			startYear: "startYear",
 			customHtml: "customHtml",
-		},
-	},
-	pio: {
-		src: () => getPioConfig({}) as AnyObj,
-		fields: {
-			enabled: "enable",
-			position: "position",
-			size: "size",
-			opacity: "opacity",
 		},
 	},
 	license: {

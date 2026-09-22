@@ -26,7 +26,6 @@ import { licenseConfig as staticLicenseConfig } from "./licenseConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
 import { musicPlayerConfig as staticMusicConfig } from "./musicConfig";
 import { navBarConfig as staticNavConfig } from "./navBarConfig";
-import { live2dWidgetConfig as staticPioConfig } from "./pioConfig";
 import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
 import { profileConfig as staticProfileConfig } from "./profileConfig";
 import { sidebarLayoutConfig as staticSidebarConfig } from "./sidebarConfig";
@@ -614,21 +613,6 @@ export function getEffectsConfig(locals: unknown): typeof staticEffectsConfig {
 		waves: bool(e.waves, true),
 		gradient: bool(e.gradient, true),
 		bannerCarousel: bool(e.bannerCarousel, false),
-	};
-}
-
-export function getPioConfig(locals: unknown) {
-	const s = settingsOf(locals);
-	const p = groupOf(s, "pio");
-	return {
-		...staticPioConfig,
-		enable: bool(p.enabled, staticPioConfig.enable),
-		...(typeof p.position === "string" && p.position
-			? { position: p.position }
-			: {}),
-		...(typeof p.size === "number" ? { size: p.size } : {}),
-		...(typeof p.opacity === "number" ? { opacity: p.opacity } : {}),
-		...(typeof p.model === "string" && p.model ? { model: p.model } : {}),
 	};
 }
 

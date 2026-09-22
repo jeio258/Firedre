@@ -27,7 +27,6 @@ export const SETTING_GROUPS = [
 	"footer",
 	"ads",
 	"license",
-	"pio",
 	"plantuml",
 	"expressiveCode",
 	"analytics",
@@ -242,7 +241,6 @@ export interface SettingsShape {
 		waves?: boolean;
 		gradient?: boolean;
 	};
-	pio?: { enabled?: boolean };
 	comment?: { enabled?: boolean; type?: string };
 	license?: { enabled?: boolean; type?: string; url?: string };
 	announcement?: { enabled?: boolean; content?: string };

@@ -33,8 +33,6 @@ declare global {
 		toggleFloatingTOC: () => void;
 		tocInternalNavigation: boolean;
 
-		// biome-ignore lint/suspicious/noExplicitAny: External library without types
-		spine: any;
 		closeAnnouncement: () => void;
 
 		// SSR 注入的客户端设置（形状由 SettingsView 描述）

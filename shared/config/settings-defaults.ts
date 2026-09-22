@@ -233,15 +233,6 @@ export const settingsDefaults = {
 		url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 		icon: "",
 	},
-	pio: {
-		enabled: false,
-		type: "live2d",
-		position: "bottom-left",
-		size: {
-			width: 200,
-			height: 200,
-		},
-	},
 	analytics: {},
 	plantuml: {
 		enable: true,

@@ -17,7 +17,7 @@ src/config/
 后台表单 schema（`src/components/admin/adminSettingsSchema.ts`）/ 默认值（`shared/config/settings-defaults.ts`）/ 扁平化映射（`server/settings/flatten.ts`）三者字段存在以下**已核实现状差异**，统一会改变后台行为，故仅登记不修（除非实际引发 bug）：
 
 1. **默认值注入**（schema 有、defaults 无，flatten 从 runtime getter 硬编码注入）：`comment.enabled=true`、`effects.waves/gradient=true`、`effects.bannerCarousel=false`、`mermaid.enabled=true`
-2. **类型冲突**：`pio.size` defaults 为对象 `{width,height}` 而 schema 为 number；`analytics` 组 defaults 为空 `{}`
+2. **类型冲突**：`analytics` 组 defaults 为空 `{}`
 3. **仅存在于 flatten**：`dynamic.memosEnable/memosApiUrl`、`dynamic.enabled`（const:true）
 4. **字符串化**：`sponsor.sponsors` flatten 输出 JSON 字符串（源为数组）
 5. **当前恒等但语义变换**（改动相关配置须复核 flatten）：`basic.siteUrl` 过 normalizeSiteUrl、`basic.keywords` join/split 往返、`nav.links` 映射丢弃未列字段、profile/license 的 String 强转
@@ -57,7 +57,6 @@ import { profileConfig } from "@shared/config/profileConfig";
 | `licenseConfig.ts` | 许可证配置（CC 协议等） |
 | `musicConfig.ts` | 音乐播放器配置（Meting API / 本地音乐、导航栏和侧边栏开关） |
 | `navBarConfig.ts` | 导航栏配置（动态链接、LinkPresets 链接预设、搜索配置） |
-| `pioConfig.ts` | 看板娘配置（Spine 模型、Live2D 模型） |
 | `plantumlConfig.ts` | PlantUML 图表渲染配置 |
 | `profileConfig.ts` | 用户资料配置（头像、姓名、社交链接） |
 | `sidebarConfig.ts` | 侧边栏布局配置（左侧/右侧/移动端组件列表） |

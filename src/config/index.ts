@@ -15,7 +15,6 @@ export { licenseConfig } from "@shared/config/licenseConfig";
 export { mermaidConfig } from "@shared/config/mermaidConfig";
 export { musicPlayerConfig } from "@shared/config/musicConfig";
 export { navBarConfig } from "@shared/config/navBarConfig";
-export { live2dWidgetConfig, spineModelConfig } from "@shared/config/pioConfig";
 export { plantumlConfig } from "@shared/config/plantumlConfig";
 export { profileConfig } from "@shared/config/profileConfig";
 export { sidebarLayoutConfig } from "@shared/config/sidebarConfig";
