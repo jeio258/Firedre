@@ -191,7 +191,7 @@ export const en: Translation = {
 	[Key.animeDateDesc]: "Newest",
 	[Key.animeDateAsc]: "Oldest",
 	[Key.animeNoResults]: "No matching anime found",
-	[Key.animeLastUpdated]: "Data updated at",
+	[Key.animeLastUpdated]: "Data updated on",
 	[Key.animeViewDetails]: "View Details",
 	[Key.animeBilibiliAvg]: "Bilibili Avg",
 	[Key.animeNoOverview]: "No synopsis available",
@@ -228,7 +228,7 @@ export const en: Translation = {
 	[Key.malNotConfigured]: "MyAnimeList Not Configured",
 	[Key.malNotConfiguredDesc]:
 		"Please configure your MyAnimeList username and Client ID in src/config/siteConfig.ts. The list must be public.",
-	[Key.malLastUpdated]: "Data updated at",
+	[Key.malLastUpdated]: "Data updated on",
 	[Key.malSeasonWinter]: "Winter",
 	[Key.malSeasonSpring]: "Spring",
 	[Key.malSeasonSummer]: "Summer",

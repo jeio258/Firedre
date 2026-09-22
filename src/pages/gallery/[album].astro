@@ -1,4 +1,7 @@
 ---
+import "@/styles/pages/gallery-album.css";
+import { getAlbumPassword } from "@server/gallery/password";
+import { getGalleryAlbum } from "@server/gallery/service";
 import { Icon } from "astro-icon/components";
 import EncryptedContent from "@/components/features/EncryptedContent.astro";
 import PhotoCard from "@/components/pages/gallery/PhotoCard.astro";
@@ -9,8 +12,6 @@ import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { cfEnv } from "@/lib/api";
 import { getLqipProps } from "@/utils/lqip-utils";
 import { url } from "@/utils/url-utils";
-import { getGalleryAlbum } from "@server/gallery/service";
-import { getAlbumPassword } from "@server/gallery/password";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
@@ -48,30 +49,35 @@ const albumMeta = {
 	passwordHint: fm.passwordHint ? String(fm.passwordHint) : "",
 };
 
-const photos: Array<{ url: string; type?: string; poster?: string; date?: string }> =
-	Array.isArray(fm.photos)
-		? (fm.photos as Array<unknown>)
-				.filter(
-					(p) =>
-						p &&
-						(typeof p === "string" ||
-							(typeof p === "object" && (p as { url?: unknown }).url)),
-				)
-				.map((p) => {
-					if (typeof p === "string") return { url: p };
-					const obj = p as Record<string, unknown>;
-					return {
-						url: String(obj.url),
-						type: obj.type ? String(obj.type) : undefined,
-						poster: obj.poster ? String(obj.poster) : undefined,
-						date: obj.date ? String(obj.date) : undefined,
-					};
-				})
-		: [];
+const photos: Array<{
+	url: string;
+	type?: string;
+	poster?: string;
+	date?: string;
+}> = Array.isArray(fm.photos)
+	? (fm.photos as Array<unknown>)
+			.filter(
+				(p) =>
+					p &&
+					(typeof p === "string" ||
+						(typeof p === "object" && (p as { url?: unknown }).url)),
+			)
+			.map((p) => {
+				if (typeof p === "string") return { url: p };
+				const obj = p as Record<string, unknown>;
+				return {
+					url: String(obj.url),
+					type: obj.type ? String(obj.type) : undefined,
+					poster: obj.poster ? String(obj.poster) : undefined,
+					date: obj.date ? String(obj.date) : undefined,
+				};
+			})
+	: [];
 const cover = albumMeta.cover || "";
 const columnWidth = 240;
 
-const coverLoaded = cover && (!albumMeta.encrypted || !cover.includes("/api/gallery-files/"));
+const coverLoaded =
+	cover && (!albumMeta.encrypted || !cover.includes("/api/gallery-files/"));
 const coverUrl = coverLoaded ? cover : "";
 const coverLqipProps = coverUrl
 	? getLqipProps(coverUrl, undefined, true)

@@ -2,6 +2,7 @@
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 
+import "@/styles/pages/card-grid.css";
 import "@/styles/banner-home.css";
 import Pagination from "@/components/common/Pagination.astro";
 import PostPage from "@/components/layout/PostPage.astro";

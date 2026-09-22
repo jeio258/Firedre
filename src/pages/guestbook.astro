@@ -1,6 +1,8 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import "@/styles/pages/common.css";
 import Comment from "@components/comment/index.astro";
 import Markdown from "@components/common/Markdown.astro";
 import { Icon } from "astro-icon/components";
@@ -29,7 +31,10 @@ try {
 	guestbookHtml = "";
 }
 
-const isCommentEnabled = commentConfig?.type && ((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none";
+const isCommentEnabled =
+	commentConfig?.type &&
+	(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) !==
+		"none";
 
 const title = i18n(I18nKey.guestbook);
 const description = i18n(I18nKey.guestbookDescription);
@@ -42,19 +47,15 @@ const description = i18n(I18nKey.guestbookDescription);
     <div class="card-base z-10 px-9 py-6 relative w-full">
 
       <div class="mb-8">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
-            <Icon name="material-symbols:chat" class="text-[1.5rem]"></Icon>
+        <div class="page-heading">
+          <div class="page-icon" aria-hidden="true">
+            <Icon name="material-symbols:chat" />
           </div>
-          <div class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            {title}
+          <div>
+            <h2>{title}</h2>
+            {description && <p>{description}</p>}
           </div>
         </div>
-        {description && (
-          <p class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
-            {description}
-          </p>
-        )}
       </div>
 
       <Markdown class="mt-2">

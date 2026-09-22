@@ -1,12 +1,12 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import "@/styles/pages/common.css";
+import "@/styles/pages/friends.css";
 import Comment from "@components/comment/index.astro";
 import { Icon } from "astro-icon/components";
-import {
-	commentConfig,
-	friendsPageConfig,
-} from "@/config";
+import { commentConfig, friendsPageConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -25,7 +25,8 @@ const friendRows = await listEnabledFriends(cfEnv);
 
 const isCommentEnabled =
 	commentConfig?.type &&
-	((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none" &&
+	(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) !==
+		"none" &&
 	friendsPageConfig.showComment !== false;
 
 type FriendsCardItem = {
@@ -41,7 +42,10 @@ const items: FriendsCardItem[] = friendRows.map((friend) => ({
 	imgurl: friend.imgurl,
 	siteurl: friend.siteurl,
 	desc: friend.desc ?? "",
-	tags: (friend.tags || "").split(",").map((t) => t.trim()).filter(Boolean),
+	tags: (friend.tags || "")
+		.split(",")
+		.map((t) => t.trim())
+		.filter(Boolean),
 }));
 const allTags = [...new Set(items.flatMap((item) => item.tags || []))].sort();
 
@@ -62,23 +66,15 @@ const description =
     <div class="card-base z-10 px-9 py-6 relative w-full">
 
       <div class="mb-4">
-        <div class="flex items-center gap-3 mb-3">
-          <div
-            class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70"
-          >
-            <Icon name="material-symbols:group" class="text-[1.5rem]" />
+        <div class="page-heading">
+          <div class="page-icon" aria-hidden="true">
+            <Icon name="material-symbols:group" />
           </div>
-          <div class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            {title}
+          <div>
+            <h2>{title}</h2>
+            {description && <p>{description}</p>}
           </div>
         </div>
-        {
-          description && (
-            <p class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4">
-              {description}
-            </p>
-          )
-        }
       </div>
 
       {
@@ -288,12 +284,4 @@ const description =
       customElements.define("friend-filter", FriendFilter);
     }
   </script>
-
-  <style is:global>
-    .friends-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
-      gap: 0.75rem;
-    }
-  </style>
 </MainGridLayout>

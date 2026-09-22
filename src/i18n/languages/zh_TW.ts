@@ -189,7 +189,7 @@ export const zh_TW: Translation = {
 	[Key.animeDateDesc]: "最新發布",
 	[Key.animeDateAsc]: "最早發布",
 	[Key.animeNoResults]: "沒有找到匹配的番劇",
-	[Key.animeLastUpdated]: "數據更新於",
+	[Key.animeLastUpdated]: "資料更新日期",
 	[Key.animeViewDetails]: "查看詳情",
 	[Key.animeBilibiliAvg]: "Bilibili 均分",
 	[Key.animeNoOverview]: "暫無簡介",
@@ -226,7 +226,7 @@ export const zh_TW: Translation = {
 	[Key.malNotConfigured]: "未配置 MyAnimeList 用戶資訊",
 	[Key.malNotConfiguredDesc]:
 		"請在 src/config/siteConfig.ts 中配置你的 MyAnimeList 用戶名和 Client ID（列表需為公開狀態）",
-	[Key.malLastUpdated]: "數據更新於",
+	[Key.malLastUpdated]: "資料更新日期",
 	[Key.malSeasonWinter]: "冬季",
 	[Key.malSeasonSpring]: "春季",
 	[Key.malSeasonSummer]: "夏季",

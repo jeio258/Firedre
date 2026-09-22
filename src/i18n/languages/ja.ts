@@ -190,7 +190,7 @@ export const ja: Translation = {
 	[Key.animeDateDesc]: "新しい順",
 	[Key.animeDateAsc]: "古い順",
 	[Key.animeNoResults]: "一致するアニメが見つかりません",
-	[Key.animeLastUpdated]: "データ更新",
+	[Key.animeLastUpdated]: "データ更新日",
 	[Key.animeViewDetails]: "詳細を見る",
 	[Key.animeBilibiliAvg]: "Bilibili 平均",
 	[Key.animeNoOverview]: "あらすじなし",
@@ -227,7 +227,7 @@ export const ja: Translation = {
 	[Key.malNotConfigured]: "MyAnimeList が未設定です",
 	[Key.malNotConfiguredDesc]:
 		"src/config/siteConfig.ts で MyAnimeList のユーザー名と Client ID を設定してください（リストは公開にする必要があります）",
-	[Key.malLastUpdated]: "データ更新",
+	[Key.malLastUpdated]: "データ更新日",
 	[Key.malSeasonWinter]: "冬",
 	[Key.malSeasonSpring]: "春",
 	[Key.malSeasonSummer]: "夏",

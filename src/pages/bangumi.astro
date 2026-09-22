@@ -1,6 +1,8 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import BangumiGrid from "@/components/pages/bangumi/BangumiGrid.svelte";
 import { siteConfig } from "@/config";
@@ -20,16 +22,29 @@ const bangumiConfig = {
 		((settings as any)?.["bangumi"]?.username ??
 			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.userId) ||
 		"",
-	apiUrl: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.apiUrl || "https://api.bangumi.one",
+	apiUrl:
+		((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.apiUrl ||
+		"https://api.bangumi.one",
 	subjectBaseUrl:
-		((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.subjectBaseUrl || "https://bangumi.one/subject/",
+		((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.subjectBaseUrl ||
+		"https://bangumi.one/subject/",
 	// 从配置文件中读取各分类是否启用，若未配置则使用默认值
 	categories: {
-		book: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.book ?? true,
-		anime: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.anime ?? true,
-		music: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.music ?? true,
-		game: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.game ?? true,
-		real: ((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories?.real ?? false,
+		book:
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
+				?.book ?? true,
+		anime:
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
+				?.anime ?? true,
+		music:
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
+				?.music ?? true,
+		game:
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
+				?.game ?? true,
+		real:
+			((settings as any)?.["bangumi"] ?? siteConfig.bangumi)?.categories
+				?.real ?? false,
 	},
 	pagination: {
 		limit: 50,
@@ -53,17 +68,15 @@ const isUserIdConfigured =
 
         <div class="relative w-full mb-8">
             <div class="mb-6">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
-                        <Icon name="material-symbols:movie" class="text-[1.5rem]"></Icon>
+                                <div class="page-heading">
+                    <div class="page-icon" aria-hidden="true">
+                        <Icon name="material-symbols:movie" />
                     </div>
-                    <div class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-                        {i18n(I18nKey.bangumi)}
+                    <div>
+                        <h2>{i18n(I18nKey.bangumi)}</h2>
+                        <p>{i18n(I18nKey.bangumiSubtitle)}</p>
                     </div>
                 </div>
-                <p class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
-                    {i18n(I18nKey.bangumiSubtitle)}
-                </p>
             </div>
         </div>
 

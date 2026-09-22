@@ -191,7 +191,7 @@ export const ru: Translation = {
 	[Key.animeDateDesc]: "Сначала новые",
 	[Key.animeDateAsc]: "Сначала старые",
 	[Key.animeNoResults]: "Аниме не найдено",
-	[Key.animeLastUpdated]: "Данные обновлены",
+	[Key.animeLastUpdated]: "Дата обновления данных",
 	[Key.animeViewDetails]: "Подробнее",
 	[Key.animeBilibiliAvg]: "Bilibili ср.",
 	[Key.animeNoOverview]: "Нет описания",
@@ -228,7 +228,7 @@ export const ru: Translation = {
 	[Key.malNotConfigured]: "MyAnimeList не настроен",
 	[Key.malNotConfiguredDesc]:
 		"Укажите имя пользователя и Client ID MyAnimeList в src/config/siteConfig.ts (список должен быть открытым)",
-	[Key.malLastUpdated]: "Данные обновлены",
+	[Key.malLastUpdated]: "Дата обновления данных",
 	[Key.malSeasonWinter]: "Зима",
 	[Key.malSeasonSpring]: "Весна",
 	[Key.malSeasonSummer]: "Лето",

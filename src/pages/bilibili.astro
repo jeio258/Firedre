@@ -1,6 +1,8 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import BilibiliGrid from "@/components/pages/bilibili/BilibiliGrid.svelte";
 import { siteConfig } from "@/config";
@@ -21,7 +23,8 @@ if (!getSiteConfig(Astro.locals).pages.bilibili) {
 const buildTime = formatDateI18nWithTime(new Date());
 
 // Bilibili 配置
-const BILIBILI_UID = ((settings as any)?.["bilibili"] ?? siteConfig.bilibili)?.uid;
+const BILIBILI_UID = ((settings as any)?.["bilibili"] ?? siteConfig.bilibili)
+	?.uid;
 const isConfigured = !!BILIBILI_UID && BILIBILI_UID.trim() !== "";
 
 let animeList: StandardizedAnime[] = [];
@@ -54,20 +57,18 @@ const bilibiliAverageRating =
 
       <div class="relative w-full mb-8">
         <div class="mb-6">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
-              <Icon name="fa7-brands:bilibili" class="text-[1.5rem]"></Icon>
+          <div class="page-heading">
+            <div class="page-icon" aria-hidden="true">
+              <Icon name="fa7-brands:bilibili" />
             </div>
-            <div class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-              {i18n(I18nKey.bilibili)}
+            <div>
+              <h2>{i18n(I18nKey.bilibili)}</h2>
+              <p>{i18n(I18nKey.bilibiliSubtitle)}</p>
             </div>
+            <p class="page-updated">
+              <span>{i18n(I18nKey.animeLastUpdated)} {buildTime}</span>
+            </p>
           </div>
-          <p class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            {i18n(I18nKey.bilibiliSubtitle)}
-          </p>
-          <p class="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
-            {i18n(I18nKey.animeLastUpdated)} {buildTime}
-          </p>
         </div>
 
         {!isConfigured ? (

@@ -1,6 +1,8 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
+import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import MalGrid from "@/components/pages/mal/MalGrid.svelte";
 import { siteConfig } from "@/config";
@@ -25,17 +27,25 @@ if (!getSiteConfig(Astro.locals).pages.mal) {
 
 const buildTime = formatDateI18nWithTime(new Date());
 
-const malSettings = ((settings as any)?.["myanimelist"] ?? (settings as any)?.["mal"] ?? siteConfig.mal) as Record<string, unknown>;
+const malSettings = ((settings as any)?.["myanimelist"] ??
+	(settings as any)?.["mal"] ??
+	siteConfig.mal) as Record<string, unknown>;
 const malConfig = {
 	username: (malSettings.username as string | undefined) || "",
 	clientId: (malSettings.clientId as string | undefined) || "",
-	apiUrl: (malSettings.apiUrl as string | undefined) || "https://api.myanimelist.net/v2",
-	animeBaseUrl: (malSettings.animeBaseUrl as string | undefined) || "https://myanimelist.net/anime/",
-	mangaBaseUrl: (malSettings.mangaBaseUrl as string | undefined) || "https://myanimelist.net/manga/",
+	apiUrl:
+		(malSettings.apiUrl as string | undefined) ||
+		"https://api.myanimelist.net/v2",
+	animeBaseUrl:
+		(malSettings.animeBaseUrl as string | undefined) ||
+		"https://myanimelist.net/anime/",
+	mangaBaseUrl:
+		(malSettings.mangaBaseUrl as string | undefined) ||
+		"https://myanimelist.net/manga/",
 	pagination: {
-		limit: 100,          
-		delay: 100,                  
-		maxTotal: 1000,                        
+		limit: 100,
+		delay: 100,
+		maxTotal: 1000,
 	},
 	// NSFW 处理："off" | "blur" | "hide"
 	nsfw: (malSettings.nsfw ?? "off") as "off" | "blur" | "hide",
@@ -146,20 +156,18 @@ const activeCategory = categories[0]?.id || "anime";
 
       <div class="relative w-full mb-8">
         <div class="mb-6">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="h-8 w-8 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70">
-              <Icon name="material-symbols:menu-book" class="text-[1.5rem]"></Icon>
+          <div class="page-heading">
+            <div class="page-icon" aria-hidden="true">
+              <Icon name="material-symbols:menu-book" />
             </div>
-            <div class="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-              {i18n(I18nKey.mal)}
+            <div>
+              <h2>{i18n(I18nKey.mal)}</h2>
+              <p>{i18n(I18nKey.malSubtitle)}</p>
             </div>
+            <p class="page-updated">
+              <span>{i18n(I18nKey.malLastUpdated)} {buildTime}</span>
+            </p>
           </div>
-          <p class="text-base text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            {i18n(I18nKey.malSubtitle)}
-          </p>
-          <p class="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
-            {i18n(I18nKey.malLastUpdated)} {buildTime}
-          </p>
         </div>
 
         {!isConfigured ? (

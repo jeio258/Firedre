@@ -2,6 +2,7 @@
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 
+import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.svelte";
 import DynamicItemTemplate from "@/components/pages/dynamic/DynamicItemTemplate.astro";
@@ -54,11 +55,11 @@ const memos =
 ---
 
 <MainGridLayout title={title} description={description}>
-	<section class="dynamic-page" aria-labelledby="dynamic-page-title">
+	<section class="page-shell" aria-labelledby="dynamic-page-title">
 		<div>
-			<header class="dynamic-page-header card-base">
-				<div class="dynamic-page-heading">
-					<div class="dynamic-page-icon" aria-hidden="true">
+			<header class="page-header card-base">
+				<div class="page-heading">
+					<div class="page-icon" aria-hidden="true">
 						<Icon name="material-symbols:forum-rounded" />
 					</div>
 					<div>
@@ -67,7 +68,7 @@ const memos =
 					</div>
 				</div>
 				<div
-					class="dynamic-count"
+					class="page-count"
 					aria-label={i18n(I18nKey.dynamic)}
 				>
 					<Icon name="material-symbols:dynamic-feed-rounded" />
