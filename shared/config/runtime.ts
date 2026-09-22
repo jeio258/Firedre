@@ -769,7 +769,7 @@ export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
 			(staticNavConfig as unknown as Record<string, unknown>).enabled !== false,
 		),
 		title: str(
-			nb.title,
+			n.title ?? nb.title,
 			String(
 				(siteNavbar?.title as string) ??
 					((staticNavConfig as unknown as Record<string, unknown>)
@@ -777,22 +777,28 @@ export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
 					"",
 			),
 		),
-		widthFull: bool(nb.widthFull, Boolean(siteNavbar?.widthFull)),
+		widthFull: bool(
+			n.widthFull ?? nb.widthFull,
+			Boolean(siteNavbar?.widthFull),
+		),
 		menuAlign: str(
-			nb.menuAlign,
+			n.menuAlign ?? nb.menuAlign,
 			String((siteNavbar?.menuAlign as string) ?? "center"),
 		),
-		followTheme: bool(nb.followTheme, Boolean(siteNavbar?.followTheme)),
+		followTheme: bool(
+			n.followTheme ?? nb.followTheme,
+			Boolean(siteNavbar?.followTheme),
+		),
 		stickyNavbar: bool(
-			nb.stickyNavbar,
+			n.stickyNavbar ?? nb.stickyNavbar,
 			Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
 		),
 		navbarMode: ((): NavbarMode => {
-			const rm = nb.navbarMode;
+			const rm = n.navbarMode ?? nb.navbarMode;
 			if (rm === "static" || rm === "fixed" || rm === "dynamic") return rm;
 			// 兼容旧 stickyNavbar：true→fixed，false→static
 			return bool(
-				nb.stickyNavbar,
+				n.stickyNavbar ?? nb.stickyNavbar,
 				Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
 			)
 				? "fixed"

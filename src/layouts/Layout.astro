@@ -23,7 +23,7 @@ import {
 	resolveNavbarMode,
 	siteConfig,
 } from "@/config";
-import { getExpressiveCodeConfig } from "@/config/runtime";
+import { getExpressiveCodeConfig, getNavbarConfig } from "@/config/runtime";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -89,17 +89,14 @@ const settings =
 	).settings ?? {};
 
 // 导航栏模式（后台设置优先，静态配置兑底；static/fixed/dynamic）
-const navbarMode = resolveNavbarMode(
-	(settings?.["navbar"] ?? siteConfig.navbar) as Parameters<
-		typeof resolveNavbarMode
-	>[0],
-);
+// 导航栏配置统一走运行时入口（D1 的 nav 组；静态仅极端兜底）
+const navbarMode = resolveNavbarMode(getNavbarConfig(Astro.locals));
 
 const configHue =
-	settings.hue ?? (settings?.["themeColor"] ?? siteConfig.themeColor).hue;
+	settings.hue ?? (settings?.themeColor ?? siteConfig.themeColor).hue;
 
 const navbarTransparentMode =
-	(settings?.["theme"]?.["banner"] ?? backgroundWallpaper.banner)?.navbar
+	(settings?.theme?.banner ?? backgroundWallpaper.banner)?.navbar
 		?.transparentMode || "semi";
 // 判断是否应该显示顶部高光效果（只在full和semifull模式下显示）
 const shouldShowTopHighlight =
@@ -107,21 +104,20 @@ const shouldShowTopHighlight =
 
 const NAVBAR_PANEL_MIN_BLUR = 2;
 const navbarPanelBlur = Math.max(
-	(settings?.["theme"]?.["banner"] ?? backgroundWallpaper.banner)?.navbar
-		?.blur ?? 20,
+	(settings?.theme?.banner ?? backgroundWallpaper.banner)?.navbar?.blur ?? 20,
 	NAVBAR_PANEL_MIN_BLUR,
 );
 
 const effectiveTitle =
-	(settings?.["basic"]?.["title"] as string | undefined) ??
+	(settings?.basic?.title as string | undefined) ??
 	settings.title ??
 	siteConfig.title;
 const effectiveDescription =
-	(settings?.["basic"]?.["description"] as string | undefined) ??
+	(settings?.basic?.description as string | undefined) ??
 	settings.description ??
 	siteConfig.description;
 let pageTitle: string;
-const siteSubtitle = (settings?.["subtitle"] ?? siteConfig.subtitle) || "";
+const siteSubtitle = (settings?.subtitle ?? siteConfig.subtitle) || "";
 
 const siteIdentity = siteSubtitle
 	? `${effectiveTitle} - ${siteSubtitle}`
@@ -133,25 +129,25 @@ if (title) {
 }
 
 let ogImageUrl: string | undefined;
-if ((settings?.["post"] ?? siteConfig.post).generateOgImages && postSlug) {
+if ((settings?.post ?? siteConfig.post).generateOgImages && postSlug) {
 	ogImageUrl = new URL(`/og/${postSlug}.png`, Astro.site).toString();
 } else if (postCoverImage) {
 	ogImageUrl = postCoverImage; // 已由文章页算成绝对 URL
 }
 
 if (!lang) {
-	lang = `${settings?.["lang"] ?? siteConfig.lang}`;
+	lang = `${settings?.lang ?? siteConfig.lang}`;
 }
 const siteLang = lang.replace("_", "-");
 
 // 作者个人页（/about/）绝对 URL，作为 Person.url
 const effectiveSiteUrl =
-	settings.siteUrl || (settings?.["site_url"] ?? siteConfig.site_url);
+	settings.siteUrl || (settings?.site_url ?? siteConfig.site_url);
 
 const avatarUrl = await getAuthorAvatarUrl(effectiveSiteUrl);
 // 头像 preload：默认头像（未被后台替换）时预取静态文件，提前加载 LCP 图
 const avatarPreloadUrl =
-	(!settings?.["avatar"] || settings?.["avatar"] === profileConfig.avatar) &&
+	(!settings?.avatar || settings?.avatar === profileConfig.avatar) &&
 	profileConfig.avatar
 		? await getRawImageUrl(profileConfig.avatar).catch(() => null)
 		: null;
