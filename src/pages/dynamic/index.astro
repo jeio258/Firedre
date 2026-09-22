@@ -11,6 +11,8 @@ import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import type { CommentConfig } from "@/types/commentConfig";
+import type { DynamicConfig } from "@/types/dynamicConfig";
 import "@/styles/pages/dynamic.css";
 import { url } from "@/utils/url-utils";
 
@@ -20,38 +22,26 @@ if (!getSiteConfig(Astro.locals).pages.dynamic) {
 	return Astro.redirect("/404/");
 }
 
+// 后台设置（动态主路径）→ 静态动态配置（极端兜底）；类型化读取，避免 as any
+const dynamicSettings: DynamicConfig =
+	(settings["dynamic"] as DynamicConfig | undefined) ?? {};
+const commentSettings = (settings["comment"] ?? {}) as Partial<CommentConfig>;
+
 const title =
-	(((settings as any)?.["dynamic"] as any)?.["title"] ?? dynamicConfig.title) ||
-	i18n(I18nKey.dynamic);
-const description =
-	(((settings as any)?.["dynamic"] as any)?.["description"] ??
-		dynamicConfig.description) ||
-	i18n(I18nKey.dynamicDescription);
-const itemsPerPage = Math.max(
-	1,
-	((settings as any)?.["dynamic"] as any)?.["itemsPerPage"] ??
-		dynamicConfig.itemsPerPage ??
-		10,
-);
+	dynamicSettings.title ?? dynamicConfig.title ?? i18n(I18nKey.dynamic);
+const description = dynamicSettings.description ?? dynamicConfig.description;
+const itemsPerPage =
+	dynamicSettings.itemsPerPage ?? dynamicConfig.itemsPerPage ?? 10;
 const showInlineComments = Boolean(
-	(((settings as any)?.["dynamic"] as any)?.["showComment"] ??
-		dynamicConfig.showComment) !== false &&
-		(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) &&
-		(((settings as any)?.["comment"] as any)?.["type"] ??
-			commentConfig.type) !== "none",
+	(dynamicSettings.showComment ?? dynamicConfig.showComment) !== false &&
+		(commentSettings.type ?? commentConfig.type) &&
+		(commentSettings.type ?? commentConfig.type) !== "none",
 );
-const dataUrl = (
-	((settings as any)?.["dynamic"] as any)?.["apiUrl"] ?? dynamicConfig.apiUrl
-)?.startsWith("http")
-	? (((settings as any)?.["dynamic"] as any)?.["apiUrl"] ??
-		dynamicConfig.apiUrl)
-	: url(
-			(((settings as any)?.["dynamic"] as any)?.["apiUrl"] ??
-				dynamicConfig.apiUrl) ||
-				"/api/dynamic.json",
-		);
-const memos =
-	((settings as any)?.["dynamic"] as any)?.["memos"] ?? dynamicConfig.memos;
+const apiUrlSetting = dynamicSettings.apiUrl ?? dynamicConfig.apiUrl;
+const dataUrl = apiUrlSetting?.startsWith("http")
+	? apiUrlSetting
+	: url(apiUrlSetting || "/api/dynamic.json");
+const memos = dynamicSettings.memos ?? dynamicConfig.memos;
 ---
 
 <MainGridLayout title={title} description={description}>
@@ -103,7 +93,7 @@ const memos =
 				noResultsText={i18n(I18nKey.dynamicNoResults)}
 				loadingText={i18n(I18nKey.dynamicLoading)}
 				allYearsText={i18n(I18nKey.dynamicAllYears)}
-				timezone={((settings as any)?.["timezone"] ?? siteConfig.timezone) || "UTC"}
+				timezone={(settings["timezone"] as string) ?? siteConfig.timezone ?? "UTC"}
 				{memos}
 			/>
 
