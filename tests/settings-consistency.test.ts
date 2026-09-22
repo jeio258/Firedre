@@ -37,8 +37,6 @@ const KNOWN_SCHEMA_NO_DEFAULT = new Set([
 	"sponsor.description",
 	"sponsor.showButtonInPost",
 	"sponsor.showSponsorsList",
-	"pio.type",
-	"pio.model",
 ]);
 
 const KNOWN_FLATTEN_NO_DEFAULT = new Set([
@@ -54,7 +52,6 @@ const KNOWN_FLATTEN_NO_DEFAULT = new Set([
 	"footer.icp",
 	"footer.startYear",
 	"footer.customHtml",
-	"pio.opacity",
 	"license.type",
 	"sponsor.enabled",
 	"sponsor.qrCode",

@@ -10,7 +10,6 @@ import { footerConfig } from "@shared/config/footerConfig";
 import { licenseConfig } from "@shared/config/licenseConfig";
 import { musicPlayerConfig } from "@shared/config/musicConfig";
 import { navBarConfig } from "@shared/config/navBarConfig";
-import { live2dWidgetConfig } from "@shared/config/pioConfig";
 import { plantumlConfig } from "@shared/config/plantumlConfig";
 import { profileConfig } from "@shared/config/profileConfig";
 import { settingsDefaults as d } from "@shared/config/settings-defaults";
@@ -121,9 +120,9 @@ const CASES: Array<[string, unknown, unknown]> = [
 		sidebarLayoutConfig.hideSidebarOnPostPage,
 	],
 	[
-		"sidebar.showBothSidebarsOnPostPage",
-		d.sidebar.showBothSidebarsOnPostPage,
-		sidebarLayoutConfig.showBothSidebarsOnPostPage,
+		"sidebar.noSidebarContentWidth",
+		d.sidebar.noSidebarContentWidth,
+		sidebarLayoutConfig.noSidebarContentWidth,
 	],
 	["font.enable", d.font.enable, fontConfig.enable],
 	["font.navbarTitleFont", d.font.navbarTitleFont, fontConfig.navbarTitleFont],
@@ -263,10 +262,6 @@ const CASES: Array<[string, unknown, unknown]> = [
 	["license.name", d.license.name, licenseConfig.name],
 	["license.url", d.license.url, licenseConfig.url],
 	["license.icon", d.license.icon, licenseConfig.icon],
-
-	["pio.enabled", d.pio.enabled, live2dWidgetConfig.enable],
-	["pio.position", d.pio.position, live2dWidgetConfig.position],
-	["pio.size", d.pio.size, live2dWidgetConfig.size],
 
 	["plantuml.enable", d.plantuml.enable, plantumlConfig.enable],
 	["plantuml.server", d.plantuml.server, plantumlConfig.server],
