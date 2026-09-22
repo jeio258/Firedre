@@ -18,19 +18,21 @@ declare global {
 			init: () => Promise<void>;
 			getState: () => {
 				playlist: Array<{
-					name: string;
-					artist: string;
-					url: string;
-					pic: string;
+					name?: string;
+					artist?: string;
+					url?: string;
+					pic?: string;
 					lrc?: string;
+					[K: string]: unknown;
 				}>;
 				currentIndex: number;
 				track: {
-					name: string;
-					artist: string;
-					url: string;
-					pic: string;
+					name?: string;
+					artist?: string;
+					url?: string;
+					pic?: string;
 					lrc?: string;
+					[K: string]: unknown;
 				} | null;
 				isPlaying: boolean;
 				playMode: number;
