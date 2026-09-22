@@ -256,7 +256,7 @@ function goToPage(page: number) {
 	currentPage = page;
 	updateUrl(true);
 	document
-		.querySelector(".dynamic-page")
+		.querySelector(".page-shell")
 		?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -268,7 +268,7 @@ $effect(() => {
 onMount(() => {
 	registerDynamicGallery();
 	registerDynamicInlineComments();
-	const page = list.closest(".dynamic-page");
+	const page = list.closest(".page-shell");
 	template =
 		page?.querySelector<HTMLTemplateElement>("[data-dynamic-item-template]") ??
 		null;
