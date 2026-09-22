@@ -1,3 +1,6 @@
+// 真源说明：本文件是 SCHEMA 组运行时默认值（经 getSiteConfig → flatten 的 GET 兜底）的最终源头，
+// 但 D1 已存值会覆盖它；settingsDefaults 仅用于 D1 初始化 seed / PASSTHROUGH 组 flatten / 客户端白名单。
+// 新增配置字段只写 settingsDefaults，不要在此文件加（后台已可配置项请优先改后台）。
 import type { NavbarMode } from "@/types/navBarConfig";
 import type { SiteConfig } from "@/types/siteConfig";
 import { resolvePageToggles } from "../utils/page-toggle-utils";
