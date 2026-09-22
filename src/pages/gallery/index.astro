@@ -139,10 +139,13 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
 
         connectedCallback() {
           this.addEventListener("click", this.handleClick);
-          const input = this.querySelector("[data-search]");
-          if (input) {
-            input.addEventListener("input", () => this.applyFilters());
-          }
+          // 脚本在 <head> 中提前 define，upgrade 时子节点尚未解析——
+          // input 监听必须用委托绑定（input 事件冒泡），时序无关
+          this.addEventListener("input", (e) => {
+            if (e.target instanceof Element && e.target.matches("[data-search]")) {
+              this.applyFilters();
+            }
+          });
         }
 
         disconnectedCallback() {
