@@ -68,19 +68,24 @@ window.__fireflyMusicViewConfig = viewConfigStr;
         function go() {
             if (fired) return;
             fired = true;
-            document.removeEventListener('pointerdown', go, true);
-            document.removeEventListener('keydown', go, true);
+            document.removeEventListener('click', onIntent, true);
+            document.removeEventListener('keydown', onIntentKey, true);
             mgr.init();
         }
-        document.addEventListener('pointerdown', go, true);
-        document.addEventListener('keydown', go, true);
 
-        function afterLoad() {
-            if (window.requestIdleCallback) window.requestIdleCallback(go, { timeout: 2000 });
-            else setTimeout(go, 800);
+        // N1：仅在用户与音乐 UI 交互时初始化。此前在 load 后经 requestIdleCallback(timeout 2000) 自动初始化，
+        // 导致每个页面首屏都请求第三方 meting API（实测 13-20s 的最慢资源）；播放器无 autoplay 实现，故无功能损失。
+        function isMusicTarget(t) {
+            return !!(t && t.closest && t.closest('#music-player-switch, #music-nav-panel, .music-player-widget'));
         }
-        if (document.readyState === 'complete') afterLoad();
-        else window.addEventListener('load', afterLoad, { once: true });
+        function onIntent(e) {
+            if (isMusicTarget(e.target)) go();
+        }
+        function onIntentKey(e) {
+            if ((e.key === 'Enter' || e.key === ' ') && isMusicTarget(e.target)) go();
+        }
+        document.addEventListener('click', onIntent, true);
+        document.addEventListener('keydown', onIntentKey, true);
     }
 
     function initWidget(widget) {
