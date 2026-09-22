@@ -110,7 +110,10 @@ const sidebar = getEffectiveSidebarState({ isPostPage });
 const { hasWallpaper } = banner;
 // 壁纸 preload URL：仅外部 http 图片（本地图片走 _image 按需优化，URL 不可预测，不预取）
 const wallpaperPreloadUrl =
-	hasWallpaper && backgroundImages.desktop[0]?.startsWith("http")
+	hasWallpaper &&
+	backgroundImages.desktop[0] &&
+	(/^https:\/\//.test(backgroundImages.desktop[0]) ||
+		backgroundImages.desktop[0].startsWith("/api/cover-proxy/"))
 		? backgroundImages.desktop[0]
 		: null;
 const {

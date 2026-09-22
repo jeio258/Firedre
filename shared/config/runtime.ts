@@ -412,6 +412,12 @@ export function getMusicConfig(locals: unknown): typeof staticMusicConfig {
 export function getWallpaperConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const t = groupOf(s, "theme");
+	// 外链壁纸走同源代理：服务端定型随机图（跟 302）并边缘缓存，
+	// preload 与渲染同 URL 单次下载，避免随机 API 慢回源拖垮首屏
+	const proxiedWallpaper = (u: string) =>
+		/^https:\/\//.test(u)
+			? `/api/cover-proxy/?u=${encodeURIComponent(u)}&w=1920`
+			: u;
 	return {
 		...staticWallpaper,
 		mode: str(
@@ -428,7 +434,7 @@ export function getWallpaperConfig(locals: unknown) {
 				? {
 						desktop: t.bannerUrl
 							.split(",")
-							.map((x: string) => x.trim())
+							.map((x: string) => proxiedWallpaper(x.trim()))
 							.filter(Boolean),
 					}
 				: {}),
@@ -436,7 +442,7 @@ export function getWallpaperConfig(locals: unknown) {
 				? {
 						mobile: t.mobileImages
 							.split(",")
-							.map((x: string) => x.trim())
+							.map((x: string) => proxiedWallpaper(x.trim()))
 							.filter(Boolean),
 					}
 				: {}),
