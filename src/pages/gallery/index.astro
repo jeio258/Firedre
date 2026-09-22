@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/card-grid.css";
 import "@/styles/pages/common.css";
 import { getGalleryHub } from "@server/gallery/service";
@@ -19,12 +16,13 @@ if (!getSiteConfig(Astro.locals).pages.gallery) {
 	return Astro.redirect("/404/");
 }
 
-const title =
-	((settings as any)?.["gallery"]?.title as string | undefined) ||
-	i18n(I18nKey.gallery);
-const description =
-	((settings as any)?.["gallery"]?.description as string | undefined) ||
-	i18n(I18nKey.galleryDescription);
+// D1 gallery 组（当前仅 enabled；title/description 暂无写入路径，保留读取待后续接入）
+type GalleryGroup = { title?: string; description?: string };
+const gallery =
+	(Astro.locals.settings as { gallery?: GalleryGroup } | undefined)?.gallery ??
+	{};
+const title = gallery.title || i18n(I18nKey.gallery);
+const description = gallery.description || i18n(I18nKey.galleryDescription);
 
 // Firedre：相册来自 R2（后台可编辑）
 const hub = await getGalleryHub(cfEnv);

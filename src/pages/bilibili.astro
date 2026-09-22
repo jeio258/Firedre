@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import BilibiliGrid from "@/components/pages/bilibili/BilibiliGrid.svelte";
@@ -22,9 +19,17 @@ if (!getSiteConfig(Astro.locals).pages.bilibili) {
 
 const buildTime = formatDateI18nWithTime(new Date());
 
+// D1 bilibili 组优先，静态 siteConfig.bilibili 兜底
+type BiliGroup = NonNullable<typeof siteConfig.bilibili> & {
+	title?: string;
+	enabled?: boolean;
+};
+const bilibili: BiliGroup =
+	(Astro.locals.settings as { bilibili?: BiliGroup } | undefined)?.bilibili ??
+	siteConfig.bilibili ??
+	{};
 // Bilibili 配置
-const BILIBILI_UID = ((settings as any)?.["bilibili"] ?? siteConfig.bilibili)
-	?.uid;
+const BILIBILI_UID = bilibili.uid;
 const isConfigured = !!BILIBILI_UID && BILIBILI_UID.trim() !== "";
 
 let animeList: StandardizedAnime[] = [];
@@ -49,7 +54,7 @@ const bilibiliAverageRating =
 ---
 
 <MainGridLayout
-	title={((settings as any)?.["bilibili"]?.title as string | undefined) || i18n(I18nKey.bilibili)}
+	title={bilibili.title || i18n(I18nKey.bilibili)}
 	description={i18n(I18nKey.bilibiliSubtitle)}
 >
   <div class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32">

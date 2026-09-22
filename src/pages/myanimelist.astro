@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/common.css";
 import { Icon } from "astro-icon/components";
 import MalGrid from "@/components/pages/mal/MalGrid.svelte";
@@ -27,21 +24,22 @@ if (!getSiteConfig(Astro.locals).pages.mal) {
 
 const buildTime = formatDateI18nWithTime(new Date());
 
-const malSettings = ((settings as any)?.["myanimelist"] ??
-	(settings as any)?.["mal"] ??
-	siteConfig.mal) as Record<string, unknown>;
+// D1 myanimelist（含旧 mal 键）组优先，静态 siteConfig.mal 兜底
+type MalGroup = NonNullable<typeof siteConfig.mal> & {
+	username?: string;
+	enabled?: boolean;
+};
+const malGroup = Astro.locals.settings as
+	| { myanimelist?: MalGroup; mal?: MalGroup }
+	| undefined;
+const malSettings: MalGroup =
+	malGroup?.myanimelist ?? malGroup?.mal ?? siteConfig.mal ?? {};
 const malConfig = {
-	username: (malSettings.username as string | undefined) || "",
-	clientId: (malSettings.clientId as string | undefined) || "",
-	apiUrl:
-		(malSettings.apiUrl as string | undefined) ||
-		"https://api.myanimelist.net/v2",
-	animeBaseUrl:
-		(malSettings.animeBaseUrl as string | undefined) ||
-		"https://myanimelist.net/anime/",
-	mangaBaseUrl:
-		(malSettings.mangaBaseUrl as string | undefined) ||
-		"https://myanimelist.net/manga/",
+	username: malSettings.username || "",
+	clientId: malSettings.clientId || "",
+	apiUrl: malSettings.apiUrl || "https://api.myanimelist.net/v2",
+	animeBaseUrl: malSettings.animeBaseUrl || "https://myanimelist.net/anime/",
+	mangaBaseUrl: malSettings.mangaBaseUrl || "https://myanimelist.net/manga/",
 	pagination: {
 		limit: 100,
 		delay: 100,
