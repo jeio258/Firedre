@@ -3,6 +3,7 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import AdminCrudEditor, { type CrudField } from "./AdminCrudEditor.svelte";
 
 type SiteLinkItem = {
@@ -114,7 +115,7 @@ async function saveSiteUrl() {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await loadSiteUrl();
 	const d = getDraft<{ siteUrl?: string }>("站点链接");
 	if (d?.siteUrl != null) {
@@ -149,22 +150,23 @@ onMount(async () => {
 		</div>
 	{/snippet}
 	{#snippet children({ item })}
+		{@const i = item as { name?: string; enabled?: boolean; location?: keyof typeof LOCATION_LABELS; kind?: string; url?: string; icon?: string }}
 		<div class="link-info">
 			<div class="link-name">
-				{item.name}
-				{#if !item.enabled}
+				{i.name}
+				{#if !i.enabled}
 					<span class="u-chip off">未启用</span>
 				{/if}
 			</div>
 			<div class="link-loc">
-				{LOCATION_LABELS[item.location]}
-				{#if item.location === "sponsor"}
-					{item.kind === "qr" ? " · 二维码" : " · 跳转"}
+				{i.location ? LOCATION_LABELS[i.location] : ""}
+				{#if i.location === "sponsor"}
+					{i.kind === "qr" ? " · 二维码" : " · 跳转"}
 				{/if}
 			</div>
-			<div class="link-url">{item.url}</div>
-			{#if item.icon}
-				<div class="link-icon">{item.icon}</div>
+			<div class="link-url">{i.url}</div>
+			{#if i.icon}
+				<div class="link-icon">{i.icon}</div>
 			{/if}
 		</div>
 	{/snippet}

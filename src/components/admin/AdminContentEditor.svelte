@@ -5,6 +5,7 @@ import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
 import { createAdminVditor } from "@/lib/adminVditor";
+import { onMountAsync } from "@/utils/svelte-mount";
 
 let { section = "about", apiPath = "/api/about/" } = $props();
 
@@ -71,7 +72,7 @@ async function save() {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{ content?: string }>("关于页");
 	if (d?.content != null) {

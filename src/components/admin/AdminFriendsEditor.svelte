@@ -71,20 +71,21 @@ const fields: CrudField[] = [
 			/>
 		{/snippet}
 		{#snippet children({ item })}
+		{@const i = item as { imgurl?: string; title?: string; enabled?: boolean; desc?: string; siteurl?: string; tags?: string[] }}
 		<div class="friend-info">
-			<img src={item.imgurl} alt={item.title} class="avatar" />
+			<img src={i.imgurl} alt={i.title} class="avatar" />
 			<div class="friend-text">
 				<div class="friend-name">
-					{item.title}
-					{#if !item.enabled}
+					{i.title}
+					{#if !i.enabled}
 						<span class="u-chip off">未启用</span>
 					{/if}
 				</div>
-				<div class="friend-desc">{item.desc || "无描述"}</div>
-				<div class="friend-url">{item.siteurl}</div>
-				{#if item.tags && item.tags.length > 0}
+				<div class="friend-desc">{i.desc || "无描述"}</div>
+				<div class="friend-url">{i.siteurl}</div>
+				{#if i.tags && i.tags.length > 0}
 					<div class="friend-tags">
-						{#each item.tags as tag}
+						{#each i.tags as tag}
 							<span class="tag">{tag}</span>
 						{/each}
 					</div>

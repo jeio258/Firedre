@@ -6,6 +6,7 @@ import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
 import { createAdminVditor } from "@/lib/adminVditor";
+import { onMountAsync } from "@/utils/svelte-mount";
 import Switch from "./Switch.svelte";
 
 function slugifyTitle(title: string): string {
@@ -76,6 +77,7 @@ async function load() {
 			description?: string;
 			cover?: string;
 			markdown?: string;
+			pin_order?: number;
 			frontmatter?: Record<string, unknown>;
 		}>(`/api/posts/${encodeURIComponent(slug)}/`);
 		const fm = post.frontmatter || {};
@@ -85,9 +87,9 @@ async function load() {
 		category = String(fm.category || post.categories?.[0] || "");
 		tagsText = Array.isArray(post.tags) ? post.tags.join(", ") : "";
 		description = post.description || "";
-		image = fm.image || post.cover || "";
-		password = fm.password || "";
-		passwordHint = fm.passwordHint || "";
+		image = (fm.image as string | undefined) || post.cover || "";
+		password = (fm.password as string | undefined) || "";
+		passwordHint = (fm.passwordHint as string | undefined) || "";
 		pinned = fm.pinned === true || (post.pin_order ?? 0) > 0;
 		draft = fm.draft === true;
 		series = String(fm.series || "");
@@ -205,7 +207,7 @@ async function save(targetDraft: boolean) {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{
 		title?: string;

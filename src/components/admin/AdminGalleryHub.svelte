@@ -3,6 +3,7 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import AdminPageConfig from "./AdminPageConfig.svelte";
 
 type AlbumSummary = {
@@ -112,7 +113,7 @@ async function saveOrder() {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{ albums?: AlbumSummary[] }>("相册排序");
 	if (d?.albums) {

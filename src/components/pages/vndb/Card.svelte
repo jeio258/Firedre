@@ -107,7 +107,7 @@ const link = $derived(`${vnBaseUrl}${item.vn?.id || item.id}`);
   {title}
   placeholder="VN"
   {loadImage}
-  score={userVote}
+  score={userVote ?? undefined}
   {imageBlur}
   {altTitle}
   {tags}

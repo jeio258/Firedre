@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "check": "astro check",
+    "check": "astro check && svelte-check --tsconfig ./tsconfig.svelte.json",
     "build": "astro build && node scripts/collapse-routes.mjs",
     "preview": "astro preview",
     "astro": "astro",

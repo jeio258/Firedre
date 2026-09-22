@@ -3,6 +3,7 @@ import { onMount, type Snippet } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import Switch from "./Switch.svelte";
 
 export type CrudFieldType = "text" | "number" | "checkbox" | "select";
@@ -27,7 +28,15 @@ interface Props {
 	identify: (item: Record<string, unknown>) => string;
 	extraBlock?: Snippet;
 	configBlock?: Snippet;
-	children: Snippet;
+	children: Snippet<
+		[
+			{
+				item: Record<string, unknown>;
+				onEdit: () => void;
+				onRemove: () => void;
+			},
+		]
+	>;
 }
 
 let {
@@ -152,7 +161,7 @@ async function remove(item: Item) {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{
 		showForm?: boolean;

@@ -80,7 +80,7 @@ export function createCrudService<
 		)
 			.bind(...bindAll(input))
 			.run();
-		const id = Number(result.meta.last_row_id);
+		const id = Number(result.meta?.last_row_id ?? 0);
 		const created = await get(env, id);
 		if (!created) throw new UserError("创建失败");
 		await bumpContentVersion(env);
@@ -110,7 +110,7 @@ export function createCrudService<
 		const result = await env.DB.prepare(`DELETE FROM ${cfg.table} WHERE id = ?`)
 			.bind(id)
 			.run();
-		const removed = (result.meta.changes ?? 0) > 0;
+		const removed = (result.meta?.changes ?? 0) > 0;
 		if (removed) await bumpContentVersion(env);
 		return removed;
 	}

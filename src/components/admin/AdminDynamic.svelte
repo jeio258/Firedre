@@ -3,6 +3,7 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import AdminPageConfig from "./AdminPageConfig.svelte";
 import Switch from "./Switch.svelte";
 
@@ -130,7 +131,7 @@ async function remove(item: DynamicItem) {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{
 		showForm?: boolean;

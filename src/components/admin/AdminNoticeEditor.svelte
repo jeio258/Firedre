@@ -3,6 +3,7 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import AdminPageConfig from "./AdminPageConfig.svelte";
 
 let title = $state("公告栏");
@@ -13,7 +14,10 @@ let message = $state("");
 
 async function load() {
 	try {
-		const data = await apiJson("/api/notice/");
+		const data = await apiJson<{
+			title?: string;
+			sections?: Array<{ lines?: Array<{ text?: string }> }>;
+		}>("/api/notice/");
 		title = data.title || "公告栏";
 
 		if (Array.isArray(data.sections)) {
@@ -51,7 +55,7 @@ async function save() {
 	}
 }
 
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<{ title?: string; content?: string }>("公告");
 	if (d) {

@@ -4,6 +4,7 @@ import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { onMountAsync } from "@/utils/svelte-mount";
 import {
 	CATEGORIES,
 	type Field,
@@ -156,7 +157,7 @@ function applyHueToAdmin(hue: unknown) {
 }
 
 // 暴露给顶栏「保存全部」
-onMount(async () => {
+onMountAsync(async () => {
 	await load();
 	const d = getDraft<Record<string, Record<string, unknown>>>("站点设置");
 	if (d) {

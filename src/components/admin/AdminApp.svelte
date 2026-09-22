@@ -14,8 +14,9 @@ let username = $state("");
 let checkFailed = $state(false);
 let section = $state<Section>("dashboard");
 let sidebarOpen = $state(false);
-// biome-ignore lint/suspicious/noExplicitAny: 动态视图组件 Props 各异，无法静态收窄
-let View = $state<import("svelte").Component<any> | null>(null);
+let View = $state<import("svelte").Component<Record<string, unknown>> | null>(
+	null,
+);
 let viewProps = $state<Record<string, unknown>>({});
 let viewError = $state("");
 let viewKey = $state("dashboard");
@@ -134,7 +135,7 @@ async function render(s: Section, slug?: string) {
 		if ((s === "posts-edit" || s === "album-edit") && slug) {
 			viewProps = { slug, ...viewProps };
 		}
-		View = mod.default;
+		View = mod.default as import("svelte").Component<Record<string, unknown>>;
 		viewKey = slug ?? s;
 	} catch (e) {
 		viewError = e instanceof Error ? e.message : "加载失败";
