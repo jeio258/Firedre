@@ -1,6 +1,7 @@
 ---
 const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+
 import { Icon } from "astro-icon/components";
 import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.svelte";
 import DynamicItemTemplate from "@/components/pages/dynamic/DynamicItemTemplate.astro";
@@ -9,30 +10,47 @@ import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
-import "@/styles/dynamic.css";
+import "@/styles/pages/dynamic.css";
 import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
-
-
 
 if (!getSiteConfig(Astro.locals).pages.dynamic) {
 	return Astro.redirect("/404/");
 }
 
-const title = ((((settings as any)?.["dynamic"]) as any)?.["title"] ?? dynamicConfig.title) || i18n(I18nKey.dynamic);
+const title =
+	(((settings as any)?.["dynamic"] as any)?.["title"] ?? dynamicConfig.title) ||
+	i18n(I18nKey.dynamic);
 const description =
-	((((settings as any)?.["dynamic"]) as any)?.["description"] ?? dynamicConfig.description) || i18n(I18nKey.dynamicDescription);
-const itemsPerPage = Math.max(1, ((((settings as any)?.["dynamic"]) as any)?.["itemsPerPage"] ?? dynamicConfig.itemsPerPage) ?? 10);
-const showInlineComments = Boolean(
-	((((settings as any)?.["dynamic"]) as any)?.["showComment"] ?? dynamicConfig.showComment) !== false &&
-		((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) &&
-		((((settings as any)?.["comment"]) as any)?.["type"] ?? commentConfig.type) !== "none",
+	(((settings as any)?.["dynamic"] as any)?.["description"] ??
+		dynamicConfig.description) ||
+	i18n(I18nKey.dynamicDescription);
+const itemsPerPage = Math.max(
+	1,
+	((settings as any)?.["dynamic"] as any)?.["itemsPerPage"] ??
+		dynamicConfig.itemsPerPage ??
+		10,
 );
-const dataUrl = ((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl)?.startsWith("http")
-	? ((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl)
-	: url(((((settings as any)?.["dynamic"]) as any)?.["apiUrl"] ?? dynamicConfig.apiUrl) || "/api/dynamic.json");
-const memos = ((((settings as any)?.["dynamic"]) as any)?.["memos"] ?? dynamicConfig.memos);
+const showInlineComments = Boolean(
+	(((settings as any)?.["dynamic"] as any)?.["showComment"] ??
+		dynamicConfig.showComment) !== false &&
+		(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) &&
+		(((settings as any)?.["comment"] as any)?.["type"] ??
+			commentConfig.type) !== "none",
+);
+const dataUrl = (
+	((settings as any)?.["dynamic"] as any)?.["apiUrl"] ?? dynamicConfig.apiUrl
+)?.startsWith("http")
+	? (((settings as any)?.["dynamic"] as any)?.["apiUrl"] ??
+		dynamicConfig.apiUrl)
+	: url(
+			(((settings as any)?.["dynamic"] as any)?.["apiUrl"] ??
+				dynamicConfig.apiUrl) ||
+				"/api/dynamic.json",
+		);
+const memos =
+	((settings as any)?.["dynamic"] as any)?.["memos"] ?? dynamicConfig.memos;
 ---
 
 <MainGridLayout title={title} description={description}>
