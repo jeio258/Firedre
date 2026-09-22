@@ -95,6 +95,9 @@ const bannerPostMeta = {
 };
 
 const siteUrl = getSiteConfig(Astro.locals).site_url;
+
+// 文章底部区块开关（后台可切换，静态配置兜底）
+const postConfig = getSiteConfig(Astro.locals).post;
 const coverCfg = getCoverConfig(Astro.locals);
 const processedImage = processCoverImageSync(
 	entry.data.image,
@@ -425,7 +428,7 @@ const [relatedPosts, seriesData] = await Promise.all([
 
           {                 }
           {
-            (siteConfig.post.sharePoster || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
+            (postConfig.share || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -458,7 +461,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                     </div>
                     <div class="flex items-center gap-3">
                       {
-                        siteConfig.post.sharePoster && (
+                        postConfig.share && (
                           <SharePoster
                             client:idle
                             title={entry.data.title}
@@ -515,7 +518,7 @@ const [relatedPosts, seriesData] = await Promise.all([
 
           {                 }
           {
-            (siteConfig.post.sharePoster || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
+            (postConfig.share || (sponsorConfig.showButtonInPost && siteConfig.pages.sponsor)) && (
               <div class="mb-6 rounded-xl onload-animation">
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -548,7 +551,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                     </div>
                     <div class="flex items-center gap-3">
                       {
-                        siteConfig.post.sharePoster && (
+                        postConfig.share && (
                           <SharePoster
                             client:idle
                             title={entry.data.title}
@@ -668,6 +671,8 @@ const [relatedPosts, seriesData] = await Promise.all([
     }
   </script>
 
+  {
+    postConfig.postNavigation && (
   <div
     class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full"
   >
@@ -701,8 +706,15 @@ const [relatedPosts, seriesData] = await Promise.all([
       </div>
     </a>
   </div>
+    )
+  }
 
-  <RecommendedPost relatedPosts={relatedPosts} currentPostId={entry.id} />
+  <RecommendedPost
+    relatedPosts={relatedPosts}
+    currentPostId={entry.id}
+    showRelatedPosts={postConfig.relatedPosts}
+    showRandomPosts={postConfig.randomPosts}
+  />
 
   {entry.data.comment && !entry.data.password && settings.comment?.enabled !== false && <Comment post={entry} />}
 </MainGridLayout>

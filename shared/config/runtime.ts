@@ -172,7 +172,14 @@ export function getSiteConfig(locals: unknown): typeof staticSiteConfig {
 				p.outdatedThreshold,
 				staticSiteConfig.post.outdatedThreshold,
 			),
-			sharePoster: bool(p.sharePoster, staticSiteConfig.post.sharePoster),
+			// 文章底部区块开关（后台可切换）
+			share: bool(p.share, staticSiteConfig.post.share),
+			postNavigation: bool(
+				p.postNavigation,
+				staticSiteConfig.post.postNavigation,
+			),
+			relatedPosts: bool(p.relatedPosts, staticSiteConfig.post.relatedPosts),
+			randomPosts: bool(p.randomPosts, staticSiteConfig.post.randomPosts),
 			generateOgImages: bool(
 				p.generateOgImages,
 				staticSiteConfig.post.generateOgImages,

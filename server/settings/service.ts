@@ -6,6 +6,7 @@ export const SETTING_GROUPS = [
 	"profile",
 	"theme",
 	"nav",
+	"post",
 	"sidebar",
 	"font",
 	"comment",

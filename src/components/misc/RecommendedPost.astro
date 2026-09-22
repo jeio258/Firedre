@@ -1,4 +1,5 @@
 ---
+import { siteConfig } from "@shared/config/siteConfig";
 import { Icon } from "astro-icon/components";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -9,17 +10,28 @@ import { getPostUrlBySlug, url } from "@/utils/url-utils";
 interface Props {
 	relatedPosts: PostForList[];
 	currentPostId: string;
+	showRelatedPosts?: boolean;
+	showRandomPosts?: boolean;
 }
 
-const { relatedPosts, currentPostId } = Astro.props;
+const {
+	relatedPosts,
+	currentPostId,
+	showRelatedPosts = siteConfig.post.relatedPosts,
+	showRandomPosts = siteConfig.post.randomPosts,
+} = Astro.props;
 const apiUrl = url("/api/allPostMeta.json");
 const relatedIds = JSON.stringify(relatedPosts.map((p) => p.id));
 const noRelatedPostsText = i18n(I18nKey.noRelatedPosts);
 const noRandomPostsText = i18n(I18nKey.noRandomPosts);
 ---
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+<div class:list={[
+  "grid grid-cols-1 gap-4 mb-4",
+  showRelatedPosts && showRandomPosts && "md:grid-cols-2",
+]}>
   {                 }
+  {showRelatedPosts && (
   <div class="card-base p-5 md:p-6 flex flex-col">
     <div class="flex items-center gap-2 pb-3 mb-1 border-b border-(--line-divider)">
       <Icon
@@ -72,8 +84,10 @@ const noRandomPostsText = i18n(I18nKey.noRandomPosts);
       </div>
     )}
   </div>
+  )}
 
   {                           }
+  {showRandomPosts && (
   <div class="card-base p-5 md:p-6 flex flex-col">
     <div class="flex items-center gap-2 pb-3 mb-1 border-b border-(--line-divider)">
       <Icon
@@ -100,6 +114,7 @@ const noRandomPostsText = i18n(I18nKey.noRandomPosts);
       </div>
     </div>
   </div>
+  )}
 </div>
 
 <script is:inline>

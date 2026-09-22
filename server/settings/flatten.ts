@@ -248,7 +248,20 @@ const SCHEMA: Record<
 	},
 	nav: {
 		src: () => getNavbarConfig({}) as AnyObj,
-		fields: { navItems: { path: "links", json: true }, social: { const: "" } },
+		fields: {
+			navItems: { path: "links", json: true },
+			social: { const: "" },
+			navbarMode: "navbarMode",
+		},
+	},
+	post: {
+		src: () => getSiteConfig({}) as AnyObj,
+		fields: {
+			share: "post.share",
+			postNavigation: "post.postNavigation",
+			relatedPosts: "post.relatedPosts",
+			randomPosts: "post.randomPosts",
+		},
 	},
 	sidebar: {
 		src: () => getSidebarConfig({}) as AnyObj,

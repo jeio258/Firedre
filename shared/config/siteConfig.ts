@@ -150,7 +150,14 @@ export const siteConfig: SiteConfig = {
 		showLastModified: true,
 		// 超过该天数(天)才显示"上次编辑"卡片
 		outdatedThreshold: 30,
-		sharePoster: true,
+		// 是否显示文章页的分享按钮/分享卡片
+		share: true,
+		// 是否显示上一篇/下一篇文章导航
+		postNavigation: true,
+		// 是否显示相关文章推荐
+		relatedPosts: true,
+		// 是否显示随机文章推荐
+		randomPosts: true,
 
 		generateOgImages: false,
 	},

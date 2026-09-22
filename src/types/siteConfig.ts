@@ -144,8 +144,14 @@ export type SiteConfig = {
 		showLastModified: boolean;
 		// 文章过期阈值（天数），超过此天数才显示"上次编辑"卡片
 		outdatedThreshold: number;
-		// 是否显示分享海报按钮
-		sharePoster: boolean;
+		// 是否显示文章页的分享按钮/分享卡片
+		share: boolean;
+		// 是否显示上一篇/下一篇文章导航
+		postNavigation: boolean;
+		// 是否显示相关文章推荐
+		relatedPosts: boolean;
+		// 是否显示随机文章推荐
+		randomPosts: boolean;
 		// OpenGraph图片功能
 		generateOgImages: boolean;
 	};

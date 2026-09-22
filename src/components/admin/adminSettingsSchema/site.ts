@@ -333,4 +333,33 @@ export const siteGroups: Group[] = [
 			},
 		],
 	},
+	{
+		key: "nav",
+		title: "导航栏",
+		category: "站点配置",
+		fields: [
+			{
+				name: "navbarMode",
+				label: "导航栏模式",
+				type: "select",
+				options: [
+					{ label: "静态（随页面滚动消失）", value: "static" },
+					{ label: "固定（常显）", value: "fixed" },
+					{ label: "动态（下滑隐藏、上滑显示）", value: "dynamic" },
+				],
+				hint: "默认固定；动态模式在壁纸区域保持可见，进入内容区后下滑隐藏",
+			},
+		],
+	},
+	{
+		key: "post",
+		title: "文章页底部区块",
+		category: "站点配置",
+		fields: [
+			{ name: "share", label: "分享卡片", type: "boolean" },
+			{ name: "postNavigation", label: "上一篇/下一篇导航", type: "boolean" },
+			{ name: "relatedPosts", label: "相关文章推荐", type: "boolean" },
+			{ name: "randomPosts", label: "随机文章推荐", type: "boolean" },
+		],
+	},
 ];

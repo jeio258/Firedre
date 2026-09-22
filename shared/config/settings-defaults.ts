@@ -81,6 +81,14 @@ export const settingsDefaults = {
 	nav: {
 		navItems:
 			'[{"name":"主页","url":"/","icon":"material-symbols:home"},{"name":"文章","url":"#","icon":"material-symbols:article","children":[{"name":"归档","url":"/archive/","icon":"material-symbols:archive"},{"name":"分类","url":"/categories/","icon":"material-symbols:folder-open-rounded"},{"name":"标签","url":"/tags/","icon":"material-symbols:tag-rounded"},{"name":"系列","url":"/series/","icon":"material-symbols:layers"}]},{"name":"社交","url":"#","icon":"material-symbols:group","children":[{"name":"友链","url":"/friends/","icon":"material-symbols:link-2-rounded","pageKey":"friends"},{"name":"留言","url":"/guestbook/","icon":"material-symbols:chat","pageKey":"guestbook"}]},{"name":"我的","url":"#","icon":"material-symbols:person","children":[{"name":"动态","url":"/dynamic/","icon":"material-symbols:forum-rounded","pageKey":"dynamic"},{"name":"相册","url":"/gallery/","icon":"material-symbols:photo-library","pageKey":"gallery"},{"name":"书签导航","url":"/booknav/","icon":"material-symbols:bookmarks","pageKey":"booknav"},{"name":"哔哩哔哩","url":"/bilibili/","icon":"fa7-brands:bilibili","pageKey":"bilibili"},{"name":"番组计划","url":"/bangumi/","icon":"material-symbols:movie","pageKey":"bangumi"},{"name":"VNDB","url":"/vndb/","icon":"material-symbols:chrome-reader-mode-rounded","pageKey":"vndb"},{"name":"AnimeList","url":"/myanimelist/","icon":"material-symbols:menu-book","pageKey":"mal"}]},{"name":"关于","url":"#","icon":"material-symbols:info","children":[{"name":"打赏","url":"/sponsor/","icon":"material-symbols:favorite","pageKey":"sponsor"},{"name":"关于我","url":"/about/","icon":"material-symbols:person"}]},{"name":"链接","url":"#","icon":"material-symbols:link","children":[]}]',
+		navbarMode: "fixed",
+	},
+	post: {
+		// 文章底部区块开关（后台可切换）
+		share: true,
+		postNavigation: true,
+		relatedPosts: true,
+		randomPosts: true,
 	},
 	sidebar: {
 		hideSidebarOnPostPage: false,
