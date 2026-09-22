@@ -1,5 +1,6 @@
 ---
 import type { MarkdownHeading } from "astro";
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import Advertisement from "@/components/widget/Advertisement.astro";
 import Announcement from "@/components/widget/Announcement.astro";
 import Calendar from "@/components/widget/Calendar.astro";
@@ -41,7 +42,7 @@ const COMPONENT_POSITION = {
 const ANIMATION_DELAY_UNIT = 50;
 
 // 组件映射表
-const componentMap = {
+const componentMap: Record<string, AstroComponentFactory> = {
 	profile: Profile,
 	announcement: Announcement,
 	categories: Categories,
@@ -198,9 +199,9 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 			{isMobileBottom ? (
 				<div class="flex flex-col w-full gap-4">
 					{bottomComponents.map((comp, index) => {
-						const Component = componentMap[comp.type as keyof typeof componentMap];
+						const Component = componentMap[comp.type];
 						if (!Component) return null;
-						const props = getComponentProps(comp, index) as any;
+						const props = getComponentProps(comp, index);
 						return <Component {...props} />;
 					})}
 				</div>
@@ -215,9 +216,9 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 							]}
 						>
 							{topComponents.map((comp, index) => {
-								const Component = componentMap[comp.type as keyof typeof componentMap];
+								const Component = componentMap[comp.type];
 								if (!Component) return null;
-								const props = getComponentProps(comp, index) as any;
+								const props = getComponentProps(comp, index);
 								return <Component {...props} />;
 							})}
 						</div>
@@ -234,12 +235,12 @@ const hasInitiallyVisibleTopComponents = topComponents.some(
 							]}
 						>
 							{stickyComponents.map((comp, index) => {
-								const Component = componentMap[comp.type as keyof typeof componentMap];
+								const Component = componentMap[comp.type];
 								if (!Component) return null;
 								const props = getComponentProps(
 									comp,
 									topComponents.length + index
-								) as any;
+								);
 								return <Component {...props} />;
 							})}
 						</div>

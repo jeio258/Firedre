@@ -1,22 +1,24 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import "@/styles/pages/dynamic-comments.css";
 import Comment from "@/components/comment/index.astro";
-import { commentConfig, dynamicConfig } from "@/config";
-import { getSiteConfig } from "@/config/runtime";
+import {
+	getCommentConfig,
+	getDynamicConfig,
+	getSiteConfig,
+} from "@/config/runtime";
 import Layout from "@/layouts/Layout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
+// 后台可编辑项统一走 runtime 收敛入口（内部含静态兜底）
+const commentType = getCommentConfig(Astro.locals).type;
+const showDynamicComment = getDynamicConfig(Astro.locals).showComment;
+
 if (
 	!getSiteConfig(Astro.locals).pages.dynamic ||
-	(((settings as any)?.["dynamic"] as any)?.["showComment"] ??
-		dynamicConfig.showComment) === false ||
-	!(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) ||
-	(((settings as any)?.["comment"] as any)?.["type"] ?? commentConfig.type) ===
-		"none"
+	showDynamicComment === false ||
+	!commentType ||
+	commentType === "none"
 ) {
 	return Astro.redirect("/404/");
 }
