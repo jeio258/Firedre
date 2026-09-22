@@ -17,46 +17,7 @@ const KNOWN_SCHEMA_NO_DEFAULT = new Set([
 ]);
 
 const KNOWN_FLATTEN_NO_DEFAULT = new Set([
-	// flatten 有、settingsDefaults 无（默认值来自静态 getter，seed 仅 PASSTHROUGH 组使用）
-	"basic.cardBorder",
-	"basic.cardFollowTheme",
-	"basic.cardRadius",
-	"profile.location",
-	"profile.email",
-	"comment.enabled",
-	"comment.artalkSiteName",
-	"footer.text",
-	"footer.icp",
-	"footer.startYear",
-	"footer.customHtml",
-	"license.type",
-	"sponsor.enabled",
-	"sponsor.qrCode",
-	"dynamic.memosEnable",
-	"dynamic.memosApiUrl",
-	"announcement.enabled",
-	"announcement.sections",
-	"nav.social",
-	"cover.enable",
-	"cover.defaultImage",
-	"cover.configurable",
-	"font.scale",
-	"mermaid.lightTheme",
-	"mermaid.darkTheme",
-	"analytics.googleAnalyticsId",
-	"analytics.microsoftClarityId",
-	"analytics.umamiId",
-	"analytics.umamiUrl",
-	// G1 迁移：flatten 已有默认值、settingsDefaults 仍缺（待 G2 补 defaults 后清零）
-	"sidebar.showProfile",
-	"sidebar.showAnnouncement",
-	"sidebar.showMusic",
-	"sidebar.showCategories",
-	"sidebar.showTags",
-	"sidebar.showCalendar",
-	"music.enabled",
-	"music.autoplay",
-	"basic.faviconUrl",
+	// G2（2026-09-21）后已清空：flatten 输出字段应全部在 settingsDefaults 中；如再出现分歧，必须在此显式登记并说明原因
 ]);
 
 describe("设置链路一致性（admin 表单 → defaults → flatten → SETTING_GROUPS）", () => {
