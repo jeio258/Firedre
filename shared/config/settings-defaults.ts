@@ -2,6 +2,10 @@ import { booknavConfig, booknavPageConfig } from "./booknavConfig";
 
 export const settingsDefaults = {
 	basic: {
+		cardBorder: false,
+		cardFollowTheme: false,
+		cardRadius: 1,
+		faviconUrl: "/favicon/firefly-32.png",
 		title: "Firefly",
 		subtitle: "Demo site",
 		description:
@@ -45,6 +49,8 @@ export const settingsDefaults = {
 		overlayCardOpacitySwitchable: false,
 	},
 	profile: {
+		location: "",
+		email: "",
 		name: "Firefly",
 		avatar: "assets/images/avatar.avif",
 		bio: "Hello, I'm Firefly.",
@@ -79,6 +85,7 @@ export const settingsDefaults = {
 		overlayCardOpacity: 0.6,
 	},
 	nav: {
+		social: "",
 		navItems:
 			'[{"name":"主页","url":"/","icon":"material-symbols:home"},{"name":"文章","url":"#","icon":"material-symbols:article","children":[{"name":"归档","url":"/archive/","icon":"material-symbols:archive"},{"name":"分类","url":"/categories/","icon":"material-symbols:folder-open-rounded"},{"name":"标签","url":"/tags/","icon":"material-symbols:tag-rounded"},{"name":"系列","url":"/series/","icon":"material-symbols:layers"}]},{"name":"社交","url":"#","icon":"material-symbols:group","children":[{"name":"友链","url":"/friends/","icon":"material-symbols:link-2-rounded","pageKey":"friends"},{"name":"留言","url":"/guestbook/","icon":"material-symbols:chat","pageKey":"guestbook"}]},{"name":"我的","url":"#","icon":"material-symbols:person","children":[{"name":"动态","url":"/dynamic/","icon":"material-symbols:forum-rounded","pageKey":"dynamic"},{"name":"相册","url":"/gallery/","icon":"material-symbols:photo-library","pageKey":"gallery"},{"name":"书签导航","url":"/booknav/","icon":"material-symbols:bookmarks","pageKey":"booknav"},{"name":"哔哩哔哩","url":"/bilibili/","icon":"fa7-brands:bilibili","pageKey":"bilibili"},{"name":"番组计划","url":"/bangumi/","icon":"material-symbols:movie","pageKey":"bangumi"},{"name":"VNDB","url":"/vndb/","icon":"material-symbols:chrome-reader-mode-rounded","pageKey":"vndb"},{"name":"AnimeList","url":"/myanimelist/","icon":"material-symbols:menu-book","pageKey":"mal"}]},{"name":"关于","url":"#","icon":"material-symbols:info","children":[{"name":"打赏","url":"/sponsor/","icon":"material-symbols:favorite","pageKey":"sponsor"},{"name":"关于我","url":"/about/","icon":"material-symbols:person"}]},{"name":"链接","url":"#","icon":"material-symbols:link","children":[]}]',
 		navbarMode: "fixed",
@@ -91,10 +98,17 @@ export const settingsDefaults = {
 		randomPosts: true,
 	},
 	sidebar: {
+		showProfile: true,
+		showAnnouncement: true,
+		showMusic: true,
+		showCategories: true,
+		showTags: true,
+		showCalendar: true,
 		hideSidebarOnPostPage: false,
 		noSidebarContentWidth: 0.6,
 	},
 	font: {
+		scale: 1,
 		enable: true,
 		codeFont: "--font-jetbrains-mono",
 		bannerTitleFont: "--font-zen-maru-gothic",
@@ -102,6 +116,8 @@ export const settingsDefaults = {
 		navbarTitleFont: "",
 	},
 	comment: {
+		enabled: true,
+		artalkSiteName: "",
 		type: "none",
 		giscusRepo: "jeio258/Firedre",
 		giscusRepoId: "R_kgD2gfdFGd",
@@ -115,6 +131,9 @@ export const settingsDefaults = {
 		artalkServer: "https://artalk.example.com/",
 	},
 	cover: {
+		enable: false,
+		defaultImage: "",
+		configurable: false,
 		showLoading: false,
 		enableInPost: true,
 		enableInPostOverlay: false,
@@ -128,6 +147,8 @@ export const settingsDefaults = {
 		}),
 	},
 	music: {
+		enabled: true,
+		autoplay: false,
 		showInNavbar: true,
 		showInSidebar: true,
 		mode: "local",
@@ -147,9 +168,13 @@ export const settingsDefaults = {
 			'[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""},{"name":"晴天","artist":"周杰伦","source":"tx","id":"0039MnYb0qxYhV","quality":"128k","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]',
 	},
 	mermaid: {
+		lightTheme: "editor-light",
+		darkTheme: "editor-dark",
 		enabled: true,
 	},
 	dynamic: {
+		memosEnable: false,
+		memosApiUrl: "https://memos.example.com",
 		enabled: true,
 		title: "",
 		description: "",
@@ -195,6 +220,8 @@ export const settingsDefaults = {
 		customCode: "",
 	},
 	sponsor: {
+		enabled: false,
+		qrCode: "",
 		title: "",
 		description: "",
 		usage:
@@ -221,19 +248,31 @@ export const settingsDefaults = {
 		bannerCarousel: false,
 	},
 	announcement: {
+		enabled: true,
+		sections: "",
 		title: "",
 		content: "",
 	},
 	footer: {
+		text: "",
+		icp: "",
+		startYear: "",
+		customHtml: "",
 		enable: false,
 	},
 	license: {
+		type: "",
 		enabled: true,
 		name: "CC BY-NC-SA 4.0",
 		url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 		icon: "",
 	},
-	analytics: {},
+	analytics: {
+		googleAnalyticsId: "",
+		microsoftClarityId: "",
+		umamiId: "",
+		umamiUrl: "https://cloud.umami.is/script.js",
+	},
 	plantuml: {
 		enable: true,
 		server: "https://www.plantuml.com/plantuml",
