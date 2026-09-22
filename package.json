@@ -56,7 +56,6 @@
     "github-slugger": "^2.0.0",
     "hastscript": "^9.0.1",
     "katex": "^0.18.3",
-    "l2d-widget": "^0.1.1",
     "marked": "^18.0.10",
     "mdast-util-to-string": "^4.0.0",
     "pako": "^3.0.1",
