@@ -31,6 +31,7 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "categoryStyle": "rectangle",
     "defaultMode": "system",
     "description": "Firedre 是基于 Astro Firefly 主题深度云原生化改造的个人博客，全站运行于 Cloudflare Pages / D1 / R2：文章、动态、相册、书签导航、追番数据与留言板一应俱全，后台可视化管理，无需服务器即可稳定运行。",
+    "faviconUrl": "/favicon/firefly-32.png",
     "hue": 165,
     "keywords": "Firedre,Astro,Firefly,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
     "pageBangumi": false,
@@ -80,6 +81,10 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "configurable": undefined,
     "defaultImage": undefined,
     "enable": undefined,
+    "enableInPost": true,
+    "enableInPostOverlay": false,
+    "randomCoverImage": "{"enable":false,"apis":["https://t.alcy.cc/pc","https://www.dmoe.cc/random.php","https://uapis.cn/api/v1/random/image?category=acg&type=pc"]}",
+    "showLoading": false,
   },
   "dynamic": {
     "apiUrl": "/api/dynamic.json",
@@ -104,6 +109,11 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "lightTheme": "one-light",
   },
   "font": {
+    "bannerSubtitleFont": "--font-inter",
+    "bannerTitleFont": "--font-zen-maru-gothic",
+    "codeFont": "--font-jetbrains-mono",
+    "enable": true,
+    "navbarTitleFont": "",
     "scale": undefined,
   },
   "footer": {
@@ -132,6 +142,8 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "lightTheme": "editor-light",
   },
   "music": {
+    "autoplay": false,
+    "enabled": true,
     "localPlaylist": "[{"name":"使一颗心免于哀伤","artist":"知更鸟 / HOYO-MiX / Chevy","url":"/assets/music/使一颗心免于哀伤-哼唱.mp3","cover":"/assets/music/cover/109951169585655912.webp","lrc":""},{"name":"晴天","artist":"周杰伦","source":"tx","id":"0039MnYb0qxYhV","quality":"128k","cover":"/assets/music/cover/109951169585655912.webp","lrc":""}]",
     "metingApi": "https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r",
     "metingAuth": "",
@@ -144,6 +156,7 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
     "showInNavbar": true,
     "showInSidebar": true,
     "showLyrics": false,
+    "sourceScript": "kh-v1.7.16",
     "volume": 0.7,
   },
   "myanimelist": {
@@ -194,11 +207,21 @@ exports[`flattenSettingsDefaults 输出契约稳定性 > 输出与历史快照�
   "sidebar": {
     "hideSidebarOnPostPage": false,
     "noSidebarContentWidth": 0.6,
+    "showAnnouncement": true,
+    "showCalendar": true,
+    "showCategories": true,
+    "showMusic": true,
+    "showProfile": true,
+    "showTags": true,
   },
   "sponsor": {
+    "description": "",
     "enabled": undefined,
     "qrCode": undefined,
+    "showButtonInPost": true,
+    "showSponsorsList": true,
     "sponsors": "[{"name":"夏叶","avatar":"https://weavatar.com/avatar/d252655d40d6874417a720bad0a6c5f77f8f6a1fd2f882f8f338402dc37e4190?s=640","amount":"¥50","date":"2025-10-01"},{"name":"匿名用户","amount":"¥20","date":"2025-10-01"}]",
+    "title": "",
     "usage": "您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
   },
   "theme": {

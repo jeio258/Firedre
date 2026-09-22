@@ -13,30 +13,7 @@ import { GROUPS } from "../src/components/admin/adminSettingsSchema/index";
  * SCHEMA 组默认值来自静态 getter 而非 settingsDefaults），修改链路时必须显式增删此表。
  */
 const KNOWN_SCHEMA_NO_DEFAULT = new Set([
-	// schema 有、flatten 无静态默认（保存进 D1 后生效，属设计）
-	"basic.faviconUrl",
-	"sidebar.showProfile",
-	"sidebar.showAnnouncement",
-	"sidebar.showMusic",
-	"sidebar.showCategories",
-	"sidebar.showTags",
-	"sidebar.showCalendar",
-	"font.enable",
-	"font.bannerTitleFont",
-	"font.bannerSubtitleFont",
-	"font.navbarTitleFont",
-	"font.codeFont",
-	"cover.showLoading",
-	"cover.enableInPost",
-	"cover.enableInPostOverlay",
-	"cover.randomCoverImage",
-	"music.enabled",
-	"music.autoplay",
-	"music.sourceScript",
-	"sponsor.title",
-	"sponsor.description",
-	"sponsor.showButtonInPost",
-	"sponsor.showSponsorsList",
+	// G1（2026-09-21）后已清空：schema 字段应全部有 flatten 默认值；如再出现分歧，必须在此显式登记并说明原因
 ]);
 
 const KNOWN_FLATTEN_NO_DEFAULT = new Set([
@@ -70,6 +47,16 @@ const KNOWN_FLATTEN_NO_DEFAULT = new Set([
 	"analytics.microsoftClarityId",
 	"analytics.umamiId",
 	"analytics.umamiUrl",
+	// G1 迁移：flatten 已有默认值、settingsDefaults 仍缺（待 G2 补 defaults 后清零）
+	"sidebar.showProfile",
+	"sidebar.showAnnouncement",
+	"sidebar.showMusic",
+	"sidebar.showCategories",
+	"sidebar.showTags",
+	"sidebar.showCalendar",
+	"music.enabled",
+	"music.autoplay",
+	"basic.faviconUrl",
 ]);
 
 describe("设置链路一致性（admin 表单 → defaults → flatten → SETTING_GROUPS）", () => {
