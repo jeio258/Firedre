@@ -57,6 +57,7 @@ interface Props {
 	modifiedTime?: Date | string;
 	hasWallpaper?: boolean;
 	wallpaperPreloadUrl?: string | null;
+	wallpaperPreloadUrlMobile?: string | null;
 }
 
 let {
@@ -70,6 +71,7 @@ let {
 	modifiedTime,
 	hasWallpaper = false,
 	wallpaperPreloadUrl,
+	wallpaperPreloadUrlMobile,
 } = Astro.props;
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
@@ -211,7 +213,8 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
 
     <link rel="canonical" href={canonicalUrl} />
     {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
-    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} fetchpriority="high" />}
+    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} media="(min-width: 1024px)" fetchpriority="high" />}
+    {wallpaperPreloadUrlMobile && <link rel="preload" as="image" href={wallpaperPreloadUrlMobile} media="(max-width: 1023px)" fetchpriority="high" />}
     <meta property="og:site_name" content={effectiveTitle} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:title" content={pageTitle} />
