@@ -7,8 +7,5 @@
 /favicon/*
   Cache-Control: public, max-age=604800
 
-/vditor/*
-  Cache-Control: public, max-age=2592000
-
-/pio/*
-  Cache-Control: public, max-age=2592000
+/i18n.js
+  Cache-Control: public, max-age=86400

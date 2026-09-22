@@ -246,7 +246,7 @@ const logoVariants = await Promise.all(
                 <MusicPlayer />
             </div>
         )}
-        {isDisplaySettingsEnabled && <DisplaySettings client:load settings={pageSettings}></DisplaySettings>}
+        {isDisplaySettingsEnabled && <DisplaySettings client:idle settings={pageSettings}></DisplaySettings>}
     </div>
 </div>
 

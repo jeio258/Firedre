@@ -13,7 +13,6 @@ import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
-import { getTranslation } from "@i18n/translation";
 import {
 	analyticsConfig,
 	backgroundWallpaper,
@@ -343,13 +342,13 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       </script>
     )}
 
+    <script is:inline src="/i18n.js"></script>
     <script
       is:inline
       define:vars={{
         PAGE_WIDTH,
         configHue,
         settingsVersion: (Astro.locals as { settingsVersion?: string }).settingsVersion ?? "",
-        i18nMap: getTranslation(siteConfig.lang),
         defaultMode: settings.defaultMode || (settings?.["themeColor"] ?? siteConfig.themeColor).defaultMode || "light",
         defaultWallpaperMode: ((settings?.["theme"])?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
@@ -365,9 +364,6 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       const LIGHT_MODE = "light";
       const DARK_MODE = "dark";
       const SYSTEM_MODE = "system";
-
-      // 注入当前语言翻译表：客户端 i18n 直接读取，六语言全量不进 bundle
-      window.__FIREDRE_I18N__ = i18nMap;
 
       // 设置实时感知（L2）：SSR 版本号落地为 data 属性，供 settings-live 模块比对
       document.documentElement.setAttribute("data-settings-version", String(settingsVersion));
