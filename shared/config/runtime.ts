@@ -1,3 +1,8 @@
+/**
+ * 运行时配置层（总指令：动态为唯一主路径）。
+ * 取值优先级：D1 后台设置（动态主路径）→ settings-defaults（运行时默认）→
+ * 静态 siteConfig（**仅极端兜底**：D1 不可用/未配置时）。禁止把静态兜底当作主路径。
+ */
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
 import type { NavbarMode } from "@/types/navBarConfig";
 import type { SponsorItem } from "@/types/sponsorConfig";

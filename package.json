@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "qa:swup": "node scripts/qa/swup-listeners.mjs",
+		"qa:stale": "node scripts/qa/stale-class-refs.mjs",
     "qa:admin": "node scripts/qa/admin-crud.mjs",
     "qa:visual": "node scripts/qa/visual.mjs",
     "qa:panel": "node scripts/qa/panel.mjs",
