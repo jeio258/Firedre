@@ -42,14 +42,15 @@ if (footerConfigRuntime.enable ?? footerConfig.enable) {
 }
 ---
 
-<div
-  class="transition border-t border-black/10 dark:border-white/15 my-10 border-dashed mx-32"
->
-</div>
+<!-- 页脚：普通流位于文档末尾。site-footer 是 immersive-reading 的隐藏选择器，
+     pointer-events-auto 用于覆盖首页 banner 下父级的 pointer-events: none，两者勿删 -->
+<footer class="site-footer pointer-events-auto pb-4 md:pb-6">
+	<div
+		class="transition border-t border-black/10 dark:border-white/15 mt-10 mb-5 border-dashed mx-32"
+	>
+	</div>
 
-<div
-  class="transition border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl mb-12 flex flex-col items-center justify-center px-6"
->
+	<div class="transition flex flex-col items-center justify-center px-6">
   <div class="transition text-50 text-sm text-center wrap">
     <div class="mb-2">
       {customFooterHtml && <div set:html={customFooterHtml} />}
@@ -90,6 +91,5 @@ if (footerConfigRuntime.enable ?? footerConfig.enable) {
       ))}
     </div>
     </div>
-
   </div>
-</div>
+</footer>

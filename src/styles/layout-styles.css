@@ -508,8 +508,14 @@ html[data-wallpaper-mode="none"] #wallpaper-wrapper {
     display: none !important;
 }
 
-html[data-wallpaper-mode="none"] .absolute.w-full.z-30.pointer-events-none,
-html[data-wallpaper-mode="overlay"] .absolute.w-full.z-30.pointer-events-none {
+/* Swup 占位容器永远为空，任何断点都不得参与布局（勿依赖 hidden 实用类压过几何规则） */
+#main-grid > #left-sidebar-dynamic[data-sidebar-placeholder="true"],
+#main-grid > #right-sidebar-dynamic[data-sidebar-placeholder="true"] {
+    display: none !important;
+}
+
+html[data-wallpaper-mode="none"] #content-panel,
+html[data-wallpaper-mode="overlay"] #content-panel {
     top: 5.5rem !important;
     margin-top: 0 !important;
     min-height: calc(100vh - 5.5rem) !important;

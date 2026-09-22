@@ -58,10 +58,10 @@
     font-size: 0.9rem;
 }
 
-body.is-home.enable-banner .w-full.z-30.pointer-events-none > .relative.w-full {
+body.is-home.enable-banner #content-panel > #content-panel-inner {
     pointer-events: none;
 }
-body.is-home.enable-banner .w-full.z-30.pointer-events-none #main-grid {
+body.is-home.enable-banner #content-panel #main-grid {
     pointer-events: auto;
 }
 

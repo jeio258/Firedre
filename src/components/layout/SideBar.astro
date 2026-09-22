@@ -11,13 +11,14 @@ import SidebarTOC from "@/components/widget/SidebarTOC.astro";
 import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
 import Tags from "@/components/widget/Tags.astro";
-import { getMusicConfig, getSidebarConfig } from "@/config/runtime";
 import { sidebarLayoutConfig } from "@/config";
+import { getMusicConfig, getSidebarConfig } from "@/config/runtime";
 import type {
-
 	MobileBottomComponentConfig,
 	WidgetComponentConfig,
 } from "@/types/config";
+import { isWidgetVisibleOnPageType } from "@/utils/responsive-utils";
+import { isArticleDetailPage } from "@/utils/url-utils";
 
 interface Props {
 	class?: string;
@@ -37,7 +38,7 @@ const COMPONENT_POSITION = {
 	STICKY: "sticky",
 } as const;
 
-const ANIMATION_DELAY_UNIT = 50;      
+const ANIMATION_DELAY_UNIT = 50;
 
 // 组件映射表
 const componentMap = {
@@ -100,28 +101,14 @@ const getAnimationDelay = (index: number): string => {
 };
 
 // 判断当前页面是否为文章页面（服务端渲染时确定）
-const isPostPage = Astro.url.pathname.includes("/posts/");
+// 判断当前页面是否为文章/项目详情页（服务端渲染时确定）
+const isPostPage = isArticleDetailPage(Astro.url.pathname);
 
 // 判断组件在当前页面首屏是否可见（用于计算布局间距，避免隐藏组件占位）
+// 谓词与列几何共用 isWidgetVisibleOnPageType，避免两处规则漂移
 const isComponentInitiallyVisible = (
 	config: WidgetComponentConfig | MobileBottomComponentConfig,
-): boolean => {
-	if (
-		"showOnPostPage" in config &&
-		config.showOnPostPage === false &&
-		isPostPage
-	) {
-		return false;
-	}
-	if (
-		"hideOnNonPostPage" in config &&
-		config.hideOnNonPostPage === true &&
-		!isPostPage
-	) {
-		return false;
-	}
-	return true;
-};
+): boolean => isWidgetVisibleOnPageType(config, isPostPage);
 
 // 动态构建组件 props
 const getComponentProps = (
@@ -176,16 +163,20 @@ const toggleMap: Record<string, string> = {
 const musicConfigRuntime = getMusicConfig(Astro.locals);
 const filteredComponents = filterAndSortComponents(allComponents).filter(
 	(comp) => {
-		if (comp.type === "music" && musicConfigRuntime.enable === false) return false;
+		if (comp.type === "music" && musicConfigRuntime.enable === false)
+			return false;
 
 		const pageGroupEnabled =
 			(comp.type as string) === "dynamic"
-				? ((Astro.locals as { settings?: { dynamic?: { enabled?: unknown } } }).settings?.dynamic?.enabled === false)
+				? (Astro.locals as { settings?: { dynamic?: { enabled?: unknown } } })
+						.settings?.dynamic?.enabled === false
 				: false;
 		if (pageGroupEnabled) return false;
 		const toggleKey = toggleMap[comp.type];
 		if (!toggleKey) return true;
-		const v = (sidebarConfigRuntime as unknown as Record<string, unknown>)[toggleKey];
+		const v = (sidebarConfigRuntime as unknown as Record<string, unknown>)[
+			toggleKey
+		];
 		return v === undefined || v === true;
 	},
 );
