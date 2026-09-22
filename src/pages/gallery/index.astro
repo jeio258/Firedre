@@ -44,10 +44,9 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
 ---
 
 <MainGridLayout title={title} description={description}>
-  <div
-    class="flex w-full rounded-(--radius-large) overflow-hidden relative min-h-32"
-  >
-    <div class="card-base z-10 px-9 py-6 relative w-full">
+  <div class="page-shell">
+    <!-- 页面标题和描述面板（与下方相册列表分离） -->
+    <div class="card-base z-10 px-9 py-6 mb-4 relative w-full">
 
       <div class="mb-4">
         <div class="page-heading">
@@ -99,7 +98,7 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
 
       {albums.length > 0 ? (
         <>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+          <div class="card-grid" style="--card-grid-min-width: 320px">
             {albums.map((album) => (
               <AlbumCard
                 id={album.id}
@@ -121,7 +120,7 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
           </div>
         </>
       ) : (
-        <div class="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+        <div class="card-base flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
           <Icon name="material-symbols:photo-library" class="text-6xl mb-4 opacity-50" />
           <p class="text-lg">{i18n(I18nKey.galleryNoAlbums)}</p>
         </div>
@@ -167,7 +166,7 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
         }
 
         applyFilters() {
-          const container = this.closest(".card-base");
+          const container = this.closest(".page-shell");
           if (!container) return;
 
           const input = this.querySelector("[data-search]");
