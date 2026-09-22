@@ -205,20 +205,19 @@ export async function saveSettingsGroup(
 	await saveSettingsGroups(env, { [group]: data });
 }
 
-export interface SiteSettings {
-	title?: string;
-	description?: string;
-	siteUrl?: string;
-	author?: string;
-	avatar?: string;
-	hue?: number;
-	bannerUrl?: string;
-	footerText?: string;
-	icp?: string;
-	commentEnabled?: boolean;
-	navItems?: Array<{ label: string; url: string }>;
-	social?: Array<{ label: string; url: string }>;
-}
+/**
+ * locals.settings 的运行时真实形状（= mergeSettings 输出，见 server/settings/merge.ts）：
+ *  1) 分组对象：键为 SETTING_GROUPS（basic/panel/sponsor/...）；
+ *  2) 非冲突扁平标量：由各组字段铺平（组名键、跨组重名键、空值不铺）；
+ *  3) pages：basic.pageXxx → 页面开关布尔映射（middleware 生成）。
+ * D1 与默认值均为未校验 JSON，故字段值统一为 unknown，由各 getXxxConfig(locals) 收敛成类型化配置。
+ */
+export type SettingsView = {
+	[G in SettingGroup]?: Record<string, unknown>;
+} & {
+	pages?: Record<string, unknown>;
+	[key: string]: Record<string, unknown> | unknown;
+};
 
 export interface SettingsShape {
 	title?: string;

@@ -3,7 +3,7 @@ import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
 
 export interface SettingsLocals {
-	settings: import("@server/settings/service").SiteSettings;
+	settings: import("@server/settings/service").SettingsView;
 	settingsVersion?: string;
 }
 

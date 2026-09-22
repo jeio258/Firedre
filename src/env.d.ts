@@ -1,4 +1,12 @@
 declare global {
+	// Astro.locals.settings 类型底座（middleware 注入；形状见 server/settings/service.ts SettingsView）
+	namespace App {
+		interface Locals {
+			settings?: import("@server/settings/service").SettingsView;
+			settingsVersion?: string;
+		}
+	}
+
 	interface ImportMetaEnv {
 		readonly MEILI_MASTER_KEY: string;
 
