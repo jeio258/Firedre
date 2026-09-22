@@ -416,7 +416,7 @@ export function getWallpaperConfig(locals: unknown) {
 	// preload 与渲染同 URL 单次下载，避免随机 API 慢回源拖垮首屏
 	const proxiedWallpaper = (u: string) =>
 		/^https:\/\//.test(u)
-			? `/api/cover-proxy/?u=${encodeURIComponent(u)}&w=1920`
+			? `/api/cover-proxy/?u=${encodeURIComponent(u)}&w=1920&f=webp`
 			: u;
 	return {
 		...staticWallpaper,

@@ -26,6 +26,19 @@ export const GET: APIRoute = async ({ request }) => {
 		1920,
 	);
 
+	// 显式格式参数（opt-in）：f=webp|avif 时让 CF 图像缩放输出该格式；不传则维持原行为
+	// （壁纸用 f=webp 减重 ~50%；封面不传 → 完全不变）
+	const requestedFormat = url.searchParams.get("f");
+	const imageFormat =
+		requestedFormat === "avif" || requestedFormat === "webp"
+			? requestedFormat
+			: "auto";
+	// 各格式独立缓存键，避免不同格式互相覆盖
+	const cacheKey = new Request(
+		`${request.url}${request.url.includes("?") ? "&" : "?"}__fmt=${imageFormat}`,
+		request,
+	);
+
 	// 手动构造 302（Response.redirect 的 headers 不可变，外层 middleware 无法追加安全头）
 	const redirectBack = () =>
 		new Response(null, {
@@ -42,7 +55,7 @@ export const GET: APIRoute = async ({ request }) => {
 	try {
 		cache = (globalThis as unknown as { caches: { default: ProxyCache } })
 			.caches.default;
-		const cached = await cache.match(request);
+		const cached = await cache.match(cacheKey);
 		if (cached) {
 			// cache.match 返回的 Response headers 不可变，外层 middleware 需要追加安全头，需重建
 			return new Response(cached.body, {
@@ -71,7 +84,7 @@ export const GET: APIRoute = async ({ request }) => {
 						"user-agent": "Mozilla/5.0 (compatible; FiredreCoverProxy/1.0)",
 					},
 					cf: {
-						image: { width, quality: 80, format: "auto" },
+						image: { width, quality: 80, format: imageFormat },
 						cacheTtl: 86400,
 					},
 				} as RequestInit);
@@ -89,7 +102,7 @@ export const GET: APIRoute = async ({ request }) => {
 				const resp = new Response(upstream.body, { headers });
 				if (cache) {
 					try {
-						await cache.put(request, resp.clone());
+						await cache.put(cacheKey, resp.clone());
 					} catch {
 						// 缓存写入失败仍返回图片
 					}
