@@ -7,6 +7,11 @@ export interface SettingsLocals {
 	settingsVersion?: string;
 }
 
+// HTML 边缘缓存：s-maxage=60 让 Cloudflare CDN 缓存（重复访客不跑 worker，TTFB 大幅下降）；
+// 后台设置改动经 settingsVersion 在 worker 缓存路径即时生效，CDN 层接受 ≤60s 有界滞后
+const HTML_CACHE_CONTROL =
+	"public, max-age=0, s-maxage=60, stale-while-revalidate=86400";
+
 // 安全响应头对缓存命中与渲染路径统一生效
 function applySecurityHeaders(headers: Headers) {
 	headers.set("X-Content-Type-Options", "nosniff");
@@ -52,7 +57,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				const headers = new Headers({
 					"Content-Type": "text/html; charset=utf-8",
 
-					"Cache-Control": "public, max-age=0, must-revalidate",
+					"Cache-Control": HTML_CACHE_CONTROL,
 					"X-Firedre-Cache": "CACHE-HIT",
 				});
 				applySecurityHeaders(headers);
@@ -171,10 +176,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			!url.pathname.startsWith("/api");
 
 		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
-			response.headers.set(
-				"Cache-Control",
-				"public, max-age=0, must-revalidate",
-			);
+			response.headers.set("Cache-Control", HTML_CACHE_CONTROL);
 			try {
 				const html = await response.clone().text();
 				if (html.length > 500 && html.length < 900_000) {
@@ -183,7 +185,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						new Response(html, {
 							headers: {
 								"Content-Type": "text/html; charset=utf-8",
-								"Cache-Control": "public, max-age=600",
+								"Cache-Control": HTML_CACHE_CONTROL,
 							},
 						}),
 					);
