@@ -10,7 +10,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 	// 文章详情页隐藏侧边栏，设为 true 则只在首页等非文章页显示
 	hideSidebarOnPostPage: false,
 
-	showBothSidebarsOnPostPage: true,
+	noSidebarContentWidth: 0.6,
 
 	leftComponents: [
 		{
@@ -28,7 +28,7 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 		{
 			type: "music",
 			enable: true,
-			position: "sticky",
+			position: "top",
 			showOnPostPage: true,
 		},
 		{
@@ -78,7 +78,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: false,
 			specificConfig: {
 				siteInfo: {
-
 					unknownBuildPlatform: "Unknown CI",
 				},
 			},
@@ -193,7 +192,6 @@ export const sidebarLayoutConfig: SidebarLayoutConfig = {
 			showOnPostPage: true,
 			specificConfig: {
 				siteInfo: {
-
 					unknownBuildPlatform: "Unknown CI",
 				},
 			},

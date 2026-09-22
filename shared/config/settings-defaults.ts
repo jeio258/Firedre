@@ -92,7 +92,7 @@ export const settingsDefaults = {
 	},
 	sidebar: {
 		hideSidebarOnPostPage: false,
-		showBothSidebarsOnPostPage: true,
+		noSidebarContentWidth: 0.6,
 	},
 	font: {
 		enable: true,

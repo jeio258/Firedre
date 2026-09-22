@@ -327,9 +327,10 @@ export const siteGroups: Group[] = [
 				type: "boolean",
 			},
 			{
-				name: "showBothSidebarsOnPostPage",
-				label: "文章页显示双栏",
-				type: "boolean",
+				name: "noSidebarContentWidth",
+				label: "无侧栏时内容栏宽度比例",
+				type: "number",
+				hint: "0-1，例如 0.6 表示内容栏占「侧栏+内容栏」总宽的 60%；不设置或 >=1 则铺满",
 			},
 		],
 	},

@@ -45,6 +45,18 @@ function joinUrl(...parts: string[]): string {
 	return joined.replace(/\/+/g, "/");
 }
 
+/** 内容详情页路径模式（文章/项目），供侧栏显隐、悬浮目录等复用 */
+const CONTENT_DETAIL_PATH_PATTERNS = [
+	/\/posts\/.+/,
+	/\/post\/.+/,
+	/\/projects\/.+/,
+];
+
+/** 判断路径是否为内容详情页 */
+export function isArticleDetailPage(pathname: string): boolean {
+	return CONTENT_DETAIL_PATH_PATTERNS.some((re) => re.test(pathname));
+}
+
 export function getPostUrlBySlug(slug: string): string {
 	// 移除文件扩展名（如 .md, .mdx 等）
 	const slugWithoutExt = removeFileExtension(slug);

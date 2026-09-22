@@ -1,11 +1,8 @@
 import { sidebarLayoutConfig } from "@/config";
 import {
-	generateGridClasses,
-	generateMainContentClasses,
-	generateRightSidebarClasses,
-	generateSidebarClasses,
+	computeGridColumns,
 	getResponsiveSidebarConfig,
-	type ResponsiveSidebarConfig,
+	gridColumnVarsToStyle,
 } from "@/utils/responsive-utils";
 
 export interface EffectiveSidebarContext {
@@ -14,56 +11,19 @@ export interface EffectiveSidebarContext {
 
 export interface EffectiveSidebarState {
 	hideSidebarOnPostPage: boolean;
-	shouldShowBothSidebarsOnPostPage: boolean;
-	shouldAddLeftSidebar: boolean;
-	shouldAddRightSidebar: boolean;
-	effectiveIsBothSidebars: boolean;
-	effectiveHasLeftComponents: boolean;
-	effectiveHasRightComponents: boolean;
-	effectiveTabletSidebar: "left" | "right";
-	mobileShowSidebar: boolean;
-	updatedGridConfig: ResponsiveSidebarConfig;
-	gridCols: string;
+	hasLeftComponents: boolean;
+	hasRightComponents: boolean;
 	sidebarClass: string;
-	rightSidebarClass: string;
-	mainContentClass: string;
 	staticBarClass: string;
-	footerClassName: string;
+	gridColumnStyle: string;
+	/** #main-grid 需要的 data-* 属性，客户端 updateMainGridCols 据此重算几何 */
+	gridDataAttrs: Record<string, string>;
 }
 
-export function buildFooterClass(config: ResponsiveSidebarConfig): string {
-	const footerClass = ["footer", "col-span-1", "onload-animation"];
-
-	if (
-		config.isBothSidebars &&
-		config.hasLeftComponents &&
-		config.hasRightComponents
-	) {
-		// 双侧栏：Footer 在平板与桌面都跟随内容列
-		if (config.tabletSidebar === "right") {
-			footerClass.push(
-				"md:col-start-1 md:col-span-1 xl:col-start-2 xl:col-span-1",
-			);
-		} else {
-			footerClass.push(
-				"md:col-start-2 md:col-span-1 xl:col-start-2 xl:col-span-1",
-			);
-		}
-	} else if (config.hasLeftComponents && !config.hasRightComponents) {
-		// 仅左侧栏：内容列在第2列
-		footerClass.push(
-			"md:col-start-2 md:col-span-1 xl:col-start-2 xl:col-span-1",
-		);
-	} else {
-		// 仅右侧栏或无侧栏：内容列在第1列
-		footerClass.push(
-			"md:col-start-1 md:col-span-1 xl:col-start-1 xl:col-span-1",
-		);
-	}
-
-	return footerClass.join(" ");
-}
-
+/**
+ * 组装侧栏渲染所需的派生状态与网格几何（SSR，纯配置读）。
+ * hasLeft/RightComponents 只依据 enable + position，不含页面类型判定 —— 静态容器只 SSR 一次。
+ */
 export function getEffectiveSidebarState(
 	ctx: EffectiveSidebarContext,
 ): EffectiveSidebarState {
@@ -74,68 +34,54 @@ export function getEffectiveSidebarState(
 	const hideSidebarOnPostPage =
 		sidebarLayoutConfig.hideSidebarOnPostPage === true;
 
-	const shouldShowBothSidebarsOnPostPage: boolean =
-		sidebarLayoutConfig.enable &&
-		!hideSidebarOnPostPage &&
-		isPostPage &&
-		sidebarLayoutConfig.position !== "both" &&
-		!!sidebarLayoutConfig.showBothSidebarsOnPostPage;
-
-	const shouldAddRightSidebar: boolean =
-		shouldShowBothSidebarsOnPostPage && sidebarLayoutConfig.position === "left";
-	const shouldAddLeftSidebar: boolean =
-		shouldShowBothSidebarsOnPostPage &&
-		sidebarLayoutConfig.position === "right";
-
-	const effectiveIsBothSidebars: boolean =
-		sidebarConfig.isBothSidebars || shouldShowBothSidebarsOnPostPage;
-	const effectiveHasRightComponents: boolean =
-		sidebarConfig.hasRightComponents ||
-		(shouldAddRightSidebar &&
-			sidebarLayoutConfig.rightComponents.some((comp) => comp.enable));
-	const effectiveHasLeftComponents: boolean =
-		sidebarConfig.hasLeftComponents ||
-		(shouldAddLeftSidebar &&
-			sidebarLayoutConfig.leftComponents.some((comp) => comp.enable));
-
-	const effectiveTabletSidebar = shouldAddLeftSidebar
-		? ("right" as const)
-		: sidebarConfig.tabletSidebar;
-
-	const updatedGridConfig: ResponsiveSidebarConfig = {
-		...sidebarConfig,
-		isBothSidebars: effectiveIsBothSidebars,
-		hasLeftComponents: effectiveHasLeftComponents,
-		hasRightComponents: effectiveHasRightComponents,
-		tabletSidebar: effectiveTabletSidebar,
-	};
-
-	const { gridCols } = generateGridClasses(updatedGridConfig);
-	const sidebarClass = generateSidebarClasses(updatedGridConfig);
-	const rightSidebarClass =
-		effectiveIsBothSidebars || sidebarLayoutConfig.position === "right"
-			? generateRightSidebarClasses(updatedGridConfig)
-			: "";
-	const mainContentClass = generateMainContentClasses(updatedGridConfig);
-	const staticBarClass = mainContentClass.replace("transition-main", "").trim();
-	const footerClassName = buildFooterClass(updatedGridConfig);
+	const gridColumnVars = computeGridColumns({
+		enabled: sidebarLayoutConfig.enable,
+		position: sidebarLayoutConfig.position,
+		tabletSidebar: sidebarConfig.tabletSidebar,
+		hideSidebarOnPostPage,
+		isPostPage,
+		hasLeftWidgets: isPostPage
+			? sidebarConfig.hasLeftWidgetsOnPost
+			: sidebarConfig.hasLeftWidgetsOnNonPost,
+		hasRightWidgets: isPostPage
+			? sidebarConfig.hasRightWidgetsOnPost
+			: sidebarConfig.hasRightWidgetsOnNonPost,
+		noSidebarContentWidth: sidebarLayoutConfig.noSidebarContentWidth,
+	});
 
 	return {
 		hideSidebarOnPostPage,
-		shouldShowBothSidebarsOnPostPage,
-		shouldAddLeftSidebar,
-		shouldAddRightSidebar,
-		effectiveIsBothSidebars,
-		effectiveHasLeftComponents,
-		effectiveHasRightComponents,
-		effectiveTabletSidebar,
-		mobileShowSidebar: sidebarConfig.mobileShowSidebar,
-		updatedGridConfig,
-		gridCols,
-		sidebarClass,
-		rightSidebarClass,
-		mainContentClass,
-		staticBarClass,
-		footerClassName,
+		hasLeftComponents: sidebarConfig.hasLeftComponents,
+		hasRightComponents: sidebarConfig.hasRightComponents,
+		// 定位类已由 #main-grid 的列几何接管，这里只剩与列位置无关的公共类
+		sidebarClass: "mb-4 onload-animation",
+		// 只裁横向、纵向放开：评论区浮层（如 Waline 表情面板）需能溢出内容列；
+		// clip 不产生滚动容器，不影响列内吸顶。
+		staticBarClass: "min-w-0 overflow-x-clip overflow-y-visible",
+		gridColumnStyle: gridColumnVarsToStyle(gridColumnVars),
+		gridDataAttrs: {
+			"data-sidebar-enable": sidebarLayoutConfig.enable ? "true" : "false",
+			"data-grid-hide-sidebar-on-post": hideSidebarOnPostPage
+				? "true"
+				: "false",
+			"data-sidebar-position": sidebarLayoutConfig.position,
+			"data-tablet-sidebar": sidebarConfig.tabletSidebar,
+			// noSidebarContentWidth（0–1 比例），空串表示未配置
+			"data-no-sidebar-content-width": String(
+				sidebarLayoutConfig.noSidebarContentWidth ?? "",
+			),
+			"data-has-left-on-post": sidebarConfig.hasLeftWidgetsOnPost
+				? "true"
+				: "false",
+			"data-has-left-on-non-post": sidebarConfig.hasLeftWidgetsOnNonPost
+				? "true"
+				: "false",
+			"data-has-right-on-post": sidebarConfig.hasRightWidgetsOnPost
+				? "true"
+				: "false",
+			"data-has-right-on-non-post": sidebarConfig.hasRightWidgetsOnNonPost
+				? "true"
+				: "false",
+		},
 	};
 }

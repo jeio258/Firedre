@@ -75,7 +75,7 @@ export type SidebarLayoutConfig = {
 	position: "left" | "right" | "both";
 	tabletSidebar?: "left" | "right";
 	hideSidebarOnPostPage?: boolean;
-	showBothSidebarsOnPostPage?: boolean;
+	noSidebarContentWidth?: number; // 本页没有侧栏列时内容栏占包裹层总宽的比例（0-1），不设置则铺满
 	showProfile?: boolean;
 	showAnnouncement?: boolean;
 	showMusic?: boolean;

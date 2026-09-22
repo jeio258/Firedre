@@ -267,7 +267,7 @@ const SCHEMA: Record<
 		src: () => getSidebarConfig({}) as AnyObj,
 		fields: {
 			hideSidebarOnPostPage: "hideSidebarOnPostPage",
-			showBothSidebarsOnPostPage: "showBothSidebarsOnPostPage",
+			noSidebarContentWidth: "noSidebarContentWidth",
 		},
 	},
 	cover: {

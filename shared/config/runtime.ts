@@ -823,8 +823,8 @@ export function getSidebarConfig(locals: unknown): typeof staticSidebarConfig {
 		...(typeof sb.hideSidebarOnPostPage === "boolean"
 			? { hideSidebarOnPostPage: sb.hideSidebarOnPostPage }
 			: {}),
-		...(typeof sb.showBothSidebarsOnPostPage === "boolean"
-			? { showBothSidebarsOnPostPage: sb.showBothSidebarsOnPostPage }
+		...(typeof sb.noSidebarContentWidth === "number"
+			? { noSidebarContentWidth: sb.noSidebarContentWidth }
 			: {}),
 		showProfile: bool(sb.showProfile, true),
 		showAnnouncement: bool(sb.showAnnouncement, true),
