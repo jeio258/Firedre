@@ -15,9 +15,21 @@ import { cfEnv } from "../../lib/api";
 const settings =
 	(
 		Astro.locals as {
-			settings?: { avatar?: string; author?: string; name?: string };
+			settings?: {
+				avatar?: string;
+				author?: string;
+				name?: string;
+				profile?: {
+					name?: string;
+					bio?: string;
+					location?: string;
+					email?: string;
+				};
+			};
 		}
 	).settings ?? {};
+// 后台「个人资料」分组（与 Layout.astro 同序：分组键 → 扁平键 → 静态兜底）
+const profile = settings.profile ?? {};
 const effectiveAvatar = settings.avatar || profileConfig.avatar || "";
 // LCP 头像：默认本地头像直出静态资源（不经 _image 按需优化，避免首屏 on-demand 延迟）
 const rawAvatarUrl =
@@ -27,18 +39,13 @@ const rawAvatarUrl =
 	!profileConfig.avatar.startsWith("http")
 		? await getRawImageUrl(profileConfig.avatar)
 		: null;
+// 昵称：后台分组键 → 后台扁平键 → 静态兜底
 const effectiveName =
-	profileConfig.name ||
-	settings.name ||
-	settings.author ||
-	profileConfig.name ||
-	"";
-// 个人简介（后台可配置；静态 config 为兜底）
-const effectiveBio =
-	profileConfig.bio || profileConfig.bio || profileConfig.bio || "";
-// 所在地 / 邮箱（后台可配置；静态 config 为兜底）
-const effectiveLocation = profileConfig.location || "";
-const effectiveEmail = profileConfig.email || "";
+	profile.name || settings.name || settings.author || profileConfig.name || "";
+// 个人简介 / 所在地 / 邮箱：后台优先，静态 config 兜底
+const effectiveBio = profile.bio || profileConfig.bio || "";
+const effectiveLocation = profile.location || profileConfig.location || "";
+const effectiveEmail = profile.email || profileConfig.email || "";
 // 社交链接（后台可配置；统一数组处理）
 const profileLinks = (
 	await listEnabledSiteLinks(cfEnv, "profile", Astro.locals)
