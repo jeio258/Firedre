@@ -1,5 +1,8 @@
 /* ===== 首页横幅大标题 / 副标题（仅首页可见，见 BannerHomeTextOverlay） ===== */
 
+/* 本站样式中的强制优先级声明承载状态门控与第三方/工具类覆盖（html[data-*] 状态、expressive-code 等），
+   经计算样式快照实验验证：删除会改变渲染结果（display/position/z-index/元素数）。请勿删除。 */
+
 /* 用户关闭时隐藏横幅标题（需要足够特异性覆盖 fullscreen/banner 的标题显示）。
    模式由 html[data-wallpaper-mode] 属性驱动，运行时不再有 wallpaper-fullscreen/overlay 类，故去掉类选择器 */
 html[data-banner-title-enabled="false"] #wallpaper-wrapper .banner-home-text-overlay {

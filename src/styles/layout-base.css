@@ -1,5 +1,5 @@
-
-
+/* 本站样式中的强制优先级声明承载状态门控与第三方/工具类覆盖（html[data-*] 状态、expressive-code 等），
+   经计算样式快照实验验证：删除会改变渲染结果（display/position/z-index/元素数）。请勿删除。 */
 @layer components {
 
   .content-panel {
