@@ -13,6 +13,7 @@ import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
+import { zh_CN } from "@i18n/languages/zh_CN";
 import type { settingsDefaults } from "@shared/config/settings-defaults";
 import {
 	analyticsConfig,
@@ -59,6 +60,7 @@ interface Props {
 	hasWallpaper?: boolean;
 	wallpaperPreloadUrl?: string | null;
 	wallpaperPreloadUrlMobile?: string | null;
+	allPostMeta?: Array<Record<string, unknown>>;
 }
 
 let {
@@ -73,9 +75,13 @@ let {
 	hasWallpaper = false,
 	wallpaperPreloadUrl,
 	wallpaperPreloadUrlMobile,
+	allPostMeta = [],
 } = Astro.props;
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
+
+// 当前构建语言的 i18n 词典（与 /i18n.js 端点内容一致；siteConfig.lang 决定，当前仅 zh_CN）
+const currentI18n = zh_CN;
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）：分组键 + 扁平键并存（见 server/settings/merge.ts）
 // 分组字段取自 shared/config/settings-defaults.ts 真源；D1 可能存入的嵌套对象与静态同形分组在此显式声明
@@ -372,7 +378,12 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       </script>
     )}
 
-    <script is:inline src="/i18n.js" defer></script>
+    {/* i18n 词典内联：外置端点需额外一次请求（实测 0.82–1.07s / 12.6KB），
+        内联后无需网络往返，且保证 island 水合前词典就绪（消除执行顺序竞态） */}
+    <script is:inline set:html={`window.__FIREDRE_I18N__ = ${JSON.stringify(currentI18n)};`} />
+    {allPostMeta.length > 0 && (
+      <script is:inline set:html={`window.__allPostMetaCache = ${JSON.stringify(allPostMeta)};`} />
+    )}
     <script
       is:inline
       define:vars={{

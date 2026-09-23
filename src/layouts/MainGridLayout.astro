@@ -14,6 +14,7 @@ import { getBannerVisibilityState } from "@/utils/banner-visibility-utils";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";
 import { getEffectiveSidebarState } from "@/utils/sidebar-effective-utils";
+import { cfEnv } from "../lib/api";
 import Layout from "./Layout.astro";
 
 import "@/styles/expressive-code.css";
@@ -127,9 +128,39 @@ const {
 	gridColumnStyle,
 	gridDataAttrs,
 } = sidebar;
+// 全量文章元数据 SSR 直出：日历/推荐文章原本各发一次 /api/allPostMeta.json（实测约 1.1s），
+// 直出后客户端直接命中 window.__allPostMetaCache，省去该请求（字段与端点保持一致）
+const allPostMeta =
+	(
+		await cfEnv.DB.prepare(
+			"SELECT slug, title, description, date, categories, password FROM posts WHERE published = 1 ORDER BY date DESC",
+		).all()
+	).results?.map((row: Record<string, unknown>) => {
+		const r = row as unknown as {
+			slug: string;
+			title: string;
+			description?: string;
+			date: string;
+			categories?: string;
+			password?: string;
+		};
+		let category = "";
+		try {
+			const cats = JSON.parse(r.categories || "[]");
+			category = Array.isArray(cats) && cats.length ? String(cats[0]) : "";
+		} catch {}
+		return {
+			id: r.slug,
+			title: r.title,
+			description: r.description || "",
+			published: new Date(r.date).getTime(),
+			category,
+			password: Boolean(r.password),
+		};
+	}) ?? [];
 ---
 
-<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} publishedTime={publishedTime} modifiedTime={modifiedTime} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl} wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile}>
+<Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} publishedTime={publishedTime} modifiedTime={modifiedTime} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl} wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile} allPostMeta={allPostMeta}>
 
 <slot slot="head" name="head" />
 <HeaderTopRow navbarMode={navbarMode} navbarWidthFull={navbarWidthFull} />
