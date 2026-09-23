@@ -13,6 +13,7 @@ import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
+import type { settingsDefaults } from "@shared/config/settings-defaults";
 import {
 	analyticsConfig,
 	backgroundWallpaper,
@@ -76,12 +77,34 @@ let {
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
-// 后台站点设置（覆盖静态 siteConfig 的关键项）
-// 实际存储为「分组 + 扁平」并存：basic/theme/post 等分组键与扁平键都可读，
-// 故在 SettingsShape 之上放开索引签名，避免各处显式 any 断言。
-// TODO(A2-后续)：深层读取（settings.theme.overlay.* 等）需分组类型化后再切 SettingsView（现约 25 处待类型化）
-type LayoutSettings = import("@server/settings/service").SettingsShape &
-	Record<string, any>;
+// 后台站点设置（覆盖静态 siteConfig 的关键项）：分组键 + 扁平键并存（见 server/settings/merge.ts）
+// 分组字段取自 shared/config/settings-defaults.ts 真源；D1 可能存入的嵌套对象与静态同形分组在此显式声明
+type LayoutSettings = import("@server/settings/service").SettingsShape & {
+	basic?: Partial<(typeof settingsDefaults)["basic"]>;
+	panel?: Partial<(typeof settingsDefaults)["panel"]>;
+	profile?: Partial<(typeof settingsDefaults)["profile"]>;
+	post?: Partial<(typeof settingsDefaults)["post"]> & {
+		generateOgImages?: boolean;
+	};
+	theme?: Partial<(typeof settingsDefaults)["theme"]> & {
+		banner?: {
+			navbar?: {
+				blur?: number;
+				transparentMode?: "semi" | "full" | "semifull";
+			};
+			position?: string;
+		};
+		overlay?: { cardOpacity?: number; opacity?: number; blur?: number };
+	};
+	themeColor?: { hue?: number; defaultMode?: string };
+	card?: { radius?: number; border?: boolean; followTheme?: boolean };
+	imageOptimization?: { noReferrerDomains?: string[] };
+	subtitle?: string;
+	site_url?: string;
+	lang?: string;
+	name?: string;
+	cardRadius?: number;
+};
 
 const settings =
 	(
@@ -89,6 +112,10 @@ const settings =
 			settings?: LayoutSettings;
 		}
 	).settings ?? {};
+
+// 站点图片优化配置（后台设置优先，静态配置兜底）
+const imageOptimization =
+	settings?.imageOptimization ?? siteConfig.imageOptimization;
 
 // 导航栏模式（后台设置优先，静态配置兑底；static/fixed/dynamic）
 // 导航栏配置统一走运行时入口（D1 的 nav 组；静态仅极端兜底）
@@ -284,13 +311,13 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
     <meta name="generator" content={Astro.generator} />
     <FaviconLinks settings={settings} />
 
-    {(settings?.["imageOptimization"] ?? siteConfig.imageOptimization)?.noReferrerDomains &&
-     (settings?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains.length > 0 && (
+    {imageOptimization?.noReferrerDomains &&
+     imageOptimization.noReferrerDomains.length > 0 && (
       <script
         is:inline
         define:vars={{
           noReferrerDomains: JSON.stringify(
-            (settings?.["imageOptimization"] ?? siteConfig.imageOptimization).noReferrerDomains
+            imageOptimization.noReferrerDomains
           ),
         }}
       >
