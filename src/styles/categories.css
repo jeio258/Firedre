@@ -10,7 +10,7 @@
 .category-pill .pill-count {
   font-size: 0.7rem;
   font-weight: 600;
-  opacity: 0.5;
+  opacity: 0.8;
   padding: 0.05rem 0.35rem;
   border-radius: 9999px;
   background: color-mix(in srgb, var(--btn-content) 10%, transparent);

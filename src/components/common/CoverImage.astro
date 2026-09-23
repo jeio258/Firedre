@@ -27,11 +27,14 @@ interface Props {
 	apiUrls?: string[];
 	// 高度跟随图片本身宽高比（不裁上下，只裁两边），用于文章详情页封面
 	naturalHeight?: boolean;
+	// 缩放宽度候选；远程封面取 widths[0] 作为代理宽度，本地封面用于 srcset
+	widths?: number[];
 }
 
 const {
 	id,
 	src,
+	widths: widthsProp,
 	alt,
 	position = "center",
 	basePath = "/",
@@ -66,7 +69,7 @@ const lqipProps = isLocal
 		? getLqipProps(src, basePath, true)
 		: getLqipProps(src);
 
-const widths = [828];
+const widths = widthsProp ?? [828];
 const sizes = preview
 	? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
 	: "(max-width: 768px) 100vw, 828px";

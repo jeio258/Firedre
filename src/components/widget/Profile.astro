@@ -83,6 +83,8 @@ const className = Astro.props.class;
     {rawAvatarUrl ? (
       <img
         src={rawAvatarUrl}
+        srcset={`${url(`/_image/?href=${encodeURIComponent(rawAvatarUrl)}&w=256`)} 256w, ${url(`/_image/?href=${encodeURIComponent(rawAvatarUrl)}&w=512`)} 512w`}
+        sizes="(min-width: 1024px) 256px, 40vw"
         alt="Profile Image of the Author"
         class="profile-avatar-image mx-auto lg:w-full h-full lg:mt-0"
         width="350"
