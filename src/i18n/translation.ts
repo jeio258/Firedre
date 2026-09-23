@@ -20,8 +20,13 @@ declare global {
 // 服务端/Node（SSR、测试）：动态加载全部语言。
 const maps: LangMap = await (async () => {
 	if (typeof window !== "undefined") {
-		// 注入的是当前语言的「键→文案」表；包装成 LangMap 形状供各语言键查同一张表
-		const injected = window.__FIREDRE_I18N__;
+		// 词典由 /i18n.js 注入。defer 经典脚本与 module 脚本在规范中属不同执行队列，
+		// 无先后保证（island 可能先执行）→ 有界等待词典到位，避免水合期读到空表而抛错。
+		let injected = window.__FIREDRE_I18N__;
+		for (let i = 0; !injected && i < 60; i++) {
+			await new Promise((r) => setTimeout(r, 25));
+			injected = window.__FIREDRE_I18N__;
+		}
 		if (injected) {
 			return Object.fromEntries(
 				[
@@ -67,7 +72,15 @@ const maps: LangMap = await (async () => {
 })();
 
 export function getTranslation(lang: string): Translation {
-	return maps[lang.toLowerCase()] || maps[DEFAULT_LANG];
+	// 浏览器分支：等待超时后仍可能为空表 → 回退到当前注入表，保证调用方永不拿到 undefined
+	const injected =
+		typeof window !== "undefined" ? window.__FIREDRE_I18N__ : undefined;
+	return (
+		maps[lang.toLowerCase()] ||
+		maps[DEFAULT_LANG] ||
+		injected ||
+		({} as Translation)
+	);
 }
 
 export function i18n(key: I18nKey): string {
