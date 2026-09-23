@@ -43,7 +43,7 @@ const memos = dynamicConfig.memos;
 			<DynamicSidebar client:visible apiUrl={apiUrl} limit={limit} {memos} />
 			<a
 				class="btn-plain mt-2 flex items-center justify-center gap-1 rounded-lg p-1.5
-					text-sm text-(--primary)"
+					text-sm text-(--primary-text)"
 				href={url("/dynamic/")}
 			>
 				<Icon
@@ -52,7 +52,7 @@ const memos = dynamicConfig.memos;
 					aria-hidden="true"
 				/>
 				<span>{i18n(I18nKey.moreDynamics)}</span>
-				<span data-dynamic-count class="opacity-60"></span>
+				<span data-dynamic-count class="opacity-100"></span>
 			</a>
 		</WidgetLayout>
 	)

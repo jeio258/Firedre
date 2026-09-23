@@ -5,6 +5,8 @@
 
 :root
   --primary: oklch(0.70 0.14 var(--hue))
+  /* 正文/小字号链接用的深一档主色：白底对比 ≈4.6:1（--primary 仅 2.4:1，只适合大色块/描边） */
+  --primary-text: oklch(0.48 0.16 var(--hue))
   --page-bg: oklch(0.95 0.01 var(--hue))
   --card-bg: white
   --card-bg-transparent: unquote("rgb(255 255 255 / var(--card-transparent-opacity, 0.6))")
@@ -91,6 +93,7 @@
 
 :root.dark
   --primary: oklch(0.75 0.14 var(--hue))
+  --primary-text: oklch(0.80 0.13 var(--hue))
   --page-bg: oklch(0.16 0.014 var(--hue))
   --card-bg: oklch(0.23 0.015 var(--hue))
   --card-bg-transparent: unquote("rgb(23 23 23 / var(--card-transparent-opacity, 0.6))")

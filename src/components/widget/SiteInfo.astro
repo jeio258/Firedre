@@ -142,7 +142,7 @@ const detailItems: {
         mainItems.map((item: { icon: string; label: string; value: string; href?: string }) => (
           <div class="flex items-center justify-between px-3 py-2 rounded-lg">
             <div class="flex items-center gap-2.5">
-              <div class="text-(--primary) text-lg">
+              <div class="text-(--primary-text) text-lg">
                 <Icon name={item.icon || "material-symbols:circle"} />
               </div>
               <span class="text-neutral-700 dark:text-neutral-300 font-medium text-sm">
@@ -154,7 +154,7 @@ const detailItems: {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-xs font-bold text-neutral-900 dark:text-neutral-100 text-right max-w-[55%] truncate hover:text-(--primary) transition-colors"
+                class="text-xs font-bold text-neutral-900 dark:text-neutral-100 text-right max-w-[55%] truncate hover:text-(--primary-text) transition-colors"
                 title={item.value}
               >
                 {item.value}
@@ -186,7 +186,7 @@ const detailItems: {
                   "flex flex-col items-center gap-1 py-2 px-1 rounded-lg bg-neutral-100/60 dark:bg-neutral-800/50",
                   { "col-span-2": item.fullWidth }
                 ]}>
-                  <div class="text-(--primary) text-lg">
+                  <div class="text-(--primary-text) text-lg">
                     <Icon name={item.icon || "material-symbols:circle"} />
                   </div>
                   <span class="text-xs text-neutral-500 dark:text-neutral-400">
@@ -208,7 +208,7 @@ const detailItems: {
         </div>
       </div>
       <button
-        class="site-info-toggle-btn btn-plain rounded-lg w-full h-8 flex items-center justify-center gap-1.5 mt-1 text-(--primary) text-sm cursor-pointer"
+        class="site-info-toggle-btn btn-plain rounded-lg w-full h-8 flex items-center justify-center gap-1.5 mt-1 text-(--primary-text) text-sm cursor-pointer"
       >
         <Icon
           name="material-symbols:keyboard-arrow-down-rounded"

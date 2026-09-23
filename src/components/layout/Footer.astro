@@ -61,14 +61,14 @@ if (footerConfigRuntime.enable ?? footerConfig.enable) {
       {profileConfigRuntime.name}. All Rights Reserved.
       <span aria-hidden="true">/</span>
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary-text) font-medium"
         target="_blank"
         rel="noopener noreferrer"
         href={url("rss.xml")}>RSS</a
       >
       <span aria-hidden="true">/</span>
       <a
-        class="transition link text-(--primary) font-medium"
+        class="transition link text-(--primary-text) font-medium"
         target="_blank"
         rel="noopener noreferrer"
         href={url("sitemap.xml")}>Sitemap</a
@@ -84,10 +84,10 @@ if (footerConfigRuntime.enable ?? footerConfig.enable) {
     )}
     <div class="mx-0.5 my-2.5 flex gap-x-2 gap-y-2.5 justify-center flex-wrap">
       <span>Powered by</span>
-      <a class="transition link text-(--primary) font-medium" target="_blank" rel="noopener noreferrer" href="https://astro.build">Astro</a>
+      <a class="transition link text-(--primary-text) font-medium" target="_blank" rel="noopener noreferrer" href="https://astro.build">Astro</a>
       <span aria-hidden="true">&</span>
       {footerLinks.map((fl) => (
-        <a class="transition link text-(--primary) font-medium" target={/^https?:\/\//i.test(fl.url) ? "_blank" : undefined} href={fl.url}>{fl.name}</a>
+        <a class="transition link text-(--primary-text) font-medium" target={/^https?:\/\//i.test(fl.url) ? "_blank" : undefined} href={fl.url}>{fl.name}</a>
       ))}
     </div>
     </div>
