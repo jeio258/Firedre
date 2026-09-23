@@ -98,7 +98,8 @@ export const GET: APIRoute = async ({ request }) => {
 				}
 				const headers = new Headers();
 				headers.set("content-type", contentType);
-				headers.set("cache-control", "public, max-age=604800");
+				// 浏览器 1 小时（随机图刷新节奏）；边缘 1 天（保证速度，回源至多 1 次/天）
+				headers.set("cache-control", "public, max-age=3600, s-maxage=86400");
 				const resp = new Response(upstream.body, { headers });
 				if (cache) {
 					try {
