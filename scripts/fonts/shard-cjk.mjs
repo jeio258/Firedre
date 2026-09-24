@@ -10,9 +10,10 @@ const wawoff2 = require("wawoff2");
 const subsetFont = require("subset-font");
 
 const SRC = "src/assets/fonts/FangzhengZhuZiA-YuanB.woff2";
-const OUT_DIR = "src/assets/fonts/shards";
-const SEED_CHARS = 800;      // 种子分片包含的高频汉字数
-const BLOCK = 1200;          // 其余 CJK 每块码位数
+const OUT_DIR = "assets/fonts/shards";   // 非 public：避免未接线时进入部署产物
+const CSS_OUT = "src/styles/font-shards.css";
+const SEED_CHARS = 300;      // 种子分片包含的高频汉字数
+const BLOCK = 1000;          // 其余 CJK 每块码位数
 
 // ---------- 1) 从项目自身语料统计字频（首屏文案/UI 用字的主要来源）----------
 function walk(dir, exts, acc = []) {
@@ -76,5 +77,38 @@ for (const s of shards) {
 	console.log(`${s.name}: ${s.chars.size} 字 → ${(out.length / 1024).toFixed(1)}KB`);
 }
 writeFileSync(join(OUT_DIR, "manifest.json"), JSON.stringify(manifest, null, 1));
+
 console.log(`\n合计 ${shards.length} 片 / ${(total / 1024).toFixed(0)}KB（源 ${(src.length / 1024).toFixed(0)}KB）`);
 console.log("注意：分片总量必然大于源文件（每片有独立表结构），收益来自「按需只下载所需片」。");
+
+// ---------- 4) 生成手写 @font-face（unicode-range 分片）----------
+const FAMILY = "Fangzheng ZhuZi A Yuan B";
+const css = [
+	"/* 由 scripts/fonts/shard-cjk.mjs 生成，请勿手改；字体分片加载：浏览器按 unicode-range 只取所需片 */",
+	":root {",
+	`\t--font-fangzheng-zizhu: "Fangzheng ZhuZi A Yuan B", "Fangzheng ZhuZi A Yuan B fallback: Arial", sans-serif;`,
+	"}",
+	// 度量兜底字体：与 Astro Font API 原先生成的一致，保证 swap 前后行盒尺寸稳定（CLS）
+	`@font-face {
+\tfont-family: "Fangzheng ZhuZi A Yuan B fallback: Arial";
+\tsrc: local("Arial");
+\tfont-display: swap;
+\tfont-weight: 400;
+\tfont-style: normal;
+\tsize-adjust: 107.7766%;
+\tascent-override: 96.7714%;
+\tdescent-override: 24.6459%;
+\tline-gap-override: 0%;
+}`,
+	...manifest.map((m) => `@font-face {
+\tfont-family: "Fangzheng ZhuZi A Yuan B";
+\tfont-style: normal;
+\tfont-weight: 400;
+\tfont-display: swap;
+\tsrc: url("../../../assets/fonts/shards/${m.file}") format("woff2");
+\tunicode-range: ${m.unicodeRange};
+}`),
+	"",
+].join("\n");
+writeFileSync(CSS_OUT, css);
+console.log(`CSS 已写入 ${CSS_OUT}（${manifest.length} 段 @font-face）`);
