@@ -225,6 +225,14 @@ html {
         contain: layout style;
     }
 
+    /* 首屏外区块跳过初始渲染：滚动进入视口时再渲染，显著降低 Style & Layout 与主线程工作量。
+       占位高度用 contain-intrinsic-size: auto（记住上次真实高度），布局与像素差异由视觉门禁 v2 校验。 */
+    .post-card-item,
+    .site-footer {
+        content-visibility: auto;
+        contain-intrinsic-size: auto 240px;
+    }
+
     .card-base {
         @apply rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150;
     }
