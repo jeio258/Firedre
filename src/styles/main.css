@@ -218,6 +218,13 @@ html {
         backdrop-filter: none !important;
     }
 
+    /* 卡片/页脚隔离布局与样式重算范围：降低 Style & Layout 开销（不跳过渲染、不裁剪，零视觉变更） */
+    .card-base,
+    .post-card-item,
+    .site-footer {
+        contain: layout style;
+    }
+
     .card-base {
         @apply rounded-(--radius-large) overflow-hidden bg-(--card-bg) transition-colors duration-150;
     }
