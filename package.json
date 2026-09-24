@@ -101,8 +101,10 @@
     "playwright": "^1.62.1",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^14.0.1",
+    "subset-font": "2.9.0",
     "svelte-check": "^4.7.6",
     "vitest": "^4.1.11",
+    "wawoff2": "2.0.1",
     "wrangler": "^4.127.0"
   }
 }
