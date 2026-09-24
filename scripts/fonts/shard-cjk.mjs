@@ -10,7 +10,7 @@ const wawoff2 = require("wawoff2");
 const subsetFont = require("subset-font");
 
 const SRC = "src/assets/fonts/FangzhengZhuZiA-YuanB.woff2";
-const OUT_DIR = "assets/fonts/shards";   // 非 public：避免未接线时进入部署产物
+const OUT_DIR = "assets/fonts/shards";   // 非 public：未接线时不进入部署产物
 const CSS_OUT = "src/styles/font-shards.css";
 const SEED_CHARS = 300;      // 种子分片包含的高频汉字数
 const BLOCK = 1000;          // 其余 CJK 每块码位数
