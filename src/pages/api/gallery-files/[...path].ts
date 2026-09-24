@@ -2,7 +2,7 @@ import { getAlbumPassword } from "@server/gallery/password";
 import { withRateLimit } from "@server/utils/rateLimiter";
 import { constantTimeEqual } from "@server/utils/timingSafe";
 import type { APIRoute } from "astro";
-import { cfEnv, serverError } from "../../../lib/api";
+import { cfEnv, methodNotAllowed, serverError } from "../../../lib/api";
 import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
@@ -67,3 +67,5 @@ async function serveFile(key: string, cacheControl: string) {
 
 	return new Response(object.body, { headers });
 }
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

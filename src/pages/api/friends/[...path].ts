@@ -104,7 +104,8 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	}
 };
 
-export const ALL: APIRoute = async () => methodNotAllowed();
+export const ALL: APIRoute = async () =>
+	methodNotAllowed(["DELETE", "GET", "POST", "PUT"]);
 
 function toView(row: {
 	id: number;

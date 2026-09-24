@@ -1,6 +1,6 @@
 import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
-import { cfEnv } from "../../lib/api";
+import { cfEnv, methodNotAllowed } from "../../lib/api";
 
 export const prerender = false;
 
@@ -115,3 +115,5 @@ export const GET: APIRoute = async ({ request }) => {
 		},
 	);
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

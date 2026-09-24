@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { cfEnv, serverError } from "../../../lib/api";
+import { cfEnv, methodNotAllowed, serverError } from "../../../lib/api";
 import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
@@ -31,3 +31,5 @@ export const GET: APIRoute = async ({ params }) => {
 		return serverError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

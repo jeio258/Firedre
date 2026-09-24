@@ -1,7 +1,7 @@
 import { getAllDynamics } from "@server/dynamic/service";
 import { getSettingsVersionCached } from "@server/settings/service";
 import type { APIRoute } from "astro";
-import { cfEnv, fromServiceError } from "../../lib/api";
+import { cfEnv, fromServiceError, methodNotAllowed } from "../../lib/api";
 
 export const prerender = false;
 
@@ -51,3 +51,5 @@ export const GET: APIRoute = async ({ request, url }) => {
 		return fromServiceError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

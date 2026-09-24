@@ -80,7 +80,8 @@ export const DELETE: APIRoute = withAdmin(async ({ params }) => {
 	return json({ ok: true }, 200, "private");
 });
 
-export const ALL: APIRoute = async () => methodNotAllowed();
+export const ALL: APIRoute = async () =>
+	methodNotAllowed(["DELETE", "GET", "POST", "PUT"]);
 
 function toView(row: {
 	id: number;

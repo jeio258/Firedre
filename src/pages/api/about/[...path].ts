@@ -28,4 +28,4 @@ export const PUT: APIRoute = withAdmin(async ({ request }) => {
 	return json({ ok: true, ...result });
 });
 
-export const ALL: APIRoute = async () => methodNotAllowed();
+export const ALL: APIRoute = async () => methodNotAllowed(["GET", "PUT"]);

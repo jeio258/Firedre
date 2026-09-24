@@ -34,8 +34,11 @@ export function unauthorized() {
 	return json({ message: "未授权" }, 401);
 }
 
-export function methodNotAllowed() {
-	return json({ message: "Method not allowed" }, 405);
+// 405 必须声明允许的方法（RFC 9110 §15.5.6）；未传 allow 时保持原有响应体不变
+export function methodNotAllowed(allow?: string[]) {
+	const res = json({ message: "Method not allowed" }, 405);
+	if (allow && allow.length) res.headers.set("Allow", allow.join(", "));
+	return res;
 }
 
 export function notFound(message = "Not found") {

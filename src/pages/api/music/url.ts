@@ -1,6 +1,6 @@
 import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
-import { badRequest, cfEnv, json } from "@/lib/api";
+import { badRequest, cfEnv, json, methodNotAllowed } from "@/lib/api";
 import {
 	extractSongFromLink,
 	isTrackIdValid,
@@ -125,3 +125,5 @@ export const GET: APIRoute = async ({ url, request }) => {
 		},
 	);
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

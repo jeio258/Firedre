@@ -4,6 +4,7 @@ import {
 	badRequest,
 	cfEnv,
 	json,
+	methodNotAllowed,
 	notFound,
 	serverError,
 } from "../../../lib/api";
@@ -26,3 +27,5 @@ export const GET: APIRoute = async ({ params }) => {
 		return serverError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

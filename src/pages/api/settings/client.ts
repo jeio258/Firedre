@@ -5,7 +5,7 @@ import {
 } from "@server/settings/service";
 import type { APIRoute } from "astro";
 import { toClientSettings } from "@/utils/client-settings";
-import { cfEnv, fromServiceError } from "../../../lib/api";
+import { cfEnv, fromServiceError, methodNotAllowed } from "../../../lib/api";
 
 export const prerender = false;
 
@@ -25,3 +25,5 @@ export const GET: APIRoute = async () => {
 		return fromServiceError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

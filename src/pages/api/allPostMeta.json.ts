@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { cfEnv, serverError } from "../../lib/api";
+import { cfEnv, methodNotAllowed, serverError } from "../../lib/api";
 
 export const prerender = false;
 
@@ -12,14 +12,14 @@ export const GET: APIRoute = async () => {
 			ORDER BY date DESC
 		`).all();
 
-		const data = (results || []).map((row: any) => ({
-			id: row.slug,
-			title: row.title,
-			description: row.description || "",
-			published: new Date(row.date).getTime(),
+		const data = (results || []).map((row: Record<string, unknown>) => ({
+			id: row.slug as string,
+			title: row.title as string,
+			description: (row.description as string) || "",
+			published: new Date(row.date as string).getTime(),
 			category: (() => {
 				try {
-					const cats = JSON.parse(row.categories || "[]");
+					const cats = JSON.parse((row.categories as string) || "[]");
 					return Array.isArray(cats) && cats.length ? String(cats[0]) : "";
 				} catch {
 					return "";
@@ -38,3 +38,5 @@ export const GET: APIRoute = async () => {
 		return serverError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

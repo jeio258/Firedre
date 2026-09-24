@@ -3,7 +3,7 @@ import type { APIRoute } from "astro";
 import { siteConfig } from "@/config";
 import { withProxyGuard } from "@/lib/proxyCache";
 import { fetchBilibiliList } from "@/utils/bilibili-utils";
-import { json, serverError } from "../../lib/api";
+import { json, methodNotAllowed, serverError } from "../../lib/api";
 
 export const prerender = false;
 
@@ -27,3 +27,5 @@ export const GET: APIRoute = async ({ request, url, locals }) => {
 		return serverError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);

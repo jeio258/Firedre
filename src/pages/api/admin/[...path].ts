@@ -386,4 +386,4 @@ async function collectAdminStats(db: CloudflareEnv["DB"]) {
 	};
 }
 
-export const ALL: APIRoute = async () => methodNotAllowed();
+export const ALL: APIRoute = async () => methodNotAllowed(["GET", "POST"]);

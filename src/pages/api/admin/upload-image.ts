@@ -1,7 +1,13 @@
 import { verifyAdminRequest } from "@server/auth/adminSession";
 import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
-import { cfEnv, json, serverError, unauthorized } from "../../../lib/api";
+import {
+	cfEnv,
+	json,
+	methodNotAllowed,
+	serverError,
+	unauthorized,
+} from "../../../lib/api";
 
 export const prerender = false;
 
@@ -91,3 +97,5 @@ async function handleUpload(request: Request) {
 		return serverError(error);
 	}
 }
+
+export const ALL: APIRoute = async () => methodNotAllowed(["POST"]);

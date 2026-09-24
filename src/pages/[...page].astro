@@ -15,10 +15,19 @@ export const prerender = false;
 const { listPosts } = await import("@server/posts/service");
 const { cfEnv } = await import("../lib/api");
 
-const pageNum = Astro.params.page ? Number(Astro.params.page) : 1;
+// 路由为根级 catch-all：仅 /page/<正整数>/ 合法。非法段（如 /__nope__/）不得回落首页，
+// 否则任意未知 URL 都会输出首页副本并自指 canonical（软 404 / 重复内容）。
+const rawPage = Astro.params.page;
+const isValidPageSegment = rawPage === undefined || /^[1-9]\d*$/.test(rawPage);
+if (!isValidPageSegment) return Astro.rewrite("/404/");
+
+const pageNum = rawPage ? Number(rawPage) : 1;
 // 分页大小来自静态 siteConfig（无对应设置组）
 const pageSize = Math.max(1, siteConfig.pagination.postsPerPage);
 const result = await listPosts(cfEnv, { page: pageNum, pageSize });
+// 越界页（如 /page/9999/）同样返回 404，避免无限越界 URL 产出重复内容
+if (pageNum > Math.max(1, Math.ceil(result.total / pageSize)))
+	return Astro.rewrite("/404/");
 const posts = result.posts.map(apiPostToPostForList);
 const totalPages = Math.max(1, Math.ceil(result.total / pageSize));
 

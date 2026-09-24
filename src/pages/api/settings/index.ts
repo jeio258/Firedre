@@ -13,6 +13,7 @@ import {
 	badRequest,
 	cfEnv,
 	json,
+	methodNotAllowed,
 	serverError,
 	unauthorized,
 } from "../../../lib/api";
@@ -112,3 +113,5 @@ export const PUT: APIRoute = async ({ request }) => {
 		},
 	);
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET", "PUT"]);

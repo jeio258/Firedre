@@ -1,7 +1,7 @@
 import type { SettingsView } from "@server/settings/service";
 import type { APIRoute } from "astro";
 import { siteConfig } from "@/config";
-import { json, serverError } from "@/lib/api";
+import { json, methodNotAllowed, serverError } from "@/lib/api";
 import { withProxyGuard } from "@/lib/proxyCache";
 import { fetchVndbUlist } from "@/utils/vndb-utils";
 
@@ -44,3 +44,5 @@ export const GET: APIRoute = async ({ request, url, locals }) => {
 		return serverError(error);
 	}
 };
+
+export const ALL: APIRoute = async () => methodNotAllowed(["GET"]);
