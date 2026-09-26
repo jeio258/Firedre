@@ -142,7 +142,7 @@ onMount(async () => {
 						<div class="list-row clickable" role="button" tabindex="0" onclick={() => gotoEditor(a.slug)} onkeydown={(e) => e.key === "Enter" && gotoEditor(a.slug)}>
 							<div class="list-main">
 								<div class="list-title">{a.title}</div>
-								<div class="list-sub">{fromNow(a.updated)} · {a.categories?.[0] || "未分类"}</div>
+								<div class="list-sub"><time datetime={a.updated}>{fromNow(a.updated)}</time><span class="cat">{a.categories?.[0] || "未分类"}</span></div>
 							</div>
 							<span class="u-chip {a.published ? 'ok' : 'off'}">{a.published ? "已发布" : "草稿"}</span>
 						</div>

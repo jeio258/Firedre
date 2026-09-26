@@ -76,7 +76,11 @@ async function submit(event: SubmitEvent) {
 			<img class="brand-logo lg" src="/favicon/firefly-32.png" alt="Firedre" />
 			<div>
 				<h1 class="login-name">Firedre 后台</h1>
-				<p class="login-sub">内容发布 · 站点配置 · 数据看板</p>
+				<p class="login-sub">
+					<span class="cap">内容发布</span>
+					<span class="cap">站点配置</span>
+					<span class="cap">数据看板</span>
+				</p>
 			</div>
 		</div>
 		<p class="login-title">欢迎回来 👋</p>
