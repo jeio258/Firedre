@@ -236,6 +236,9 @@ body {
 }
 .menu-close {
 	display: none;
+	/* 触控热区 ≥44×44（图标 16px + 内边距 14px），满足 WCAG 2.5.8 */
+	padding: 14px;
+	border-radius: 8px;
 	margin-left: auto;
 	background: transparent;
 	border: none;
@@ -2213,4 +2216,13 @@ html.dark .lg-field input {
 	.je-area {
 		font-size: 1rem;
 	}
+}
+
+/* 键盘焦点可见性补充：侧栏链接 / 抽屉关闭 / 自定义控件（按钮类已有 :focus-visible 规则） */
+a:focus-visible,
+.nav-item:focus-visible,
+.menu-close:focus-visible,
+[tabindex]:focus-visible {
+	outline: 2px solid color-mix(in oklch, var(--primary) 55%, transparent);
+	outline-offset: 2px;
 }
