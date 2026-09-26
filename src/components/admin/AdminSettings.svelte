@@ -222,13 +222,13 @@ onMountAsync(async () => {
 									<div class="a2f {field.wide ? 'w' : ''} {profileArea(group, field)}">
 										<label>{field.label}{#if field.hint}<small>{field.hint}</small>{/if}</label>
 										{#if field.type === "select"}
-											<select onchange={(e) => { const v = e.currentTarget.value; data[group.key][field.name] = v; cmtTypeVal = v; markDirty(); }}>
+											<select aria-label={field.label} onchange={(e) => { const v = e.currentTarget.value; data[group.key][field.name] = v; cmtTypeVal = v; markDirty(); }}>
 												{#each field.options ?? [] as opt}
 													<option value={opt.value} selected={((data[group.key]?.[field.name] as string) ?? "") === opt.value}>{opt.label}</option>
 												{/each}
 											</select>
 										{:else if field.type === "textarea"}
-											<textarea rows="3" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
+											<textarea aria-label={field.label} rows="3" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }}></textarea>
 										{:else if field.type === "json"}
 											<JsonEditor
 												value={data[group.key]?.[field.name]}
@@ -250,11 +250,11 @@ onMountAsync(async () => {
 												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
 											/>
 										{:else if field.type === "password"}
-											<input type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											<input aria-label={field.label} type="password" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} autocomplete="off" oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
 										{:else if field.type === "number"}
-											<input type="number" value={(data[group.key]?.[field.name] as number) ?? ""} oninput={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
+											<input aria-label={field.label} type="number" value={(data[group.key]?.[field.name] as number) ?? ""} oninput={(e) => { data[group.key][field.name] = e.currentTarget.valueAsNumber; markDirty(); }} />
 										{:else}
-											<input type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
+											<input aria-label={field.label} type="text" value={(data[group.key]?.[field.name] as string) ?? ""} placeholder={field.placeholder} oninput={(e) => { data[group.key][field.name] = e.currentTarget.value; markDirty(); }} />
 										{/if}
 									</div>
 								{/each}

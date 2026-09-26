@@ -72,12 +72,12 @@ onMount(load);
 			<div class="mcfg">
 				<div class="a2f">
 					<label>页面标题</label>
-					<input type="text" bind:value={titleVal} />
+					<input type="text" aria-label="页面标题" bind:value={titleVal} />
 				</div>
 				{#if descField}
 					<div class="a2f w">
 						<label>页面描述</label>
-						<textarea rows="3" bind:value={descVal}></textarea>
+						<textarea rows="3" aria-label="页面描述" bind:value={descVal}></textarea>
 					</div>
 				{/if}
 			</div>
