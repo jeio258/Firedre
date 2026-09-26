@@ -108,7 +108,7 @@ let draftCount = $derived(posts.length - publishedCount);
 			</p>
 		</div>
 		<div class="crud-head-actions">
-			<select bind:value={status}>
+			<select aria-label="筛选文章状态" bind:value={status}>
 				<option value="all">全部状态</option>
 				<option value="published">已发布</option>
 				<option value="draft">草稿</option>
@@ -116,7 +116,7 @@ let draftCount = $derived(posts.length - publishedCount);
 			<input type="search" aria-label="搜索文章" placeholder="搜索文章…" bind:value={search} />
 			<label class="row-selectall">
 				<input
-					type="checkbox" aria-label="选择该文章"
+					type="checkbox" aria-label="全选文章"
 					checked={filtered.length > 0 && selected.size === filtered.length}
 					onchange={toggleAll}
 				/>
@@ -143,7 +143,7 @@ let draftCount = $derived(posts.length - publishedCount);
 				<div class="list-row" class:selected={selected.has(post.slug)}>
 					<label class="row-check">
 						<input
-							type="checkbox" aria-label="选择该文章"
+							type="checkbox" aria-label={`选择文章：${post.title}`}
 							checked={selected.has(post.slug)}
 							onchange={() => toggle(post.slug)}
 						/>
