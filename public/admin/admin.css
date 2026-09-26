@@ -441,7 +441,8 @@ body {
 }
 .crumb-group {
 	font-size: 0.82rem;
-	color: var(--text-muted);
+	/* D5：原 --text-muted 在页面底色上实测 2.99:1（13px 需 4.5）→ 改用偏深中性色 */
+	color: color-mix(in oklch, var(--deep-text) 72%, var(--text-muted));
 	white-space: nowrap;
 }
 .crumb-sep {
