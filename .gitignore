@@ -74,3 +74,7 @@ scripts/qa/
 
 # 测试配置仅本地（tests/ 与 scripts/qa/ 同步退出远程）
 vitest.config.ts
+
+# Lighthouse/Chrome 运行时垃圾（含 WSL 路径形态的文件名）：禁止入库
+*lighthouse.*
+*wsl.localhost*
