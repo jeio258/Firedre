@@ -2228,3 +2228,26 @@ a:focus-visible,
 	outline: 2px solid color-mix(in oklch, var(--primary) 55%, transparent);
 	outline-offset: 2px;
 }
+
+/* P7（方案 B：直接改尺寸）——原 AA 违规项直接达标
+   1) 移动菜单开关 32→44（主触控控件）
+   2) 表单控件与按钮下限 ≥24×24（WCAG 2.5.8 AA）
+   3) 复选框 13×13 → 24×24（原为浏览器默认尺寸） */
+.menu-toggle {
+	width: 2.75rem;
+	min-width: 2.75rem;
+	height: 2.75rem;
+	flex-shrink: 0;
+}
+.btn,
+.btn-primary,
+.btn-ghost,
+.btn-danger-text,
+.icon-btn {
+	min-width: 1.5rem;
+	min-height: 1.5rem;
+}
+input[type="checkbox"] {
+	width: 1.5rem;
+	height: 1.5rem;
+}
