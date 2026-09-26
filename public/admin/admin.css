@@ -279,6 +279,8 @@ body {
 .nav-item {
 	display: flex;
 	align-items: center;
+	/* 触控热区 ≥44px（P3）：原为 38px，侧栏条目在触屏/移动端点按偏窄 */
+	min-height: 44px;
 	gap: 0.65rem;
 	padding: 0.52rem 0.65rem;
 	margin: 1px 0;
