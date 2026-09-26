@@ -234,7 +234,7 @@ onMountAsync(async () => {
 								<span class="check-text">{f.label}</span>
 							</div>
 						{:else if f.type === "select"}
-							<select bind:value={formValues[f.key]}>
+							<select aria-label="筛选" bind:value={formValues[f.key]}>
 								{#each f.options ?? [] as opt}
 									<option value={opt.value}>{opt.label}</option>
 								{/each}

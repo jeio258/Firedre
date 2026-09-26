@@ -143,7 +143,7 @@ onMountAsync(async () => {
 					{siteUrlSaving ? "保存中…" : "保存域名"}
 				</button>
 			</div>
-			<input type="text" placeholder="https://example.com" bind:value={siteUrl} />
+			<input type="text" aria-label="站点链接 URL" placeholder="https://example.com" bind:value={siteUrl} />
 			{#if siteUrlMsg}
 				<span class="url-msg">{siteUrlMsg}</span>
 			{/if}

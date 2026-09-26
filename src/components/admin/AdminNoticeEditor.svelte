@@ -96,11 +96,11 @@ onMountAsync(async () => {
 			<div class="notice-form">
 				<label class="crud-field">
 					<span>公告标题</span>
-					<input type="text" bind:value={title} />
+					<input aria-label="公告标题" type="text" bind:value={title} />
 				</label>
 				<label class="crud-field">
 					<span>公告内容</span>
-					<textarea bind:value={content} placeholder="请输入公告内容"></textarea>
+					<textarea aria-label="公告内容" bind:value={content} placeholder="请输入公告内容"></textarea>
 				</label>
 			</div>
 		</div>

@@ -113,10 +113,10 @@ let draftCount = $derived(posts.length - publishedCount);
 				<option value="published">已发布</option>
 				<option value="draft">草稿</option>
 			</select>
-			<input type="search" placeholder="搜索文章…" bind:value={search} />
+			<input type="search" aria-label="搜索文章" placeholder="搜索文章…" bind:value={search} />
 			<label class="row-selectall">
 				<input
-					type="checkbox"
+					type="checkbox" aria-label="选择该文章"
 					checked={filtered.length > 0 && selected.size === filtered.length}
 					onchange={toggleAll}
 				/>
@@ -143,7 +143,7 @@ let draftCount = $derived(posts.length - publishedCount);
 				<div class="list-row" class:selected={selected.has(post.slug)}>
 					<label class="row-check">
 						<input
-							type="checkbox"
+							type="checkbox" aria-label="选择该文章"
 							checked={selected.has(post.slug)}
 							onchange={() => toggle(post.slug)}
 						/>
