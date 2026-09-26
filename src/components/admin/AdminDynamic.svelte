@@ -185,7 +185,7 @@ onMountAsync(async () => {
 		group="dynamic"
 		enableKey="enabled"
 		enableLabel="启用动态页"
-		title="本页设置 · 动态"
+		title="动态"
 		titleField="title"
 		descField="description"
 	/>

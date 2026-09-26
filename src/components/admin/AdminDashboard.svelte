@@ -91,7 +91,7 @@ onMount(async () => {
 <div class="crud-page">
 	<div class="crud-head">
 		<div>
-			<h2>{stats.siteTitle || "站点"} · 数据看板</h2>
+			<h2>数据看板</h2>
 			<p class="crud-sub">数据更新至刚刚</p>
 		</div>
 		<div class="crud-head-actions">

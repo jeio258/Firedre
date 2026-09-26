@@ -87,7 +87,7 @@ onMountAsync(async () => {
 		group="announcement"
 		enableKey="enabled"
 		enableLabel="启用公告"
-		title="本页设置 · 公告"
+		title="公告"
 		titleField="title"
 	/>
 

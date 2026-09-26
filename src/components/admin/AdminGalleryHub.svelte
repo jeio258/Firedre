@@ -142,7 +142,7 @@ onMountAsync(async () => {
 		group="gallery"
 		enableKey="enabled"
 		enableLabel="启用相册页"
-		title="本页设置 · 相册"
+		title="相册"
 		titleField="title"
 	/>
 

@@ -103,7 +103,7 @@ let draftCount = $derived(posts.length - publishedCount);
 		<div>
 			<h2>文章管理</h2>
 			<p class="crud-sub">
-				共 {posts.length} 篇 · 已发布 {publishedCount} · 草稿 {draftCount}{#if selected.size > 0}
+				<span class="stat">共 <b>{posts.length}</b> 篇</span><span class="stat">已发布 <b>{publishedCount}</b></span><span class="stat">草稿 <b>{draftCount}</b></span>{#if selected.size > 0}
 					· 已选 {selected.size}{/if}
 			</p>
 		</div>

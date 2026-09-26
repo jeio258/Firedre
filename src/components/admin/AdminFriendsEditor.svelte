@@ -65,7 +65,7 @@ const fields: CrudField[] = [
 				group="friends"
 				enableKey="enabled"
 				enableLabel="启用友链页"
-				title="本页设置 · 友链"
+				title="友链"
 				titleField="title"
 				descField="description"
 			/>
