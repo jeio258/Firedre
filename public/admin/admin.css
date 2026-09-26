@@ -2251,3 +2251,35 @@ input[type="checkbox"] {
 	width: 1.5rem;
 	height: 1.5rem;
 }
+
+/* P3′（AAA 触控 44px）：把达 AA 但未达 44 的控件统一提升
+   - 文本类按钮/链接：最小高度 44（宽度随内容自适应）
+   - 纯图标按钮：44×44
+   - 开关：仅扩大命中区（padding-block），保持视觉开关尺寸，避免 44×44 的臃肿观感 */
+.btn,
+.btn-primary,
+.btn-ghost,
+.btn-danger-text,
+.btn-text,
+.dd-item,
+.site-link,
+.user-trigger {
+	min-height: 44px;
+}
+.icon-btn {
+	width: 2.75rem;
+	height: 2.75rem;
+}
+/* 短文本按钮：宽度也补到 44（AAA）；开关横向补 1px 命中区（视觉几乎无感） */
+.btn,
+.btn-primary,
+.btn-ghost,
+.btn-danger-text,
+.btn-text {
+	min-width: 44px;
+}
+.sw {
+	padding-block: 10px;
+	padding-inline: 1px;
+	box-sizing: content-box;
+}
