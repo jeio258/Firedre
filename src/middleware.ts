@@ -34,6 +34,31 @@ function applySecurityHeaders(headers: Headers) {
 	);
 }
 
+// 页面开关派生：basic.pageXxx → pages 映射（正常路径与 D1 故障路径共用）
+function derivePages(merged: Record<string, unknown>): void {
+	const pageMap: Record<string, string> = {
+		pageFriends: "friends",
+		pageGuestbook: "guestbook",
+		pageDynamic: "dynamic",
+		pageGallery: "gallery",
+		pageBooknav: "booknav",
+		pageBilibili: "bilibili",
+		pageBangumi: "bangumi",
+		pageVndb: "vndb",
+		pageMal: "mal",
+		pageSponsor: "sponsor",
+	};
+	const basicGroup = (merged.basic ?? {}) as Record<string, unknown>;
+	const pagesOut: Record<string, unknown> = {};
+	for (const [k, v] of Object.entries(pageMap)) {
+		if (typeof basicGroup[k] === "boolean") pagesOut[v] = basicGroup[k];
+	}
+	merged.pages = {
+		...((merged.pages as Record<string, unknown>) ?? {}),
+		...pagesOut,
+	};
+}
+
 export const onRequest = defineMiddleware(async (context, next) => {
 	const { request } = context;
 	const url = new URL(request.url);
@@ -132,35 +157,39 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
 		const merged = mergeSettings(defaults, groups, groupNames);
 
-		const pageMap: Record<string, string> = {
-			pageFriends: "friends",
-			pageGuestbook: "guestbook",
-			pageDynamic: "dynamic",
-			pageGallery: "gallery",
-			pageBooknav: "booknav",
-			pageBilibili: "bilibili",
-			pageBangumi: "bangumi",
-			pageVndb: "vndb",
-			pageMal: "mal",
-			pageSponsor: "sponsor",
-		};
-		const basicGroup = (merged.basic ?? {}) as Record<string, unknown>;
-		const pagesOut: Record<string, unknown> = {};
-		for (const [k, v] of Object.entries(pageMap)) {
-			if (typeof basicGroup[k] === "boolean") pagesOut[v] = basicGroup[k];
-		}
-		merged.pages = {
-			...((merged.pages as Record<string, unknown>) ?? {}),
-			...pagesOut,
-		};
+		derivePages(merged);
 		(context.locals as unknown as SettingsLocals).settings = merged;
 		if (settingsVersion) {
 			(context.locals as unknown as SettingsLocals).settingsVersion =
 				settingsVersion;
 		}
 	} catch (e) {
-		console.warn("[middleware] 站点设置加载失败，本次请求以空配置渲染", e);
-		(context.locals as unknown as SettingsLocals).settings = {};
+		// A1：D1 故障路径动态接管——以 defaults 铺底渲染（替代原空配置），页面开关同步派生
+		console.warn(
+			"[middleware] 站点设置加载失败，本次请求以运行时默认值渲染",
+			e,
+		);
+		try {
+			const [{ SETTING_GROUPS }, { settingsDefaults }, { mergeSettings }] =
+				await Promise.all([
+					import("@server/settings/service"),
+					import("@shared/config/settings-defaults"),
+					import("@server/settings/merge"),
+				]);
+			const merged = mergeSettings(
+				settingsDefaults as unknown as Record<string, Record<string, unknown>>,
+				{},
+				new Set<string>(SETTING_GROUPS as unknown as string[]),
+			);
+			derivePages(merged);
+			(context.locals as unknown as SettingsLocals).settings = merged;
+		} catch (fallbackError) {
+			console.warn(
+				"[middleware] 默认值兜底渲染失败，以空配置渲染",
+				fallbackError,
+			);
+			(context.locals as unknown as SettingsLocals).settings = {};
+		}
 	}
 
 	setPlantumlRuntimeConfig(getPlantumlConfig(context.locals));
