@@ -7,9 +7,27 @@
 import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
 import type { DisplaySettingsConfig } from "@/types/displaySettingsConfig";
-import type { NavbarMode } from "@/types/navBarConfig";
+import type {
+	NavBarConfig,
+	NavBarLink,
+	NavbarMode,
+} from "@/types/navBarConfig";
+import type { SidebarLayoutConfig } from "@/types/sidebarConfig";
 import type { SponsorItem } from "@/types/sponsorConfig";
 import type { SiteConfig } from "../../src/types/siteConfig";
+import { settingsDefaults } from "./settings-defaults";
+
+// 导航 links 默认模板：单一默认源（defaults.nav.navItems）解析，替代静态 navBarConfig
+const DEFAULT_NAV_ITEMS: NavBarLink[] = (() => {
+	try {
+		return JSON.parse(
+			(settingsDefaults.nav as { navItems: string }).navItems,
+		) as NavBarLink[];
+	} catch {
+		return [];
+	}
+})();
+
 import { normalizeSiteUrl } from "../utils/url-utils";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { announcementConfig as staticAnnouncementConfig } from "./announcementConfig";
@@ -27,11 +45,8 @@ import { footerConfig as staticFooterConfig } from "./footerConfig";
 import { licenseConfig as staticLicenseConfig } from "./licenseConfig";
 import { mermaidConfig as staticMermaidConfig } from "./mermaidConfig";
 import { musicPlayerConfig as staticMusicConfig } from "./musicConfig";
-import { navBarConfig as staticNavConfig } from "./navBarConfig";
 import { plantumlConfig as staticPlantumlConfig } from "./plantumlConfig";
 import { profileConfig as staticProfileConfig } from "./profileConfig";
-import { sidebarLayoutConfig as staticSidebarConfig } from "./sidebarConfig";
-import { siteConfig as staticSiteConfig } from "./siteConfig";
 import { sponsorConfig as staticSponsorConfig } from "./sponsorConfig";
 
 export type SettingsLike = Record<string, unknown>;
@@ -672,58 +687,12 @@ export function getAnnouncementConfig(
 	};
 }
 
-export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
+export function getNavbarConfig(locals: unknown): NavBarConfig {
 	const s = settingsOf(locals);
 	const n = groupOf(s, "nav");
-	const navItems = arr(n.navItems, staticNavConfig.links);
 	const nb = groupOf(s, "navbar");
-	const siteNavbar = (staticSiteConfig as unknown as Record<string, unknown>)
-		.navbar as Record<string, unknown> | undefined;
+	const navItems = arr(n.navItems, DEFAULT_NAV_ITEMS);
 	return {
-		...staticNavConfig,
-		enabled: bool(
-			n.enabled,
-			(staticNavConfig as unknown as Record<string, unknown>).enabled !== false,
-		),
-		title: str(
-			n.title ?? nb.title,
-			String(
-				(siteNavbar?.title as string) ??
-					((staticNavConfig as unknown as Record<string, unknown>)
-						.title as string) ??
-					"",
-			),
-		),
-		widthFull: bool(
-			n.widthFull ?? nb.widthFull,
-			Boolean(siteNavbar?.widthFull),
-		),
-		menuAlign: str(
-			n.menuAlign ?? nb.menuAlign,
-			String((siteNavbar?.menuAlign as string) ?? "center"),
-		),
-		followTheme: bool(
-			n.followTheme ?? nb.followTheme,
-			Boolean(siteNavbar?.followTheme),
-		),
-		stickyNavbar: bool(
-			n.stickyNavbar ?? nb.stickyNavbar,
-			Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
-		),
-		navbarMode: ((): NavbarMode => {
-			const rm = n.navbarMode ?? nb.navbarMode;
-			if (rm === "static" || rm === "fixed" || rm === "dynamic") return rm;
-			// 兼容旧 stickyNavbar：true→fixed，false→static
-			return bool(
-				n.stickyNavbar ?? nb.stickyNavbar,
-				Boolean((siteNavbar?.stickyNavbar as boolean) ?? true),
-			)
-				? "fixed"
-				: "static";
-		})(),
-		logo: (nb.logo && typeof nb.logo === "object"
-			? nb.logo
-			: siteNavbar?.logo) as unknown,
 		links: (Array.isArray(navItems) && navItems.length
 			? (navItems as Array<Record<string, unknown>>).map((item) => ({
 					name: String(item.label ?? item.name ?? ""),
@@ -731,23 +700,46 @@ export function getNavbarConfig(locals: unknown): typeof staticNavConfig {
 					...(item.icon ? { icon: String(item.icon) } : {}),
 					...(Array.isArray(item.children) &&
 					(item.children as unknown[]).length
-						? {
-								children:
-									item.children as (typeof staticNavConfig.links)[number][],
-							}
+						? { children: item.children as NavBarLink[] }
 						: {}),
 					...(item.pageKey ? { pageKey: String(item.pageKey) } : {}),
 					...(item.external ? { external: Boolean(item.external) } : {}),
 				}))
-			: staticNavConfig.links) as typeof staticNavConfig.links,
+			: DEFAULT_NAV_ITEMS) as NavBarLink[],
+		enabled: bool(n.enabled, true),
+		title: str(n.title ?? nb.title, String(nb.title ?? "")),
+		widthFull: bool(n.widthFull ?? nb.widthFull, Boolean(nb.widthFull)),
+		menuAlign: str(
+			n.menuAlign ?? nb.menuAlign,
+			String(nb.menuAlign ?? "center"),
+		),
+		followTheme: bool(n.followTheme ?? nb.followTheme, Boolean(nb.followTheme)),
+		stickyNavbar: bool(
+			n.stickyNavbar ?? nb.stickyNavbar,
+			Boolean((nb.stickyNavbar as boolean) ?? true),
+		),
+		navbarMode: ((): NavbarMode => {
+			const rm = n.navbarMode ?? nb.navbarMode;
+			if (rm === "static" || rm === "fixed" || rm === "dynamic") return rm;
+			// 兼容旧 stickyNavbar：true→fixed，false→static
+			return bool(
+				n.stickyNavbar ?? nb.stickyNavbar,
+				Boolean((nb.stickyNavbar as boolean) ?? true),
+			)
+				? "fixed"
+				: "static";
+		})(),
+		logo: (nb.logo && typeof nb.logo === "object"
+			? nb.logo
+			: undefined) as unknown,
 	};
 }
 
-export function getSidebarConfig(locals: unknown): typeof staticSidebarConfig {
+export function getSidebarConfig(locals: unknown): SidebarLayoutConfig {
 	const s = settingsOf(locals);
 	const sb = groupOf(s, "sidebar");
 	return {
-		...staticSidebarConfig,
+		...(sb as Record<string, unknown>),
 		...(typeof sb.hideSidebarOnPostPage === "boolean"
 			? { hideSidebarOnPostPage: sb.hideSidebarOnPostPage }
 			: {}),
@@ -764,7 +756,7 @@ export function getSidebarConfig(locals: unknown): typeof staticSidebarConfig {
 		showSiteInfo: bool(sb.showSiteInfo, true),
 		showStats: bool(sb.showStats, true),
 		showAdvertisement: bool(sb.showAdvertisement, true),
-	};
+	} as SidebarLayoutConfig;
 }
 
 export function getCoverConfig(locals: unknown): typeof staticCoverConfig {
