@@ -214,13 +214,8 @@ export interface SettingsShape {
 	title?: string;
 	description?: string;
 	siteUrl?: string;
-	author?: string;
 	avatar?: string;
 	hue?: number;
-	bannerUrl?: string;
-	icp?: string;
-	navItems?: Array<{ label: string; url: string }>;
-	social?: Array<{ label: string; url: string }>;
 	music?: {
 		enabled?: boolean;
 		url?: string;
@@ -235,7 +230,6 @@ export interface SettingsShape {
 	};
 	comment?: { enabled?: boolean; type?: string };
 	license?: { enabled?: boolean; type?: string; url?: string };
-	announcement?: { enabled?: boolean; content?: string };
 	analytics?: {
 		googleAnalyticsId?: string;
 		microsoftClarityId?: string;
@@ -243,13 +237,9 @@ export interface SettingsShape {
 		umamiUrl?: string;
 	};
 	ads?: { enabled?: boolean; adSenseId?: string; customCode?: string };
-	keywords?: string;
 	defaultMode?: string;
 	pageWidth?: number;
-	categoryBar?: boolean;
 	categoryStyle?: string;
 	tagStyle?: string;
 	cardBorder?: boolean;
-	faviconUrl?: string;
-	siteStartDate?: string;
 }
