@@ -12,21 +12,24 @@ export const GET: APIRoute = async () => {
 			ORDER BY date DESC
 		`).all();
 
-		const data = (results || []).map((row: Record<string, unknown>) => ({
-			id: row.slug as string,
-			title: row.title as string,
-			description: (row.description as string) || "",
-			published: new Date(row.date as string).getTime(),
-			category: (() => {
-				try {
-					const cats = JSON.parse((row.categories as string) || "[]");
-					return Array.isArray(cats) && cats.length ? String(cats[0]) : "";
-				} catch {
-					return "";
-				}
-			})(),
-			password: Boolean(row.password),
-		}));
+		const data = (results || []).map((row: unknown) => {
+			const r = row as Record<string, unknown>;
+			return {
+				id: r.slug as string,
+				title: r.title as string,
+				description: (r.description as string) || "",
+				published: new Date(r.date as string).getTime(),
+				category: (() => {
+					try {
+						const cats = JSON.parse((r.categories as string) || "[]");
+						return Array.isArray(cats) && cats.length ? String(cats[0]) : "";
+					} catch {
+						return "";
+					}
+				})(),
+				password: Boolean(r.password),
+			};
+		});
 
 		return new Response(JSON.stringify(data), {
 			headers: {
