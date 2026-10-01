@@ -499,7 +499,7 @@ export function getFooterConfig(locals: unknown): FooterConfig {
 	const s = settingsOf(locals);
 	const f = groupOf(s, "footer");
 	return {
-		enable: bool(f.enabled, false),
+		enable: bool(f.enable, false),
 		...(typeof f.text === "string" && f.text ? { text: f.text } : {}),
 		...(typeof f.icp === "string" && f.icp ? { icp: f.icp } : {}),
 		...(typeof f.startYear === "string" && f.startYear
