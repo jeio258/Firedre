@@ -14,7 +14,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "astro check",
-    "test": "vitest run",
+    "test": "CHROME_PATH=/mnt/d/Chrome/App/chrome.exe vitest run",
     "test:watch": "vitest",
     "qa:swup": "node scripts/qa/swup-listeners.mjs",
     "qa:stale": "node scripts/qa/stale-class-refs.mjs",
