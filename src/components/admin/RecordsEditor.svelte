@@ -21,11 +21,14 @@ let {
 	groupFields = [],
 	itemFields = [],
 	indent = "  ",
-	separator = "|",
+	separator = " ",
 	fieldLabel = "",
 	placeholder = "",
 	onChange = () => {},
 }: Props = $props();
+
+// 单元格连接符：空格模式下相邻字段以单空格相接
+const cellSep = separator === " " ? " " : ` ${separator} `;
 
 // 三种模式互斥：对象（单行）/ 两级嵌套（缩进）/ 记录数组（每行一条）
 const isNested = $derived(groupFields.length > 0 && itemFields.length > 0);
@@ -40,12 +43,12 @@ const isPlain = $derived(
 );
 const orderHint = $derived(
 	isNested
-		? `分组行（顶格）：${groupFields.map((f) => f.label).join(` ${separator} `)}\n子项行（缩进 ${indent.length} 空格）：${itemFields.map((f) => f.label).join(` ${separator} `)}`
+		? `分组行（顶格）：${groupFields.map((f) => f.label).join(cellSep)}\n子项行（缩进 ${indent.length} 空格）：${itemFields.map((f) => f.label).join(cellSep)}\n（空格分隔，连打空格视为一个）`
 		: isObject
-			? `单行填写，字段顺序：${objectFields.map((f) => f.label).join(` ${separator} `)}`
+			? `单行填写（空格分隔），字段顺序：${objectFields.map((f) => f.label).join(cellSep)}`
 			: isPlain
 				? "每行一条"
-				: recordFields.map((f) => f.label).join(` ${separator} `),
+				: recordFields.map((f) => f.label).join(cellSep),
 );
 
 let open = $state(false);
@@ -83,9 +86,11 @@ function textToCell(f: RecordFieldSpec, raw: string): unknown {
 	return raw;
 }
 
-// 把一行文本拆成字段值（对象模式下用于单行）
+// 把一行文本拆成字段值（对象模式下用于单行）；空格分隔时按连续空白切，连打空格不产生空字段
 function splitCells(line: string): string[] {
-	return line.split(separator).map((p) => p.trim());
+	return (separator === " " ? line.split(/\s+/) : line.split(separator)).map(
+		(p) => p.trim(),
+	);
 }
 
 // 字段级校验，返回错误信息（无错返回 ""）
@@ -133,7 +138,7 @@ function toText(v: unknown): string {
 			}
 			return objectFields
 				.map((f) => cellToText(f, (parsed as Record<string, unknown>)[f.key]))
-				.join(` ${separator} `);
+				.join(cellSep);
 		}
 		if (!Array.isArray(parsed)) return String(v);
 		if (isPlain) {
@@ -146,16 +151,14 @@ function toText(v: unknown): string {
 				.map((g) => {
 					const head = groupFields
 						.map((f) => cellToText(f, (g as Record<string, unknown>)?.[f.key]))
-						.join(` ${separator} `);
+						.join(cellSep);
 					const items = Array.isArray((g as { items?: unknown[] }).items)
 						? ((g as { items: unknown[] }).items as Record<string, unknown>[])
 						: [];
 					const childLines = items.map(
 						(it) =>
 							indent +
-							itemFields
-								.map((f) => cellToText(f, it?.[f.key]))
-								.join(` ${separator} `),
+							itemFields.map((f) => cellToText(f, it?.[f.key])).join(cellSep),
 					);
 					return [head, ...childLines].join("\n");
 				})
@@ -165,7 +168,7 @@ function toText(v: unknown): string {
 			.map((row) =>
 				recordFields
 					.map((f) => cellToText(f, (row as Record<string, unknown>)?.[f.key]))
-					.join(` ${separator} `),
+					.join(cellSep),
 			)
 			.join("\n");
 	} catch {
@@ -216,11 +219,16 @@ function parse(
 		}
 		return { ok: true, json: JSON.stringify(groups) };
 	}
+	if (isPlain) {
+		return {
+			ok: true,
+			json: JSON.stringify(t.split(/\s+/).filter(Boolean)),
+		};
+	}
 	const lines = t
 		.split("\n")
 		.map((l) => l.trim())
 		.filter(Boolean);
-	if (isPlain) return { ok: true, json: JSON.stringify(lines) };
 	const rows: Record<string, unknown>[] = [];
 	for (let i = 0; i < lines.length; i++) {
 		const parts = splitCells(lines[i]);

@@ -244,7 +244,7 @@ onMountAsync(async () => {
 												groupFields={field.groupFields ?? []}
 												itemFields={field.itemFields ?? []}
 												indent={field.indent ?? "  "}
-												separator={field.separator ?? "|"}
+												separator={field.separator ?? " "}
 												fieldLabel={field.label}
 												placeholder={field.placeholder ?? ""}
 												onChange={(v) => { data[group.key][field.name] = v; markDirty(); }}
