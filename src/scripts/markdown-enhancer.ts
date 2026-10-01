@@ -1,6 +1,7 @@
+import { mermaidConfig } from "@/config";
+
 // Markdown 增强器：hljs 高亮 + mermaid 渲染（纯命令式 DOM 操作，无框架水合）
 // 以模块脚本运行（defer），替代原 Svelte client:load 岛，省去 58.8KB 运行时
-import { mermaidConfig } from "@shared/config/mermaidConfig";
 
 let hljsReady = false;
 

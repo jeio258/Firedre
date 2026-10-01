@@ -9,7 +9,10 @@ import remarkSmartypants from "remark-smartypants";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 import "katex/dist/contrib/mhchem.mjs"; // mhchem 扩展
-import { siteConfig } from "@shared/config/siteConfig";
+import { defaultsLocals, getSiteConfig } from "@shared/config/runtime";
+
+const siteConfig = getSiteConfig(defaultsLocals);
+
 import {
 	sharedRehypePlugins,
 	sharedRemarkPlugins,

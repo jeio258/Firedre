@@ -1,7 +1,6 @@
 import * as path from "node:path";
-import { profileConfig } from "@shared/config/profileConfig";
-import { siteConfig } from "@shared/config/siteConfig";
 import type { ImageMetadata } from "astro";
+import { profileConfig, siteConfig } from "@/config";
 import { defaultFavicons } from "@/constants/icon";
 import { isAbsoluteUrl, url } from "./url-utils";
 

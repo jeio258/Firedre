@@ -1,4 +1,4 @@
-import { booknavConfig } from "@shared/config/booknavConfig";
+import { booknavConfig } from "@/config";
 import type {
 	BooknavFaviconConfig,
 	BooknavGroup,

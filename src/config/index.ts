@@ -1,27 +1,68 @@
-export { analyticsConfig } from "@shared/config/analyticsConfig";
-export { announcementConfig } from "@shared/config/announcementConfig";
-export { backgroundWallpaper } from "@shared/config/backgroundWallpaper";
-export { booknavConfig, booknavPageConfig } from "@shared/config/booknavConfig";
-export { commentConfig } from "@shared/config/commentConfig";
-export { coverImageConfig } from "@shared/config/coverImageConfig";
-export { displaySettingsConfig } from "@shared/config/displaySettingsConfig";
-export { dynamicConfig } from "@shared/config/dynamicConfig";
-export { sakuraConfig } from "@shared/config/effectsConfig";
-export { expressiveCodeConfig } from "@shared/config/expressiveCodeConfig";
+// 配置桶（A5）：值导出全部由运行时 getter 以 defaults 单一源派生，消费方 import 路径不变
+import {
+	defaultsLocals,
+	getAnalyticsConfig,
+	getAnnouncementConfig,
+	getBooknavConfig,
+	getCommentConfig,
+	getCoverConfig,
+	getDynamicConfig,
+	getEffectsConfig,
+	getExpressiveCodeConfig,
+	getFooterConfig,
+	getLicenseConfig,
+	getMermaidConfig,
+	getMusicConfig,
+	getNavbarConfig,
+	getPanelConfig,
+	getPlantumlConfig,
+	getProfileConfig,
+	getSidebarConfig,
+	getSiteConfig,
+	getSponsorConfig,
+	getWallpaperConfig,
+} from "@shared/config/runtime";
+
+export const siteConfig = getSiteConfig(defaultsLocals);
+export const navBarConfig = getNavbarConfig(defaultsLocals);
+export const sidebarLayoutConfig = getSidebarConfig(defaultsLocals);
+export const backgroundWallpaper = getWallpaperConfig(defaultsLocals);
+export const displaySettingsConfig = getPanelConfig(defaultsLocals);
+export const profileConfig = getProfileConfig(defaultsLocals);
+export const commentConfig = getCommentConfig(defaultsLocals);
+export const musicPlayerConfig = getMusicConfig(defaultsLocals);
+export const footerConfig = getFooterConfig(defaultsLocals);
+export const sakuraConfig = getEffectsConfig(defaultsLocals);
+export const licenseConfig = getLicenseConfig(defaultsLocals);
+export const sponsorConfig = getSponsorConfig(defaultsLocals);
+export const dynamicConfig = getDynamicConfig(defaultsLocals);
+export const announcementConfig = getAnnouncementConfig(defaultsLocals);
+export const coverImageConfig = getCoverConfig(defaultsLocals);
+export const mermaidConfig = getMermaidConfig(defaultsLocals);
+export const plantumlConfig = getPlantumlConfig(defaultsLocals);
+export const analyticsConfig = getAnalyticsConfig(defaultsLocals);
+export const expressiveCodeConfig = getExpressiveCodeConfig(defaultsLocals);
+
+const booknavDefaults = getBooknavConfig(defaultsLocals);
+export const booknavConfig = booknavDefaults.groups;
+export const booknavPageConfig = {
+	title: booknavDefaults.title,
+	description: booknavDefaults.description,
+	favicon: booknavDefaults.favicon,
+};
+
+// 友链页结构常量（原 friendsConfig 原值；动态部分经 friends 组/D1 另行读取）
+export const friendsPageConfig = {
+	title: "",
+	description: "",
+	showCustomContent: true,
+	showComment: true,
+	randomizeSort: false,
+};
+
 export { fontConfig, fontsList } from "@shared/config/fontConfig";
-export { footerConfig } from "@shared/config/footerConfig";
-export { friendsPageConfig } from "@shared/config/friendsConfig";
-export { licenseConfig } from "@shared/config/licenseConfig";
-export { mermaidConfig } from "@shared/config/mermaidConfig";
-export { musicPlayerConfig } from "@shared/config/musicConfig";
-export { navBarConfig } from "@shared/config/navBarConfig";
-export { plantumlConfig } from "@shared/config/plantumlConfig";
-export { profileConfig } from "@shared/config/profileConfig";
-export { sidebarLayoutConfig } from "@shared/config/sidebarConfig";
-export { siteConfig } from "@shared/config/siteConfig";
 
 import { getNavbarConfigFromWindow } from "@shared/config/runtime";
-import { siteConfig } from "@shared/config/siteConfig";
 import type { NavbarMode } from "../types/navBarConfig";
 
 /** 解析导航栏模式：navbarMode 优先，否则按旧 stickyNavbar 兼容映射（true→fixed，false→static） */
@@ -50,40 +91,3 @@ export function resolveClientNavbarMode(): NavbarMode {
 	}
 	return clientNavbarMode;
 }
-export { sponsorConfig } from "@shared/config/sponsorConfig";
-export type {
-	AdConfig,
-	AnalyticsConfig,
-	AnnouncementConfig,
-	BackgroundWallpaperConfig,
-	BooknavFaviconConfig,
-	BooknavGroup,
-	BooknavItem,
-	BooknavPageConfig,
-	CommentConfig,
-	CoverImageConfig,
-	DisplaySettingsConfig,
-	DynamicConfig,
-	ExpressiveCodeConfig,
-	FooterConfig,
-	LicenseConfig,
-	MermaidConfig,
-	MusicPlayerConfig,
-	NavBarConfig,
-	PlantUMLConfig,
-	ProfileConfig,
-	SakuraConfig,
-	SidebarLayoutConfig,
-	SiteConfig,
-	SponsorConfig,
-	SponsorItem,
-	WidgetComponentConfig,
-	WidgetComponentType,
-	WidgetSpecificConfig,
-} from "../types/config";
-export type {
-	BuiltinFontProvider,
-	CustomFontProvider,
-	FontDefinition,
-	FontSelectionConfig,
-} from "../types/fontConfig";

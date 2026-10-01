@@ -1,4 +1,4 @@
-import { musicPlayerConfig } from "@shared/config/musicConfig";
+import { musicPlayerConfig } from "@/config";
 
 export function resolveShowLyrics(settings: unknown): boolean {
 	const music = ((settings as { music?: unknown } | null | undefined)?.music ??

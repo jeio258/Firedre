@@ -1,6 +1,6 @@
 ---
 import Markdown from "@components/common/Markdown.astro";
-import { profileConfig } from "@shared/config/profileConfig";
+import { profileConfig } from "@/config";
 import { getProfileConfig, getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -22,7 +22,8 @@ const avatarUrl = await getAuthorAvatarUrl(
 );
 const jsonLd = buildProfilePage({
 	site: getSiteConfig(Astro.locals).site_url,
-	profileConfig,
+	// A5 quirk 保留：旧静态 links=[] → sameAs 恒空；富化属行为变化待裁决
+	profileConfig: { ...profileConfig, links: [] },
 	authorUrl: Astro.url.toString(),
 	avatarUrl,
 	description: getProfileConfig(Astro.locals).bio,

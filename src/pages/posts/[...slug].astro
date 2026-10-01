@@ -1,4 +1,10 @@
 ---
+import {
+	licenseConfig,
+	profileConfig,
+	siteConfig,
+	sponsorConfig,
+} from "@/config";
 import "@/styles/banner-post.css";
 import Comment from "@components/comment/index.astro";
 
@@ -16,10 +22,6 @@ import License from "@components/misc/License.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { licenseConfig } from "@shared/config/licenseConfig";
-import { profileConfig } from "@shared/config/profileConfig";
-import { siteConfig } from "@shared/config/siteConfig";
-import { sponsorConfig } from "@shared/config/sponsorConfig";
 import {
 	getApiUrlList,
 	processCoverImageSync,
@@ -142,7 +144,8 @@ const aboutUrl = toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
-	profileConfig,
+	// A5 quirk 保留：旧静态 links=[] → sameAs 恒空；富化属行为变化待裁决
+	profileConfig: { ...profileConfig, links: [] },
 	authorUrl: aboutUrl,
 	avatarUrl: authorAvatarUrl,
 	description: profileConfig.bio,

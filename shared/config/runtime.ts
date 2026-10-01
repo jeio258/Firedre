@@ -35,6 +35,11 @@ import type { SiteConfig } from "../../src/types/siteConfig";
 import { settingsDefaults } from "./settings-defaults";
 
 // 导航 links 默认模板：单一默认源（defaults.nav.navItems）解析，替代静态 navBarConfig
+/** A5：defaults-only 视图（无 D1 覆盖），供无 locals 上下文的纯函数/桶使用 */
+export const defaultsLocals: { settings: Record<string, unknown> } = {
+	settings: settingsDefaults,
+};
+
 const DEFAULT_NAV_ITEMS: NavBarLink[] = (() => {
 	try {
 		return JSON.parse(

@@ -302,7 +302,8 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
             buildSiteGraph({
               site: effectiveSiteUrl,
               siteConfig,
-              profileConfig,
+              // A5 quirk 保留：旧静态 links=[] → sameAs 恒空；富化属行为变化待裁决
+              profileConfig: { ...profileConfig, links: [] },
               lang: siteLang,
               authorUrl: aboutUrl,
               avatarUrl,

@@ -1,4 +1,4 @@
-import { siteConfig } from "../config";
+import { settingsDefaults } from "@shared/config/settings-defaults";
 import type I18nKey from "./i18nKey";
 
 export type Translation = {
@@ -84,7 +84,9 @@ export function getTranslation(lang: string): Translation {
 }
 
 export function i18n(key: I18nKey): string {
-	const lang = (siteConfig.lang || DEFAULT_LANG).toLowerCase();
+	const lang = (
+		(settingsDefaults.basic as { lang?: string }).lang || DEFAULT_LANG
+	).toLowerCase();
 	const value = getTranslation(lang)[key];
 
 	// 如果当前语言没有翻译（或为空），则使用中文作为备选

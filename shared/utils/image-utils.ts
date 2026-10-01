@@ -1,6 +1,12 @@
+import {
+	defaultsLocals,
+	getCoverConfig,
+	getSiteConfig,
+} from "@shared/config/runtime";
 import type { ImageFormat } from "@/types/config";
-import { coverImageConfig } from "../config/coverImageConfig";
-import { siteConfig } from "../config/siteConfig";
+
+const coverImageConfig = getCoverConfig(defaultsLocals);
+const siteConfig = getSiteConfig(defaultsLocals);
 
 function getSeedHash(seed?: string): number {
 	return seed

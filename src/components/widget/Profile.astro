@@ -3,10 +3,10 @@ import {
 	listEnabledSiteLinks,
 	type SiteLinkView,
 } from "@server/siteLinks/service";
-import { profileConfig } from "@shared/config/profileConfig";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import SafeIcon from "@/components/common/SafeIcon.astro";
+import { profileConfig } from "@/config";
 import { encodeMailto, MAILTO_ONCLICK_SCRIPT } from "@/utils/email-utils";
 import { getRawImageUrl } from "@/utils/schema-image";
 import { url } from "@/utils/url-utils";
