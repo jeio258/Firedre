@@ -37,11 +37,6 @@ export type SettingsMap = Partial<
 	Record<SettingGroup, Record<string, unknown>>
 >;
 
-const LEGACY_KEYS: Record<string, SettingGroup> = {
-	site: "basic",
-	"": "basic",
-};
-
 async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 	const rows = await env.DB.prepare(
 		"SELECT key, value FROM site_settings",
@@ -124,12 +119,9 @@ export async function bumpContentVersion(env: CloudflareEnv): Promise<void> {
 }
 
 function groupOfKey(key: string): SettingGroup {
-	return (
-		LEGACY_KEYS[key] ??
-		(SETTING_GROUPS.includes(key as SettingGroup)
-			? (key as SettingGroup)
-			: "basic")
-	);
+	return SETTING_GROUPS.includes(key as SettingGroup)
+		? (key as SettingGroup)
+		: "basic";
 }
 
 export async function getAllSettings(env: CloudflareEnv): Promise<SettingsMap> {
