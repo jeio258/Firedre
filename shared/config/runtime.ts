@@ -6,6 +6,7 @@
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
 import type { NavbarMode } from "@/types/navBarConfig";
 import type { SponsorItem } from "@/types/sponsorConfig";
+import type { SiteConfig } from "../../src/types/siteConfig";
 import { normalizeSiteUrl } from "../utils/url-utils";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { announcementConfig as staticAnnouncementConfig } from "./announcementConfig";
@@ -68,147 +69,82 @@ function arr(v: unknown, fallback: unknown[]): unknown[] {
 	return fallback;
 }
 
-export function getSiteConfig(locals: unknown): typeof staticSiteConfig {
+export function getSiteConfig(locals: unknown): SiteConfig {
 	const s = settingsOf(locals);
 	const p = groupOf(s, "post");
 	const pl = groupOf(s, "postListLayout");
 	const basic = groupOf(s, "basic");
 	return {
-		...staticSiteConfig,
-		title: str(
-			basic.title ?? s.title,
-			String((staticSiteConfig as Record<string, unknown>).title ?? ""),
-		),
-		lang: str(basic.lang ?? s.lang, staticSiteConfig.lang),
-		subtitle: str(
-			basic.subtitle ?? s.subtitle,
-			String((staticSiteConfig as Record<string, unknown>).subtitle ?? ""),
-		),
-		description: str(
-			basic.description ?? s.description,
-			String((staticSiteConfig as Record<string, unknown>).description ?? ""),
-		),
-		site_url: normalizeSiteUrl(
-			str(
-				basic.siteUrl ?? s.siteUrl,
-				String((staticSiteConfig as Record<string, unknown>).site_url ?? ""),
-			),
-		),
-		siteStartDate: str(
-			basic.siteStartDate ?? s.siteStartDate,
-			String((staticSiteConfig as Record<string, unknown>).siteStartDate ?? ""),
-		),
-		timezone: str(
-			basic.timezone ?? s.timezone,
-			String((staticSiteConfig as Record<string, unknown>).timezone ?? ""),
-		),
-		pageWidth: num(
-			s.pageWidth,
-			(staticSiteConfig as Record<string, unknown>).pageWidth as number,
-		),
-		categoryBar: bool(
-			s.categoryBar,
-			Boolean((staticSiteConfig as Record<string, unknown>).categoryBar),
-		),
+		title: str(basic.title, ""),
+		lang: str(basic.lang, "zh_CN") as SiteConfig["lang"],
+		subtitle: str(basic.subtitle, ""),
+		description: str(basic.description, ""),
+		site_url: normalizeSiteUrl(str(basic.siteUrl, "")),
+		siteStartDate: str(basic.siteStartDate, ""),
+		timezone: str(basic.timezone, ""),
+		pageWidth: num(basic.pageWidth, 100),
+		categoryBar: bool(basic.categoryBar, true),
 		categoryStyle: str(
-			s.categoryStyle,
-			String((staticSiteConfig as Record<string, unknown>).categoryStyle ?? ""),
-		) as typeof staticSiteConfig.categoryStyle,
-		tagStyle: str(
-			s.tagStyle,
-			String((staticSiteConfig as Record<string, unknown>).tagStyle ?? ""),
-		) as typeof staticSiteConfig.tagStyle,
-		keywords: (() => {
-			const raw =
-				typeof basic.keywords === "string" && basic.keywords
-					? basic.keywords
-					: typeof s.keywords === "string" && s.keywords
-						? s.keywords
-						: Array.isArray(staticSiteConfig.keywords)
-							? staticSiteConfig.keywords.join(", ")
-							: String(staticSiteConfig.keywords ?? "");
-			return raw
-				.split(/[,，]/)
-				.map((k) => k.trim())
-				.filter(Boolean);
-		})(),
+			basic.categoryStyle,
+			"rectangle",
+		) as SiteConfig["categoryStyle"],
+		tagStyle: str(basic.tagStyle, "pill") as SiteConfig["tagStyle"],
+		keywords: String(basic.keywords ?? "")
+			.split(/[,，]/)
+			.map((k) => k.trim())
+			.filter(Boolean),
 		themeColor: {
-			...staticSiteConfig.themeColor,
-			hue: num(
-				s.hue,
-				(staticSiteConfig.themeColor as Record<string, unknown>).hue as number,
-			),
+			hue: num(basic.hue, 165),
 			defaultMode: str(
-				s.defaultMode,
-				String(
-					(staticSiteConfig.themeColor as Record<string, unknown>)
-						.defaultMode ?? "",
-				),
-			) as typeof staticSiteConfig.themeColor.defaultMode,
+				basic.defaultMode,
+				"system",
+			) as SiteConfig["themeColor"]["defaultMode"],
 		},
 		pages: {
-			friends: bool(s.pageFriends, staticSiteConfig.pages.friends),
-			guestbook: bool(s.pageGuestbook, staticSiteConfig.pages.guestbook),
-			dynamic: bool(s.pageDynamic, staticSiteConfig.pages.dynamic),
-			gallery: bool(s.pageGallery, staticSiteConfig.pages.gallery),
-			booknav: bool(s.pageBooknav, staticSiteConfig.pages.booknav),
-			bilibili: bool(s.pageBilibili, staticSiteConfig.pages.bilibili),
-			bangumi: bool(s.pageBangumi, staticSiteConfig.pages.bangumi),
-			vndb: bool(s.pageVndb, staticSiteConfig.pages.vndb),
-			mal: bool(s.pageMal, staticSiteConfig.pages.mal),
-			sponsor: bool(s.pageSponsor, staticSiteConfig.pages.sponsor),
+			friends: bool(s.pageFriends, true),
+			guestbook: bool(s.pageGuestbook, true),
+			dynamic: bool(s.pageDynamic, true),
+			gallery: bool(s.pageGallery, true),
+			booknav: bool(s.pageBooknav, true),
+			bilibili: bool(s.pageBilibili, true),
+			bangumi: bool(s.pageBangumi, false),
+			vndb: bool(s.pageVndb, false),
+			mal: bool(s.pageMal, true),
+			sponsor: bool(s.pageSponsor, true),
 		},
-		foldArticle: bool(
-			s.foldArticle,
-			staticSiteConfig.foldArticle !== false,
-		) as boolean,
+		foldArticle: bool(basic.foldArticle, true),
 		postListLayout: {
-			...staticSiteConfig.postListLayout,
+			...(basic.postListLayout as SiteConfig["postListLayout"]),
 			...(typeof pl === "object" && pl ? (pl as Record<string, unknown>) : {}),
 		},
+		pagination: basic.pagination as SiteConfig["pagination"],
 		post: {
-			...staticSiteConfig.post,
-			showLastModified: bool(
-				p.showLastModified,
-				staticSiteConfig.post.showLastModified,
-			),
-			outdatedThreshold: num(
-				p.outdatedThreshold,
-				staticSiteConfig.post.outdatedThreshold,
-			),
-			// 文章底部区块开关（后台可切换）
-			share: bool(p.share, staticSiteConfig.post.share),
-			postNavigation: bool(
-				p.postNavigation,
-				staticSiteConfig.post.postNavigation,
-			),
-			relatedPosts: bool(p.relatedPosts, staticSiteConfig.post.relatedPosts),
-			randomPosts: bool(p.randomPosts, staticSiteConfig.post.randomPosts),
-			generateOgImages: bool(
-				p.generateOgImages,
-				staticSiteConfig.post.generateOgImages,
-			),
-			rehypeCallouts: { ...staticSiteConfig.post.rehypeCallouts },
+			showLastModified: bool(p.showLastModified, true),
+			outdatedThreshold: num(p.outdatedThreshold, 30),
+			share: bool(p.share, true),
+			postNavigation: bool(p.postNavigation, true),
+			relatedPosts: bool(p.relatedPosts, true),
+			randomPosts: bool(p.randomPosts, true),
+			generateOgImages: bool(p.generateOgImages, false),
+			rehypeCallouts:
+				(p.rehypeCallouts as SiteConfig["post"]["rehypeCallouts"]) ?? {
+					theme: "github",
+					enablePythonMarkdownAdmonitions: false,
+				},
 		},
 		card: {
-			...staticSiteConfig.card,
-			border: bool(
-				s.cardBorder,
-				Boolean((staticSiteConfig.card as Record<string, unknown>).border),
-			),
-			followTheme: bool(
-				s.cardFollowTheme,
-				Boolean((staticSiteConfig.card as Record<string, unknown>).followTheme),
-			),
-			radius: num(
-				s.cardRadius,
-				Number((staticSiteConfig.card as Record<string, unknown>).radius ?? 1),
-			),
+			border: bool(basic.cardBorder, false),
+			followTheme: bool(basic.cardFollowTheme, false),
+			radius: num(basic.cardRadius, 1),
 		},
-		favicon:
-			typeof s.faviconUrl === "string" && s.faviconUrl
-				? [{ src: s.faviconUrl }]
-				: staticSiteConfig.favicon,
+		favicon: basic.favicon as SiteConfig["favicon"],
+		navbar: basic.navbar as SiteConfig["navbar"],
+		imageOptimization:
+			basic.imageOptimization as SiteConfig["imageOptimization"],
+		bilibili: basic.bilibili as SiteConfig["bilibili"],
+		bangumi: basic.bangumi as SiteConfig["bangumi"],
+		vndb: basic.vndb as SiteConfig["vndb"],
+		mal: basic.mal as SiteConfig["mal"],
 	};
 }
 

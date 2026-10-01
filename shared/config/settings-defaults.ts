@@ -1,3 +1,4 @@
+import { resolveSiteLang } from "../utils/site-config-utils";
 import { booknavConfig, booknavPageConfig } from "./booknavConfig";
 
 export const settingsDefaults = {
@@ -31,6 +32,83 @@ export const settingsDefaults = {
 		pageSponsor: true,
 		keywords:
 			"Firedre,Astro,Firefly,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
+		// ── 结构字段（A4：自 siteConfig 原值搬移，非后台可编辑项） ──
+		lang: resolveSiteLang("zh_CN"),
+		foldArticle: true,
+		pagination: { postsPerPage: 10 },
+		favicon: [{ src: "/favicon/firefly-32.png" }],
+		navbar: {
+			logo: {
+				type: "image",
+				value: "assets/images/logo/firefly-light.png",
+				valueDark: "assets/images/logo/firefly-dark.png",
+				alt: "🍀",
+			},
+			title: "Firefly",
+			widthFull: false,
+			menuAlign: "center",
+			followTheme: false,
+			navbarMode: "fixed",
+		},
+		imageOptimization: {
+			formats: "webp",
+			quality: 85,
+			noReferrerDomains: [
+				"*.hdslb.com",
+				"*.bilibili.com",
+				"*.myanimelist.net",
+				"*.vndb.org",
+			],
+		},
+		postListLayout: {
+			defaultMode: "list",
+			mobileDefaultMode: "grid",
+			coverPosition: "right",
+			descriptionLines: 2,
+			showStatsIcons: true,
+			tagsPosition: "bottom",
+			tagsBottomStyle: "chip",
+			meta: {
+				showPublished: true,
+				showCategory: true,
+				showTags: true,
+				tagCount: 3,
+				showWords: false,
+				showReadingTime: false,
+			},
+			stats: {
+				showPublished: true,
+				showWords: true,
+				showReadingTime: true,
+			},
+			grid: { masonry: false, columnWidth: 320, coverFullWidth: false },
+		},
+		bilibili: { uid: "38932988" },
+		bangumi: {
+			userId: "1143164",
+			mode: "dynamic",
+			apiUrl: "https://api.bangumi.pro",
+			subjectBaseUrl: "https://api.bangumi.pro/subject/",
+			categoryOrder: ["anime", "book", "music", "game"],
+			nsfw: "hide",
+		},
+		vndb: {
+			userId: "u358128",
+			mode: "static",
+			downloadCovers: false,
+			apiUrl: "https://api.vndb.org/kana",
+			vnBaseUrl: "https://vndb.org/",
+			apiToken: "",
+			nsfw: "hide",
+		},
+		mal: {
+			username: "cuteleaf",
+			clientId: "0ef34371450f9c6c809deaadec6aa8f3",
+			apiUrl: "https://api.myanimelist.net/v2",
+			animeBaseUrl: "https://myanimelist.net/anime/",
+			mangaBaseUrl: "https://myanimelist.net/manga/",
+			nsfw: "hide",
+		},
 	},
 	panel: {
 		enable: false,
@@ -96,6 +174,14 @@ export const settingsDefaults = {
 		postNavigation: true,
 		relatedPosts: true,
 		randomPosts: true,
+		// ── 结构字段（A4：自 siteConfig.post 原值搬移） ──
+		showLastModified: true,
+		outdatedThreshold: 30,
+		generateOgImages: false,
+		rehypeCallouts: {
+			theme: "github",
+			enablePythonMarkdownAdmonitions: false,
+		},
 	},
 	sidebar: {
 		showProfile: true,
