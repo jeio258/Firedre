@@ -3,21 +3,22 @@
  * 取值优先级：D1 后台设置（动态主路径）→ settings-defaults（运行时默认）→
  * 静态 siteConfig（**仅极端兜底**：D1 不可用/未配置时）。禁止把静态兜底当作主路径。
  */
+
+import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
+import type { DisplaySettingsConfig } from "@/types/displaySettingsConfig";
 import type { NavbarMode } from "@/types/navBarConfig";
 import type { SponsorItem } from "@/types/sponsorConfig";
 import type { SiteConfig } from "../../src/types/siteConfig";
 import { normalizeSiteUrl } from "../utils/url-utils";
 import { analyticsConfig as staticAnalyticsConfig } from "./analyticsConfig";
 import { announcementConfig as staticAnnouncementConfig } from "./announcementConfig";
-import { backgroundWallpaper as staticWallpaper } from "./backgroundWallpaper";
 import {
 	booknavConfig as staticBooknavConfig,
 	booknavPageConfig as staticBooknavPageConfig,
 } from "./booknavConfig";
 import { commentConfig as staticCommentConfig } from "./commentConfig";
 import { coverImageConfig as staticCoverConfig } from "./coverImageConfig";
-import { displaySettingsConfig as staticDisplaySettingsConfig } from "./displaySettingsConfig";
 import { dynamicConfig as staticDynamicConfig } from "./dynamicConfig";
 import { sakuraConfig as staticEffectsConfig } from "./effectsConfig";
 import { expressiveCodeConfig as staticExpressiveCodeConfig } from "./expressiveCodeConfig";
@@ -348,6 +349,7 @@ export function getMusicConfig(locals: unknown): typeof staticMusicConfig {
 export function getWallpaperConfig(locals: unknown) {
 	const s = settingsOf(locals);
 	const t = groupOf(s, "theme");
+	const wb = (t.wallpaperBase ?? {}) as BackgroundWallpaperConfig;
 	// 外链壁纸走同源代理：服务端定型随机图（跟 302）并边缘缓存，
 	// preload 与渲染同 URL 单次下载，避免随机 API 慢回源拖垮首屏
 	const proxiedWallpaper = (u: string, w: number) =>
@@ -355,17 +357,11 @@ export function getWallpaperConfig(locals: unknown) {
 			? `/api/cover-proxy/?u=${encodeURIComponent(u)}&w=${w}&f=webp`
 			: u;
 	return {
-		...staticWallpaper,
-		mode: str(
-			t.mode,
-			(staticWallpaper.mode ?? "banner") as string,
-		) as typeof staticWallpaper.mode,
-		playerEnable: bool(t.playerEnable, staticWallpaper.playerEnable ?? true),
+		...wb,
+		mode: str(t.mode, wb.mode ?? "banner") as BackgroundWallpaperConfig["mode"],
+		playerEnable: bool(t.playerEnable, wb.playerEnable ?? true),
 		src: {
-			...(typeof staticWallpaper.src === "object" &&
-			!Array.isArray(staticWallpaper.src)
-				? staticWallpaper.src
-				: {}),
+			...(typeof wb.src === "object" && !Array.isArray(wb.src) ? wb.src : {}),
 			...(typeof t.bannerUrl === "string" && t.bannerUrl
 				? {
 						desktop: t.bannerUrl
@@ -392,22 +388,16 @@ export function getWallpaperConfig(locals: unknown) {
 				: {}),
 		},
 		common: {
-			...(staticWallpaper.common ?? {}),
-			dimOpacity: num(t.dimOpacity, staticWallpaper.common?.dimOpacity ?? 0),
-			playerMode: str(
-				t.playerMode,
-				staticWallpaper.common?.playerMode ?? "order",
-			),
+			...(wb.common ?? {}),
+			dimOpacity: num(t.dimOpacity, wb.common?.dimOpacity ?? 0),
+			playerMode: str(t.playerMode, wb.common?.playerMode ?? "order"),
 			homeText: {
-				...(staticWallpaper.common?.homeText ?? {}),
-				enable: bool(
-					t.homeTextEnable,
-					staticWallpaper.common?.homeText?.enable ?? true,
-				),
-				title: str(t.homeTitle, staticWallpaper.common?.homeText?.title ?? ""),
+				...(wb.common?.homeText ?? {}),
+				enable: bool(t.homeTextEnable, wb.common?.homeText?.enable ?? true),
+				title: str(t.homeTitle, wb.common?.homeText?.title ?? ""),
 				titleSize: str(
 					t.homeTitleSize,
-					staticWallpaper.common?.homeText?.titleSize ?? "4.5rem",
+					wb.common?.homeText?.titleSize ?? "4.5rem",
 				),
 				subtitle: (() => {
 					if (Array.isArray(t.homeSubtitles)) {
@@ -422,103 +412,103 @@ export function getWallpaperConfig(locals: unknown) {
 						} catch {}
 					}
 					return (
-						Array.isArray(staticWallpaper.common?.homeText?.subtitle)
-							? staticWallpaper.common.homeText.subtitle
+						Array.isArray(wb.common?.homeText?.subtitle)
+							? wb.common.homeText.subtitle
 							: []
 					).map(String);
 				})(),
 				subtitleSize: str(
 					t.homeSubtitleSize,
-					staticWallpaper.common?.homeText?.subtitleSize ?? "1.5rem",
+					wb.common?.homeText?.subtitleSize ?? "1.5rem",
 				),
 				typewriter: {
-					...(staticWallpaper.common?.homeText?.typewriter ?? {}),
+					...(wb.common?.homeText?.typewriter ?? {}),
 					enable: bool(
 						t.typewriter,
-						staticWallpaper.common?.homeText?.typewriter?.enable ?? true,
+						wb.common?.homeText?.typewriter?.enable ?? true,
 					),
 					speed: num(
 						t.typewriterSpeed,
-						staticWallpaper.common?.homeText?.typewriter?.speed ?? 100,
+						wb.common?.homeText?.typewriter?.speed ?? 100,
 					),
 					deleteSpeed: num(
 						t.typewriterDeleteSpeed,
-						staticWallpaper.common?.homeText?.typewriter?.deleteSpeed ?? 50,
+						wb.common?.homeText?.typewriter?.deleteSpeed ?? 50,
 					),
 					pauseTime: num(
 						t.typewriterPauseTime,
-						staticWallpaper.common?.homeText?.typewriter?.pauseTime ?? 2000,
+						wb.common?.homeText?.typewriter?.pauseTime ?? 2000,
 					),
 				},
 			},
 			carousel: {
-				...(staticWallpaper.common?.carousel ?? {}),
-				enable: bool(
-					t.carousel,
-					staticWallpaper.common?.carousel?.enable ?? false,
-				),
+				...(wb.common?.carousel ?? {}),
+				enable: bool(t.carousel, wb.common?.carousel?.enable ?? false),
 				interval: num(
 					t.carouselInterval,
-					staticWallpaper.common?.carousel?.interval ?? 5000,
+					wb.common?.carousel?.interval ?? 5000,
 				),
 				transitionEffect: str(
 					t.carouselTransition,
-					staticWallpaper.common?.carousel?.transitionEffect ?? "zoom",
+					wb.common?.carousel?.transitionEffect ?? "zoom",
 				),
 			},
 		},
 		overlay: {
-			...(staticWallpaper.overlay ?? {}),
-			opacity: num(t.overlayOpacity, staticWallpaper.overlay?.opacity ?? 0.8),
-			blur: num(t.overlayBlur, staticWallpaper.overlay?.blur ?? 0),
-			cardOpacity: num(
-				t.overlayCardOpacity,
-				staticWallpaper.overlay?.cardOpacity ?? 0.6,
-			),
+			...(wb.overlay ?? {}),
+			opacity: num(t.overlayOpacity, wb.overlay?.opacity ?? 0.8),
+			blur: num(t.overlayBlur, wb.overlay?.blur ?? 0),
+			cardOpacity: num(t.overlayCardOpacity, wb.overlay?.cardOpacity ?? 0.6),
 		},
 		banner: {
-			...(staticWallpaper.banner ?? {}),
+			...(wb.banner ?? {}),
 			navbar: {
-				...(staticWallpaper.banner?.navbar ?? {}),
-				transparentMode: str(
-					(
-						t.banner as
-							| { navbar?: { transparentMode?: unknown; blur?: unknown } }
-							| undefined
-					)?.navbar?.transparentMode,
-					((
-						(staticWallpaper.banner as unknown as Record<string, unknown>)
-							?.navbar as Record<string, unknown> | undefined
-					)?.transparentMode as string) ?? "semi",
-				),
-				blur: num(
-					(
-						t.banner as
-							| { navbar?: { transparentMode?: unknown; blur?: unknown } }
-							| undefined
-					)?.navbar?.blur,
-					((
-						(staticWallpaper.banner as unknown as Record<string, unknown>)
-							?.navbar as Record<string, unknown> | undefined
-					)?.blur as number) ?? 20,
-				),
+				...(wb.banner?.navbar ?? {}),
+				transparentMode:
+					str(
+						(
+							t.banner as
+								| { navbar?: { transparentMode?: unknown; blur?: unknown } }
+								| undefined
+						)?.navbar?.transparentMode,
+						(
+							(wb.banner as unknown as Record<string, unknown>)?.navbar as
+								| Record<string, unknown>
+								| undefined
+						)?.transparentMode as string,
+					) ?? "semi",
+				blur:
+					num(
+						(
+							t.banner as
+								| { navbar?: { transparentMode?: unknown; blur?: unknown } }
+								| undefined
+						)?.navbar?.blur,
+						(
+							(wb.banner as unknown as Record<string, unknown>)?.navbar as
+								| Record<string, unknown>
+								| undefined
+						)?.blur as number,
+					) ?? 20,
 			},
 		},
 		fullscreen: {
-			...(staticWallpaper.fullscreen ?? {}),
+			...(wb.fullscreen ?? {}),
 			navbar: {
-				...(staticWallpaper.fullscreen?.navbar ?? {}),
-				dynamicTransparent: bool(
-					(
-						t.fullscreen as
-							| { navbar?: { dynamicTransparent?: unknown } }
-							| undefined
-					)?.navbar?.dynamicTransparent,
-					((
-						(staticWallpaper.fullscreen as unknown as Record<string, unknown>)
-							?.navbar as Record<string, unknown> | undefined
-					)?.dynamicTransparent as boolean) ?? true,
-				),
+				...(wb.fullscreen?.navbar ?? {}),
+				dynamicTransparent:
+					bool(
+						(
+							t.fullscreen as
+								| { navbar?: { dynamicTransparent?: unknown } }
+								| undefined
+						)?.navbar?.dynamicTransparent,
+						(
+							(wb.fullscreen as unknown as Record<string, unknown>)?.navbar as
+								| Record<string, unknown>
+								| undefined
+						)?.dynamicTransparent as boolean,
+					) ?? true,
 			},
 		},
 	};
@@ -906,58 +896,25 @@ export function getExpressiveCodeConfig(
 	};
 }
 
-export function getPanelConfig(
-	locals: unknown,
-): typeof staticDisplaySettingsConfig {
+export function getPanelConfig(locals: unknown): DisplaySettingsConfig {
 	const s = settingsOf(locals);
 	const pn = groupOf(s, "panel");
-	const d = staticDisplaySettingsConfig as unknown as Record<string, unknown>;
 	return {
-		overlaySwitchable: staticDisplaySettingsConfig.overlaySwitchable,
-		enable: bool(pn.enable, d.enable as boolean),
-		themeColorSwitchable: bool(
-			pn.themeColorSwitchable,
-			d.themeColorSwitchable as boolean,
-		),
-		layoutSwitchable: bool(pn.layoutSwitchable, d.layoutSwitchable as boolean),
-		cardBorderSwitchable: bool(
-			pn.cardBorderSwitchable,
-			d.cardBorderSwitchable as boolean,
-		),
-		cardFollowThemeSwitchable: bool(
-			pn.cardFollowThemeSwitchable,
-			d.cardFollowThemeSwitchable as boolean,
-		),
-		wallpaperModeSwitchable: bool(
-			pn.wallpaperModeSwitchable,
-			d.wallpaperModeSwitchable as boolean,
-		),
-		wavesSwitchable: bool(pn.wavesSwitchable, d.wavesSwitchable as boolean),
-		gradientSwitchable: bool(
-			pn.gradientSwitchable,
-			d.gradientSwitchable as boolean,
-		),
-		bannerTitleSwitchable: bool(
-			pn.bannerTitleSwitchable,
-			d.bannerTitleSwitchable as boolean,
-		),
-		bannerCarouselSwitchable: bool(
-			pn.bannerCarouselSwitchable,
-			d.bannerCarouselSwitchable as boolean,
-		),
-		sakuraSwitchable: bool(pn.sakuraSwitchable, d.sakuraSwitchable as boolean),
-		overlayOpacitySwitchable: bool(
-			pn.overlayOpacitySwitchable,
-			d.overlayOpacitySwitchable as boolean,
-		),
-		overlayBlurSwitchable: bool(
-			pn.overlayBlurSwitchable,
-			d.overlayBlurSwitchable as boolean,
-		),
-		overlayCardOpacitySwitchable: bool(
-			pn.overlayCardOpacitySwitchable,
-			d.overlayCardOpacitySwitchable as boolean,
-		),
+		overlaySwitchable: bool(pn.overlaySwitchable, false),
+		enable: bool(pn.enable, false),
+		themeColorSwitchable: bool(pn.themeColorSwitchable, false),
+		layoutSwitchable: bool(pn.layoutSwitchable, false),
+		cardBorderSwitchable: bool(pn.cardBorderSwitchable, false),
+		cardFollowThemeSwitchable: bool(pn.cardFollowThemeSwitchable, false),
+		wallpaperModeSwitchable: bool(pn.wallpaperModeSwitchable, false),
+		wavesSwitchable: bool(pn.wavesSwitchable, false),
+		gradientSwitchable: bool(pn.gradientSwitchable, false),
+		bannerTitleSwitchable: bool(pn.bannerTitleSwitchable, false),
+		bannerCarouselSwitchable: bool(pn.bannerCarouselSwitchable, false),
+		sakuraSwitchable: bool(pn.sakuraSwitchable, false),
+		overlayOpacitySwitchable: bool(pn.overlayOpacitySwitchable, false),
+		overlayBlurSwitchable: bool(pn.overlayBlurSwitchable, false),
+		overlayCardOpacitySwitchable: bool(pn.overlayCardOpacitySwitchable, false),
 	};
 }
 
