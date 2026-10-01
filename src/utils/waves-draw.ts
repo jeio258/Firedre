@@ -1,18 +1,18 @@
 // 常量(与原实现一一对应)
 
-export const VIEWBOX = { x: 0, y: 24, w: 150, h: 28 } as const;
+const VIEWBOX = { x: 0, y: 24, w: 150, h: 28 } as const;
 
-export const WAVE_PATH_D =
+const WAVE_PATH_D =
 	"M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v48h-352z";
 
-export const WAVE_PATH_X_MIN: number = -160;
+const WAVE_PATH_X_MIN: number = -160;
 
-export const WAVE_PATH_X_MAX: number = 192;
+const WAVE_PATH_X_MAX: number = 192;
 
-export const WAVE_X_MIN: number = WAVE_PATH_X_MIN + 48;
-export const WAVE_X_MAX: number = WAVE_PATH_X_MAX + 48;
+const WAVE_X_MIN: number = WAVE_PATH_X_MIN + 48;
+const WAVE_X_MAX: number = WAVE_PATH_X_MAX + 48;
 
-export const WAVE_STRIP_W: number = WAVE_X_MAX - WAVE_X_MIN;
+const WAVE_STRIP_W: number = WAVE_X_MAX - WAVE_X_MIN;
 
 export interface WavesLayer {
 	y: number;
@@ -24,17 +24,17 @@ export interface WavesLayer {
 	delay: number;
 }
 
-export const WAVE_LAYERS: readonly WavesLayer[] = [
+const WAVE_LAYERS: readonly WavesLayer[] = [
 	{ y: 0, alpha: 0.25, duration: 8, delay: 0 },
 	{ y: 3, alpha: 0.5, duration: 9, delay: -2.25 },
 	{ y: 5, alpha: 0.65, duration: 10, delay: -5 },
 	{ y: 7, alpha: 0.75, duration: 11, delay: -8.25 },
 ];
 
-export const TRANSLATE_FROM: number = -90;
-export const TRANSLATE_TO: number = 85;
+const TRANSLATE_FROM: number = -90;
+const TRANSLATE_TO: number = 85;
 
-export const EASE = [0.5, 0.5, 0.45, 0.5] as const;
+const EASE = [0.5, 0.5, 0.45, 0.5] as const;
 
 function sampleBezierX(u: number, x1: number, x2: number): number {
 	return 3 * (1 - u) * (1 - u) * u * x1 + 3 * (1 - u) * u * u * x2 + u * u * u;
@@ -52,7 +52,7 @@ function sampleBezierDX(u: number, x1: number, x2: number): number {
 	);
 }
 
-export function cubicBezier(
+function cubicBezier(
 	x1: number,
 	y1: number,
 	x2: number,

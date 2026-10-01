@@ -9,7 +9,7 @@ function normalizePath(p: string): string {
 	return p.replace(/\/\.\//g, "/").replace(/\/+/g, "/");
 }
 
-export function getLqipGradient(
+function getLqipGradient(
 	src: string,
 	basePath?: string,
 	isPublic?: boolean,
@@ -40,7 +40,7 @@ export function getLqipGradient(
 	return `linear-gradient(135deg, ${c1} 0%, ${c2} 50%, ${c3} 100%)`;
 }
 
-export function isExternalImage(src: string): boolean {
+function isExternalImage(src: string): boolean {
 	return (
 		src.startsWith("http://") ||
 		src.startsWith("https://") ||
@@ -48,7 +48,7 @@ export function isExternalImage(src: string): boolean {
 	);
 }
 
-export function getLqipStyle(
+function getLqipStyle(
 	src: string,
 	basePath?: string,
 	isPublic?: boolean,

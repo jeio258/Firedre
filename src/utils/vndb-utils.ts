@@ -3,7 +3,7 @@ import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { VndbUlistEntry, VndbUlistResponse } from "@/types/vndb";
 
-export const VNDB_ULIST_FIELDS: string = [
+const VNDB_ULIST_FIELDS: string = [
 	"id",
 	"vote",
 	"notes",
@@ -160,7 +160,7 @@ export function getVndbItemsForTab(
 	);
 }
 
-export function getVndbLengthText(length?: number | null): string {
+function getVndbLengthText(length?: number | null): string {
 	switch (length) {
 		case 1:
 			return i18n(I18nKey.vndbLengthVeryShort);

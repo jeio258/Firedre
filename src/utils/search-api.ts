@@ -1,7 +1,7 @@
 import type { SearchResult } from "@/global";
 import { escapeHtml } from "@/utils/escape-html";
 
-export function highlightText(text: string, keyword: string): string {
+function highlightText(text: string, keyword: string): string {
 	const escaped = escapeHtml(text);
 	const q = keyword.trim();
 	if (!q) return escaped;

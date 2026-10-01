@@ -4,7 +4,7 @@ const CONTENT_THEME_PATH =
 
 let vditorCtor: typeof import("vditor").default | null = null;
 
-export function syncVditorTheme(root: HTMLElement): void {
+function syncVditorTheme(root: HTMLElement): void {
 	const dark = document.documentElement.classList.contains("dark");
 	document.documentElement.classList.toggle("vditor--dark", dark);
 	root.classList.toggle("vditor--dark", dark);
@@ -13,7 +13,7 @@ export function syncVditorTheme(root: HTMLElement): void {
 }
 
 // 监听 html class 变化并同步当前 Vditor 实例
-export function observeVditorTheme(root: HTMLElement): MutationObserver {
+function observeVditorTheme(root: HTMLElement): MutationObserver {
 	const mo = new MutationObserver(() => syncVditorTheme(root));
 	mo.observe(document.documentElement, {
 		attributes: true,

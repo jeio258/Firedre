@@ -24,7 +24,7 @@ const NAVBAR_DEFAULT_NAMES: Record<string, I18nKey> = {
 	关于我: I18nKey.about,
 };
 
-export function resolveNavbarName(name: string): string {
+function resolveNavbarName(name: string): string {
 	const key = NAVBAR_DEFAULT_NAMES[name];
 	return key ? i18n(key) : name;
 }

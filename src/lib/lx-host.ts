@@ -55,7 +55,7 @@ const rawSources = import.meta.glob("../music-sources/*.js", {
 
 const keyOf = (path: string) => path.replace(/^.*\//, "").replace(/\.js$/, "");
 
-export const LX_SCRIPT_KEYS = Object.keys(execSources).map(keyOf).sort();
+const LX_SCRIPT_KEYS = Object.keys(execSources).map(keyOf).sort();
 
 // 各音源初始化只执行一次，之后复用（失败时清空以便重试）
 const cachedSources = new Map<string, Promise<LxSource>>();

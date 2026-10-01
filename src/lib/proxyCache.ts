@@ -14,7 +14,7 @@ g.__proxyRateBuckets ??= new Map();
 const buckets: Map<string, { count: number; resetAt: number }> =
 	g.__proxyRateBuckets;
 
-export function proxyRateLimited(request: Request): boolean {
+function proxyRateLimited(request: Request): boolean {
 	// IP 口径与 server/utils/clientIp 统一（CF-Connecting-IP 单源）
 	const ip = getClientIp(request);
 	const now = Date.now();
@@ -32,7 +32,7 @@ function cacheKey(url: URL): string {
 	return `${url.origin}${url.pathname}${url.search}`;
 }
 
-export async function proxyCacheGet(url: URL): Promise<Response | null> {
+async function proxyCacheGet(url: URL): Promise<Response | null> {
 	if (import.meta.env.DEV) return null;
 	try {
 		const cached = await caches.default.match(cacheKey(url));
@@ -42,10 +42,7 @@ export async function proxyCacheGet(url: URL): Promise<Response | null> {
 	}
 }
 
-export async function proxyCachePut(
-	url: URL,
-	response: Response,
-): Promise<void> {
+async function proxyCachePut(url: URL, response: Response): Promise<void> {
 	if (import.meta.env.DEV) return;
 	try {
 		const headers = new Headers(response.headers);
@@ -62,7 +59,7 @@ export async function proxyCachePut(
 
 // 代理路由共用前置守卫：限流命中返回 429，缓存命中回放响应，均未命中返回 null
 // proxyCacheGet 自身已在 DEV 短路，调用方无需再判断环境
-export async function proxyEarlyResponse(
+async function proxyEarlyResponse(
 	request: Request,
 	url: URL,
 ): Promise<Response | null> {

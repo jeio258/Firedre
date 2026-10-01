@@ -60,9 +60,7 @@ function getRandomSubtitle(): string | undefined {
 	return subtitle;
 }
 
-export function getBannerDescriptionWidth(
-	description?: string,
-): string | undefined {
+function getBannerDescriptionWidth(description?: string): string | undefined {
 	if (!description) return undefined;
 
 	const textUnits = Array.from(description).reduce((total, character) => {

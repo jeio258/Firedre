@@ -4,7 +4,7 @@ export function formatDateToYYYYMMDD(date: Date): string {
 	return date.toISOString().substring(0, 10);
 }
 
-export function formatDateI18n(
+function formatDateI18n(
 	dateInput: Date | string,
 	includeTime?: boolean,
 ): string {

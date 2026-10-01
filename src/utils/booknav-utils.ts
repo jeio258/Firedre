@@ -22,7 +22,7 @@ export function getBooknavDomain(url: string): string {
 	}
 }
 
-export function buildFaviconUrl(api: string, domain: string): string {
+function buildFaviconUrl(api: string, domain: string): string {
 	if (!api || !domain) return "";
 	return api.replaceAll("{domain}", encodeURIComponent(domain));
 }

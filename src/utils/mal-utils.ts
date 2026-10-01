@@ -4,7 +4,7 @@ import { i18n } from "@/i18n/translation";
 import type { MalListItem, MalListResponse } from "@/types/mal";
 
 // MAL 只返回请求中明确列出的字段，必须显式声明
-export const MAL_ANIME_FIELDS: string = [
+const MAL_ANIME_FIELDS: string = [
 	"id",
 	"title",
 	"main_picture",
@@ -18,7 +18,7 @@ export const MAL_ANIME_FIELDS: string = [
 	"list_status{status,score,num_episodes_watched,is_rewatching,updated_at,start_date,finish_date,comments}",
 ].join(",");
 
-export const MAL_MANGA_FIELDS: string = [
+const MAL_MANGA_FIELDS: string = [
 	"id",
 	"title",
 	"main_picture",

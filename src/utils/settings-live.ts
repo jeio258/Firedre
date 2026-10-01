@@ -7,12 +7,8 @@ const EVENT = "firedre:settings-changed";
 let currentVersion = document.documentElement.getAttribute(versionAttr) ?? "";
 let checking = false;
 
-export function getClientSettingsVersion(): string {
-	return currentVersion;
-}
-
 /** 比对设置版本；有变化则原地更新注入对象并派发事件。返回是否发生更新。 */
-export async function checkSettingsChanged(): Promise<boolean> {
+async function checkSettingsChanged(): Promise<boolean> {
 	if (checking) return false;
 	checking = true;
 	try {
