@@ -83,8 +83,10 @@ export function splitMarkdown(source: string) {
 	};
 }
 
-export function postR2Key(slug: string) {
-	return `posts/${slug}.md`;
+// 版本化正文 key：内容哈希驱动，写新对象后原子切换 D1 指针，杜绝元数据/正文错位
+// （存量行 r2_key 仍为 posts/{slug}.md，读取走行内值，懒迁移不受影响）
+export function postR2Key(slug: string, hash: string) {
+	return `posts/${slug}/${hash}.md`;
 }
 
 export function encodePostPath(slug: string) {

@@ -359,7 +359,8 @@ export async function upsertPost(
 
 	const mapped = mapFrontmatterToRecord(frontmatter);
 	const published = isPublished(frontmatter) ? 1 : 0;
-	const r2Key = postR2Key(decoded);
+	// 正文哈希驱动版本化 key；内容未变时 hash 相同 → 复用既有对象（零写入）
+	const r2Key = postR2Key(decoded, await sha256Hex(source));
 	const categories = resolveCategories(frontmatter) ?? [];
 	const tags = normalizeTags(frontmatter.tags) ?? [];
 	const plain = stripMarkdown(content);
@@ -430,7 +431,19 @@ export async function upsertPost(
     VALUES (?, ?, ?, ?)
   `).bind(decoded, String(frontmatter.title), mapped.excerpt || "", plain);
 
-	// 先落 D1（元数据与正文索引），成功后再写 R2：失败时旧正文仍与旧 key 对应，避免元数据/正文错位
+	// 正文先写 R2 版本化 key，成功后才跑 D1 批量切换指针：R2 失败时旧指针/旧正文完整保留
+	// （D1 批量失败仅残留 R2 孤儿对象，由对账脚本清理）；内容未变时跳过写直接复用旧指针
+	const prevRow = await env.DB.prepare(
+		"SELECT r2_key FROM posts WHERE slug = ?",
+	)
+		.bind(decoded)
+		.first<{ r2_key: string }>();
+	if (prevRow?.r2_key !== r2Key) {
+		await env.BUCKET.put(r2Key, source, {
+			httpMetadata: { contentType: "text/markdown; charset=utf-8" },
+		});
+	}
+
 	await runDbBatch(env.DB, [
 		postUpsert,
 		ftsDelete,
@@ -438,15 +451,21 @@ export async function upsertPost(
 		...buildTaxonomyStatements(env.DB, decoded, frontmatter),
 	]);
 
-	await env.BUCKET.put(r2Key, source, {
-		httpMetadata: { contentType: "text/markdown; charset=utf-8" },
-	});
-
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
 	await bumpContentVersion(env);
 
 	return { slug: decoded, r2Key };
+}
+
+async function sha256Hex(input: string): Promise<string> {
+	const digest = await crypto.subtle.digest(
+		"SHA-256",
+		new TextEncoder().encode(input),
+	);
+	return [...new Uint8Array(digest)]
+		.map((b) => b.toString(16).padStart(2, "0"))
+		.join("");
 }
 
 export async function deletePost(env: CloudflareEnv, slug: string) {
