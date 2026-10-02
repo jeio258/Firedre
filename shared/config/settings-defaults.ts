@@ -6,7 +6,7 @@ export const settingsDefaults = {
 		cardFollowTheme: false,
 		cardRadius: 1,
 		faviconUrl: "/favicon/firefly-32.png",
-		title: "Firefly",
+		title: "Firedre",
 		subtitle: "Demo site",
 		description:
 			"Firedre 是基于 Astro Firefly 主题深度云原生化改造的个人博客，全站运行于 Cloudflare Pages / D1 / R2：文章、动态、相册、书签导航、追番数据与留言板一应俱全，后台可视化管理，无需服务器即可稳定运行。",
@@ -30,7 +30,7 @@ export const settingsDefaults = {
 		pageMal: true,
 		pageSponsor: true,
 		keywords:
-			"Firedre,Astro,Firefly,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
+			"Firedre,Astro,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
 		// ── 结构字段（A4：自 siteConfig 原值搬移，非后台可编辑项） ──
 		lang: resolveSiteLang("zh_CN"),
 		foldArticle: true,
@@ -129,9 +129,9 @@ export const settingsDefaults = {
 	profile: {
 		location: "",
 		email: "",
-		name: "Firefly",
+		name: "Firedre",
 		avatar: "assets/images/avatar.avif",
-		bio: "Hello, I'm Firefly.",
+		bio: "Hello, I'm Firedre.",
 		links:
 			'[{"name":"qq","icon":"fa7-brands:qq","url":"https://qm.qq.com/q/ZGsFa8qX2G","showName":false},{"name":"GitHub","icon":"fa7-brands:github","url":"https://github.com/jeio258","showName":false},{"name":"Email","icon":"fa7-solid:envelope","url":"mailto:xiaye@msn.com","showName":false},{"name":"RSS","icon":"fa7-solid:rss","url":"/rss/","showName":false}]',
 	},
