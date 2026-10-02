@@ -1,11 +1,5 @@
-# 本地开发环境变量（复制为 .dev.vars，勿提交）
-ADMIN_USERNAME=admin
-# 密码必须为 bcrypt 哈希（运行 pnpm migrate-password 生成）
-ADMIN_PASSWORD=$2b$10$your.bcrypt.hash.here
-# API Token（可选，用于程序化访问）
-ADMIN_API_TOKEN=dev-admin-token
-# 会话签名独立密钥（必须配置，不允许使用弱凭据降级）
-SESSION_SECRET=your-strong-session-secret-min-32-chars
-# WebDAV 相册密码
+# 本地开发环境变量（复制为 .dev.vars，勿提交；cf-dev-shim 首次启动会自动生成 SESSION_SECRET）
+# 会话签名密钥（必须配置，≥ 32 字符强随机；缺失时后台无法登录）
+SESSION_SECRET=dev-session-secret-firedre-local-00000000
+# 相册 WebDAV 源密码（仅使用 WebDAV 相册时需要）
 WEBDAV_PASSWORD=your_webdav_password
-SITE_URL=http://localhost:4321

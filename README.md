@@ -2,10 +2,10 @@
 
 > **Firefly 主题（Astro 7 + Svelte 5）的云端动态化版本：D1 / R2 存储 + 完整后台管理**
 
-Firedre 以 [Firefly](https://github.com/CuteLeaf/Firefly) 主题为基底，前台保留原版风格与组件（看板娘 / 音乐 / 樱花 / mermaid / katex 等），并将静态内容升级为**云端动态化**：
+Firedre 以 [Firefly](https://github.com/CuteLeaf/Firefly) 主题为基底，前台保留原版风格与组件（音乐 / 樱花 / mermaid / katex 等），并将静态内容升级为**云端动态化**：
 
 - **后台管理**（`/admin/`）：文章 / 相册 / 友链 / 公告 / 动态 / 关于页 / 站点设置
-- **站点设置**：配置修改自动保存、前台即时生效（版本号驱动缓存失效）
+- **站点设置**：配置修改显式保存、前台即时生效（版本号驱动缓存失效）
 - **云端存储**：D1（数据）+ R2（文件），页面/API 由 Cloudflare Pages（Workers SSR）承载
 - **本地开发开箱即用**：`cf-dev-shim` 自动建本地 D1/R2 并应用迁移
 
@@ -71,11 +71,10 @@ npx wrangler r2 bucket create firedre-blog
 
 | 变量 | 说明 |
 |---|---|
-| `ADMIN_USERNAME` | 后台管理员用户名（首次登录时落库为 D1 权威凭据） |
-| `ADMIN_PASSWORD` | **bcrypt 哈希**（可用 `node -e "console.log(require('bcryptjs').hashSync('你的密码',10))"` 生成） |
-| `ADMIN_API_TOKEN` | 程序化访问令牌（可选） |
 | `SESSION_SECRET` | 会话签名密钥，**≥ 32 字符，必须强随机** |
 | `WEBDAV_PASSWORD` | 相册 WebDAV 源密码（若使用） |
+
+> 后台凭据不落 Secrets：首个管理员经 `/admin/setup/` 创建，用户名 + bcrypt 密码哈希存 D1 `admin_users` 表（唯一权威源）。
 
 > 本项目**不需要 KV**：页面 HTML 缓存使用 `caches.default`（Cache API），会话为自有 Cookie。绑定仅需 `DB`（D1）与 `BUCKET`（R2）。
 
@@ -158,12 +157,12 @@ D1 数据库 `firedre-blog` 共 **14 张业务表**（迁移 SQL 位于 `migrati
 |---|---|
 | 仪表盘 | 文章 / 动态 / 友链 / 标签统计 |
 | 文章管理 | 列表 / 新建 / 编辑 / 删除（Vditor 编辑器，图片传 R2） |
-| 站点设置 | 30 组配置：站点 / 显示 / 特效 / 个人资料 / 背景壁纸 / 侧边栏 / 字体 / 评论 / 封面 / 音乐 / Mermaid / 动态 / 友链 / 相册 / 打赏 / 页脚 / 许可 / 看板娘等 |
+| 站点设置 | 29 组配置（SETTING_GROUPS）：站点 / 显示 / 特效 / 个人资料 / 背景壁纸 / 侧边栏 / 字体 / 评论 / 封面 / 音乐 / Mermaid / PlantUML / 代码块主题 / 文章底部区块 / 动态 / 友链 / 相册 / 哔哩哔哩 / 打赏 / VNDB / MyAnimeList / 番组计划 / 书签导航 / 广告 / 公告 / 页脚 / 许可 / 统计等；其中公告 / 动态 / 友链 / 相册另有专属编辑器 |
 | 友链 / 链接 / 公告 / 动态 | 对应内容管理 |
 | 关于页 | 在线编辑 `about/index.md` |
 | 相册管理 | 相册增删改（含排序与上传） |
 
-**配置生效机制**：后台修改 → 自动保存 → D1 写入 + 版本号递增 → 前台 HTML 缓存（`caches.default`，key 含版本号）失效 → 刷新前台即时生效。
+**配置生效机制**：后台修改 → 显式保存（「保存全部」）→ D1 写入 + 版本号递增 → 前台 HTML 缓存（`caches.default`，key 含版本号）失效 → 刷新前台即时生效。
 
 **主题深浅模式**：后台与前台共用同一套主题令牌（`src/styles/variables.styl` 的 `:root` / `:root.dark`），跟随前台已选深浅（`localStorage.theme` / 系统偏好）。
 
