@@ -270,7 +270,11 @@ export const featureGroups: Group[] = [
 		key: "mermaid",
 		title: "Mermaid 图表",
 		category: "功能配置",
-		fields: [{ name: "enabled", label: "启用", type: "boolean" }],
+		fields: [
+			{ name: "enabled", label: "启用", type: "boolean" },
+			{ name: "lightTheme", label: "浅色主题", type: "text" },
+			{ name: "darkTheme", label: "暗色主题", type: "text" },
+		],
 	},
 	{
 		key: "plantuml",

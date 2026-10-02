@@ -19,6 +19,12 @@ export const pageGroups: Group[] = [
 			{ name: "enabled", label: "启用打赏", type: "boolean" },
 			{ name: "title", label: "打赏标题", type: "text" },
 			{
+				name: "qrCode",
+				label: "收款二维码图片 URL",
+				type: "text",
+				hint: "页面二维码当前由站点外链（kind=qr）提供，此字段为配置层预留",
+			},
+			{
 				name: "sponsors",
 				label: "打赏者列表",
 				type: "records",
