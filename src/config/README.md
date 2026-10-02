@@ -23,7 +23,7 @@ src/config/
 - defaults 有值但无表单入口（已知现状，非自动修）：
   1. `mermaid.darkTheme` / `mermaid.lightTheme`（表单仅有启用开关，主题值需直改 D1）
   2. `sponsor.qrCode`（打赏二维码无表单入口）
-- `profile.links` 等 records 字段：defaults 存 JSON 字符串；前台经 `mergeSettings.normalizeSettingValue` 自动解析为数组；admin GET 为裸合并不做解析（字符串透传）——表单对字符串输入的兼容**待核实**（E-07 项 S-1）。
+- `profile.links` 等 records 字段：defaults 存 JSON 字符串；前台经 `mergeSettings.normalizeSettingValue` 自动解析为数组；admin GET 为裸合并不做解析（字符串透传）——RecordsEditor `toText` 对 JSON 字符串输入有解析分支（展为行文本、保存时序列化回字符串），**已核实兼容**（2026-10-02）。
 - `basic.siteUrl` 经 `normalizeSiteUrl` 收敛（`shared/config/runtime/site.ts`）：改此字段的类型/形状须复核该 getter。
 
 ## 使用方式
