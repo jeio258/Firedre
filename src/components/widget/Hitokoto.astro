@@ -1,0 +1,219 @@
+---
+import WidgetLayout from "@/components/common/WidgetLayout.astro";
+import { getSidebarConfig } from "@/config/runtime";
+import I18nKey from "@/i18n/i18nKey";
+import { i18n } from "@/i18n/translation";
+import type { WidgetComponentConfig } from "@/types/config";
+
+interface Props {
+	class?: string;
+	style?: string;
+	widgetConfig?: WidgetComponentConfig;
+}
+const { class: className, style, widgetConfig } = Astro.props;
+const showTitle = widgetConfig?.showTitle !== false;
+
+// 后台可配：一言 API / 兜底文案（sidebar 组）
+const sb = getSidebarConfig(Astro.locals);
+const hitokotoApi = sb.hitokotoApi || "https://v1.hitokoto.cn/";
+const fallbackText = sb.hitokotoFallbackText || "世界很大，开心第一。";
+const fallbackSource = sb.hitokotoFallbackSource || "";
+---
+
+<WidgetLayout
+  name={i18n(I18nKey.hitokoto)}
+  showTitle={showTitle}
+  id="hitokoto"
+  class={className}
+  style={style}
+>
+  <div class="hitokoto-card px-3" data-hitokoto-card>
+    <div class="hitokoto-main-row">
+      <p class="hitokoto-text" data-hitokoto-text>加载中...</p>
+      <button
+        class="hitokoto-refresh"
+        type="button"
+        title={i18n(I18nKey.hitokotoRefresh)}
+        aria-label={i18n(I18nKey.hitokotoRefresh)}
+        data-hitokoto-refresh
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 6V3l4 4-4 4V7a4 4 0 1 0 4 4h2a6 6 0 1 1-6-5Z" /></svg>
+      </button>
+    </div>
+    <div class="hitokoto-author-row">
+      <span class="hitokoto-author" data-hitokoto-author></span>
+    </div>
+  </div>
+</WidgetLayout>
+
+<style>
+  .hitokoto-card {
+    line-height: 1.6;
+    max-width: 100%;
+  }
+
+  .hitokoto-main-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .hitokoto-text {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    color: var(--text-muted, inherit);
+    word-break: break-word;
+    margin: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .hitokoto-card[data-loading="true"] .hitokoto-text {
+    opacity: 0.5;
+  }
+
+  .hitokoto-refresh {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted, inherit);
+    opacity: 0.4;
+    transition:
+      color 0.2s,
+      background 0.2s,
+      opacity 0.2s,
+      transform 0.2s;
+    padding: 0;
+    margin-top: 1px;
+    font-size: 15px;
+  }
+
+  .hitokoto-refresh:hover {
+    opacity: 0.7;
+    background: rgba(128, 128, 128, 0.1);
+  }
+
+  .hitokoto-refresh:active {
+    transform: scale(0.9);
+  }
+
+  .hitokoto-refresh svg {
+    width: 1em;
+    height: 1em;
+    transition: transform 0.4s ease;
+  }
+
+  .hitokoto-refresh[data-spinning="true"] svg {
+    transform: rotate(360deg);
+  }
+
+  .hitokoto-author-row {
+    margin-top: 6px;
+  }
+
+  .hitokoto-author {
+    font-size: 12px;
+    color: var(--text-muted, inherit);
+    opacity: 0.5;
+    display: block;
+    text-align: right;
+  }
+
+  .hitokoto-author:not(:empty)::before {
+    content: "—— ";
+  }
+</style>
+
+<script is:inline>
+	(() => {
+		// 实例作用域：is:inline 每实例各跑一份，左右栏重复配置时只操作自己这份
+		const root =
+			(document.currentScript && document.currentScript.parentElement) ||
+			document;
+		const card = root.querySelector("[data-hitokoto-card]");
+		if (!card) return;
+
+		const textEl = root.querySelector("[data-hitokoto-text]");
+		const authorEl = root.querySelector("[data-hitokoto-author]");
+		const refreshBtn = root.querySelector("[data-hitokoto-refresh]");
+		const API =
+			card.getAttribute("data-hitokoto-api") || "https://v1.hitokoto.cn/";
+		const fallbackText =
+			card.getAttribute("data-hitokoto-fallback-text") ||
+			"世界很大，开心第一。";
+		const fallbackSource =
+			card.getAttribute("data-hitokoto-fallback-source") || "";
+
+		const CACHE_KEY = "hitokoto_cache_" + encodeURIComponent(API);
+
+		function getCached() {
+			try {
+				const raw = sessionStorage.getItem(CACHE_KEY);
+				return raw ? JSON.parse(raw) : null;
+			} catch {
+				return null;
+			}
+		}
+
+		function setCached(data) {
+			try {
+				sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+			} catch {}
+		}
+
+		async function fetchHitokoto() {
+			try {
+				const resp = await fetch(API, { signal: AbortSignal.timeout(5000) });
+				if (!resp.ok) throw new Error("Network response was not ok.");
+				const contentType = resp.headers.get("content-type") || "";
+				if (contentType.includes("application/json")) {
+					const data = await resp.json();
+					return {
+						content:
+							data.hitokoto ||
+							data.content ||
+							data.sentence ||
+							data.text ||
+							"",
+						author:
+							data.from || data.author || data.source || data.from_who || "",
+					};
+				}
+				const text = await resp.text();
+				return { content: text.trim(), author: "" };
+			} catch {
+				return { content: fallbackText, author: fallbackSource };
+			}
+		}
+
+		function update(data) {
+			textEl.textContent = data.content;
+			authorEl.textContent = data.author || "";
+			card.setAttribute("data-loading", "false");
+		}
+
+		function refresh() {
+			card.setAttribute("data-loading", "true");
+			refreshBtn.setAttribute("data-spinning", "true");
+			fetchHitokoto().then((data) => {
+				setCached(data);
+				update(data);
+				setTimeout(() => refreshBtn.setAttribute("data-spinning", "false"), 400);
+			});
+		}
+
+		refreshBtn.addEventListener("click", refresh);
+
+		// 优先缓存，无缓存才请求
+		const cached = getCached();
+		if (cached) update(cached);
+		else refresh();
+	})();
+</script>

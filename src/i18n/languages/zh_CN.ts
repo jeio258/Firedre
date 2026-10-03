@@ -61,6 +61,8 @@ export const zh_CN: Translation = {
 	[Key.musicNoCover]: "暂无封面",
 	[Key.announcement]: "公告",
 	[Key.announcementClose]: "关闭",
+	[Key.hitokoto]: "一言",
+	[Key.hitokotoRefresh]: "换一句",
 
 	[Key.comments]: "评论",
 	[Key.commentSection]: "评论区",

@@ -9,7 +9,8 @@ export type WidgetComponentType =
 	| "calendar"
 	| "music"
 	| "siteInfo"
-	| "dynamic";
+	| "dynamic"
+	| "hitokoto";
 
 export type WidgetComponentConfig = {
 	type: WidgetComponentType;
@@ -86,6 +87,10 @@ export type SidebarLayoutConfig = {
 	showSiteInfo?: boolean;
 	showStats?: boolean;
 	showAdvertisement?: boolean;
+	showHitokoto?: boolean;
+	hitokotoApi?: string;
+	hitokotoFallbackText?: string;
+	hitokotoFallbackSource?: string;
 	leftComponents: WidgetComponentConfig[];
 	rightComponents: WidgetComponentConfig[];
 	mobileBottomComponents: MobileBottomComponentConfig[];

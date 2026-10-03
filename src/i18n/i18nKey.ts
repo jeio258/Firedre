@@ -43,6 +43,8 @@ enum I18nKey {
 
 	announcement = "announcement",
 	announcementClose = "announcementClose",
+	hitokoto = "hitokoto",
+	hitokotoRefresh = "hitokotoRefresh",
 
 	comments = "comments",
 	commentSection = "commentSection",

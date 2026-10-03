@@ -272,6 +272,10 @@ export const settingsDefaults = {
 		showCategories: true,
 		showTags: true,
 		showCalendar: true,
+		showHitokoto: true,
+		hitokotoApi: "https://v1.hitokoto.cn/",
+		hitokotoFallbackText: "世界很大，开心第一。",
+		hitokotoFallbackSource: "",
 		hideSidebarOnPostPage: false,
 		noSidebarContentWidth: 0.6,
 		// ── 结构字段（A4：自 sidebarLayoutConfig 原值搬移） ──
@@ -406,6 +410,12 @@ export const settingsDefaults = {
 					},
 				},
 			},
+			{
+				type: "hitokoto",
+				enable: true,
+				position: "top",
+				showOnPostPage: true,
+			},
 		],
 		mobileBottomComponents: [
 			{
@@ -453,6 +463,11 @@ export const settingsDefaults = {
 						unknownBuildPlatform: "Unknown CI",
 					},
 				},
+			},
+			{
+				type: "hitokoto",
+				enable: true,
+				showOnPostPage: true,
 			},
 		],
 	},

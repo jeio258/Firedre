@@ -6,6 +6,7 @@ import Announcement from "@/components/widget/Announcement.astro";
 import Calendar from "@/components/widget/Calendar.astro";
 import Categories from "@/components/widget/Categories.astro";
 import Dynamic from "@/components/widget/Dynamic.astro";
+import Hitokoto from "@/components/widget/Hitokoto.astro";
 import Music from "@/components/widget/Music.astro";
 import Profile from "@/components/widget/Profile.astro";
 import SidebarTOC from "@/components/widget/SidebarTOC.astro";
@@ -54,6 +55,7 @@ const componentMap: Record<string, AstroComponentFactory> = {
 	music: Music,
 	siteInfo: SiteInfo,
 	dynamic: Dynamic,
+	hitokoto: Hitokoto,
 };
 
 const side = (Astro.props.side ||
@@ -160,6 +162,7 @@ const toggleMap: Record<string, string> = {
 	stats: "showStats",
 	calendar: "showCalendar",
 	advertisement: "showAdvertisement",
+	hitokoto: "showHitokoto",
 };
 const musicConfigRuntime = getMusicConfig(Astro.locals);
 const filteredComponents = filterAndSortComponents(allComponents).filter(

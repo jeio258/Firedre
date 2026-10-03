@@ -61,6 +61,8 @@ export const en: Translation = {
 	[Key.musicNoCover]: "No cover available",
 	[Key.announcement]: "Announcement",
 	[Key.announcementClose]: "Close",
+	[Key.hitokoto]: "Hitokoto",
+	[Key.hitokotoRefresh]: "Refresh",
 
 	[Key.comments]: "Comments",
 	[Key.commentSection]: "Comments",

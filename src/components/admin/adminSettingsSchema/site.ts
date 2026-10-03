@@ -321,6 +321,23 @@ export const siteGroups: Group[] = [
 			{ name: "showCategories", label: "分类卡片", type: "boolean" },
 			{ name: "showTags", label: "标签卡片", type: "boolean" },
 			{ name: "showCalendar", label: "日历卡片", type: "boolean" },
+			{ name: "showHitokoto", label: "一言卡片", type: "boolean" },
+			{
+				name: "hitokotoApi",
+				label: "一言 API 地址",
+				type: "text",
+				hint: "留空使用默认 https://v1.hitokoto.cn/；支持标准一言 JSON 与纯文本接口",
+			},
+			{
+				name: "hitokotoFallbackText",
+				label: "一言接口不可用时的兜底文案",
+				type: "text",
+			},
+			{
+				name: "hitokotoFallbackSource",
+				label: "兜底文案出处",
+				type: "text",
+			},
 			{
 				name: "hideSidebarOnPostPage",
 				label: "文章页隐藏侧边栏",

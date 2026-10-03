@@ -61,6 +61,8 @@ export const ja: Translation = {
 	[Key.musicNoCover]: "カバーなし",
 	[Key.announcement]: "お知らせ",
 	[Key.announcementClose]: "閉じる",
+	[Key.hitokoto]: "一言",
+	[Key.hitokotoRefresh]: "もう一句",
 
 	[Key.comments]: "コメント",
 	[Key.commentSection]: "コメント欄",

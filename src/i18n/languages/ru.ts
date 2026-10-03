@@ -61,6 +61,8 @@ export const ru: Translation = {
 	[Key.musicNoCover]: "Нет обложки",
 	[Key.announcement]: "Объявление",
 	[Key.announcementClose]: "Закрыть",
+	[Key.hitokoto]: "Хитокото",
+	[Key.hitokotoRefresh]: "Обновить",
 
 	[Key.comments]: "Комментарии",
 	[Key.commentSection]: "Комментарии",

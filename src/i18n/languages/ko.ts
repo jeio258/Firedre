@@ -61,6 +61,8 @@ export const ko: Translation = {
 	[Key.musicNoCover]: "커버 이미지 없음",
 	[Key.announcement]: "공지사항",
 	[Key.announcementClose]: "닫기",
+	[Key.hitokoto]: "한마디",
+	[Key.hitokotoRefresh]: "새로고침",
 
 	[Key.comments]: "댓글",
 	[Key.commentSection]: "댓글",
