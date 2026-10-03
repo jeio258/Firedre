@@ -10,6 +10,7 @@ import type {
 	PostRecord,
 	PostsListResponse,
 } from "../../types/posts";
+import { logAudit } from "../audit/service";
 import { bumpContentVersion } from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
@@ -454,6 +455,13 @@ export async function upsertPost(
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
 	await bumpContentVersion(env);
+	await logAudit(env, {
+		actor: "admin",
+		action: prevRow?.r2_key ? "update" : "create",
+		targetType: "post",
+		targetId: decoded,
+		detail: String(frontmatter.title),
+	});
 
 	return { slug: decoded, r2Key };
 }
@@ -485,6 +493,12 @@ export async function deletePost(env: CloudflareEnv, slug: string) {
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
 	await bumpContentVersion(env);
+	await logAudit(env, {
+		actor: "admin",
+		action: "delete",
+		targetType: "post",
+		targetId: decoded,
+	});
 
 	return true;
 }

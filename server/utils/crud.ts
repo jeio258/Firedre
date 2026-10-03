@@ -1,4 +1,5 @@
 import type { CloudflareEnv } from "../../types/env";
+import { logAudit } from "../audit/service";
 import { bumpContentVersion } from "../settings/service";
 import { UserError } from "./userError";
 
@@ -84,6 +85,12 @@ export function createCrudService<
 		const created = await get(env, id);
 		if (!created) throw new UserError("创建失败");
 		await bumpContentVersion(env);
+		await logAudit(env, {
+			actor: "admin",
+			action: "create",
+			targetType: cfg.table,
+			targetId: String(id),
+		});
 		return created;
 	}
 
@@ -103,6 +110,12 @@ export function createCrudService<
 		const updated = await get(env, id);
 		if (!updated) throw new UserError(cfg.notFoundMessage);
 		await bumpContentVersion(env);
+		await logAudit(env, {
+			actor: "admin",
+			action: "update",
+			targetType: cfg.table,
+			targetId: String(id),
+		});
 		return updated;
 	}
 
@@ -111,7 +124,15 @@ export function createCrudService<
 			.bind(id)
 			.run();
 		const removed = (result.meta?.changes ?? 0) > 0;
-		if (removed) await bumpContentVersion(env);
+		if (removed) {
+			await bumpContentVersion(env);
+			await logAudit(env, {
+				actor: "admin",
+				action: "delete",
+				targetType: cfg.table,
+				targetId: String(id),
+			});
+		}
 		return removed;
 	}
 
