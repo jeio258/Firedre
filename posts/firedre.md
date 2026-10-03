@@ -96,7 +96,7 @@ npx wrangler r2 bucket create firedre-blog
 
 ```bash
 npx wrangler pages secret put SESSION_SECRET --project-name firedre
-# 可选：ADMIN_USERNAME / ADMIN_PASSWORD（bcrypt）/ ADMIN_API_TOKEN / WEBDAV_PASSWORD
+# 可选：WEBDAV_PASSWORD
 ```
 
 并应用数据库迁移：
