@@ -1,4 +1,3 @@
-import { listAudit, logAudit } from "@server/audit/service";
 import {
 	ADMIN_SESSION_COOKIE,
 	buildClearSessionCookie,
@@ -90,12 +89,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 					if (!result.ok)
 						return json({ message: "创建失败或用户名已存在" }, 400);
 
-					await logAudit(cfEnv, {
-						actor: username,
-						action: "setup",
-						targetType: "admin",
-					});
-
 					// 创建成功后直接登录
 					const token = await createSessionToken(username, adminEnv);
 					return jsonWithHeaders({ ok: true, username }, 200, {
@@ -133,22 +126,10 @@ export const POST: APIRoute = async ({ params, request }) => {
 			);
 			if (!isValid) {
 				await rateLimit.recordFailure(clientIp);
-				await logAudit(cfEnv, {
-					actor: username,
-					action: "login_failed",
-					targetType: "admin",
-					detail: clientIp,
-				});
 				return json({ message: "账号或密码错误" }, 401);
 			}
 
 			await rateLimit.clear(clientIp);
-			await logAudit(cfEnv, {
-				actor: username,
-				action: "login",
-				targetType: "admin",
-				detail: clientIp,
-			});
 			const token = await createSessionToken(username, adminEnv);
 			return jsonWithHeaders({ ok: true, username }, 200, {
 				"Set-Cookie": buildSessionCookie(token, secure),
@@ -156,11 +137,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 		}
 
 		if (action === "logout") {
-			await logAudit(cfEnv, {
-				actor: "",
-				action: "logout",
-				targetType: "admin",
-			});
 			return jsonWithHeaders({ ok: true }, 200, {
 				"Set-Cookie": buildClearSessionCookie(secure),
 			});
@@ -195,11 +171,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 				newPassword,
 			);
 			if (!ok) return json({ message: "用户不存在" }, 404);
-			await logAudit(cfEnv, {
-				actor: sessionUser,
-				action: "change_password",
-				targetType: "admin",
-			});
 			return jsonWithHeaders({ ok: true });
 		}
 
@@ -218,7 +189,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		return jsonWithHeaders({ setup: !(await hasAdminUser(cfEnv.DB)) });
 	}
 
-	if (action !== "me" && action !== "stats" && action !== "audit")
+	if (action !== "me" && action !== "stats")
 		return json({ message: "Not found" }, 404);
 
 	try {
@@ -234,19 +205,12 @@ export const GET: APIRoute = async ({ params, request }) => {
 			);
 		}
 
-		// action === "audit"：后台操作审计（最近 50 条）
-		if (action === "audit") {
-			const rows = await listAudit(cfEnv, 50);
-			return jsonWithHeaders({ items: rows });
-		}
-
 		// action === "stats"：后台仪表盘聚合
 		const stats = await collectAdminStats(cfEnv.DB);
 		return jsonWithHeaders(stats);
 	} catch (error) {
-		if (action !== "stats")
-			return json({ authenticated: false }, 200, "private");
-		return serverError(error);
+		if (action === "stats") return serverError(error);
+		return json({ authenticated: false }, 200, "private");
 	}
 };
 

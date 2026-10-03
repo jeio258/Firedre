@@ -1,5 +1,4 @@
 import type { CloudflareEnv } from "../../types/env";
-import { logAudit } from "../audit/service";
 
 export const SETTING_GROUPS = [
 	"basic",
@@ -49,7 +48,7 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 		try {
 			out[group] = { ...(out[group] ?? {}), ...JSON.parse(row.value) };
 		} catch (e) {
-			console.warn(`[settings] 设置值 JSON 解析失败 key=${row.key}`, e);
+			console.warn("[settings] 设置值 JSON 解析失败 key=" + row.key, e);
 		}
 	}
 	return out;
@@ -187,12 +186,6 @@ export async function saveSettingsGroups(
 	}
 
 	await bumpContentVersion(env);
-	await logAudit(env, {
-		actor: "admin",
-		action: "save_settings",
-		targetType: "settings",
-		targetId: entries.map(([g]) => g).join(","),
-	});
 }
 
 export async function saveSettingsGroup(
