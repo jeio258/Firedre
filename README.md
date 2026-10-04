@@ -23,6 +23,10 @@ Firedre 以 [Firefly](https://github.com/CuteLeaf/Firefly) 主题为基底，前
 | 对象存储 | Cloudflare R2（文章 / 封面 / 相册 / 上传文件） |
 | 会话 | 自有 HMAC Cookie（HttpOnly / SameSite=Lax / 4h），不依赖 KV |
 | 认证 | bcrypt 密码哈希 + 登录限流（D1） |
+| 样式 | Tailwind CSS 4（`oklch()` / `color-mix()`，未做降级兜底） |
+
+> **浏览器要求**：样式层使用 Tailwind CSS 4 的 `oklch()` 与 `color-mix()`（共 85 处，无 `@supports` 兜底），
+> 需 **Chrome / Edge 111+、Safari 16.2+、Firefox 113+**（2023 年及以后版本）；更旧的浏览器会出现配色丢失。
 
 ---
 
