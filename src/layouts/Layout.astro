@@ -401,6 +401,30 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
         cardRadius: (settings?.["cardRadius"] ?? siteConfig.card?.radius) ?? 1,
       }}
     >
+      // 资源自愈：陈旧 HTML 会引用已随部署消失的哈希资源（JS/CSS 404 后 Pages 返回
+      // 404.html，浏览器按 MIME 拒绝执行 → 无交互/无样式，甚至整屏空白）。
+      // 命中同源 script/link 加载失败即强制重载一次取新版本；限频 30s 防死循环。
+      (function () {
+        var HEAL_KEY = "assetHealAt";
+        function heal(src) {
+          if (src && src.charAt(0) !== "/" && src.indexOf(location.origin) !== 0) return;
+          try {
+            var last = Number(sessionStorage.getItem(HEAL_KEY) || 0);
+            if (Date.now() - last < 30000) return;
+            sessionStorage.setItem(HEAL_KEY, String(Date.now()));
+          } catch (e) {
+            return;
+          }
+          location.reload();
+        }
+        window.addEventListener("error", function (event) {
+          var t = event.target;
+          if (!t || t === window) return;
+          if (t.tagName === "SCRIPT") heal(t.src);
+          else if (t.tagName === "LINK" && t.rel === "stylesheet") heal(t.href);
+        }, true);
+      })();
+
       // 主题初始化 - 与setting-utils.ts保持一致
       const LIGHT_MODE = "light";
       const DARK_MODE = "dark";
