@@ -1,5 +1,4 @@
 import { verifyAdminRequest } from "@server/auth/adminSession";
-import { redactSensitive } from "@server/settings/sensitive";
 import {
 	getAllSettings,
 	getSettingsGroup,
@@ -22,7 +21,10 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ url, request }) => {
 	try {
+		// 公开态无合法消费方（前端走 /api/settings/client 白名单子集），完整设置仅管理员可见
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
+
 		const { flattenSettingsDefaults } = await import(
 			"@server/settings/flatten"
 		);
@@ -31,14 +33,14 @@ export const GET: APIRoute = async ({ url, request }) => {
 		if (group && (SETTING_GROUPS as readonly string[]).includes(group)) {
 			const db = await getSettingsGroup(cfEnv, group as never);
 			const payload = { ...(defaults[group] ?? {}), ...db };
-			return json(isAdmin ? payload : redactSensitive(payload), 200, "private");
+			return json(payload, 200, "private");
 		}
 		const all = await getAllSettings(cfEnv);
 		const merged: Record<string, Record<string, unknown>> = {};
 		for (const key of SETTING_GROUPS) {
 			merged[key] = { ...(defaults[key] ?? {}), ...(all[key] ?? {}) };
 		}
-		return json(isAdmin ? merged : redactSensitive(merged), 200, "private");
+		return json(merged, 200, "private");
 	} catch (error) {
 		return serverError(error);
 	}
