@@ -274,11 +274,22 @@ const logoVariants = await Promise.all(
         var panel = document.getElementById(PANELS[i][1]);
         if (!btn || !panel) continue;
         if (btn.contains(t)) {
-          panel.classList.toggle("float-panel-closed");
+          // 开合、可见性与可交互性必须在这里一次改完：
+          // 若只切 class，则 inert 得等模块 init（floating-panel-utils）的 MutationObserver 清除；
+          // 一旦外部脚本被拦截/加载失败（省流、脚本拦截、模块报错、CSP），面板就会停留在
+          // 「看得见但 inert」状态——inert 会让命中测试直接穿透到面板背后，表现为选项点不动。
+          var willOpen = panel.classList.contains("float-panel-closed");
+          panel.classList.toggle("float-panel-closed", !willOpen);
+          panel.inert = !willOpen;
+          panel.setAttribute("aria-hidden", String(!willOpen));
+          btn.setAttribute("aria-expanded", String(willOpen));
           continue;
         }
         if (!panel.classList.contains("float-panel-closed") && !panel.contains(t)) {
           panel.classList.add("float-panel-closed");
+          panel.inert = true;
+          panel.setAttribute("aria-hidden", "true");
+          btn.setAttribute("aria-expanded", "false");
         }
       }
     });
