@@ -1,4 +1,8 @@
 import { defineMiddleware } from "astro:middleware";
+import {
+	readIsolateCache,
+	writeIsolateCache,
+} from "@server/utils/isolateCache";
 import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
 
@@ -126,28 +130,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 		// getAllSettings isolate 级缓存：以设置版本为键（任何设置写入都会自增版本号），
 		// 命中时省去每 cache-miss 请求的全表 D1 读；TTL 兜底覆盖直改 D1 不 bump 版本的场景
-		const settingsCache = globalThis as unknown as {
-			__FIREDRE_SETTINGS_CACHE__?: {
-				version: string;
-				groups: Record<string, Record<string, unknown>>;
-				at: number;
-			};
-		};
 		let groups: Record<string, Record<string, unknown>>;
-		const cachedGroups = settingsCache.__FIREDRE_SETTINGS_CACHE__;
-		if (
-			cachedGroups &&
-			cachedGroups.version === settingsVersion &&
-			Date.now() - cachedGroups.at < 30_000
-		) {
-			groups = cachedGroups.groups;
+		const cachedGroups = readIsolateCache<
+			Record<string, Record<string, unknown>>
+		>("middleware.settings", settingsVersion);
+		if (cachedGroups) {
+			groups = cachedGroups;
 		} else {
 			groups = await getAllSettings(cfEnv);
-			settingsCache.__FIREDRE_SETTINGS_CACHE__ = {
-				version: settingsVersion,
-				groups,
-				at: Date.now(),
-			};
+			writeIsolateCache("middleware.settings", settingsVersion, groups);
 		}
 		const { mergeSettings } = await import("@server/settings/merge");
 

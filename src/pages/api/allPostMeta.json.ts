@@ -1,17 +1,14 @@
+import {
+	readIsolateCache,
+	writeIsolateCache,
+} from "@server/utils/isolateCache";
 import type { APIRoute } from "astro";
 import { cfEnv, methodNotAllowed, serverError } from "../../lib/api";
 
 export const prerender = false;
 
 // 版本化隔离级缓存：设置/内容变更（bump 版本）即失效，TTL 兜底直改 D1 场景
-const g = globalThis as unknown as {
-	__FIREDRE_ALLPOSTMETA_CACHE__?: {
-		version: string;
-		payload: string;
-		at: number;
-	};
-};
-const CACHE_TTL_MS = 30_000;
+const CACHE_SLOT = "api.allPostMeta";
 
 export const GET: APIRoute = async () => {
 	try {
@@ -19,15 +16,8 @@ export const GET: APIRoute = async () => {
 			"@server/settings/service"
 		);
 		const version = await getSettingsVersionCached(cfEnv);
-		const cached = g.__FIREDRE_ALLPOSTMETA_CACHE__;
-		let payload: string;
-		if (
-			cached &&
-			cached.version === version &&
-			Date.now() - cached.at < CACHE_TTL_MS
-		) {
-			payload = cached.payload;
-		} else {
+		let payload = readIsolateCache<string>(CACHE_SLOT, version);
+		if (payload === undefined) {
 			const { results } = await cfEnv.DB.prepare(`
 				SELECT slug, title, description, date, categories, password
 				FROM posts
@@ -55,11 +45,7 @@ export const GET: APIRoute = async () => {
 			});
 
 			payload = JSON.stringify(data);
-			g.__FIREDRE_ALLPOSTMETA_CACHE__ = {
-				version,
-				payload,
-				at: Date.now(),
-			};
+			writeIsolateCache(CACHE_SLOT, version, payload);
 		}
 		return new Response(payload, {
 			headers: {
