@@ -79,7 +79,7 @@ function formatDate(timestamp: number): string {
 <div class="flex flex-col gap-1.5">
 	{#if loading}
 		<div class="flex justify-center p-3">
-			<svg class="size-5 animate-spin text-(--primary)" viewBox="0 0 24 24" fill="none">
+			<svg class="size-5 animate-spin text-(--primary-text)" viewBox="0 0 24 24" fill="none">
 				<circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/>
 				<path d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
 			</svg>

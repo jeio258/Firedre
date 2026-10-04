@@ -79,7 +79,7 @@ function getQrLqipProps(qrCode: string) {
         {(sponsorSettings.usage ?? sponsorConfig.usage) && (
           <div class="mb-8 p-4 rounded-lg bg-(--primary)/8 dark:bg-(--btn-regular-bg) border border-(--primary)/30 dark:border-none backdrop-blur-xs shadow-xs usage-info-box">
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:info-outline" class="text-(--primary) text-lg shrink-0 mt-0.5" />
+              <Icon name="material-symbols:info-outline" class="text-(--primary-text) text-lg shrink-0 mt-0.5" />
               <p class="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
                 <span class="font-semibold text-(--primary-text)"></span>
                 {(sponsorSettings.usage ?? sponsorConfig.usage)}
@@ -145,7 +145,7 @@ function getQrLqipProps(qrCode: string) {
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
             <div class="h-8 w-8 rounded-lg bg-(--primary)/10 flex items-center justify-center">
-              <Icon name="material-symbols:emoji-people-rounded" class="text-[1.25rem] text-(--primary)" />
+              <Icon name="material-symbols:emoji-people-rounded" class="text-[1.25rem] text-(--primary-text)" />
             </div>
             <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
               {i18n(I18nKey.sponsorList)}

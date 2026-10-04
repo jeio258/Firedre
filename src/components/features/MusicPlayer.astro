@@ -27,7 +27,7 @@ const widgetId =
 
     <div class="relative shrink-0 w-14 h-14 group">
             <div class="w-full h-full rounded-full overflow-hidden shadow-lg border-2 border-white dark:border-neutral-700 relative z-10 bg-(--primary)/10 flex items-center justify-center">
-            <Icon name="material-symbols:music-note-rounded" class="text-2xl text-(--primary) opacity-40 absolute" aria-hidden="true" />
+            <Icon name="material-symbols:music-note-rounded" class="text-2xl text-(--primary-text) opacity-40 absolute" aria-hidden="true" />
             <img class="music-cover w-full h-full object-cover animate-spin-slow relative z-10 opacity-0 transition-opacity duration-300" src="" alt={i18n(I18nKey.musicCover)} style="animation-play-state: paused;" />
             </div>
     </div>
@@ -129,7 +129,7 @@ const widgetId =
 </div>
 
     <div class="music-loading absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/60 dark:bg-[#1e1e1e]/60 backdrop-blur-[2px] transition-opacity duration-300 opacity-0 pointer-events-none rounded-xl" aria-busy="true" aria-hidden="true">
-    <div class="w-8 h-8 text-(--primary) animate-spin">
+    <div class="w-8 h-8 text-(--primary-text) animate-spin">
         <Icon name="material-symbols:sync-rounded" class="text-3xl" aria-hidden="true" />
     </div>
 </div>

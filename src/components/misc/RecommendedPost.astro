@@ -55,7 +55,7 @@ const noRandomPostsText = i18n(I18nKey.noRandomPosts);
             idx < relatedPosts.length - 1 && "border-b border-dashed border-(--line-divider)",
           ]}
         >
-          <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition">
+          <div class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary-text) flex items-center justify-center text-sm font-bold transition">
             {idx + 1}
           </div>
           <div class="flex-1 min-w-0">
@@ -170,7 +170,7 @@ function renderRandomPosts() {
         + (idx < picked.length - 1 ? ' border-b border-dashed border-(--line-divider)' : '');
 
       var num = document.createElement('div');
-      num.className = 'shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition';
+      num.className = 'shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary-text) flex items-center justify-center text-sm font-bold transition';
       num.textContent = String(idx + 1);
 
       var content = document.createElement('div');

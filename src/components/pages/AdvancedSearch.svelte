@@ -97,7 +97,7 @@ const handleInput = () => {
     <div>
         {#if isSearching}
             <div class="flex justify-center py-10">
-                <Icon icon="svg-spinners:ring-resize" class="text-4xl text-(--primary)" />
+                <Icon icon="svg-spinners:ring-resize" class="text-4xl text-(--primary-text)" />
             </div>
         {:else if results.length > 0}
             <div class="space-y-4">

@@ -38,7 +38,7 @@ const viewConfigStr = JSON.stringify({
                 <span class="eq-bar w-[3px] bg-(--primary) rounded-sm"></span>
                 <span class="eq-bar w-[3px] bg-(--primary) rounded-sm"></span>
             </div>
-            <svg class="eq-play-icon text-(--primary) hidden" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="eq-play-icon text-(--primary-text) hidden" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </div>
     </div>
     <div class="flex-1 min-w-0">
@@ -188,7 +188,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
         function updatePlayStateUI(isPlaying: boolean) {
             if (isPlaying) {
                 ui.btnPlay.classList.add('bg-(--primary-fill)', 'text-(--primary-on-fill)', 'hover:brightness-110');
-                ui.btnPlay.classList.remove('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary)');
+                ui.btnPlay.classList.remove('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary-text)');
                 ui.iconPlay.classList.add('hidden');
                 ui.iconPause.classList.remove('hidden');
                 ui.cover.style.animationPlayState = 'running';
@@ -196,7 +196,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.btnPlay.title = cfg.i18n.pause;
             } else {
                 ui.btnPlay.classList.remove('bg-(--primary-fill)', 'text-(--primary-on-fill)', 'hover:brightness-110');
-                ui.btnPlay.classList.add('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary)');
+                ui.btnPlay.classList.add('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary-text)');
                 ui.iconPlay.classList.remove('hidden');
                 ui.iconPause.classList.add('hidden');
                 ui.cover.style.animationPlayState = 'paused';

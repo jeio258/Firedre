@@ -22,7 +22,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
         aria-expanded="false"
         class="series-nav-toggle flex w-full items-center gap-2 px-3 py-1.5 rounded-lg bg-(--btn-plain-bg-hover) group cursor-pointer select-none text-left"
       >
-        <Icon name="material-symbols:format-list-bulleted" aria-hidden="true" class="shrink-0 text-lg text-(--primary)" />
+        <Icon name="material-symbols:format-list-bulleted" aria-hidden="true" class="shrink-0 text-lg text-(--primary-text)" />
         <span class="font-bold text-base text-black/80 dark:text-white/80 transition group-hover:text-(--primary)">
           {i18n(I18nKey.seriesPartOf)}：{seriesName}
         </span>
@@ -32,7 +32,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
         <Icon
           name="material-symbols:keyboard-arrow-down-rounded"
           aria-hidden="true"
-          class="details-arrow shrink-0 text-[1.25rem] text-(--primary) transition-transform duration-300"
+          class="details-arrow shrink-0 text-[1.25rem] text-(--primary-text) transition-transform duration-300"
         />
       </button>
 
