@@ -13,11 +13,14 @@ interface Props {
 const { class: className, style, widgetConfig } = Astro.props;
 const showTitle = widgetConfig?.showTitle !== false;
 
-// 后台可配：一言 API / 兜底文案（sidebar 组）；默认 v1.hitokoto.cn/?lang=cn 仅返回中文
+// 后台可配：一言 API / 兜底文案 / 自动轮转开关与间隔（sidebar 组）
+// 默认 v1.hitokoto.cn/?lang=cn 仅返回中文
 const sb = getSidebarConfig(Astro.locals);
 const hitokotoApi = sb.hitokotoApi || "https://v1.hitokoto.cn/?lang=cn";
 const fallbackText = sb.hitokotoFallbackText || "世界很大，开心第一。";
 const fallbackSource = sb.hitokotoFallbackSource || "";
+const rotate = sb.hitokotoRotate !== false;
+const rotateMinutes = Math.max(1, Number(sb.hitokotoRotateMinutes) || 5);
 ---
 
 <WidgetLayout
@@ -27,7 +30,12 @@ const fallbackSource = sb.hitokotoFallbackSource || "";
   class={className}
   style={style}
 >
-  <div class="hitokoto-card px-3" data-hitokoto-card>
+  <div
+    class="hitokoto-card px-3"
+    data-hitokoto-card
+    data-hitokoto-rotate={rotate ? "true" : "false"}
+    data-hitokoto-rotate-minutes={String(rotateMinutes)}
+  >
     <div class="hitokoto-main-row">
       <p class="hitokoto-text" data-hitokoto-text>加载中...</p>
       <button
@@ -203,7 +211,7 @@ const fallbackSource = sb.hitokotoFallbackSource || "";
 		function refresh() {
 			card.setAttribute("data-loading", "true");
 			refreshBtn.setAttribute("data-spinning", "true");
-			fetchHitokoto().then((data) => {
+			return fetchHitokoto().then((data) => {
 				setCached(data);
 				update(data);
 				setTimeout(() => refreshBtn.setAttribute("data-spinning", "false"), 400);
@@ -217,8 +225,41 @@ const fallbackSource = sb.hitokotoFallbackSource || "";
 		if (cached) update(cached);
 		else refresh();
 
-		// 自动轮转：每 5 分钟换一句（绕过缓存拉新句；侧栏不在 swup 容器内，
-		// 软导航不重建，interval 持续生效；页面隐藏时浏览器自动节流）
-		setInterval(refresh, 5 * 60 * 1000);
+		// 自动轮转（后台可配开关 + 间隔）：页面隐藏时暂停（省请求），回前台恢复；
+		// 请求进行中不重复触发。侧栏不在 swup 容器内，软导航不重建，计时持续生效
+		const rotateEnabled = card.getAttribute("data-hitokoto-rotate") !== "false";
+		const rotateMinutesRaw = Number(
+			card.getAttribute("data-hitokoto-rotate-minutes"),
+		);
+		const rotateMinutes =
+			Number.isFinite(rotateMinutesRaw) && rotateMinutesRaw >= 1
+				? rotateMinutesRaw
+				: 5;
+		let timer = null;
+		let inFlight = false;
+		function rotate() {
+			if (inFlight) return;
+			inFlight = true;
+			refresh().finally(() => {
+				inFlight = false;
+			});
+		}
+		function startRotate() {
+			if (!rotateEnabled || timer) return;
+			timer = setInterval(rotate, rotateMinutes * 60 * 1000);
+		}
+		function stopRotate() {
+			if (timer) {
+				clearInterval(timer);
+				timer = null;
+			}
+		}
+		if (rotateEnabled) {
+			startRotate();
+			document.addEventListener("visibilitychange", () => {
+				if (document.hidden) stopRotate();
+				else startRotate();
+			});
+		}
 	})();
 </script>

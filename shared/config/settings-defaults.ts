@@ -276,6 +276,8 @@ export const settingsDefaults = {
 		hitokotoApi: "https://v1.hitokoto.cn/?lang=cn",
 		hitokotoFallbackText: "世界很大，开心第一。",
 		hitokotoFallbackSource: "",
+		hitokotoRotate: true,
+		hitokotoRotateMinutes: 5,
 		hideSidebarOnPostPage: false,
 		noSidebarContentWidth: 0.6,
 		// ── 结构字段（A4：自 sidebarLayoutConfig 原值搬移） ──

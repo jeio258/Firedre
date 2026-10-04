@@ -323,6 +323,18 @@ export const siteGroups: Group[] = [
 			{ name: "showCalendar", label: "日历卡片", type: "boolean" },
 			{ name: "showHitokoto", label: "一言卡片", type: "boolean" },
 			{
+				name: "hitokotoRotate",
+				label: "一言自动轮转",
+				type: "boolean",
+				hint: "开启后按下方间隔自动换一句（页面隐藏时暂停，回到前台恢复）",
+			},
+			{
+				name: "hitokotoRotateMinutes",
+				label: "轮转间隔（分钟）",
+				type: "number",
+				hint: "默认 5 分钟；最小 1 分钟",
+			},
+			{
 				name: "hitokotoApi",
 				label: "一言 API 地址",
 				type: "text",
