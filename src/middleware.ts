@@ -80,7 +80,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			const { cfEnv } = await import("./lib/api");
 			settingsVersion = await getSettingsVersionCached(cfEnv);
 
-			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}?v=${settingsVersion}`;
+			// key 含 pathname + search：避免将来按 query 渲染的页面（分页/筛选/预览）串缓存
+			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}${url.search}?v=${settingsVersion}`;
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
 				const headers = new Headers({

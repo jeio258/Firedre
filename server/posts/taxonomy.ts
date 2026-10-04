@@ -146,16 +146,20 @@ export async function listArchiveMonths(
 }
 
 export function categoryFilterSql(category: string) {
+	// LIKE 通配符转义：分类名中的 \ % _ 需前缀反斜杠（ESCAPE '\\'），
+	// 否则含这些字符的分类会误匹配无关子分类
+	const escapeLike = (s: string) =>
+		s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 	return {
 		join: "INNER JOIN post_taxonomy pt_c ON pt_c.post_slug = p.slug AND pt_c.type = 'category'",
 		where:
 			category === "Uncategorized"
 				? "pt_c.value = ?"
-				: "(pt_c.value = ? OR pt_c.value LIKE ?)",
+				: "(pt_c.value = ? OR pt_c.value LIKE ? ESCAPE '\\')",
 		binds:
 			category === "Uncategorized"
 				? (["Uncategorized"] as unknown[])
-				: ([category, `${category}/%`] as unknown[]),
+				: ([category, `${escapeLike(category)}/%`] as unknown[]),
 	};
 }
 

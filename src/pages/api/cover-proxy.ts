@@ -40,11 +40,10 @@ export const GET: APIRoute = async ({ request }) => {
 	);
 
 	// 手动构造 302（Response.redirect 的 headers 不可变，外层 middleware 无法追加安全头）
+	// 安全：上游失败/非图片时不 302 回退到用户可控 URL（开放重定向/钓鱼面），
+	// 返回 502 由前端 CoverImage 的错误兜底接管（显示占位/换 API）
 	const redirectBack = () =>
-		new Response(null, {
-			status: 302,
-			headers: { Location: target.toString() },
-		});
+		new Response("Upstream image unavailable", { status: 502 });
 
 	// 项目全局类型中 caches.default 仅声明 match/put
 	type ProxyCache = {
