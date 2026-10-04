@@ -247,3 +247,9 @@
     display: none !important;
   }
 }
+
+/* H3：壁纸图片加载失败时的深色兜底 —— fullscreen/overlay/banner 模式下图片 404 时，
+   首屏会露出浅色页面底 + 白字不可见（“全屏泛白”）；加深色渐变保住白字可读 */
+#wallpaper-wrapper[data-wallpaper-error] {
+  background: linear-gradient(180deg, oklch(0.24 0.02 var(--hue, 165)) 0%, oklch(0.16 0.02 var(--hue, 165)) 100%);
+}
