@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "check": "astro check && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs",
+    "check:settings": "node scripts/settings-matrix-check.mjs",
     "build": "astro build && node scripts/collapse-routes.mjs",
     "preview": "astro preview",
     "astro": "astro",
@@ -31,8 +32,7 @@
     "d1:migrate:local": "npx wrangler d1 migrations apply firedre-blog --local",
     "deploy": "pnpm build && wrangler pages deploy dist --project-name firedre",
     "deploy:dry": "pnpm build && wrangler pages deploy dist --project-name firedre --dry-run",
-    "check:svelte": "svelte-check --tsconfig ./tsconfig.svelte.json",
-    "check:settings": "node scripts/settings-matrix-check.mjs"
+    "check:svelte": "svelte-check --tsconfig ./tsconfig.svelte.json"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -97,7 +97,6 @@
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.3.0",
     "@types/qrcode": "^1.5.6",
-    "@vitest/coverage-v8": "^4.1.11",
     "esbuild": "^0.28.2",
     "playwright": "^1.62.1",
     "postcss-import": "^16.1.1",
