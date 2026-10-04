@@ -23,6 +23,8 @@
     "qa:visual": "node scripts/qa/visual.mjs",
     "qa:panel": "node scripts/qa/panel.mjs",
     "qa:baseline": "node scripts/qa/nocheck-baseline.mjs",
+    "qa:site": "CHROME_PATH=/mnt/d/Chrome/App/chrome.exe node scripts/qa/site-audit.mjs",
+    "qa:contrast": "CHROME_PATH=/mnt/d/Chrome/App/chrome.exe node scripts/qa/contrast-pixel.mjs",
     "setup:hooks": "bash scripts/hooks/install.sh",
     "type-check:server": "tsc --noEmit -p tsconfig.server.json",
     "format": "biome format --write ./src ./server ./shared ./types",
