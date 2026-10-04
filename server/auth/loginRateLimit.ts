@@ -8,7 +8,9 @@ export interface LoginRateLimitCheck {
 
 export interface LoginRateLimitStore {
 	check(ip: string): Promise<LoginRateLimitCheck>;
-	recordFailure(ip: string): Promise<void>;
+	recordFailure(
+		ip: string,
+	): Promise<{ locked: boolean; retryAfterSec: number }>;
 	clear(ip: string): Promise<void>;
 }
 
@@ -57,7 +59,9 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
 		},
 
 		async recordFailure(ip) {
-			await db
+			// 原子计数 + 锁定：RETURNING 回传新 count/locked_until，
+			// 使"达到阈值的那次失败"即返回 locked（并发突发不再只计数不锁定）
+			const row = await db
 				.prepare(`
         INSERT INTO rate_limits (key, kind, count, locked_until, updated_at)
         VALUES (?, 'login', 1, NULL, datetime('now'))
@@ -65,9 +69,17 @@ export function createD1LoginRateLimit(db: D1Database): LoginRateLimitStore {
           count = rate_limits.count + 1,
           locked_until = CASE WHEN rate_limits.count + 1 >= ? THEN ? ELSE rate_limits.locked_until END,
           updated_at = datetime('now')
+        RETURNING count, locked_until
       `)
 				.bind(key(ip), LOGIN_MAX_ATTEMPTS, futureLockIso())
-				.run();
+				.first<{ count: number; locked_until: string | null }>();
+			const lockedUntil = row?.locked_until ?? null;
+			const locked =
+				!!lockedUntil && new Date(lockedUntil).getTime() > Date.now();
+			return {
+				locked,
+				retryAfterSec: lockedUntil ? retryAfterSec(lockedUntil) : 0,
+			};
 		},
 
 		async clear(ip) {

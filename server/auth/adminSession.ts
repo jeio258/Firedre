@@ -68,14 +68,57 @@ async function hmacSign(payload: string, secret: string) {
 	return Buffer.from(bytes).toString("base64url");
 }
 
-export async function createSessionToken(username: string, env: AdminAuthEnv) {
+export async function createSessionToken(
+	username: string,
+	env: AdminAuthEnv,
+	fingerprint = "",
+) {
 	const secret = getSecret(env);
 	if (!secret) throw new Error("未配置 SESSION_SECRET");
 
 	const exp = Date.now() + ADMIN_SESSION_MAX_AGE * 1000;
-	const payload = base64urlEncode(JSON.stringify({ u: username, exp }));
+	const payload = base64urlEncode(
+		JSON.stringify({
+			u: username,
+			exp,
+			...(fingerprint ? { v: fingerprint } : {}),
+		}),
+	);
 	const sig = await hmacSign(payload, secret);
 	return `${payload}.${sig}`;
+}
+
+// 密码哈希指纹：会话 token 携带，校验时与当前 password_hash 比对——改密即吊销旧会话
+async function sha256Hex(input: string): Promise<string> {
+	const buf = await crypto.subtle.digest(
+		"SHA-256",
+		new TextEncoder().encode(input),
+	);
+	return Array.from(new Uint8Array(buf))
+		.map((b) => b.toString(16).padStart(2, "0"))
+		.join("");
+}
+
+export async function passwordFingerprint(
+	passwordHash: string,
+): Promise<string> {
+	return (await sha256Hex(passwordHash)).slice(0, 16);
+}
+
+// 读取用户当前密码哈希生成指纹后签发 token（登录/初始化用）
+export async function createSessionTokenForUser(
+	db: D1Database,
+	username: string,
+	env: AdminAuthEnv,
+) {
+	const row = await db
+		.prepare("SELECT password_hash FROM admin_users WHERE username = ?")
+		.bind(username)
+		.first<{ password_hash: string }>();
+	const fp = row?.password_hash
+		? await passwordFingerprint(row.password_hash)
+		: "";
+	return createSessionToken(username, env, fp);
 }
 
 export async function verifySessionToken(token: string, env: AdminAuthEnv) {
@@ -83,7 +126,17 @@ export async function verifySessionToken(token: string, env: AdminAuthEnv) {
 	return Boolean(user);
 }
 
-export async function getSessionUser(token: string, env: AdminAuthEnv) {
+export interface SessionPayload {
+	u?: string;
+	exp?: number;
+	v?: string;
+}
+
+// 验签 + 有效期校验后返回完整 payload（含密码指纹 v）
+export async function decodeSessionPayload(
+	token: string,
+	env: AdminAuthEnv,
+): Promise<SessionPayload | null> {
 	let secret: string;
 	try {
 		secret = getSecret(env);
@@ -100,15 +153,17 @@ export async function getSessionUser(token: string, env: AdminAuthEnv) {
 	if (!constantTimeEqual(expected, sig)) return null;
 
 	try {
-		const data = JSON.parse(base64urlDecode(payload)) as {
-			u?: string;
-			exp?: number;
-		};
+		const data = JSON.parse(base64urlDecode(payload)) as SessionPayload;
 		if (!data.exp || Date.now() > data.exp) return null;
-		return data.u || null;
+		return data;
 	} catch {
 		return null;
 	}
+}
+
+export async function getSessionUser(token: string, env: AdminAuthEnv) {
+	const data = await decodeSessionPayload(token, env);
+	return data?.u || null;
 }
 
 export function getCookieValue(
@@ -188,21 +243,25 @@ export async function getAuthenticatedAdminUsername(
 	if (!token) return null;
 
 	const adminEnv = resolveAdminEnv(env);
-	const username = await getSessionUser(token, adminEnv);
+	const payload = await decodeSessionPayload(token, adminEnv);
+	const username = payload?.u || null;
 	if (!username) return null;
 
 	if (env?.DB) {
-		let row: { enabled: number } | null;
+		let row: { enabled: number; password_hash: string } | null;
 		try {
 			row = await env.DB.prepare(
-				"SELECT enabled FROM admin_users WHERE username = ?",
+				"SELECT enabled, password_hash FROM admin_users WHERE username = ?",
 			)
 				.bind(username)
-				.first<{ enabled: number }>();
+				.first<{ enabled: number; password_hash: string }>();
 		} catch {
 			return null;
 		}
-		if (!row || row.enabled !== 1) return null;
+		if (row?.enabled !== 1) return null;
+		// 会话吊销：token 携带的密码指纹须与当前哈希一致（改密即失效）
+		const fp = await passwordFingerprint(row.password_hash);
+		if (!payload?.v || payload.v !== fp) return null;
 	}
 
 	return username;

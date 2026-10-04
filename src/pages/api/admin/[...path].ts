@@ -2,7 +2,7 @@ import {
 	ADMIN_SESSION_COOKIE,
 	buildClearSessionCookie,
 	buildSessionCookie,
-	createSessionToken,
+	createSessionTokenForUser,
 	getAuthenticatedAdminUsername,
 	getCookieValue,
 	getSessionUser,
@@ -90,7 +90,11 @@ export const POST: APIRoute = async ({ params, request }) => {
 						return json({ message: "创建失败或用户名已存在" }, 400);
 
 					// 创建成功后直接登录
-					const token = await createSessionToken(username, adminEnv);
+					const token = await createSessionTokenForUser(
+						cfEnv.DB,
+						username,
+						adminEnv,
+					);
 					return jsonWithHeaders({ ok: true, username }, 200, {
 						"Set-Cookie": buildSessionCookie(token, secure),
 					});
@@ -99,41 +103,69 @@ export const POST: APIRoute = async ({ params, request }) => {
 		}
 
 		if (action === "login") {
-			const body = (await request.json().catch(() => null)) as {
-				username?: string;
-				password?: string;
-			} | null;
-			if (!body) return json({ message: "请求体格式错误" }, 400);
-			const username = String(body.username || "").trim();
-			const password = String(body.password || "");
-			const clientIp = getRequestClientIp(request);
-			const rateLimit = createD1LoginRateLimit(cfEnv.DB);
-
-			const limit = await rateLimit.check(clientIp);
-			if (!limit.allowed) {
-				return json(
-					{ message: formatLoginRateLimitMessage(limit.retryAfterSec || 60) },
-					429,
-				);
-			}
-
-			// 使用 D1 唯一管理员验证（不再依赖 Secrets）
-			const isValid = await authenticateAdmin(
+			// IP 级 QPS 限流：压平突发，降低 bcrypt（密码校验）资源消耗面
+			return withRateLimit(
 				cfEnv,
-				cfEnv.DB,
-				username,
-				password,
-			);
-			if (!isValid) {
-				await rateLimit.recordFailure(clientIp);
-				return json({ message: "账号或密码错误" }, 401);
-			}
+				request,
+				{
+					windowMs: 60_000,
+					maxRequests: 20,
+					scope: "admin-login",
+					failOpen: false,
+				},
+				async () => {
+					const body = (await request.json().catch(() => null)) as {
+						username?: string;
+						password?: string;
+					} | null;
+					if (!body) return json({ message: "请求体格式错误" }, 400);
+					const username = String(body.username || "").trim();
+					const password = String(body.password || "");
+					const clientIp = getRequestClientIp(request);
+					const rateLimit = createD1LoginRateLimit(cfEnv.DB);
 
-			await rateLimit.clear(clientIp);
-			const token = await createSessionToken(username, adminEnv);
-			return jsonWithHeaders({ ok: true, username }, 200, {
-				"Set-Cookie": buildSessionCookie(token, secure),
-			});
+					const limit = await rateLimit.check(clientIp);
+					if (!limit.allowed) {
+						const sec = limit.retryAfterSec || 60;
+						return jsonWithHeaders(
+							{ message: formatLoginRateLimitMessage(sec) },
+							429,
+							{ "Retry-After": String(sec) },
+						);
+					}
+
+					// 使用 D1 唯一管理员验证（不再依赖 Secrets）
+					const isValid = await authenticateAdmin(
+						cfEnv,
+						cfEnv.DB,
+						username,
+						password,
+					);
+					if (!isValid) {
+						// #1 原子计数：达到阈值的那次失败即返回 429（并发突发不再只计数不锁定）
+						const fail = await rateLimit.recordFailure(clientIp);
+						if (fail.locked) {
+							const sec = fail.retryAfterSec || 60;
+							return jsonWithHeaders(
+								{ message: formatLoginRateLimitMessage(sec) },
+								429,
+								{ "Retry-After": String(sec) },
+							);
+						}
+						return json({ message: "账号或密码错误" }, 401);
+					}
+
+					await rateLimit.clear(clientIp);
+					const token = await createSessionTokenForUser(
+						cfEnv.DB,
+						username,
+						adminEnv,
+					);
+					return jsonWithHeaders({ ok: true, username }, 200, {
+						"Set-Cookie": buildSessionCookie(token, secure),
+					});
+				},
+			);
 		}
 
 		if (action === "logout") {
@@ -194,7 +226,8 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	try {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
-		if (!isAdmin) return json({ authenticated: false }, 200, "private");
+		// #5 未认证返回 401（前端 AdminApp 已按 401 处理）；语义规范、便于监控识别
+		if (!isAdmin) return json({ authenticated: false }, 401, "private");
 
 		if (action === "me") {
 			const username = await getAuthenticatedAdminUsername(request, cfEnv);
@@ -210,7 +243,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		return jsonWithHeaders(stats);
 	} catch (error) {
 		if (action === "stats") return serverError(error);
-		return json({ authenticated: false }, 200, "private");
+		return json({ authenticated: false }, 401, "private");
 	}
 };
 
