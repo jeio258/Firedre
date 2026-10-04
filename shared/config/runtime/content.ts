@@ -7,6 +7,7 @@ import type {
 	CoverImageConfig,
 	DynamicConfig,
 	ExpressiveCodeConfig,
+	HitokotoConfig,
 	LicenseConfig,
 	MermaidConfig,
 	MusicPlayerConfig,
@@ -22,7 +23,6 @@ import {
 	bool,
 	DEFAULT_BOOKNAV_FAVICON,
 	DEFAULT_BOOKNAV_GROUPS,
-	defaultsLocals,
 	groupOf,
 	num,
 	settingsOf,
@@ -299,6 +299,18 @@ export function getLicenseConfig(locals: unknown): LicenseConfig {
 		type: str(l.type, ""),
 		url: str(l.url, "https://creativecommons.org/licenses/by-nc-sa/4.0/"),
 		icon: str(l.icon, ""),
+	};
+}
+
+export function getHitokotoConfig(locals: unknown): HitokotoConfig {
+	const h = groupOf(settingsOf(locals), "hitokoto");
+	return {
+		enable: bool(h.enable, true),
+		rotate: bool(h.rotate, true),
+		rotateMinutes: Math.max(1, num(h.rotateMinutes, 5)),
+		api: str(h.api, "https://v1.hitokoto.cn/?lang=cn"),
+		fallbackText: str(h.fallbackText, "世界很大，开心第一。"),
+		fallbackSource: str(h.fallbackSource, ""),
 	};
 }
 

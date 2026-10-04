@@ -11,7 +11,6 @@ import {
 	bool,
 	DEFAULT_NAV_ITEMS,
 	groupOf,
-	num,
 	settingsOf,
 	str,
 } from "./helpers";
@@ -85,12 +84,7 @@ export function getSidebarConfig(locals: unknown): SidebarLayoutConfig {
 		showSiteInfo: bool(sb.showSiteInfo, true),
 		showStats: bool(sb.showStats, true),
 		showAdvertisement: bool(sb.showAdvertisement, true),
-		showHitokoto: bool(sb.showHitokoto, true),
-		hitokotoApi: str(sb.hitokotoApi, "https://v1.hitokoto.cn/?lang=cn"),
-		hitokotoFallbackText: str(sb.hitokotoFallbackText, "世界很大，开心第一。"),
-		hitokotoFallbackSource: str(sb.hitokotoFallbackSource, ""),
-		hitokotoRotate: bool(sb.hitokotoRotate, true),
-		hitokotoRotateMinutes: num(sb.hitokotoRotateMinutes, 5),
+		showHitokoto: bool(groupOf(s, "hitokoto").enable, true),
 	} as SidebarLayoutConfig;
 }
 

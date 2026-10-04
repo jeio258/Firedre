@@ -272,12 +272,6 @@ export const settingsDefaults = {
 		showCategories: true,
 		showTags: true,
 		showCalendar: true,
-		showHitokoto: true,
-		hitokotoApi: "https://v1.hitokoto.cn/?lang=cn",
-		hitokotoFallbackText: "世界很大，开心第一。",
-		hitokotoFallbackSource: "",
-		hitokotoRotate: true,
-		hitokotoRotateMinutes: 5,
 		hideSidebarOnPostPage: false,
 		noSidebarContentWidth: 0.6,
 		// ── 结构字段（A4：自 sidebarLayoutConfig 原值搬移） ──
@@ -472,6 +466,14 @@ export const settingsDefaults = {
 				showOnPostPage: true,
 			},
 		],
+	},
+	hitokoto: {
+		enable: true,
+		rotate: true,
+		rotateMinutes: 5,
+		api: "https://v1.hitokoto.cn/?lang=cn",
+		fallbackText: "世界很大，开心第一。",
+		fallbackSource: "",
 	},
 	font: {
 		scale: 1,

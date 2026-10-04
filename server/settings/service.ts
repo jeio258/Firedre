@@ -8,6 +8,7 @@ export const SETTING_GROUPS = [
 	"nav",
 	"post",
 	"sidebar",
+	"hitokoto",
 	"font",
 	"comment",
 	"cover",
@@ -48,7 +49,7 @@ async function readAllFromD1(env: CloudflareEnv): Promise<SettingsMap> {
 		try {
 			out[group] = { ...(out[group] ?? {}), ...JSON.parse(row.value) };
 		} catch (e) {
-			console.warn("[settings] 设置值 JSON 解析失败 key=" + row.key, e);
+			console.warn(`[settings] 设置值 JSON 解析失败 key=${row.key}`, e);
 		}
 	}
 	return out;

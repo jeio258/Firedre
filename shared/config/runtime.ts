@@ -12,6 +12,7 @@ export {
 	getDynamicConfig,
 	getExpressiveCodeConfig,
 	getFontConfig,
+	getHitokotoConfig,
 	getLicenseConfig,
 	getMermaidConfig,
 	getMusicConfig,

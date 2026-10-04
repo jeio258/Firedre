@@ -1,6 +1,6 @@
 ---
 import WidgetLayout from "@/components/common/WidgetLayout.astro";
-import { getSidebarConfig } from "@/config/runtime";
+import { getHitokotoConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { WidgetComponentConfig } from "@/types/config";
@@ -13,14 +13,14 @@ interface Props {
 const { class: className, style, widgetConfig } = Astro.props;
 const showTitle = widgetConfig?.showTitle !== false;
 
-// 后台可配：一言 API / 兜底文案 / 自动轮转开关与间隔（sidebar 组）
-// 默认 v1.hitokoto.cn/?lang=cn 仅返回中文
-const sb = getSidebarConfig(Astro.locals);
-const hitokotoApi = sb.hitokotoApi || "https://v1.hitokoto.cn/?lang=cn";
-const fallbackText = sb.hitokotoFallbackText || "世界很大，开心第一。";
-const fallbackSource = sb.hitokotoFallbackSource || "";
-const rotate = sb.hitokotoRotate !== false;
-const rotateMinutes = Math.max(1, Number(sb.hitokotoRotateMinutes) || 5);
+// 后台可配（功能配置 → 一言）：API / 兜底文案 / 自动轮转开关与间隔
+const hk = getHitokotoConfig(Astro.locals);
+if (hk.enable === false) return null;
+const hitokotoApi = hk.api;
+const fallbackText = hk.fallbackText;
+const fallbackSource = hk.fallbackSource;
+const rotate = hk.rotate;
+const rotateMinutes = Math.max(1, Number(hk.rotateMinutes) || 5);
 ---
 
 <WidgetLayout

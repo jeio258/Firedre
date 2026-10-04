@@ -321,35 +321,6 @@ export const siteGroups: Group[] = [
 			{ name: "showCategories", label: "分类卡片", type: "boolean" },
 			{ name: "showTags", label: "标签卡片", type: "boolean" },
 			{ name: "showCalendar", label: "日历卡片", type: "boolean" },
-			{ name: "showHitokoto", label: "一言卡片", type: "boolean" },
-			{
-				name: "hitokotoRotate",
-				label: "一言自动轮转",
-				type: "boolean",
-				hint: "开启后按下方间隔自动换一句（页面隐藏时暂停，回到前台恢复）",
-			},
-			{
-				name: "hitokotoRotateMinutes",
-				label: "轮转间隔（分钟）",
-				type: "number",
-				hint: "默认 5 分钟；最小 1 分钟",
-			},
-			{
-				name: "hitokotoApi",
-				label: "一言 API 地址",
-				type: "text",
-				hint: "留空使用默认 https://v1.hitokoto.cn/?lang=cn（仅中文）；支持标准一言 JSON 与纯文本接口",
-			},
-			{
-				name: "hitokotoFallbackText",
-				label: "一言接口不可用时的兜底文案",
-				type: "text",
-			},
-			{
-				name: "hitokotoFallbackSource",
-				label: "兜底文案出处",
-				type: "text",
-			},
 			{
 				name: "hideSidebarOnPostPage",
 				label: "文章页隐藏侧边栏",

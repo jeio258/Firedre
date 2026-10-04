@@ -277,6 +277,38 @@ export const featureGroups: Group[] = [
 		],
 	},
 	{
+		key: "hitokoto",
+		title: "一言",
+		category: "功能配置",
+		fields: [
+			{ name: "enable", label: "一言卡片", type: "boolean" },
+			{
+				name: "rotate",
+				label: "自动轮转",
+				type: "boolean",
+				hint: "开启后按下方间隔自动换一句（页面隐藏时暂停，回前台恢复）",
+			},
+			{
+				name: "rotateMinutes",
+				label: "轮转间隔（分钟）",
+				type: "number",
+				hint: "默认 5 分钟；最小 1 分钟",
+			},
+			{
+				name: "api",
+				label: "一言 API 地址",
+				type: "text",
+				hint: "留空使用默认 https://v1.hitokoto.cn/?lang=cn（仅中文）；支持标准一言 JSON 与纯文本接口",
+			},
+			{
+				name: "fallbackText",
+				label: "接口不可用时的兜底文案",
+				type: "text",
+			},
+			{ name: "fallbackSource", label: "兜底文案出处", type: "text" },
+		],
+	},
+	{
 		key: "plantuml",
 		title: "PlantUML 图表",
 		category: "功能配置",

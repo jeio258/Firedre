@@ -88,11 +88,6 @@ export type SidebarLayoutConfig = {
 	showStats?: boolean;
 	showAdvertisement?: boolean;
 	showHitokoto?: boolean;
-	hitokotoApi?: string;
-	hitokotoFallbackText?: string;
-	hitokotoFallbackSource?: string;
-	hitokotoRotate?: boolean;
-	hitokotoRotateMinutes?: number;
 	leftComponents: WidgetComponentConfig[];
 	rightComponents: WidgetComponentConfig[];
 	mobileBottomComponents: MobileBottomComponentConfig[];
