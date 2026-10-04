@@ -11,13 +11,12 @@ export interface SettingsLocals {
 	settingsVersion?: string;
 }
 
-// HTML 边缘缓存：s-maxage=600 让 Cloudflare CDN 缓存（重复访客不跑 worker，TTFB 大幅下降）；
-// 后台设置改动经 settingsVersion 在 worker 缓存路径即时生效；CDN 层滞后上限 = 600s（用户已确认接受）
-// stale-while-revalidate=86400：过期后 24h 内仍即时返回旧页并后台回源，避免 TTL 到期瞬间的慢请求
-const HTML_CACHE_CONTROL =
-	"public, max-age=0, s-maxage=600, stale-while-revalidate=86400";
+// HTML 边缘缓存（P0-1 档位 1）：s-maxage=60 让 CDN 短暂缓存降 TTFB；
+// 去掉 stale-while-revalidate=86400 —— 旧 HTML 引用已随部署消失的哈希资产会导致
+// 白屏（404.html 按 MIME 拒绝执行），陈旧窗口从 10min/24h 压到 60s，配合 P0-2 自愈重载
+const HTML_CACHE_CONTROL = "public, max-age=0, s-maxage=60";
 // CF 专用：指示 Cloudflare 边缘按此 TTL 缓存本响应（Pages 默认不缓存 HTML，需此头 + 站点缓存规则配合）
-const HTML_CDN_CACHE_CONTROL = "public, max-age=600";
+const HTML_CDN_CACHE_CONTROL = "public, max-age=60";
 
 // 安全响应头对缓存命中与渲染路径统一生效
 function applySecurityHeaders(headers: Headers) {
