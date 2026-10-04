@@ -173,27 +173,36 @@ export async function getTaxonomyArchives(env: CloudflareEnv) {
 
 export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	const decoded = decodePostSlug(slug);
-	const { results } = await env.DB.prepare(`
-    SELECT slug FROM posts WHERE published = 1 ORDER BY pin_order DESC, date DESC
-  `).all<{ slug: string }>();
+	// 窗口函数单条查询取前后篇：避免全表拉取 slug 再内存 indexOf（O(N)→O(log N)）
+	const row = await env.DB.prepare(`
+    SELECT slug, prev_slug, next_slug FROM (
+      SELECT slug,
+        LAG(slug) OVER w AS prev_slug,
+        LEAD(slug) OVER w AS next_slug
+      FROM posts WHERE published = 1
+      WINDOW w AS (ORDER BY pin_order DESC, date DESC)
+    ) WHERE slug = ?
+  `)
+		.bind(decoded)
+		.first<{
+			slug: string;
+			prev_slug: string | null;
+			next_slug: string | null;
+		}>();
+	if (!row) return { prev: null, next: null };
 
-	const slugs = (results || []).map((row) => row.slug);
-	const index = slugs.indexOf(decoded);
-	if (index === -1) return { prev: null, next: null };
-
-	const prevSlug = index > 0 ? slugs[index - 1] : null;
-	const nextSlug = index < slugs.length - 1 ? slugs[index + 1] : null;
-
-	const prevRow = prevSlug
-		? await env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
-				.bind(prevSlug)
-				.first<PostRecord>()
-		: null;
-	const nextRow = nextSlug
-		? await env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
-				.bind(nextSlug)
-				.first<PostRecord>()
-		: null;
+	const [prevRow, nextRow] = await Promise.all([
+		row.prev_slug
+			? env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
+					.bind(row.prev_slug)
+					.first<PostRecord>()
+			: null,
+		row.next_slug
+			? env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
+					.bind(row.next_slug)
+					.first<PostRecord>()
+			: null,
+	]);
 
 	return {
 		prev: prevRow ? recordToListItem(prevRow) : null,
