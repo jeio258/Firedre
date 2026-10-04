@@ -16,7 +16,7 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
         <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.categories)}
         </div>
-        <p class="text-30 text-sm">
+        <p class="text-50 text-sm">
             {i18n(I18nKey.allCategories)} · {totalPosts} {i18n(I18nKey.postsCount)}
         </p>
     </div>
@@ -39,7 +39,7 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
                         <h2 class="text-lg font-bold text-90 truncate group-hover:text-(--primary) transition-colors" title={getCategoryDisplayName(category.name)}>
                             {getCategoryDisplayName(category.name)}
                         </h2>
-                        <p class="text-sm text-30 mt-1 group-hover:text-(--primary)/60 transition-colors">
+                        <p class="text-sm text-50 mt-1 group-hover:text-(--primary)/60 transition-colors">
                             {category.count} {i18n(I18nKey.postsCount)}
                         </p>
                     </div>
@@ -61,7 +61,7 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
                     name="material-symbols:folder-off"
                     class="text-5xl text-30 mx-auto mb-4"
                 />
-                <p class="text-30">{i18n(I18nKey.noData)}</p>
+                <p class="text-50">{i18n(I18nKey.noData)}</p>
             </div>
         )
     }

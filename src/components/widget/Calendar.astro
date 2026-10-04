@@ -177,7 +177,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 
     // Render month labels (numbers 1-12)
     monthsEl.innerHTML = Array.from({length: 12}, (_, i) =>
-      `<span class="text-[10px] text-neutral-400 dark:text-neutral-500 text-center">${i + 1}</span>`
+      `<span class="text-[10px] text-50 text-center">${i + 1}</span>`
     ).join('');
 
     const heatmapData = Array.from({ length: 12 }, () => [0, 0, 0, 0]);

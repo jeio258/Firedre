@@ -43,7 +43,7 @@ const viewConfigStr = JSON.stringify({
     </div>
     <div class="flex-1 min-w-0">
         <div class="item-title text-xs font-bold text-neutral-700 dark:text-neutral-200 truncate group-hover:text-(--primary) transition-colors"></div>
-        <div class="item-artist text-[10px] text-neutral-400 truncate"></div>
+        <div class="item-artist text-[10px] text-50 truncate"></div>
     </div>
 </div>
 </template>
@@ -454,15 +454,15 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             local.currentLrcIndex = -1;
             ui.lrcContainer.innerHTML = '';
             if (status === 'loading') {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10">' + cfg.i18n.loadingLyrics + '</div>';
+                ui.lrcContainer.innerHTML = '<div class="text-50 text-sm py-10">' + cfg.i18n.loadingLyrics + '</div>';
                 return;
             }
             if (status === 'failed') {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10">' + cfg.i18n.failedLyrics + '</div>';
+                ui.lrcContainer.innerHTML = '<div class="text-50 text-sm py-10">' + cfg.i18n.failedLyrics + '</div>';
                 return;
             }
             if (!lyrics || lyrics.length === 0) {
-                ui.lrcContainer.innerHTML = '<div class="text-neutral-400 text-sm py-10" role="option">' + cfg.i18n.noLyrics + '</div>';
+                ui.lrcContainer.innerHTML = '<div class="text-50 text-sm py-10" role="option">' + cfg.i18n.noLyrics + '</div>';
                 return;
             }
             lyrics.forEach(function (line, index) {

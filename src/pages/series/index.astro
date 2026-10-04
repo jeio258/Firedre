@@ -16,7 +16,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
         <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.series)}
         </div>
-        <p class="text-30 text-sm">
+        <p class="text-50 text-sm">
             {i18n(I18nKey.allSeries)} · {totalPosts} {i18n(I18nKey.postsCount)}
         </p>
     </div>
@@ -39,7 +39,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
                                     <span class="block text-lg font-bold text-90 truncate group-hover:text-(--primary) transition">
                                         {series.name}
                                     </span>
-                                    <span class="block text-sm text-30 mt-0.5 transition group-hover:text-(--primary)/60">
+                                    <span class="block text-sm text-50 mt-0.5 transition group-hover:text-(--primary)/60">
                                         {series.count} {i18n(I18nKey.postsCount)}
                                     </span>
                                 </span>
@@ -88,7 +88,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
         ) : (
             <div class="card-base px-8 py-12 text-center">
                 <Icon name="material-symbols:layers" class="text-5xl text-30 mx-auto mb-4" />
-                <p class="text-30">{i18n(I18nKey.noSeries)}</p>
+                <p class="text-50">{i18n(I18nKey.noSeries)}</p>
             </div>
         )
     }

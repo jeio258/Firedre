@@ -18,7 +18,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
         <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.tags)}
         </div>
-        <p class="text-30 text-sm">
+        <p class="text-50 text-sm">
             {i18n(I18nKey.allTags)} · {tags.length} {i18n(I18nKey.tagsCount)}
         </p>
     </div>
@@ -51,7 +51,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
                     name="material-symbols:tag-rounded"
                     class="text-5xl text-30 mx-auto mb-4"
                 />
-                <p class="text-30">{i18n(I18nKey.noData)}</p>
+                <p class="text-50">{i18n(I18nKey.noData)}</p>
             </div>
         )
     }

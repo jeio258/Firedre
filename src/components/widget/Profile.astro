@@ -114,11 +114,11 @@ const className = Astro.props.class;
       class="h-1 w-5 bg-(--primary) mx-auto rounded-full mb-2 transition"
     >
     </div>
-    <div class="text-center text-neutral-400 mb-2.5 transition">
+    <div class="text-center text-50 mb-2.5 transition">
       {effectiveBio}
     </div>
     {(effectiveLocation || effectiveEmail) && (
-      <div class="text-center text-neutral-400 text-sm mb-2.5 transition flex flex-col gap-1 items-center">
+      <div class="text-center text-50 text-sm mb-2.5 transition flex flex-col gap-1 items-center">
         {effectiveLocation && (
           <div class="flex items-center gap-1.5">
             <Icon name="material-symbols:location-on" class="text-base" aria-hidden="true" />

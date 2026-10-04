@@ -112,7 +112,7 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
             ))}
           </div>
           {             }
-          <div class="albums-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
+          <div class="albums-empty hidden flex-col items-center justify-center py-12 text-50">
             <Icon name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
             <div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
           </div>
