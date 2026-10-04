@@ -10,7 +10,10 @@ import type {
 	PostRecord,
 	PostsListResponse,
 } from "../../types/posts";
-import { bumpContentVersion } from "../settings/service";
+import {
+	bumpContentVersion,
+	getSettingsVersionCached,
+} from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
 import { normalizePinOrder, sortPostsByPinOrder } from "../utils/pinOrder";
@@ -287,6 +290,48 @@ export function clearWikiLinkCache(): void {
 	wikiMetaCache.delete("posts");
 }
 
+// 渲染结果缓存：key = r2_key(内容) + settingsVersion(配置) → 内容或配置变化即失效；
+// TTL 60s 兜底直改 D1 场景；无 caches 环境（vitest）直接 miss
+async function getRenderCache(cacheKey: string) {
+	try {
+		if (typeof caches === "undefined") return null;
+		const cached = await caches.default.match(cacheKey);
+		if (!cached) return null;
+		return (await cached.json()) as {
+			html: string;
+			headings: PostDetail["headings"];
+			words: number;
+			minutes: number;
+			excerpt?: string;
+		};
+	} catch {
+		return null;
+	}
+}
+
+async function setRenderCache(
+	cacheKey: string,
+	data: {
+		html: string;
+		headings: PostDetail["headings"];
+		words: number;
+		minutes: number;
+		excerpt?: string;
+	},
+) {
+	try {
+		if (typeof caches === "undefined") return;
+		await caches.default.put(
+			cacheKey,
+			new Response(JSON.stringify(data), {
+				headers: { "Content-Type": "application/json" },
+			}),
+		);
+	} catch {
+		// 缓存失败不影响主流程
+	}
+}
+
 export async function getPostBySlug(
 	env: CloudflareEnv,
 	slug: string,
@@ -304,10 +349,33 @@ export async function getPostBySlug(
 
 	const source = await object.text();
 	const { frontmatter, content } = splitMarkdown(source);
-	const rendered = await renderMarkdown(content, {
-		frontmatter,
-		resolveWikiLink: buildWikiLinkResolver(env),
-	});
+
+	// 渲染缓存：内容(r2_key) + 配置(settingsVersion) 双键，命中跳过整条 Markdown 管线
+	const settingsVersion = await getSettingsVersionCached(env).catch(() => "");
+	const renderCacheKey = `__post_render__/${row.r2_key}?v=${settingsVersion}`;
+	const cachedRender = await getRenderCache(renderCacheKey);
+	const rendered = cachedRender
+		? ({
+				html: cachedRender.html,
+				headings: cachedRender.headings,
+				words: cachedRender.words,
+				minutes: cachedRender.minutes,
+				frontmatter,
+				excerpt: cachedRender.excerpt ?? "",
+			} as Awaited<ReturnType<typeof renderMarkdown>>)
+		: await renderMarkdown(content, {
+				frontmatter,
+				resolveWikiLink: buildWikiLinkResolver(env),
+			});
+	if (!cachedRender) {
+		await setRenderCache(renderCacheKey, {
+			html: rendered.html,
+			headings: rendered.headings,
+			words: rendered.words,
+			minutes: rendered.minutes,
+			excerpt: rendered.excerpt,
+		});
+	}
 
 	const listItem = recordToListItem(row);
 	return {
