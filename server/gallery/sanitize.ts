@@ -21,6 +21,7 @@ export function sanitizeGalleryAlbumForPublic(
 			...detail.frontmatter,
 			password: undefined,
 			encrypted: true,
+			cover: undefined, // 与列表摘要一致：加密相册不暴露封面
 			photos: [],
 			// 加密相册对外最小暴露：不返回 WebDAV 服务器地址/账号，避免便于定向攻击
 			webdav: undefined,

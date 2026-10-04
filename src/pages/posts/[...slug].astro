@@ -60,11 +60,12 @@ export const prerender = false;
 const slug = Astro.params.slug || "";
 
 // Firedre：运行时从 D1+R2 获取文章并渲染
-const [{ getPostBySlug }, { cfEnv }, { apiPostToEntry }] = await Promise.all([
-	import("@server/posts/service"),
-	import("../../lib/api"),
-	import("../../utils/post-types"),
-]);
+const [{ getPostBySlug, getPostNeighbors }, { cfEnv }, { apiPostToEntry }] =
+	await Promise.all([
+		import("@server/posts/service"),
+		import("../../lib/api"),
+		import("../../utils/post-types"),
+	]);
 let postDetail: Awaited<ReturnType<typeof getPostBySlug>> = null;
 try {
 	postDetail = await getPostBySlug(cfEnv, slug, {});
@@ -81,6 +82,19 @@ if (!postDetail) {
 }
 
 const { entry, html, headings, words, minutes } = apiPostToEntry(postDetail);
+
+// 上一篇/下一篇 SSR 填充（修复前后篇按钮恒为"主页"的缺陷）：
+// getPostNeighbors 按日期排序返回相邻文章，与 API 端点行为一致；
+// 加密文章仅取 slug/title，不泄露正文
+const neighbors = await getPostNeighbors(cfEnv, slug);
+if (neighbors.prev) {
+	entry.data.prevSlug = neighbors.prev.slug;
+	entry.data.prevTitle = neighbors.prev.title;
+}
+if (neighbors.next) {
+	entry.data.nextSlug = neighbors.next.slug;
+	entry.data.nextTitle = neighbors.next.title;
+}
 
 const remarkPluginFrontmatter = {
 	words,

@@ -165,6 +165,12 @@ export async function setAlbumPassword(
 		return;
 	}
 	const stored = await encryptPassword(env, trimmed);
+	// 无密钥/短密钥（<32）时 encryptPassword 返回明文：告警一次，避免静默降级
+	if (stored === trimmed) {
+		console.warn(
+			"[gallery] SESSION_SECRET 缺失或短于 32 字符，相册口令将以明文存储（建议配置强密钥）",
+		);
+	}
 	await env.DB.prepare(
 		`INSERT INTO album_passwords (album_slug, password, updated_at)
 		 VALUES (?, ?, datetime('now'))

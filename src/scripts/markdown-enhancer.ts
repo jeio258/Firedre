@@ -20,18 +20,37 @@ function loadHighlightJs(): Promise<void> {
 		};
 		script.onerror = () => resolve();
 		document.head.appendChild(script);
-		// 与脚本同时注入高亮样式（仅按需时加载，避免无代码块页面白耗）
-		if (
-			!document.querySelector(
-				'link[href="/assets/css/highlight-github-dark.min.css"]',
-			)
-		) {
-			const link = document.createElement("link");
-			link.rel = "stylesheet";
-			link.href = "/assets/css/highlight-github-dark.min.css";
-			document.head.appendChild(link);
-		}
+		injectHighlightTheme();
 	});
+}
+
+// 代码块高亮主题跟随深浅模式：注入对应 hljs css（浅色/深色两套资源）
+let highlightThemeObserver: MutationObserver | null = null;
+function injectHighlightTheme(): void {
+	const isDark = document.documentElement.classList.contains("dark");
+	const href = isDark
+		? "/assets/css/highlight-github-dark.min.css"
+		: "/assets/css/highlight-github-light.min.css";
+	const selector = "link[data-highlight-theme]";
+	const existing = document.head.querySelector<HTMLLinkElement>(selector);
+	if (existing) {
+		if (existing.href.endsWith(href)) return;
+		existing.href = href;
+	} else {
+		const link = document.createElement("link");
+		link.rel = "stylesheet";
+		link.dataset.highlightTheme = "";
+		link.href = href;
+		document.head.appendChild(link);
+	}
+	// 主题切换（深/浅）时跟随更新
+	if (!highlightThemeObserver) {
+		highlightThemeObserver = new MutationObserver(() => injectHighlightTheme());
+		highlightThemeObserver.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ["class"],
+		});
+	}
 }
 
 async function highlight(root: ParentNode) {

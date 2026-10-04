@@ -66,25 +66,8 @@ export const GET: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, config }, 200, "private");
 		}
 
-		if (segments[1] === "unlock" && request.method === "GET") {
-			return withRateLimit(
-				cfEnv,
-				request,
-				{
-					windowMs: 60_000,
-					maxRequests: 10,
-					failOpen: false,
-					scope: "gallery-unlock",
-				},
-				async () => {
-					const password =
-						new URL(request.url).searchParams.get("password") || "";
-					const result = await unlockGalleryAlbum(cfEnv, slug, password);
-					if (!result.ok) return json({ message: "密码错误" }, 403);
-					return json({ ok: true, photos: result.photos }, 200, "private");
-				},
-			);
-		}
+		// GET unlock 已移除（口令经查询串进日志/历史，且无客户端消费方）；
+		// 解锁统一走下方 POST /unlock（请求体携带口令）
 
 		const album = await getGalleryAlbum(cfEnv, slug, {
 			includeSource: isAdmin,
