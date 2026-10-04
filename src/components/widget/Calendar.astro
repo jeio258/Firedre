@@ -369,7 +369,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
         >
           ${day || ''}
           ${hasPost ? '<span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-(--primary)"></span>' : ''}
-          ${hasPost && count > 1 ? `<span class="absolute top-0 right-0 text-[10px] text-(--primary) font-bold">${count}</span>` : ''}
+          ${hasPost && count > 1 ? `<span class="absolute top-0 right-0 text-[10px] text-(--primary-text) font-bold">${count}</span>` : ''}
         </div>
       `;
     }).join('');
@@ -405,7 +405,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
         "p-2 text-center text-sm rounded-sm cursor-pointer hover:bg-(--btn-plain-bg-hover) transition-colors relative"
       ];
       if (isCurrent) {
-        classes.push("text-(--primary) font-bold bg-(--btn-plain-bg-hover)");
+        classes.push("text-(--primary-text) font-bold bg-(--btn-plain-bg-hover)");
       } else {
         classes.push("text-neutral-700 dark:text-neutral-300");
       }
@@ -434,7 +434,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
         "p-2 text-center text-sm rounded-sm cursor-pointer hover:bg-(--btn-plain-bg-hover) transition-colors relative"
       ];
       if (isCurrent) {
-        classes.push("text-(--primary) font-bold bg-(--btn-plain-bg-hover)");
+        classes.push("text-(--primary-text) font-bold bg-(--btn-plain-bg-hover)");
       } else {
         classes.push("text-neutral-700 dark:text-neutral-300");
       }

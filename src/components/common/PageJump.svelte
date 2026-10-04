@@ -143,7 +143,7 @@ function onKeydown(event: KeyboardEvent) {
     type="button"
     aria-label={label}
     title={label}
-    class="h-11 p-0 flex items-center justify-center cursor-pointer text-base font-bold text-(--primary)"
+    class="h-11 p-0 flex items-center justify-center cursor-pointer text-base font-bold text-(--primary-text)"
     style={`width: ${digits + 0.5}ch`}
     onclick={open}
   >

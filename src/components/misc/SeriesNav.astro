@@ -48,7 +48,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
             ];
             return isCurrent ? (
               <li class:list={rowClass}>
-                <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition">
+                <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary-text) flex items-center justify-center text-sm font-bold transition">
                   {idx + 1}
                 </span>
                 <span class="flex-1 min-w-0 font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)">
@@ -57,7 +57,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
                 <span
                   aria-current="page"
                   title={part}
-                  class="ml-auto shrink-0 text-xs px-1.5 py-0.5 rounded-sm bg-(--enter-btn-bg) text-(--primary)"
+                  class="ml-auto shrink-0 text-xs px-1.5 py-0.5 rounded-sm bg-(--enter-btn-bg) text-(--primary-text)"
                 >
                   {i18n(I18nKey.seriesThisArticle)}
                 </span>
@@ -65,7 +65,7 @@ const { seriesName, posts, currentPostId } = Astro.props;
             ) : (
               <li>
                 <a href={getPostUrlBySlug(post.id)} title={part} aria-label={part} class:list={rowClass}>
-                  <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition">
+                  <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary-text) flex items-center justify-center text-sm font-bold transition">
                     {idx + 1}
                   </span>
                   <span class="flex-1 min-w-0 font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)">

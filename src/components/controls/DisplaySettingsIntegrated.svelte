@@ -698,7 +698,7 @@ $effect(() => {
 		{#each visibleTabs as tab (tab.key)}
 			<button
 				class="focus-ring-inset flex-1 flex items-center justify-center gap-1 py-2 text-xs font-medium transition-colors relative min-w-0 rounded-md
-					{activeTab === tab.key ? 'text-(--primary)' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}"
+					{activeTab === tab.key ? 'text-(--primary-text)' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}"
 				onclick={() => activeTab = tab.key}
 			>
 				<Icon icon={tab.icon} class="text-[0.875rem] shrink-0"></Icon>

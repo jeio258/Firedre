@@ -163,7 +163,7 @@ const logoVariants = await Promise.all(
             <a href={url('/')} class="btn-plain scale-animation rounded-lg h-13 px-3 md:px-5 font-bold active:scale-95">
                 <div class:list={[
                     "flex flex-row items-center text-md",
-                    navbarConfig.followTheme ? "text-(--primary)" : "dark:text-white text-black"
+                    navbarConfig.followTheme ? "text-(--primary-text)" : "dark:text-white text-black"
                 ]} style="font-family: var(--font-navbar-title, inherit)">
                                     {logoConfig?.type === "icon" ? (
                                         <Icon name={logoConfig.value || "material-symbols:home-pin-outline"} class="navbar-logo text-[1.75rem] mb-1 mr-2" />

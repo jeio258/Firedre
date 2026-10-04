@@ -81,7 +81,7 @@ function getQrLqipProps(qrCode: string) {
             <div class="flex items-start gap-2">
               <Icon name="material-symbols:info-outline" class="text-(--primary) text-lg shrink-0 mt-0.5" />
               <p class="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
-                <span class="font-semibold text-(--primary)"></span>
+                <span class="font-semibold text-(--primary-text)"></span>
                 {(sponsorSettings.usage ?? sponsorConfig.usage)}
               </p>
             </div>
@@ -176,7 +176,7 @@ function getQrLqipProps(qrCode: string) {
                 <div 
                   class={`w-9 h-9 rounded-full bg-(--primary)/10 flex items-center justify-center shrink-0 group-hover:bg-(--primary)/20 transition-colors ${sponsor.avatar ? 'hidden' : ''}`}
                 >
-                  <span class="text-sm font-bold text-(--primary)">{sponsor.name.charAt(0)}</span>
+                  <span class="text-sm font-bold text-(--primary-text)">{sponsor.name.charAt(0)}</span>
                 </div>
 
                 {        }
@@ -186,7 +186,7 @@ function getQrLqipProps(qrCode: string) {
                       {sponsor.name}
                     </span>
                     {sponsor.amount && (
-                      <span class="shrink-0 text-xs font-bold text-(--primary)">
+                      <span class="shrink-0 text-xs font-bold text-(--primary-text)">
                         {sponsor.amount}
                       </span>
                     )}

@@ -63,7 +63,7 @@ const foldOnFilter = collapseAllButFirst;
       <div class="min-w-0 text-sm text-75">
         <a id="archive-filter-link" href={tagsBaseUrl} class="text-50 hover:text-(--primary) transition-colors">{i18n(I18nKey.tags)}</a>
         <span class="mx-2 text-30">/</span>
-        <span id="archive-filter-values" class="font-semibold text-(--primary)"></span>
+        <span id="archive-filter-values" class="font-semibold text-(--primary-text)"></span>
         <span id="archive-filter-secondary" class="ml-2 text-50 hidden"></span>
       </div>
       <div class="shrink-0 text-xs text-50">
@@ -133,7 +133,7 @@ const foldOnFilter = collapseAllButFirst;
                   {post.data.category && (
                     <span class="shrink-0 inline-block text-xs font-medium px-1.5 py-0.5 rounded-sm
                                  bg-[oklch(0.95_0.025_var(--hue))] dark:bg-[oklch(0.25_0.025_var(--hue))]
-                                 text-(--primary) group-hover:bg-(--primary-fill) group-hover:text-(--primary-on-fill)!
+                                 text-(--primary-text) group-hover:bg-(--primary-fill) group-hover:text-(--primary-on-fill)!
                                  transition-colors">
                       {post.data.category}
                     </span>

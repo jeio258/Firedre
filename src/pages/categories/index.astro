@@ -13,7 +13,7 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
 <MainGridLayout title={i18n(I18nKey.categories)}>
 
     <div class="card-base px-8 py-6 mb-4">
-        <div class="text-2xl font-bold text-(--primary) mb-2">
+        <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.categories)}
         </div>
         <p class="text-30 text-sm">
@@ -32,7 +32,7 @@ const totalPosts = categories.reduce((sum, cat) => sum + cat.count, 0);
                     <div class="shrink-0 w-14 h-14 rounded-full bg-(--primary)/10 group-hover:bg-(--primary)/20 flex items-center justify-center transition-colors">
                         <Icon
                             name="material-symbols:folder-open"
-                            class="text-3xl text-(--primary)"
+                            class="text-3xl text-(--primary-text)"
                         />
                     </div>
                     <div class="flex-1 min-w-0">

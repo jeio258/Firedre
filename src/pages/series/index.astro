@@ -13,7 +13,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
 <MainGridLayout title={i18n(I18nKey.series)} description={i18n(I18nKey.allSeries)}>
 
     <div class="card-base px-8 py-6 mb-4">
-        <div class="text-2xl font-bold text-(--primary) mb-2">
+        <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.series)}
         </div>
         <p class="text-30 text-sm">
@@ -64,7 +64,7 @@ const totalPosts = seriesList.reduce((sum, series) => sum + series.count, 0);
                                                             "border-b border-dashed border-(--line-divider)",
                                                     ]}
                                                 >
-                                                    <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary) flex items-center justify-center text-sm font-bold transition">
+                                                    <span class="shrink-0 w-6 h-6 rounded-md bg-(--enter-btn-bg) text-(--primary-text) flex items-center justify-center text-sm font-bold transition">
                                                         {idx + 1}
                                                     </span>
                                                     <span class="flex-1 min-w-0 font-bold text-sm text-black/75 dark:text-white/75 truncate transition group-hover:text-(--primary)">

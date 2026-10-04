@@ -486,10 +486,10 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             var lines = ui.lrcContainer.querySelectorAll('.lrc-line');
             lines.forEach(function (line, i) {
                 if (i === index) {
-                    line.classList.add('text-(--primary)', 'font-bold', 'text-base');
+                    line.classList.add('text-(--primary-text)', 'font-bold', 'text-base');
                     line.classList.remove('text-neutral-400', 'text-sm');
                 } else {
-                    line.classList.remove('text-(--primary)', 'font-bold', 'text-base');
+                    line.classList.remove('text-(--primary-text)', 'font-bold', 'text-base');
                     line.classList.add('text-neutral-400', 'text-sm');
                 }
             });

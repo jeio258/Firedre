@@ -15,7 +15,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
 <MainGridLayout title={i18n(I18nKey.tags)} description={i18n(I18nKey.allTags)}>
 
     <div class="card-base px-8 py-6 mb-4">
-        <div class="text-2xl font-bold text-(--primary) mb-2">
+        <div class="text-2xl font-bold text-(--primary-text) mb-2">
             {i18n(I18nKey.tags)}
         </div>
         <p class="text-30 text-sm">
@@ -66,7 +66,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
                     <a href={getTagUrl(t.name)}
                        class="flex items-center gap-3 group hover:bg-(--btn-card-bg-hover) rounded-lg px-3 py-2 -mx-3 transition-colors"
                     >
-                        <span class="text-sm font-bold text-(--primary) w-5 text-right shrink-0">
+                        <span class="text-sm font-bold text-(--primary-text) w-5 text-right shrink-0">
                             {i + 1}
                         </span>
                         <div class="flex-1 min-w-0">
@@ -74,7 +74,7 @@ const topMaxCount = topTags.length > 0 ? topTags[0].count : 1;
                                 <span class="text-sm font-medium text-50 truncate group-hover:text-(--primary) transition-colors">
                                     #{t.name.trim()}
                                 </span>
-                                <span class="text-xs text-(--primary) ml-2 shrink-0">
+                                <span class="text-xs text-(--primary-text) ml-2 shrink-0">
                                     {t.count} {i18n(I18nKey.postsCount)}
                                 </span>
                             </div>
