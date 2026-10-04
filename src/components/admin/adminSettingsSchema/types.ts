@@ -48,12 +48,13 @@ export interface Field {
 export interface Group {
 	key: string;
 	title: string;
-	category: "站点配置" | "功能配置" | "页面配置" | "扩展功能";
+	category: "站点配置" | "外观布局" | "功能配置" | "页面配置" | "扩展功能";
 	fields: Field[];
 }
 
 export const CATEGORIES = [
 	"站点配置",
+	"外观布局",
 	"功能配置",
 	"页面配置",
 	"扩展功能",

@@ -1,4 +1,5 @@
 <script lang="ts">
+import { CATEGORIES } from "@/components/admin/adminSettingsSchema/types";
 import { iconSvg, isActive, NAV_GROUPS } from "@/lib/adminNav";
 
 interface Props {
@@ -51,7 +52,7 @@ let {
 									<span class="s3caret">{@html iconSvg("chevron")}</span>
 								</a>
 								<div class="s3sub">
-									{#each ["站点配置", "功能配置", "页面配置", "扩展功能"] as label, ci}
+									{#each CATEGORIES as label, ci}
 										<button
 											type="button"
 											class="s3cat"

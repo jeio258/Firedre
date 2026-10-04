@@ -12,7 +12,7 @@ export const featureGroups: Group[] = [
 	{
 		key: "font",
 		title: "字体",
-		category: "功能配置",
+		category: "外观布局",
 		fields: [
 			{
 				name: "scale",
@@ -141,7 +141,7 @@ export const featureGroups: Group[] = [
 	{
 		key: "cover",
 		title: "封面图片",
-		category: "功能配置",
+		category: "外观布局",
 		fields: [
 			{ name: "enable", label: "启用封面", type: "boolean" },
 			{ name: "defaultImage", label: "默认封面 URL", type: "text" },
@@ -322,7 +322,7 @@ export const featureGroups: Group[] = [
 	{
 		key: "expressiveCode",
 		title: "代码块主题",
-		category: "功能配置",
+		category: "外观布局",
 		fields: [
 			{ name: "darkTheme", label: "暗色主题", type: "text" },
 			{ name: "lightTheme", label: "亮色主题", type: "text" },

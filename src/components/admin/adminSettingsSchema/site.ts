@@ -94,7 +94,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "panel",
 		title: "显示设置面板",
-		category: "站点配置",
+		category: "外观布局",
 		fields: [
 			{ name: "enable", label: "启用设置面板", type: "boolean" },
 			{ name: "themeColorSwitchable", label: "主题色可调", type: "boolean" },
@@ -139,7 +139,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "effects",
 		title: "特效设置",
-		category: "站点配置",
+		category: "外观布局",
 		fields: [
 			{ name: "sakura", label: "樱花飘落", type: "boolean" },
 			{ name: "sakuraNum", label: "樱花数量", type: "number", hint: "默认 21" },
@@ -187,7 +187,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "theme",
 		title: "背景壁纸",
-		category: "站点配置",
+		category: "外观布局",
 		fields: [
 			{
 				name: "mode",
@@ -313,7 +313,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "sidebar",
 		title: "侧边栏",
-		category: "站点配置",
+		category: "外观布局",
 		fields: [
 			{ name: "showProfile", label: "个人资料卡片", type: "boolean" },
 			{ name: "showAnnouncement", label: "公告卡片", type: "boolean" },
@@ -337,7 +337,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "nav",
 		title: "导航栏",
-		category: "站点配置",
+		category: "外观布局",
 		fields: [
 			{
 				name: "navbarMode",
@@ -355,7 +355,7 @@ export const siteGroups: Group[] = [
 	{
 		key: "post",
 		title: "文章页底部区块",
-		category: "站点配置",
+		category: "功能配置",
 		fields: [
 			{ name: "share", label: "分享卡片", type: "boolean" },
 			{ name: "postNavigation", label: "上一篇/下一篇导航", type: "boolean" },
