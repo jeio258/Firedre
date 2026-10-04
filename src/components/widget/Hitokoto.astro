@@ -13,9 +13,9 @@ interface Props {
 const { class: className, style, widgetConfig } = Astro.props;
 const showTitle = widgetConfig?.showTitle !== false;
 
-// 后台可配：一言 API / 兜底文案（sidebar 组）
+// 后台可配：一言 API / 兜底文案（sidebar 组）；默认 v1.hitokoto.cn/?lang=cn 仅返回中文
 const sb = getSidebarConfig(Astro.locals);
-const hitokotoApi = sb.hitokotoApi || "https://v1.hitokoto.cn/";
+const hitokotoApi = sb.hitokotoApi || "https://v1.hitokoto.cn/?lang=cn";
 const fallbackText = sb.hitokotoFallbackText || "世界很大，开心第一。";
 const fallbackSource = sb.hitokotoFallbackSource || "";
 ---
@@ -144,7 +144,8 @@ const fallbackSource = sb.hitokotoFallbackSource || "";
 		const authorEl = root.querySelector("[data-hitokoto-author]");
 		const refreshBtn = root.querySelector("[data-hitokoto-refresh]");
 		const API =
-			card.getAttribute("data-hitokoto-api") || "https://v1.hitokoto.cn/";
+			card.getAttribute("data-hitokoto-api") ||
+			"https://v1.hitokoto.cn/?lang=cn";
 		const fallbackText =
 			card.getAttribute("data-hitokoto-fallback-text") ||
 			"世界很大，开心第一。";
@@ -215,5 +216,9 @@ const fallbackSource = sb.hitokotoFallbackSource || "";
 		const cached = getCached();
 		if (cached) update(cached);
 		else refresh();
+
+		// 自动轮转：每 5 分钟换一句（绕过缓存拉新句；侧栏不在 swup 容器内，
+		// 软导航不重建，interval 持续生效；页面隐藏时浏览器自动节流）
+		setInterval(refresh, 5 * 60 * 1000);
 	})();
 </script>

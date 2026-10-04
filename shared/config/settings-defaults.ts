@@ -273,7 +273,7 @@ export const settingsDefaults = {
 		showTags: true,
 		showCalendar: true,
 		showHitokoto: true,
-		hitokotoApi: "https://v1.hitokoto.cn/",
+		hitokotoApi: "https://v1.hitokoto.cn/?lang=cn",
 		hitokotoFallbackText: "世界很大，开心第一。",
 		hitokotoFallbackSource: "",
 		hideSidebarOnPostPage: false,

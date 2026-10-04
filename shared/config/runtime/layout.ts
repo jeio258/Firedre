@@ -85,7 +85,7 @@ export function getSidebarConfig(locals: unknown): SidebarLayoutConfig {
 		showStats: bool(sb.showStats, true),
 		showAdvertisement: bool(sb.showAdvertisement, true),
 		showHitokoto: bool(sb.showHitokoto, true),
-		hitokotoApi: str(sb.hitokotoApi, "https://v1.hitokoto.cn/"),
+		hitokotoApi: str(sb.hitokotoApi, "https://v1.hitokoto.cn/?lang=cn"),
 		hitokotoFallbackText: str(sb.hitokotoFallbackText, "世界很大，开心第一。"),
 		hitokotoFallbackSource: str(sb.hitokotoFallbackSource, ""),
 	} as SidebarLayoutConfig;

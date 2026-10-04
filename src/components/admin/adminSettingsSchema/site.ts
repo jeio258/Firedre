@@ -326,7 +326,7 @@ export const siteGroups: Group[] = [
 				name: "hitokotoApi",
 				label: "一言 API 地址",
 				type: "text",
-				hint: "留空使用默认 https://v1.hitokoto.cn/；支持标准一言 JSON 与纯文本接口",
+				hint: "留空使用默认 https://v1.hitokoto.cn/?lang=cn（仅中文）；支持标准一言 JSON 与纯文本接口",
 			},
 			{
 				name: "hitokotoFallbackText",
