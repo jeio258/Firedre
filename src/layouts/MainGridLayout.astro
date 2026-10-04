@@ -8,8 +8,12 @@ import FloatingControls from "@/components/controls/FloatingControls.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
 import SidebarColumn from "@/components/layout/SidebarColumn.astro";
 import WallpaperSection from "@/components/layout/WallpaperSection.astro";
-import { resolveNavbarMode, sidebarLayoutConfig, siteConfig } from "@/config";
-import { getNavbarConfig, getWallpaperConfig } from "@/config/runtime";
+import { resolveNavbarMode, siteConfig } from "@/config";
+import {
+	getNavbarConfig,
+	getSidebarConfig,
+	getWallpaperConfig,
+} from "@/config/runtime";
 import { getBannerVisibilityState } from "@/utils/banner-visibility-utils";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";
@@ -106,7 +110,12 @@ const banner = getBannerVisibilityState(
 	},
 	settings as unknown as Record<string, unknown> | undefined,
 );
-const sidebar = getEffectiveSidebarState({ isPostPage });
+const sidebar = getEffectiveSidebarState(
+	{ isPostPage },
+	getSidebarConfig(Astro.locals),
+);
+// 运行时侧栏配置（后台可编辑；静态配置兜底）
+const sidebarRuntime = getSidebarConfig(Astro.locals);
 
 const { hasWallpaper } = banner;
 // 壁纸 preload URL：仅外部 http 图片（本地图片走 _image 按需优化，URL 不可预测，不预取）
@@ -183,8 +192,8 @@ const allPostMeta =
 
             <SidebarColumn
                 side="left"
-                position={sidebarLayoutConfig.position}
-                enable={sidebarLayoutConfig.enable}
+                position={sidebarRuntime.position}
+                enable={sidebarRuntime.enable}
                 hideSidebarOnPostPage={hideSidebarOnPostPage}
                 hasLeftComponents={hasLeftComponents}
                 hasRightComponents={hasRightComponents}
@@ -208,7 +217,7 @@ const allPostMeta =
                 </main>
 
                 {/* 移动端底部组件：<768px 时 #main-grid 是 display:block，必须排在页脚之前 */}
-                {sidebarLayoutConfig.mobileBottomComponents && sidebarLayoutConfig.mobileBottomComponents.length > 0 && (
+                {sidebarRuntime.mobileBottomComponents && sidebarRuntime.mobileBottomComponents.length > 0 && (
                     <div id="mobile-bottom-sidebar" class="block md:hidden mt-4">
                         <SideBar side="bottom" headings={headings} encrypted={encrypted}></SideBar>
                     </div>
@@ -217,8 +226,8 @@ const allPostMeta =
 
             <SidebarColumn
                 side="right"
-                position={sidebarLayoutConfig.position}
-                enable={sidebarLayoutConfig.enable}
+                position={sidebarRuntime.position}
+                enable={sidebarRuntime.enable}
                 hideSidebarOnPostPage={hideSidebarOnPostPage}
                 hasLeftComponents={hasLeftComponents}
                 hasRightComponents={hasRightComponents}

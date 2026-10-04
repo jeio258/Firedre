@@ -61,10 +61,21 @@ async function renderMermaid(root: ParentNode) {
 	// 后台站点设置可关闭 Mermaid 渲染
 	const settings = (
 		window as unknown as {
-			__FIREFLY_SETTINGS__?: { mermaid?: { enabled?: boolean } };
+			__FIREFLY_SETTINGS__?: {
+				mermaid?: {
+					enabled?: boolean;
+					lightTheme?: string;
+					darkTheme?: string;
+				};
+			};
 		}
 	).__FIREFLY_SETTINGS__;
 	if (settings?.mermaid?.enabled === false) return;
+	// 主题跟随后台设置（runtime），静态 mermaidConfig 仅作构建期兜底
+	const lightTheme = (settings?.mermaid?.lightTheme ||
+		mermaidConfig.lightTheme) as typeof mermaidConfig.lightTheme;
+	const darkTheme = (settings?.mermaid?.darkTheme ||
+		mermaidConfig.darkTheme) as typeof mermaidConfig.darkTheme;
 	const containers = Array.from(
 		root.querySelectorAll<HTMLElement>(
 			"div.mermaid-container[data-mermaid-code]",
@@ -82,11 +93,11 @@ async function renderMermaid(root: ParentNode) {
 			const code = container.dataset.mermaidCode || "";
 			try {
 				const light = renderSvg(code, {
-					host_theme: { preset: mermaidConfig.lightTheme },
+					host_theme: { preset: lightTheme },
 					svg: { diagram_id: `mermaid-${index}-light`, pipeline: "parity" },
 				});
 				const dark = renderSvg(code, {
-					host_theme: { preset: mermaidConfig.darkTheme },
+					host_theme: { preset: darkTheme },
 					svg: { diagram_id: `mermaid-${index}-dark`, pipeline: "parity" },
 				});
 				container.outerHTML =

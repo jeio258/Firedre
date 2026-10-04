@@ -1,7 +1,6 @@
 import { getSettingsVersion } from "@server/settings/service";
 import { url } from "@utils/url-utils";
 import type { APIContext } from "astro";
-import { siteConfig } from "@/config";
 import { getSiteConfig } from "@/config/runtime";
 
 export const prerender = false;
@@ -37,6 +36,8 @@ export async function GET(context: APIContext): Promise<Response> {
 	}
 
 	const siteUrl = getSiteConfig(context.locals).site_url;
+	// 频道 title/description/lang 跟随后台设置（runtime）
+	const siteCfg = getSiteConfig(context.locals);
 	// 频道 link 与原 @astrojs/rss 输出对齐：补结尾斜杠
 	const siteBase = siteUrl.endsWith("/") ? siteUrl : `${siteUrl}/`;
 	let settingsVersion = "0";
@@ -69,10 +70,10 @@ export async function GET(context: APIContext): Promise<Response> {
 		`<?xml version="1.0" encoding="UTF-8"?>` +
 		`<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">` +
 		"<channel>" +
-		`<title>${escapeXml(siteConfig.title)}</title>` +
-		`<description>${escapeXml(String(siteConfig.description ?? ""))}</description>` +
+		`<title>${escapeXml(siteCfg.title)}</title>` +
+		`<description>${escapeXml(String(siteCfg.description ?? ""))}</description>` +
 		`<link>${escapeXml(siteBase)}</link>` +
-		`<language>${escapeXml(siteConfig.lang)}</language>` +
+		`<language>${escapeXml(siteCfg.lang)}</language>` +
 		items +
 		"</channel></rss>";
 

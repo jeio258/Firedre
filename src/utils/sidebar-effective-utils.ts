@@ -1,9 +1,15 @@
-import { sidebarLayoutConfig } from "@/config";
+import { sidebarLayoutConfig as staticSidebarConfig } from "@/config";
+import type { SidebarLayoutConfig } from "@/types/sidebarConfig";
 import {
 	computeGridColumns,
 	getResponsiveSidebarConfig,
 	gridColumnVarsToStyle,
 } from "@/utils/responsive-utils";
+
+// 运行时配置优先（SSR 传 getSidebarConfig(Astro.locals)），无参数时用静态兜底
+function resolveSidebar(sb?: SidebarLayoutConfig): SidebarLayoutConfig {
+	return sb ?? staticSidebarConfig;
+}
 
 export interface EffectiveSidebarContext {
 	isPostPage: boolean;
@@ -26,10 +32,12 @@ export interface EffectiveSidebarState {
  */
 export function getEffectiveSidebarState(
 	ctx: EffectiveSidebarContext,
+	sb?: SidebarLayoutConfig,
 ): EffectiveSidebarState {
 	const { isPostPage } = ctx;
+	const sidebarLayoutConfig = resolveSidebar(sb);
 
-	const sidebarConfig = getResponsiveSidebarConfig();
+	const sidebarConfig = getResponsiveSidebarConfig(sidebarLayoutConfig);
 
 	const hideSidebarOnPostPage =
 		sidebarLayoutConfig.hideSidebarOnPostPage === true;

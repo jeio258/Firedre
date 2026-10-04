@@ -4,19 +4,23 @@ const settings =
 
 import { Font } from "astro:assets";
 import { fontConfig } from "@/config";
+import { getFontConfig } from "@/config/runtime";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
+// fontItems 用静态 fontConfig（Astro Font API 构建期打包字体文件）；
+// CSS 变量选择（body 字体栈 / 标题字体）用运行时 getFontConfig，后台改字体选择即时生效
+const fontCfg = getFontConfig(Astro.locals);
 
 const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
 
 const selectedIds: string[] =
-	fontConfig.enable && fontConfig.selected
-		? Array.isArray(fontConfig.selected)
-			? fontConfig.selected
-			: [fontConfig.selected]
+	fontCfg.enable && fontCfg.selected
+		? Array.isArray(fontCfg.selected)
+			? fontCfg.selected
+			: [fontCfg.selected]
 		: [];
 
 const SYSTEM_FONT_STACK =
@@ -38,16 +42,12 @@ const bodyFontFamily =
 			)
 		: SYSTEM_FONT_STACK;
 
-const bannerTitleFontVar = fontConfig.enable
-	? fontConfig.bannerTitleFont || ""
+const bannerTitleFontVar = fontCfg.enable ? fontCfg.bannerTitleFont || "" : "";
+const bannerSubtitleFontVar = fontCfg.enable
+	? fontCfg.bannerSubtitleFont || ""
 	: "";
-const bannerSubtitleFontVar = fontConfig.enable
-	? fontConfig.bannerSubtitleFont || ""
-	: "";
-const navbarTitleFontVar = fontConfig.enable
-	? fontConfig.navbarTitleFont || ""
-	: "";
-const codeFontVar = fontConfig.enable ? fontConfig.codeFont || "" : "";
+const navbarTitleFontVar = fontCfg.enable ? fontCfg.navbarTitleFont || "" : "";
+const codeFontVar = fontCfg.enable ? fontCfg.codeFont || "" : "";
 
 const codeFontFamily = codeFontVar
 	? `var(${codeFontVar}, ${MONO_FONT_STACK})`
@@ -71,7 +71,7 @@ const codeFontFamily = codeFontVar
   }
 
   ${
-		fontConfig.enable &&
+		fontCfg.enable &&
 		(bannerTitleFontVar ||
 			bannerSubtitleFontVar ||
 			navbarTitleFontVar ||
