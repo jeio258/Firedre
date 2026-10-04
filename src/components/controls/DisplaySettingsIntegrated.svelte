@@ -95,6 +95,9 @@ const panelFlag = (k: string, fallback: boolean) => {
 };
 
 let hue = $state(getHue());
+// 仅当用户真的拖动色相滑块（或点重置）才写入本地偏好：
+// 原先 $effect 无条件 setHue，导致「打开面板」即持久化一个用户从未设置的色相
+let hueTouched = $state(false);
 const defaultHue = getDefaultHue();
 let wallpaperMode: WALLPAPER_MODE = $state(wallpaperView.mode);
 const defaultWallpaperMode = wallpaperView.mode;
@@ -338,6 +341,7 @@ let hasVisibleOverlaySlider = $derived(
 
 function resetHue() {
 	hue = getDefaultHue();
+	hueTouched = true;
 	requestAnimationFrame(refreshAllRangeProgress);
 }
 
@@ -628,7 +632,7 @@ onMount(() => {
 });
 
 $effect(() => {
-	if (hue || hue === 0) {
+	if (hueTouched && (hue || hue === 0)) {
 		setHue(hue);
 	}
 });
@@ -724,6 +728,7 @@ $effect(() => {
 			</div>
 			<div class="hue-slider-shell w-full h-6 px-1 bg-[oklch(0.80_0.10_0)] dark:bg-[oklch(0.70_0.10_0)] rounded-md select-none">
 				<input aria-label={i18n(I18nKey.themeColor)} type="range" min="0" max="360" bind:value={hue}
+					   oninput={() => { hueTouched = true; }}
 					   class="slider" id="colorSlider" step="5" style="width: 100%">
 			</div>
 		</div>

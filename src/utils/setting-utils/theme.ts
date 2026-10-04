@@ -13,12 +13,21 @@ import { siteConfig } from "../../config";
 import { createStoredBoolean } from "./shared";
 
 export function getDefaultHue(): number {
-	const fallback = "250";
-	if (typeof document === "undefined") {
-		return Number.parseInt(fallback, 10);
+	// 权威来源：客户端设置视图（后台配置的色相）；其次页面内的配置载体；最后才兜底。
+	// 历史问题：直接退到硬编码 250，而面板挂载会把它写进 localStorage，导致用户
+	// 从未设置却出现「本地色相」且长期覆盖云端配置。
+	const configured = getSiteConfigFromWindow().themeColor?.hue;
+	if (typeof configured === "number" && Number.isFinite(configured)) {
+		return configured;
 	}
-	const configCarrier = document.getElementById("config-carrier");
-	return Number.parseInt(configCarrier?.dataset.hue || fallback, 10);
+	if (typeof document !== "undefined") {
+		const carrier = document.getElementById("config-carrier");
+		const parsed = carrier?.dataset.hue
+			? Number.parseInt(carrier.dataset.hue, 10)
+			: Number.NaN;
+		if (Number.isFinite(parsed)) return parsed;
+	}
+	return 250;
 }
 
 function getDefaultTheme(): LIGHT_DARK_MODE {
@@ -61,7 +70,10 @@ export function setHue(hue: number): void {
 	) {
 		return;
 	}
+	// hueSource=user 标记：只有用户真的动过色相才有本地偏好；无标记的存量值会在
+	// Layout 的预渲染脚本里被清除并回落云端配置
 	localStorage.setItem("hue", String(hue));
+	localStorage.setItem("hueSource", "user");
 	const r = document.querySelector(":root") as HTMLElement;
 	if (!r) {
 		return;

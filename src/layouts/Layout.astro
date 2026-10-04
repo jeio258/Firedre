@@ -413,6 +413,11 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
       // hue 仅在后台色相配置本身变化时重置，其余设置变更不影响用户自设色相
       var PREF_KEYS = ["wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
       try {
+        // 一次性迁移：历史版本面板挂载即写 hue，产生过「用户从未设置」的脏色相；
+        // 只保留带 hueSource=user 标记的用户自设值
+        if (localStorage.getItem("hue") !== null && localStorage.getItem("hueSource") !== "user") {
+          localStorage.removeItem("hue");
+        }
         if (localStorage.getItem("settingsVersion") !== String(settingsVersion)) {
           var hueChanged = localStorage.getItem("settingsHue") !== String(configHue);
           for (var pi = 0; pi < PREF_KEYS.length; pi++) localStorage.removeItem(PREF_KEYS[pi]);
