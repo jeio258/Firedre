@@ -76,7 +76,7 @@ function goToPage(page: number) {
           <button
             type="button"
             class="rounded-(--radius-large) overflow-hidden w-11 h-11 flex items-center justify-center font-bold {pageItem === currentPage
-              ? 'bg-(--primary) text-white dark:text-black/70'
+              ? 'bg-(--primary-fill) text-(--primary-on-fill)'
               : 'btn-card active:scale-[0.85] text-neutral-700 dark:text-neutral-300'}"
             onclick={() => goToPage(pageItem as number)}
             aria-label="{String(pageItem)}"

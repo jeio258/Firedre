@@ -42,7 +42,7 @@ const recentPosts = posts.slice(0, 6);
                     </code>
                     <button 
                         id="copy-rss-btn"
-                        class="px-4 py-2 bg-(--primary) text-white rounded-lg hover:opacity-80 transition-all duration-200 font-medium text-sm whitespace-nowrap"
+                        class="px-4 py-2 bg-(--primary-fill) text-(--primary-on-fill) rounded-lg hover:opacity-80 transition-all duration-200 font-medium text-sm whitespace-nowrap"
                         data-url={`${Astro.site}rss.xml`}
                         data-copied-text={i18n(I18nKey.rssCopied)}
                         data-failed-text={i18n(I18nKey.rssCopyFailed)}

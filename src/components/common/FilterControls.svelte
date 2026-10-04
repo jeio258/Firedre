@@ -18,7 +18,7 @@ const { filters, activeFilter, onFilterChange }: Props = $props();
   {#each filters as filter}
     <button
       class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 {filter.value === activeFilter
-        ? 'bg-(--primary) text-white shadow-md'
+        ? 'bg-(--primary-fill) text-(--primary-on-fill) shadow-md'
         : 'bg-(--btn-regular-bg) text-(--btn-content) hover:bg-(--btn-regular-bg-hover)'}"
       onclick={() => onFilterChange(filter.value)}
       type="button"

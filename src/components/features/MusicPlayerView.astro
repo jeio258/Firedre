@@ -187,7 +187,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
 
         function updatePlayStateUI(isPlaying: boolean) {
             if (isPlaying) {
-                ui.btnPlay.classList.add('bg-(--primary)', 'text-white', 'hover:brightness-110');
+                ui.btnPlay.classList.add('bg-(--primary-fill)', 'text-(--primary-on-fill)', 'hover:brightness-110');
                 ui.btnPlay.classList.remove('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary)');
                 ui.iconPlay.classList.add('hidden');
                 ui.iconPause.classList.remove('hidden');
@@ -195,7 +195,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.btnPlay.setAttribute('aria-label', cfg.i18n.pause);
                 ui.btnPlay.title = cfg.i18n.pause;
             } else {
-                ui.btnPlay.classList.remove('bg-(--primary)', 'text-white', 'hover:brightness-110');
+                ui.btnPlay.classList.remove('bg-(--primary-fill)', 'text-(--primary-on-fill)', 'hover:brightness-110');
                 ui.btnPlay.classList.add('bg-(--btn-regular-bg)', 'hover:bg-(--btn-regular-bg-hover)', 'active:bg-(--btn-regular-bg-active)', 'text-(--primary)');
                 ui.iconPlay.classList.remove('hidden');
                 ui.iconPause.classList.add('hidden');

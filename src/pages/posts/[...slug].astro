@@ -447,7 +447,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3 flex-1">
-                      <div class="h-12 w-12 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70 shrink-0">
+                      <div class="h-12 w-12 rounded-lg bg-(--primary-fill) flex items-center justify-center text-(--primary-on-fill) shrink-0">
                         <Icon
                           name={sponsorCfg.showButtonInPost &&
                           siteCfg.pages.sponsor
@@ -495,7 +495,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                         sponsorCfg.showButtonInPost && siteCfg.pages.sponsor && (
                           <a
                             href={url("/sponsor/")}
-                            class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary) text-white dark:text-black/70 rounded-lg font-medium hover:bg-(--primary)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary-fill) text-(--primary-on-fill) rounded-lg font-medium hover:bg-(--primary-fill)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                           >
                             <span>{i18n(I18nKey.sponsor)}</span>
                             <Icon name="fa7-solid:arrow-right" class="text-sm" />
@@ -537,7 +537,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                 <div class="p-6 bg-(--license-block-bg) rounded-xl">
                   <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3 flex-1">
-                      <div class="h-12 w-12 rounded-lg bg-(--primary) flex items-center justify-center text-white dark:text-black/70 shrink-0">
+                      <div class="h-12 w-12 rounded-lg bg-(--primary-fill) flex items-center justify-center text-(--primary-on-fill) shrink-0">
                         <Icon
                           name={sponsorCfg.showButtonInPost &&
                           siteCfg.pages.sponsor
@@ -585,7 +585,7 @@ const [relatedPosts, seriesData] = await Promise.all([
                         sponsorCfg.showButtonInPost && siteCfg.pages.sponsor && (
                           <a
                             href={url("/sponsor/")}
-                            class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary) text-white dark:text-black/70 rounded-lg font-medium hover:bg-(--primary)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
+                            class="inline-flex items-center gap-2 px-6 py-3 bg-(--primary-fill) text-(--primary-on-fill) rounded-lg font-medium hover:bg-(--primary-fill)/80 hover:scale-105 active:scale-95 transition-all whitespace-nowrap"
                           >
                             <span>{i18n(I18nKey.sponsor)}</span>
                             <Icon name="fa7-solid:arrow-right" class="text-sm" />

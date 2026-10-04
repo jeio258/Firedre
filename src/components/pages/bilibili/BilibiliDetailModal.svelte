@@ -130,7 +130,7 @@ function handleKeydown(e: KeyboardEvent) {
 						href={anime.link}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-(--primary) px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-(--primary)/90 hover:shadow-lg"
+						class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-(--primary-fill) px-6 py-3 text-sm font-semibold text-(--primary-on-fill) transition-all hover:bg-(--primary-fill)/90 hover:shadow-lg"
 					>
 						<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
