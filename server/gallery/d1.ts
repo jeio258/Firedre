@@ -3,6 +3,7 @@ import type { CloudflareEnv } from "../../types/env";
 import { chunkArray, uniqueNonEmpty } from "../utils/collections";
 import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
+import { getAlbumPassword, getAlbumPasswordsMap } from "./password";
 
 interface AlbumRow {
 	slug: string;
@@ -49,7 +50,7 @@ function buildAlbumFrontmatter(
 		encrypted: row.encrypted === 1,
 		source: parseSource(row.source),
 	};
-	if (row.password_hint) frontmatter.password = row.password_hint;
+	// 口令不再从 password_hint（已废弃明文列）回填，由调用方经 album_passwords 解密注入
 
 	if (frontmatter.source === "local") {
 		frontmatter.photos = photos.map((p) => ({
@@ -74,10 +75,11 @@ export async function getAlbumFromD1(
 	if (!row) return null;
 
 	const photos = await loadPhotos(env, slug);
-	return {
-		frontmatter: buildAlbumFrontmatter(row, photos),
-		content: row.content,
-	};
+	const frontmatter = buildAlbumFrontmatter(row, photos);
+	// 编辑回显口令从加密表解密注入（password_hint 不再存口令）
+	const pwd = await getAlbumPassword(env, slug);
+	if (pwd) frontmatter.password = pwd;
+	return { frontmatter, content: row.content };
 }
 
 export async function getAlbumsFromD1Map(
@@ -113,11 +115,13 @@ export async function getAlbumsFromD1Map(
 		photosBySlug.set(p.album_slug, list);
 	}
 
+	// 编辑回显口令从加密表批量解密注入（password_hint 不再存口令）
+	const pwdMap = await getAlbumPasswordsMap(env, valid);
 	for (const row of rows) {
-		map.set(row.slug, {
-			frontmatter: buildAlbumFrontmatter(row, photosBySlug.get(row.slug) ?? []),
-			content: row.content,
-		});
+		const fm = buildAlbumFrontmatter(row, photosBySlug.get(row.slug) ?? []);
+		const pwd = pwdMap.get(row.slug);
+		if (pwd) fm.password = pwd;
+		map.set(row.slug, { frontmatter: fm, content: row.content });
 	}
 	return map;
 }
@@ -145,9 +149,11 @@ export async function upsertAlbumToD1(
 		: null;
 	const source = frontmatter.source === "webdav" ? "webdav" : "local";
 
+	// password_hint 列不再承载口令（安全：D1 泄露不暴露明文），恒写 NULL；
+	// 口令由调用方经 setAlbumPassword 加密写入 album_passwords
 	const albumUpsert = env.DB.prepare(
 		`INSERT INTO albums (slug, title, desc, date, location, tags, cover, encrypted, password_hint, source, content)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
 		 ON CONFLICT(slug) DO UPDATE SET
 		   title = excluded.title,
 		   desc = excluded.desc,
@@ -156,7 +162,7 @@ export async function upsertAlbumToD1(
 		   tags = excluded.tags,
 		   cover = excluded.cover,
 		   encrypted = excluded.encrypted,
-		   password_hint = excluded.password_hint,
+		   password_hint = NULL,
 		   source = excluded.source,
 		   content = excluded.content,
 		   updated_at = datetime('now')`,
@@ -169,7 +175,6 @@ export async function upsertAlbumToD1(
 		tagsJson,
 		frontmatter.cover || null,
 		frontmatter.encrypted === true ? 1 : 0,
-		frontmatter.password || null,
 		source,
 		content,
 	);
