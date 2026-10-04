@@ -12,7 +12,7 @@ async function checkSettingsChanged(): Promise<boolean> {
 	if (checking) return false;
 	checking = true;
 	try {
-		const resp = await fetch("/api/settings/client", { cache: "no-store" });
+		const resp = await fetch("/api/settings/client/", { cache: "no-store" });
 		if (!resp.ok) return false;
 		const data = (await resp.json()) as {
 			version?: string;
