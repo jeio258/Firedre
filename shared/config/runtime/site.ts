@@ -1,15 +1,7 @@
 // site 域 getter（B4 自 runtime.ts 机械拆分，逻辑零改动）
 import type { SiteConfig } from "../../../src/types/siteConfig";
 import { normalizeSiteUrl } from "../../utils/url-utils";
-import {
-	arr,
-	bool,
-	defaultsLocals,
-	groupOf,
-	num,
-	settingsOf,
-	str,
-} from "./helpers";
+import { bool, groupOf, num, settingsOf, str } from "./helpers";
 
 export function getSiteConfig(locals: unknown): SiteConfig {
 	const s = settingsOf(locals);

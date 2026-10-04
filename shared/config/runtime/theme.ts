@@ -2,15 +2,7 @@
 import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 import type { SakuraConfig } from "@/types/config";
 import type { DisplaySettingsConfig } from "@/types/displaySettingsConfig";
-import {
-	arr,
-	bool,
-	defaultsLocals,
-	groupOf,
-	num,
-	settingsOf,
-	str,
-} from "./helpers";
+import { bool, groupOf, num, settingsOf, str } from "./helpers";
 
 export function getWallpaperConfig(locals: unknown) {
 	const s = settingsOf(locals);

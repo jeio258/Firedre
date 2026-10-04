@@ -2,7 +2,6 @@
 
 import { getExpressiveCodeConfig } from "./content";
 import type { SettingsLike } from "./helpers";
-import { settingsOf } from "./helpers";
 import { getNavbarConfig } from "./layout";
 import { getSiteConfig } from "./site";
 import { getEffectsConfig, getPanelConfig, getWallpaperConfig } from "./theme";
