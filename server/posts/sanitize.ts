@@ -136,6 +136,9 @@ export function redactPostSecrets<T>(post: T): T {
 		delete copy.headings;
 		delete copy.source;
 		delete copy.markdown;
+		// 加密文章不泄露任何内容片段：摘要/描述同样清除
+		delete copy.excerpt;
+		delete copy.description;
 	}
 	return copy as T;
 }

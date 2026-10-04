@@ -10,9 +10,7 @@ import {
 	arr,
 	bool,
 	DEFAULT_NAV_ITEMS,
-	defaultsLocals,
 	groupOf,
-	num,
 	settingsOf,
 	str,
 } from "./helpers";
