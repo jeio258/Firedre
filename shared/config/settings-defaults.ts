@@ -1,5 +1,6 @@
 import { resolveSiteLang } from "../utils/site-config-utils";
 
+// 新增布尔开关统一用 `enable`（存量键 enable/enabled 混用不动，避免改生产数据）
 export const settingsDefaults = {
 	basic: {
 		cardBorder: false,
