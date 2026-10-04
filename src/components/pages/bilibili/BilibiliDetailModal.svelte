@@ -90,7 +90,7 @@ function handleKeydown(e: KeyboardEvent) {
 						{anime.title}
 					</h2>
 					{#if anime.originalTitle && anime.originalTitle !== anime.title}
-						<p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+						<p class="mb-4 text-sm text-50">
 							{anime.originalTitle}
 						</p>
 					{/if}

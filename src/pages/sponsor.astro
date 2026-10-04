@@ -152,7 +152,7 @@ function getQrLqipProps(qrCode: string) {
             </h2>
           </div>
           {sponsors.length > 0 && (
-            <span class="text-xs text-neutral-400 dark:text-neutral-500">
+            <span class="text-xs text-50">
               {sponsors.length}
             </span>
           )}
@@ -192,7 +192,7 @@ function getQrLqipProps(qrCode: string) {
                     )}
                   </div>
                   {sponsor.date && (
-                    <span class="text-[0.65rem] text-neutral-400 dark:text-neutral-500">
+                    <span class="text-[0.65rem] text-50">
                       {new Date(sponsor.date).toLocaleDateString()}
                     </span>
                   )}
@@ -201,7 +201,7 @@ function getQrLqipProps(qrCode: string) {
             ))}
           </div>
         ) : (
-          <div class="text-center py-12 text-neutral-500 dark:text-neutral-500">
+          <div class="text-center py-12 text-50">
             <p>{i18n(I18nKey.sponsorEmpty)}</p>
           </div>
         )}

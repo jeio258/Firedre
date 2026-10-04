@@ -85,7 +85,7 @@ function formatDate(timestamp: number): string {
 			</svg>
 		</div>
 	{:else if error || entries.length === 0}
-		<p class="m-0 p-3 text-center text-sm text-neutral-500">
+		<p class="m-0 p-3 text-center text-sm text-50">
 			{i18n(I18nKey.dynamicEmpty)}
 		</p>
 	{:else}

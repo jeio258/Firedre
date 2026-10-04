@@ -116,7 +116,7 @@ const description =
       <div class="friends-grid my-4">
         {
           items.length === 0 && (
-            <div class="col-span-full flex flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
+            <div class="col-span-full flex flex-col items-center justify-center py-12 text-50">
               <Icon name="material-symbols:group-off-outline" class="text-4xl mb-3" />
               <div class="text-sm">{i18n(I18nKey.friendsEmpty)}</div>
             </div>
@@ -156,7 +156,7 @@ const description =
                 </div>
 
                 <div
-                  class="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-1"
+                  class="text-sm text-50 line-clamp-1"
                   title={item.desc}
                 >
                   {item.desc}
@@ -168,7 +168,7 @@ const description =
                     ? item.tags
                         .slice(0, 3)
                         .map((tag) => (
-                          <span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 transition-colors duration-300">
+                          <span class="text-[0.65rem] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-50 transition-colors duration-300">
                             {tag}
                           </span>
                         ))
@@ -181,7 +181,7 @@ const description =
       </div>
 
       {             }
-      <div class="friends-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
+      <div class="friends-empty hidden flex-col items-center justify-center py-12 text-50">
         <Icon name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
         <div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
       </div>
@@ -190,7 +190,7 @@ const description =
 
   {friendsPageConfig.showCustomContent !== false && (
     <div class="mt-4 card-base z-10 px-9 py-6 relative w-full">
-      <p class="text-neutral-500 dark:text-neutral-400">
+      <p class="text-50">
         暂无友链内容，请在后台填写。
       </p>
     </div>

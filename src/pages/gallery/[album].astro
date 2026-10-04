@@ -155,7 +155,7 @@ const coverLqipProps = coverUrl
         <div class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-100">
           {albumMeta.name}
         </div>
-        <div class="flex items-center gap-4 text-sm text-neutral-500 dark:text-neutral-400 mt-2 flex-wrap">
+        <div class="flex items-center gap-4 text-sm text-50 mt-2 flex-wrap">
           {albumMeta.date && (
             <span class="inline-flex items-center gap-1">
               <Icon name="material-symbols:calendar-today" class="text-sm" />
@@ -199,7 +199,7 @@ const coverLqipProps = coverUrl
           </div>
         )
       ) : (
-        <div class="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+        <div class="flex flex-col items-center justify-center py-16 text-50">
           <Icon name="material-symbols:photo-library" class="text-6xl mb-4 opacity-50" />
           <p class="text-lg">{i18n(I18nKey.galleryNoAlbums)}</p>
         </div>

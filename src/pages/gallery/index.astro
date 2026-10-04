@@ -118,7 +118,7 @@ const allTags = [...new Set(albums.flatMap((a) => a.tags || []))].sort();
           </div>
         </>
       ) : (
-        <div class="card-base flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+        <div class="card-base flex flex-col items-center justify-center py-16 text-50">
           <Icon name="material-symbols:photo-library" class="text-6xl mb-4 opacity-50" />
           <p class="text-lg">{i18n(I18nKey.galleryNoAlbums)}</p>
         </div>

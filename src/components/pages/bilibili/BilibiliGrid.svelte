@@ -174,7 +174,7 @@ function closeDetail() {
 			<svg class="mx-auto h-12 w-12 text-neutral-300 dark:text-neutral-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 			</svg>
-			<p class="text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeNoResults)}</p>
+			<p class="text-50">{i18n(I18nKey.animeNoResults)}</p>
 		</div>
 	{:else}
 		<div class="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
@@ -184,7 +184,7 @@ function closeDetail() {
 						<svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 text-(--primary)" fill="currentColor"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4h-4z"/></svg>
 					</div>
 					<div class="min-w-0">
-						<div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeTotal)}</div>
+						<div class="text-[10px] sm:text-xs text-50">{i18n(I18nKey.animeTotal)}</div>
 						<div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{totalCount}</div>
 					</div>
 				</div>
@@ -195,7 +195,7 @@ function closeDetail() {
 						<svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" fill="currentColor"><path d="M12 21s-8-4.35-8-10a5 5 0 0 1 8-4 5 5 0 0 1 8 4c0 5.65-8 10-8 10z"/></svg>
 					</div>
 					<div class="min-w-0">
-						<div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeBilibiliAvg)}</div>
+						<div class="text-[10px] sm:text-xs text-50">{i18n(I18nKey.animeBilibiliAvg)}</div>
 						<div class="text-lg sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{averageRating}</div>
 					</div>
 				</div>
@@ -246,7 +246,7 @@ function closeDetail() {
 				<svg class="mx-auto h-12 w-12 text-neutral-300 dark:text-neutral-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
 				</svg>
-				<p class="text-neutral-500 dark:text-neutral-400">{i18n(I18nKey.animeNoResults)}</p>
+				<p class="text-50">{i18n(I18nKey.animeNoResults)}</p>
 			</div>
 		{/if}
 

@@ -112,7 +112,7 @@ const description = booknavCfg.description || i18n(I18nKey.booknavDescription);
                         {group.name}
                       </h2>
                       {group.desc && (
-                        <span class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                        <span class="text-xs text-50 truncate">
                           {group.desc}
                         </span>
                       )}
@@ -172,7 +172,7 @@ const description = booknavCfg.description || i18n(I18nKey.booknavDescription);
                           <div class="font-bold text-base text-neutral-900 dark:text-neutral-100 group-hover:text-(--primary) transition-colors truncate pr-4">
                             {item.title}
                           </div>
-                          <div class="text-sm text-neutral-500 dark:text-neutral-400 truncate">
+                          <div class="text-sm text-50 truncate">
                             {item.desc || item.domain}
                           </div>
                         </div>
@@ -184,13 +184,13 @@ const description = booknavCfg.description || i18n(I18nKey.booknavDescription);
             </div>
 
             {             }
-            <div class="booknav-empty hidden flex-col items-center justify-center py-12 text-neutral-400 dark:text-neutral-500">
+            <div class="booknav-empty hidden flex-col items-center justify-center py-12 text-50">
               <Icon name="material-symbols:search-off-rounded" class="text-4xl mb-3" />
               <div class="text-sm">{i18n(I18nKey.searchNoResults)}</div>
             </div>
           </booknav-list>
         ) : (
-          <div class="flex flex-col items-center justify-center py-16 text-neutral-400 dark:text-neutral-500">
+          <div class="flex flex-col items-center justify-center py-16 text-50">
             <Icon name="material-symbols:bookmarks" class="text-6xl mb-4 opacity-50" />
             <p class="text-lg">{i18n(I18nKey.booknavEmpty)}</p>
           </div>

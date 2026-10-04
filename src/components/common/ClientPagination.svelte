@@ -43,7 +43,7 @@ function goToPage(page: number) {
 
       <div class="btn-card flex items-center rounded-(--radius-large) px-4 h-11 gap-1.5">
         <PageJump variant="current" {currentPage} lastPage={totalPages} onJump={goToPage} />
-        <span class="text-sm text-neutral-500 dark:text-neutral-500">/</span>
+        <span class="text-sm text-50">/</span>
         <span class="text-base font-bold text-neutral-700 dark:text-neutral-300">{totalPages}</span>
       </div>
 

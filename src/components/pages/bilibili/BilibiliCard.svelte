@@ -86,11 +86,11 @@ function handleClick() {
 			{anime.title}
 		</h3>
 		{#if anime.originalTitle && anime.originalTitle !== anime.title}
-			<p class="mb-2 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400" title={anime.originalTitle}>
+			<p class="mb-2 line-clamp-1 text-xs text-50" title={anime.originalTitle}>
 				{anime.originalTitle}
 			</p>
 		{/if}
-		<div class="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+		<div class="flex items-center justify-between text-xs text-50">
 			<span>{anime.epStatus || anime.date?.slice(0, 4) || ""}</span>
 		</div>
 	</div>

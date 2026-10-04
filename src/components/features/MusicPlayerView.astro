@@ -487,10 +487,10 @@ window.__fireflyMusicViewConfig = viewConfigStr;
             lines.forEach(function (line, i) {
                 if (i === index) {
                     line.classList.add('text-(--primary-text)', 'font-bold', 'text-base');
-                    line.classList.remove('text-neutral-400', 'text-sm');
+                    line.classList.remove('text-50', 'text-sm');
                 } else {
                     line.classList.remove('text-(--primary-text)', 'font-bold', 'text-base');
-                    line.classList.add('text-neutral-400', 'text-sm');
+                    line.classList.add('text-50', 'text-sm');
                 }
             });
 
@@ -630,7 +630,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.lrcDrawer.classList.remove('opacity-100');
                 ui.lrcDrawer.classList.add('opacity-0');
                 ui.btnLrc.classList.remove('text-(--primary)');
-                ui.btnLrc.classList.add('text-neutral-400');
+                ui.btnLrc.classList.add('text-50');
                 ui.iconLrcOn.classList.add('hidden');
                 ui.iconLrcOff.classList.remove('hidden');
             } else {
@@ -639,13 +639,13 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.playlistDrawer.classList.remove('opacity-100');
                 ui.playlistDrawer.classList.add('opacity-0');
                 ui.btnDrawer.classList.remove('text-(--primary)');
-                ui.btnDrawer.classList.add('text-neutral-400');
+                ui.btnDrawer.classList.add('text-50');
 
                 ui.lrcDrawer.style.gridTemplateRows = '1fr';
                 ui.lrcDrawer.classList.add('opacity-100');
                 ui.lrcDrawer.classList.remove('opacity-0');
                 ui.btnLrc.classList.add('text-(--primary)');
-                ui.btnLrc.classList.remove('text-neutral-400');
+                ui.btnLrc.classList.remove('text-50');
                 ui.iconLrcOn.classList.remove('hidden');
                 ui.iconLrcOff.classList.add('hidden');
             }
@@ -657,7 +657,7 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.playlistDrawer.style.gridTemplateRows = '0fr';
                 ui.playlistDrawer.classList.remove('opacity-100');
                 ui.playlistDrawer.classList.add('opacity-0');
-                ui.btnDrawer.classList.add('text-neutral-400');
+                ui.btnDrawer.classList.add('text-50');
                 ui.btnDrawer.classList.remove('text-(--primary)');
                 local.vs.drawerOpen = false;
             } else {
@@ -666,14 +666,14 @@ window.__fireflyMusicViewConfig = viewConfigStr;
                 ui.lrcDrawer.classList.remove('opacity-100');
                 ui.lrcDrawer.classList.add('opacity-0');
                 ui.btnLrc.classList.remove('text-(--primary)');
-                ui.btnLrc.classList.add('text-neutral-400');
+                ui.btnLrc.classList.add('text-50');
                 ui.iconLrcOn.classList.add('hidden');
                 ui.iconLrcOff.classList.remove('hidden');
 
                 ui.playlistDrawer.style.gridTemplateRows = '1fr';
                 ui.playlistDrawer.classList.add('opacity-100');
                 ui.playlistDrawer.classList.remove('opacity-0');
-                ui.btnDrawer.classList.remove('text-neutral-400');
+                ui.btnDrawer.classList.remove('text-50');
                 ui.btnDrawer.classList.add('text-(--primary)');
                 local.vs.drawerOpen = true;
 
