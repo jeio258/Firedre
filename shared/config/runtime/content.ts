@@ -92,10 +92,10 @@ export function getCommentConfig(locals: unknown): CommentConfig {
 		enable: bool(c.enabled, true),
 		type: str(c.type, "none"),
 		giscus: {
-			repo: str(c.giscusRepo, "jeio258/Firedre"),
-			repoId: str(c.giscusRepoId, "R_kgD2gfdFGd"),
-			category: str(c.giscusCategory, "General"),
-			categoryId: str(c.giscusCategoryId, "DIC_kwDOKy9HOc4CegmW"),
+			repo: str(c.giscusRepo, ""),
+			repoId: str(c.giscusRepoId, ""),
+			category: str(c.giscusCategory, ""),
+			categoryId: str(c.giscusCategoryId, ""),
 			mapping: "title",
 			strict: "0",
 			reactionsEnabled: "1",
@@ -105,7 +105,7 @@ export function getCommentConfig(locals: unknown): CommentConfig {
 			loading: "lazy",
 		},
 		twikoo: {
-			envId: str(c.twikooEnvId, "https://twikoo.vercel.app"),
+			envId: str(c.twikooEnvId, ""),
 			jsUrl: str(
 				c.twikooJsUrl,
 				"https://cdn.jsdelivr.net/npm/twikoo@1.7.14/dist/twikoo.min.js",
@@ -115,7 +115,7 @@ export function getCommentConfig(locals: unknown): CommentConfig {
 			visitorCount: bool(c.twikooVisitorCount, true),
 		},
 		waline: {
-			serverURL: str(c.walineServer, "https://waline.vercel.app"),
+			serverURL: str(c.walineServer, ""),
 			lang: "zh-CN",
 			emoji: [
 				"https://unpkg.com/@waline/emojis@1.4.0/weibo",
@@ -126,10 +126,10 @@ export function getCommentConfig(locals: unknown): CommentConfig {
 			visitorCount: bool(c.walineVisitorCount, true),
 		},
 		disqus: {
-			shortname: str(c.disqusShortname, "firefly"),
+			shortname: str(c.disqusShortname, ""),
 		},
 		artalk: {
-			server: str(c.artalkServer, "https://artalk.example.com/"),
+			server: str(c.artalkServer, ""),
 			siteName: str(c.artalkSiteName, ""),
 			locale: "zh-CN",
 			visitorCount: bool(c.artalkVisitorCount, true),
@@ -151,13 +151,10 @@ export function getMusicConfig(locals: unknown): MusicPlayerConfig {
 		playMode: str(m.playMode, "list") as "list" | "one" | "random",
 		showLyrics: bool(m.showLyrics, false),
 		meting: {
-			api: str(
-				m.metingApi,
-				"https://api.i-meto.com/meting/api?server=:server&type=:type&id=:id&r=:r",
-			),
+			api: str(m.metingApi, ""),
 			server: str(m.metingServer, "netease"),
 			type: str(m.metingType, "playlist"),
-			id: str(m.metingId, "10046455237"),
+			id: str(m.metingId, ""),
 			auth: str(m.metingAuth, ""),
 			fallbackApis: arr(m.metingFallbackApis, []).map(String),
 		},

@@ -35,7 +35,7 @@ export const pageGroups: Group[] = [
 					{ key: "date", label: "日期" },
 				],
 				placeholder:
-					"每行一位，字段顺序：名称 | 头像链接 | 金额 | 日期\n如：夏叶 | https://…/avatar.png | ¥50 | 2025-10-01",
+					"每行一位，字段顺序：名称 | 头像链接 | 金额 | 日期\n如：示例用户 | https://…/avatar.png | ¥50 | 2025-10-01",
 			},
 			{ name: "description", label: "打赏描述", type: "textarea" },
 			{ name: "usage", label: "打赏用途说明", type: "textarea" },

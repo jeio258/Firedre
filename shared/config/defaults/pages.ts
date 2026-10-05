@@ -41,15 +41,6 @@ export const pagesDefaults = {
 			"您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
 		showButtonInPost: true,
 		showSponsorsList: true,
-		sponsors: [
-			{
-				name: "夏叶",
-				avatar:
-					"https://weavatar.com/avatar/d252655d40d6874417a720bad0a6c5f77f8f338402dc37e4190?s=640",
-				amount: "¥50",
-				date: "2025-10-01",
-			},
-			{ name: "匿名用户", amount: "¥20", date: "2025-10-01" },
-		],
+		sponsors: [],
 	},
 } as const;

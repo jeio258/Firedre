@@ -114,7 +114,7 @@ export const siteDefaults = {
 		location: "",
 		email: "",
 		name: "Firedre",
-		avatar: "assets/images/avatar.avif",
+		avatar: "/favicon/firefly-192.png",
 		bio: "Hello, I'm Firedre.",
 		links:
 			'[{"name":"qq","icon":"fa7-brands:qq","url":"https://qm.qq.com/q/ZGsFa8qX2G","showName":false},{"name":"GitHub","icon":"fa7-brands:github","url":"https://github.com/jeio258","showName":false},{"name":"Email","icon":"fa7-solid:envelope","url":"mailto:xiaye@msn.com","showName":false},{"name":"RSS","icon":"fa7-solid:rss","url":"/rss/","showName":false}]',
