@@ -59,6 +59,8 @@ import {
 } from "@/config";
 import { getPanelConfig, getWallpaperConfig } from "@/config/runtime";
 import type { WALLPAPER_MODE } from "@/types/config";
+import AppearanceTab from "./AppearanceTab.svelte";
+import EffectsTab from "./EffectsTab.svelte";
 import WallpaperTab from "./WallpaperTab.svelte";
 
 type OverlaySliderItem = {
@@ -717,79 +719,29 @@ $effect(() => {
 	{/if}
 
 	{#if activeTab === "appearance"}
-		{#if showThemeColor}
-		<div class="">
-			<div class="section-title">
-				{i18n(I18nKey.themeColor)}
-				{@render resetButton(hue === defaultHue, resetHue)}
-				<div id="hueValue" class="transition bg-(--btn-regular-bg) rounded-md flex justify-center
-				font-bold items-center text-(--btn-content)">
-					{hue}
-				</div>
-			</div>
-			<div class="hue-slider-shell w-full h-6 px-1 bg-[oklch(0.80_0.10_0)] dark:bg-[oklch(0.70_0.10_0)] rounded-md select-none">
-				<input aria-label={i18n(I18nKey.themeColor)} type="range" min="0" max="360" bind:value={hue}
-					   oninput={() => { hueTouched = true; }}
-					   class="slider" id="colorSlider" step="5" style="width: 100%">
-			</div>
-		</div>
-		{/if}
-
-		{#if allowLayoutSwitch}
-		<div class="">
-			<div class="section-title">
-				{i18n(I18nKey.postListLayout)}
-				{@render resetButton(currentLayout === effectiveDefaultLayout, resetLayout)}
-			</div>
-			<div class="flex gap-2">
-				<button
-					aria-label={i18n(I18nKey.postListLayoutList)}
-					class="flex-1 btn-regular rounded-md py-2 px-3 flex items-center justify-center gap-2 active:scale-95 transition-all relative overflow-hidden"
-					class:opacity-60={currentLayout !== 'list'}
-					class:bg-(--btn-regular-bg-hover)={currentLayout === 'list'}
-					disabled={isSwitching}
-					onclick={switchLayout}
-					title={i18n(I18nKey.postListLayoutList)}
-				>
-					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
-					</svg>
-					<span class="text-xs font-medium">{i18n(I18nKey.postListLayoutList)}</span>
-				</button>
-				<button
-					aria-label={i18n(I18nKey.postListLayoutGrid)}
-					class="flex-1 btn-regular rounded-md py-2 px-3 flex items-center justify-center gap-2 active:scale-95 transition-all relative overflow-hidden"
-					class:opacity-60={currentLayout !== 'grid'}
-					class:bg-(--btn-regular-bg-hover)={currentLayout === 'grid'}
-					disabled={isSwitching}
-					onclick={switchLayout}
-					title={i18n(I18nKey.postListLayoutGrid)}
-				>
-					<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-						<path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/>
-					</svg>
-					<span class="text-xs font-medium">{i18n(I18nKey.postListLayoutGrid)}</span>
-				</button>
-			</div>
-		</div>
-		{/if}
-
-		{#if isCardBorderSwitchable || isCardFollowThemeSwitchable}
-		<div>
-			<div class="section-title">
-				{i18n(I18nKey.cardSettings)}
-				{@render resetButton(cardSettingsIsDefault, resetCardSettings)}
-			</div>
-			<div class="space-y-1">
-				{#if isCardBorderSwitchable}
-				{@render toggleRow("material-symbols:border-outer-rounded", i18n(I18nKey.cardBorder), cardBorderEnabled, toggleCardBorderEnabled)}
-				{/if}
-				{#if isCardFollowThemeSwitchable}
-				{@render toggleRow("material-symbols:palette", i18n(I18nKey.cardFollowTheme), cardFollowThemeEnabled, toggleCardFollowThemeEnabled)}
-				{/if}
-			</div>
-		</div>
-		{/if}
+		<AppearanceTab
+			{showThemeColor}
+			bind:hue
+			bind:hueTouched
+			{defaultHue}
+			{resetHue}
+			{allowLayoutSwitch}
+			{currentLayout}
+			{effectiveDefaultLayout}
+			{resetLayout}
+			{isSwitching}
+			{switchLayout}
+			{isCardBorderSwitchable}
+			{isCardFollowThemeSwitchable}
+			{cardSettingsIsDefault}
+			{resetCardSettings}
+			{cardBorderEnabled}
+			{cardFollowThemeEnabled}
+			{toggleCardBorderEnabled}
+			{toggleCardFollowThemeEnabled}
+			{resetButton}
+			{toggleRow}
+		/>
 	{/if}
 
 	{#if activeTab === "wallpaper"}
@@ -825,15 +777,15 @@ $effect(() => {
 	{/if}
 
 	{#if activeTab === "effects"}
-		{#if isSakuraSwitchable}
-		<div class="">
-			<div class="section-title">
-				{i18n(I18nKey.effectsSettings)}
-				{@render resetButton(sakuraEnabled === defaultSakuraEnabled, () => { sakuraEnabled = defaultSakuraEnabled; setSakuraEnabled(defaultSakuraEnabled); })}
-			</div>
-			{@render toggleRow("mdi:flower-poppy", i18n(I18nKey.sakuraEffect), sakuraEnabled, toggleSakuraEnabled)}
-		</div>
-		{/if}
+		<EffectsTab
+			{isSakuraSwitchable}
+			bind:sakuraEnabled
+			{defaultSakuraEnabled}
+			{toggleSakuraEnabled}
+			{setSakuraEnabled}
+			{resetButton}
+			{toggleRow}
+		/>
 	{/if}
 	{/if}
 </div>
