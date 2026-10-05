@@ -122,6 +122,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				try {
 					const { ensureDefaultPosts } = await import("@server/posts/seed");
 					await ensureDefaultPosts(cfEnv);
+					// 空 R2 首次访问播种默认「关于页」内容（已有内容不覆盖）
+					const { ensureDefaultAbout } = await import("@server/about/seed");
+					await ensureDefaultAbout(cfEnv);
 				} catch {
 					// seed 失败不影响请求
 				}
