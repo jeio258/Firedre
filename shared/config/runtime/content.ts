@@ -77,7 +77,7 @@ export function getProfileConfig(locals: unknown): ProfileConfig {
 	const pr = groupOf(s, "profile");
 	return {
 		avatar: str(pr.avatar ?? s.avatar, "assets/images/avatar.avif"),
-		name: str(pr.name ?? s.name, "Firedre"),
+		name: str(pr.name ?? s.name, ""),
 		bio: str(pr.bio ?? s.bio, ""),
 		location: str(pr.location ?? s.location, ""),
 		email: str(pr.email ?? s.email, ""),
@@ -295,9 +295,9 @@ export function getLicenseConfig(locals: unknown): LicenseConfig {
 	const l = groupOf(s, "license");
 	return {
 		enable: bool(l.enabled, true),
-		name: str(l.name, "CC BY-NC-SA 4.0"),
+		name: str(l.name, ""),
 		type: str(l.type, ""),
-		url: str(l.url, "https://creativecommons.org/licenses/by-nc-sa/4.0/"),
+		url: str(l.url, ""),
 		icon: str(l.icon, ""),
 	};
 }
@@ -309,7 +309,7 @@ export function getHitokotoConfig(locals: unknown): HitokotoConfig {
 		rotate: bool(h.rotate, true),
 		rotateMinutes: Math.max(1, num(h.rotateMinutes, 5)),
 		api: str(h.api, "https://v1.hitokoto.cn/?lang=cn"),
-		fallbackText: str(h.fallbackText, "世界很大，开心第一。"),
+		fallbackText: str(h.fallbackText, ""),
 		fallbackSource: str(h.fallbackSource, ""),
 	};
 }
@@ -324,10 +324,7 @@ export function getSponsorConfig(locals: unknown): SponsorConfig {
 	return {
 		title: str(sp.title, ""),
 		description: str(sp.description, ""),
-		usage: str(
-			sp.usage,
-			"您的打赏将用于服务器维护、内容创作和功能开发，帮助我持续提供优质内容。",
-		),
+		usage: str(sp.usage, ""),
 		showSponsorsList: bool(sp.showSponsorsList, true),
 		showComment: true,
 		showButtonInPost: bool(sp.showButtonInPost, true),
@@ -373,7 +370,7 @@ export function getAnnouncementConfig(locals: unknown): AnnouncementConfig {
 		enable: bool(a.enabled, undefined as unknown as boolean),
 		closable: bool(a.closable, true),
 		title: str(a.title, ""),
-		content: str(a.content, "欢迎来到我的博客！这是一则示例公告。"),
+		content: str(a.content, ""),
 		...(Array.isArray(a.sections) && a.sections.length
 			? { sections: a.sections }
 			: {}),
