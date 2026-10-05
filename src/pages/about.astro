@@ -37,7 +37,7 @@ const jsonLd = buildProfilePage({
                     <Fragment set:html={aboutHtml} />
                 </Markdown>
             ) : (
-                <p class="text-50">暂无关于内容，请在后台填写。</p>
+                <p class="text-50">{i18n(I18nKey.aboutEmpty)}</p>
             )}
         </div>
     </div>

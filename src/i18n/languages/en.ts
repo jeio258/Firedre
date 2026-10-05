@@ -4,6 +4,8 @@ import type { Translation } from "../translation";
 export const en: Translation = {
 	[Key.home]: "Home",
 	[Key.about]: "About",
+	[Key.aboutEmpty]:
+		"No about content yet. Please fill it in from the admin panel.",
 	[Key.archive]: "Archive",
 	[Key.search]: "Search",
 	[Key.searchNoResults]: "No results found.",
@@ -75,6 +77,8 @@ export const en: Translation = {
 		"Here are my friends, welcome to visit and communicate with each other",
 	[Key.searchFriends]: "Search friends...",
 	[Key.friendsEmpty]: "No friends yet.",
+	[Key.friendsContentEmpty]:
+		"No friends-link content yet. Please fill it in from the admin panel.",
 	[Key.booknav]: "Bookmark Nav",
 	[Key.booknavDescription]:
 		"A curated collection of useful sites, organized by category.",
@@ -83,6 +87,8 @@ export const en: Translation = {
 	[Key.guestbook]: "Guestbook",
 	[Key.guestbookDescription]:
 		"Welcome to leave your mark here, share your thoughts and suggestions",
+	[Key.guestbookEmpty]:
+		"No guestbook content yet. Please fill it in from the admin panel.",
 	[Key.uncategorized]: "Uncategorized",
 	[Key.noTags]: "No Tags",
 

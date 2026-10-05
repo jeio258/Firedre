@@ -4,6 +4,8 @@ import type { Translation } from "../translation";
 export const ru: Translation = {
 	[Key.home]: "Главная",
 	[Key.about]: "О нас",
+	[Key.aboutEmpty]:
+		"Содержимое страницы «Обо мне» пока пусто. Заполните его в панели администратора.",
 	[Key.archive]: "Архив",
 	[Key.search]: "Поиск",
 	[Key.searchNoResults]: "Результаты не найдены.",
@@ -75,6 +77,8 @@ export const ru: Translation = {
 		"Вот мои друзья, добро пожаловать посетить и общаться друг с другом",
 	[Key.searchFriends]: "Поиск друзей...",
 	[Key.friendsEmpty]: "Друзей пока нет.",
+	[Key.friendsContentEmpty]:
+		"Содержимое страницы друзей пока пусто. Заполните его в панели администратора.",
 	[Key.booknav]: "Каталог закладок",
 	[Key.booknavDescription]:
 		"Подборка полезных сайтов, сгруппированных по категориям.",
@@ -83,6 +87,8 @@ export const ru: Translation = {
 	[Key.guestbook]: "Гостевая книга",
 	[Key.guestbookDescription]:
 		"Добро пожаловать, оставьте свой след здесь, поделитесь своими мыслями и предложениями",
+	[Key.guestbookEmpty]:
+		"Содержимое гостевой книги пока пусто. Заполните его в панели администратора.",
 	[Key.uncategorized]: "Без категории",
 	[Key.noTags]: "Нет тегов",
 

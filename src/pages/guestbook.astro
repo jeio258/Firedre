@@ -57,7 +57,7 @@ const description = i18n(I18nKey.guestbookDescription);
         {guestbookHtml ? (
           <Fragment set:html={guestbookHtml} />
         ) : (
-          <p class="text-50">暂无留言板内容，请在后台填写。</p>
+          <p class="text-50">{i18n(I18nKey.guestbookEmpty)}</p>
         )}
       </Markdown>
     </div>

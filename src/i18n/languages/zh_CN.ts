@@ -4,6 +4,7 @@ import type { Translation } from "../translation";
 export const zh_CN: Translation = {
 	[Key.home]: "主页",
 	[Key.about]: "关于我",
+	[Key.aboutEmpty]: "暂无关于内容，请在后台填写。",
 	[Key.archive]: "归档",
 	[Key.search]: "搜索",
 	[Key.searchNoResults]: "找不到相关结果。",
@@ -74,12 +75,14 @@ export const zh_CN: Translation = {
 	[Key.friendsDescription]: "这里是我的朋友们，欢迎互相访问交流",
 	[Key.searchFriends]: "搜索友链...",
 	[Key.friendsEmpty]: "暂无友情链接",
+	[Key.friendsContentEmpty]: "暂无友链内容，请在后台填写。",
 	[Key.booknav]: "书签导航",
 	[Key.booknavDescription]: "收藏一些好用的网站，按分类整理",
 	[Key.searchBooknav]: "搜索书签...",
 	[Key.booknavEmpty]: "暂无书签",
 	[Key.guestbook]: "留言",
 	[Key.guestbookDescription]: "欢迎在这里留下你的足迹，分享你的想法和建议",
+	[Key.guestbookEmpty]: "暂无留言板内容，请在后台填写。",
 	[Key.uncategorized]: "未分类",
 	[Key.noTags]: "无标签",
 

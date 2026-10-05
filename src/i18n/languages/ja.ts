@@ -4,6 +4,8 @@ import type { Translation } from "../translation";
 export const ja: Translation = {
 	[Key.home]: "ホーム",
 	[Key.about]: "について",
+	[Key.aboutEmpty]:
+		"まだ「私について」の内容がありません。管理画面から入力してください。",
 	[Key.archive]: "アーカイブ",
 	[Key.search]: "検索",
 	[Key.searchNoResults]: "結果が見つかりません。",
@@ -75,6 +77,8 @@ export const ja: Translation = {
 		"ここは私の友達です、お互いに訪問して交流することを歓迎します",
 	[Key.searchFriends]: "友達を検索...",
 	[Key.friendsEmpty]: "まだ友達がいません",
+	[Key.friendsContentEmpty]:
+		"まだリンクの内容がありません。管理画面から入力してください。",
 	[Key.booknav]: "ブックマーク集",
 	[Key.booknavDescription]: "便利なサイトをカテゴリ別に集めました",
 	[Key.searchBooknav]: "ブックマークを検索...",
@@ -82,6 +86,8 @@ export const ja: Translation = {
 	[Key.guestbook]: "ゲストブック",
 	[Key.guestbookDescription]:
 		"ここに足跡を残して、あなたの考えや提案を共有してください",
+	[Key.guestbookEmpty]:
+		"まだゲストブックの内容がありません。管理画面から入力してください。",
 	[Key.uncategorized]: "未分類",
 	[Key.noTags]: "タグなし",
 

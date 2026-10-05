@@ -1,6 +1,7 @@
 enum I18nKey {
 	home = "home",
 	about = "about",
+	aboutEmpty = "aboutEmpty",
 	archive = "archive",
 	search = "search",
 	searchNoResults = "searchNoResults",
@@ -101,8 +102,10 @@ enum I18nKey {
 	friendsDescription = "friendsDescription",
 	searchFriends = "searchFriends",
 	friendsEmpty = "friendsEmpty",
+	friendsContentEmpty = "friendsContentEmpty",
 	guestbook = "guestbook",
 	guestbookDescription = "guestbookDescription",
+	guestbookEmpty = "guestbookEmpty",
 	bangumi = "bangumi",
 
 	booknav = "booknav",

@@ -4,6 +4,8 @@ import type { Translation } from "../translation";
 export const ko: Translation = {
 	[Key.home]: "홈",
 	[Key.about]: "소개",
+	[Key.aboutEmpty]:
+		"아직 소개 내용이 없습니다. 관리자 페이지에서 작성해 주세요.",
 	[Key.archive]: "아카이브",
 	[Key.search]: "검색",
 	[Key.searchNoResults]: "검색 결과가 없습니다.",
@@ -75,6 +77,8 @@ export const ko: Translation = {
 		"여기는 제 친구들입니다. 방문하여 서로 교류해 보세요",
 	[Key.searchFriends]: "친구 검색...",
 	[Key.friendsEmpty]: "아직 친구가 없습니다.",
+	[Key.friendsContentEmpty]:
+		"아직 친구 링크 내용이 없습니다. 관리자 페이지에서 작성해 주세요.",
 	[Key.booknav]: "북마크 모음",
 	[Key.booknavDescription]: "유용한 사이트를 카테고리별로 모았습니다.",
 	[Key.searchBooknav]: "북마크 검색...",
@@ -82,6 +86,8 @@ export const ko: Translation = {
 	[Key.guestbook]: "방명록",
 	[Key.guestbookDescription]:
 		"이곳에 흔적을 남기고 생각과 제안을 공유해 주세요",
+	[Key.guestbookEmpty]:
+		"아직 방명록 내용이 없습니다. 관리자 페이지에서 작성해 주세요.",
 	[Key.uncategorized]: "미분류",
 	[Key.noTags]: "태그 없음",
 
