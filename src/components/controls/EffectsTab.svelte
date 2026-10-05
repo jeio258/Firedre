@@ -7,7 +7,7 @@ import type { Snippet } from "svelte";
 
 let {
 	isSakuraSwitchable,
-	sakuraEnabled,
+	sakuraEnabled = $bindable(),
 	defaultSakuraEnabled,
 	toggleSakuraEnabled,
 	setSakuraEnabled,

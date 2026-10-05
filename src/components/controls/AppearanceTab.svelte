@@ -7,8 +7,8 @@ import type { Snippet } from "svelte";
 
 let {
 	showThemeColor,
-	hue,
-	hueTouched,
+	hue = $bindable(),
+	hueTouched = $bindable(),
 	defaultHue,
 	resetHue,
 	allowLayoutSwitch,
