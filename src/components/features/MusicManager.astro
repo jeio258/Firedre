@@ -130,41 +130,13 @@ const managerConfigStr = JSON.stringify({
 window.__fireflyMusicConfig = managerConfigStr;
 </script>
 <script>
+import { formatTime, parseLRC } from "@/utils/music-utils";
+
 (function () {
     // Singleton guard – only create once
     if (window.__fireflyMusic) return;
 
     var config = JSON.parse(window.__fireflyMusicConfig ?? '{}');
-
-    function formatTime(seconds: number) {
-        if (!seconds || isNaN(seconds)) return '0:00';
-        var min = Math.floor(seconds / 60);
-        var sec = Math.floor(seconds % 60);
-        return min + ':' + (sec < 10 ? '0' : '') + sec;
-    }
-
-    function parseLRC(lrc: string) {
-        if (!lrc) return [];
-        var lines = lrc.split('\n');
-        var result: Array<{ time: number; text: string }> = [];
-        var timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/g;
-        lines.forEach(function (line: string) {
-            var matches = Array.from(line.matchAll(timeReg));
-            if (matches.length > 0) {
-                var text = line.replace(timeReg, '').trim();
-                if (text) {
-                    matches.forEach(function (match) {
-                        var m = parseInt(match[1]);
-                        var s = parseInt(match[2]);
-                        var ms = parseInt(match[3]);
-                        var time = m * 60 + s + ms / (match[3].length === 3 ? 1000 : 100);
-                        result.push({ time: time, text: text });
-                    });
-                }
-            }
-        });
-        return result.sort(function (a, b) { return a.time - b.time; });
-    }
 
     var audio = document.createElement('audio');
     // 不设置 crossOrigin：音源 CDN（如酷我）不返回 CORS 头，设置后会因跨域校验导致播放失败
