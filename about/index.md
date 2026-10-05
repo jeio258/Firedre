@@ -5,9 +5,11 @@ title: 关于本站
 
 ## 关于本站
 
-**Firedre** 是 [Firefly](https://github.com/CuteLeaf/Firefly) 主题（Astro 7 + Svelte 5）的**云端动态化版本**：前台完整保留 Firefly 的清新风格与组件（音乐播放器、樱花特效、Mermaid、KaTeX、代码高亮等），并把原本依赖本地 Markdown 文件的内容层升级为运行在 Cloudflare 上的**动态站点** —— 自带后台管理，无需服务器即可长期稳定运行。
+**Firedre** 是一个运行在 Cloudflare 上的**动态博客系统**：基于 Astro 7（SSR）+ Svelte 5 构建，内容存于 D1、文件存于 R2，自带完整后台管理 —— 无需服务器、也无需重新构建，即可写作与维护站点。
 
-> 本站即为本项目的示例站点：文章、动态、相册、友链与页面内容都可以在后台直接编辑。
+它沿用了静态博客主题中那套清新的视觉与组件生态（音乐播放器、樱花特效、Mermaid、KaTeX、代码高亮等），但已发展为**完全独立**的项目：内容层、数据层与部署形态都是本项目自己的实现，不再与任何上游仓库同分支演进。
+
+> 本站即为 Firedre 的示例站点：文章、动态、相册、友链与页面内容都可以在后台直接编辑。
 
 ### 🧱 技术架构
 
@@ -21,9 +23,9 @@ title: 关于本站
 | 认证 | bcrypt 密码哈希 + 登录限流 |
 | 样式 | Tailwind CSS 4 |
 
-### ✨ 相比上游 Firefly 的改造
+### ✨ 核心特性
 
-- **内容上云**：文章、动态、相册、书签导航等从仓库内的 Markdown 文件搬到 D1，改内容不再需要重新构建
+- **内容上云**：文章、动态、相册、书签导航等由 D1 提供，写作与管理不再需要改动仓库、重新构建
 - **完整后台**：`/admin/` 可视化管理文章、相册、友链、公告、动态、关于页与全部站点设置
 - **设置即时生效**：后台显式保存后前台立即生效（版本号驱动缓存失效）
 - **文件可管理**：封面与相册图片存于 R2，支持后台上传与替换
@@ -31,12 +33,19 @@ title: 关于本站
 - **部署开箱即用**：空库首次访问自动建表并播种默认内容，无需手工初始化
 - **边缘缓存与韧性**：HTML 边缘缓存 + 陈旧资源自愈重载
 
+### 🙏 致谢
+
+视觉风格与组件设计的灵感来自两个优秀的开源项目：
+
+- [Firefly](https://github.com/CuteLeaf/Firefly)
+- [Fuwari](https://github.com/saicaca/fuwari)
+
+本项目在它们的审美基础上做了独立的云端化实现，与上游不存在从属或跟随关系。
+
 ### 🔗 相关链接
 
-- 🖥️ 在线预览：<https://firedre.994613.xyz>
-- ⭐ 本项目开源地址：<https://github.com/jeio258/Firedre>
-- 📚 上游主题 Firefly：<https://github.com/CuteLeaf/Firefly>
-- 📚 Firefly 的基底 Fuwari：<https://github.com/saicaca/fuwari>
+- 🖥️ 项目站点：<https://firedre.994613.xyz>
+- ⭐ 开源地址：<https://github.com/jeio258/Firedre>
 
 ---
 
