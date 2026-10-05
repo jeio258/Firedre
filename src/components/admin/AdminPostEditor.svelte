@@ -57,6 +57,53 @@ let saving = $state(false);
 let message = $state("");
 let messageKind = $state<"ok" | "err">("ok");
 let loaded = $state(false);
+// 封面图自动获取开关（持久化在后台本地，下次新建/编辑沿用上次状态）
+let autoCover = $state(false);
+let fetchingCover = $state(false);
+const AUTO_COVER_KEY = "admin:autoCover";
+
+/**
+ * 自动获取封面图（A+B）：
+ * - force=false（新建且封面为空）：站点开启随机封面时写主题魔法值 `api`（每次访问随机、
+ *   主题自带多 API 兜底），否则写服务端解析出的具体图片地址
+ * - force=true（编辑页主动更换）：总是取具体地址，保证真的换一张
+ */
+async function applyAutoCover(force: boolean) {
+	if (!force && image.trim()) return;
+	fetchingCover = true;
+	try {
+		const data = await apiJson<{ enable: boolean; url: string }>(
+			"/api/admin/random-cover/",
+		);
+		if (!force && data.enable) {
+			image = "api";
+		} else if (data.url) {
+			image = data.url;
+		} else if (data.enable) {
+			image = "api";
+		} else {
+			message = "随机图 API 获取失败，请检查后台「功能配置 → 封面」的 API 列表";
+			messageKind = "err";
+			return;
+		}
+		message = "已自动获取封面图";
+		messageKind = "ok";
+	} catch (e) {
+		message = e instanceof Error ? e.message : "获取封面图失败";
+		messageKind = "err";
+	} finally {
+		fetchingCover = false;
+	}
+}
+
+function toggleAutoCover() {
+	autoCover = !autoCover;
+	try {
+		localStorage.setItem(AUTO_COVER_KEY, autoCover ? "1" : "0");
+	} catch {}
+	// 开启时：新建且封面为空 → 自动填充；编辑/已有封面 → 视为主动更换
+	if (autoCover) void applyAutoCover(!isNew || image.trim().length > 0);
+}
 let slugManuallyEdited = false;
 
 async function load() {
@@ -258,6 +305,11 @@ onMountAsync(async () => {
 		}
 		clearDraft("文章");
 	}
+	// 封面图开关：读取持久化偏好；仅新建且封面为空时自动获取（编辑不会自动换图）
+	try {
+		autoCover = localStorage.getItem(AUTO_COVER_KEY) === "1";
+	} catch {}
+	if (autoCover && isNew && !image.trim()) void applyAutoCover(false);
 	return registerSaveAll(
 		"文章",
 		() => save(draft),
@@ -372,6 +424,11 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 						<label class="crud-field">
 							<span>封面图 URL</span>
 							<input type="text" bind:value={image} placeholder="https://… 或 /path" />
+						</label>
+						<label class="check-line">
+							<Switch on={autoCover} label="封面图" toggle={toggleAutoCover} disabled={fetchingCover} />
+							<span class="check-text">封面图</span>
+							{#if fetchingCover}<span class="check-text">获取中…</span>{/if}
 						</label>
 					</div>
 				</div>
