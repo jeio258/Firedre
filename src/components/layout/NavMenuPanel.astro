@@ -1,7 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
 import SafeIcon from "@/components/common/SafeIcon.astro";
-import { siteConfig } from "@/config";
+import { getNavbarConfig, getSiteConfig } from "@/config/runtime";
 import type { NavBarLink } from "@/types/config";
 import { url } from "@/utils/url-utils";
 
@@ -10,7 +10,9 @@ interface Props {
 }
 
 const processedLinks = Astro.props.links;
-const navTitle = siteConfig.navbar.title || siteConfig.title;
+// 站点标题：空值保持为空（不再兜底成静态默认文案）
+const navTitle =
+	getNavbarConfig(Astro.locals).title || getSiteConfig(Astro.locals).title;
 ---
 <div id="nav-menu-panel" class:list={["float-panel-closed fixed inset-0 z-1100"]} data-floating-panel data-floating-panel-trigger="nav-menu-switch" data-floating-panel-scroll-lock inert aria-hidden="true">
     <!-- 遮罩（scrim）：点击关闭 -->

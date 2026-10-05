@@ -74,7 +74,7 @@ try {
 	// D1/R2 异常区别于文章不存在：降级为友好错误页而非默认 500
 	console.error("[posts] 文章读取失败:", error);
 	return new Response(
-		`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${siteConfig.title}</title></head><body style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:system-ui"><p>文章加载失败，请稍后刷新重试。</p></body></html>`,
+		`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${getSiteConfig(Astro.locals).title}</title></head><body style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:system-ui"><p>文章加载失败，请稍后刷新重试。</p></body></html>`,
 		{ status: 500, headers: { "Content-Type": "text/html; charset=utf-8" } },
 	);
 }
@@ -451,7 +451,7 @@ const [relatedPosts, seriesData] = await Promise.all([
             pubDate={formatDateToYYYYMMDD(entry.data.published)}
             coverImage={posterCoverUrl}
             coverImageSelector={posterCoverSelector}
-            siteTitle={siteConfig.title}
+            siteTitle={siteCfg.title}
             avatar={posterAvatarUrl}
             avatarSelector={posterAvatarSelector}
           />
@@ -487,7 +487,7 @@ const [relatedPosts, seriesData] = await Promise.all([
             pubDate={formatDateToYYYYMMDD(entry.data.published)}
             coverImage={posterCoverUrl}
             coverImageSelector={posterCoverSelector}
-            siteTitle={siteConfig.title}
+            siteTitle={siteCfg.title}
             avatar={posterAvatarUrl}
             avatarSelector={posterAvatarSelector}
           />

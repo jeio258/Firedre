@@ -25,7 +25,11 @@ import {
 	resolveNavbarMode,
 	siteConfig,
 } from "@/config";
-import { getExpressiveCodeConfig, getNavbarConfig } from "@/config/runtime";
+import {
+	getExpressiveCodeConfig,
+	getNavbarConfig,
+	getSiteConfig,
+} from "@/config/runtime";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,
@@ -144,22 +148,17 @@ const navbarPanelBlur = Math.max(
 	NAVBAR_PANEL_MIN_BLUR,
 );
 
-const effectiveTitle =
-	(settings?.basic?.title as string | undefined) ??
-	settings.title ??
-	siteConfig.title;
-const effectiveDescription =
-	(settings?.basic?.description as string | undefined) ??
-	settings.description ??
-	siteConfig.description;
+// 站点标题 / 副标题 / 描述：空值保持为空字符串，不再兜底成静态默认文案
+const siteRuntime = getSiteConfig(Astro.locals);
+const effectiveTitle = siteRuntime.title;
+const effectiveDescription = siteRuntime.description;
 let pageTitle: string;
-const siteSubtitle = (settings?.subtitle ?? siteConfig.subtitle) || "";
+const siteSubtitle = siteRuntime.subtitle;
 
-const siteIdentity = siteSubtitle
-	? `${effectiveTitle} - ${siteSubtitle}`
-	: effectiveTitle;
+// 拼接时跳过空段，避免出现多余的分隔符（如 " - " 悬空）
+const siteIdentity = [effectiveTitle, siteSubtitle].filter(Boolean).join(" - ");
 if (title) {
-	pageTitle = `${title} - ${siteIdentity}`;
+	pageTitle = siteIdentity ? `${title} - ${siteIdentity}` : title;
 } else {
 	pageTitle = siteIdentity;
 }
