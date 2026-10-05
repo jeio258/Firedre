@@ -120,6 +120,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 </script>
 <script>
   import { escapeHtml } from "@/utils/escape-html";
+  import { toDateKey, buildHeatmapCounts } from "@/utils/calendar-utils";
   const __cfg = window.__fireflyCalendarConfig;
   const monthNames = __cfg.monthNames;
   const yearText = __cfg.yearText;
@@ -150,7 +151,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       const yearsSet = new Set<number>();
       allPostsData.forEach(post => {
         const date = new Date(post.published);
-        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        const dateKey = toDateKey(date.getFullYear(), date.getMonth(), date.getDate());
         if (!postDateMap[dateKey]) {
           postDateMap[dateKey] = [];
         }
@@ -180,15 +181,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
       `<span class="text-[10px] text-50 text-center">${i + 1}</span>`
     ).join('');
 
-    const heatmapData = Array.from({ length: 12 }, () => [0, 0, 0, 0]);
-    allPostsData.forEach(post => {
-      const date = new Date(post.published);
-      if (date.getFullYear() !== displayYear) return;
-      const month = date.getMonth();
-      const day = date.getDate();
-      const week = Math.min(Math.floor((day - 1) / 7), 3); // 0-3
-      heatmapData[month][week]++;
-    });
+    const heatmapData = buildHeatmapCounts(allPostsData, displayYear);
 
     const opacityLevels = [0, 0.45, 0.65, 0.85, 1];
     let cellsHtml = '';
@@ -332,7 +325,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dateKey = toDateKey(currentYear, currentMonth, day);
       const posts = postDateMap[dateKey] || [];
       const count = posts.length;
       calendarDays.push({
