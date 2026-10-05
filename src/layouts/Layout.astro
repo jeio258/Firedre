@@ -206,8 +206,8 @@ const seoKeywords = (() => {
 	return kw as string;
 })();
 const seoAuthorName =
-	(settings?.["profile"]?.["name"] as string | undefined) ??
-	settings?.["name"] ??
+	(settings?.profile?.name as string | undefined) ??
+	settings?.name ??
 	profileConfig.name;
 ---
 
