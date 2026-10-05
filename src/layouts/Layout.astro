@@ -13,6 +13,7 @@ import SakuraEffect from "@components/features/SakuraEffect.astro";
 import WavesEffect from "@components/features/WavesEffect.astro";
 import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
+import SiteSeoMeta from "@components/layout/SiteSeoMeta.astro";
 import { zh_CN } from "@i18n/languages/zh_CN";
 import type { settingsDefaults } from "@shared/config/settings-defaults";
 import {
@@ -192,6 +193,23 @@ const canonicalUrl =
 	toAbsoluteUrl(Astro.url.pathname, effectiveSiteUrl) ?? Astro.url.toString();
 
 const siteLogo = await getSiteLogo(effectiveSiteUrl);
+
+// SEO 组件入参（原内联在 head 中的表达式，值零改动）
+const seoKeywords = (() => {
+	const rawKw =
+		(settings as { keywords?: unknown }).keywords ?? siteConfig.keywords;
+	const kw =
+		typeof rawKw === "string"
+			? rawKw
+			: Array.isArray(rawKw) && rawKw.length
+				? rawKw.join(", ")
+				: "";
+	return kw as string;
+})();
+const seoAuthorName =
+	(settings?.["profile"]?.["name"] as string | undefined) ??
+	settings?.["name"] ??
+	profileConfig.name;
 ---
 
 <!doctype html>
@@ -228,69 +246,22 @@ const siteLogo = await getSiteLogo(effectiveSiteUrl);
             />
     )}
 
-    <title>{pageTitle}</title>
-    <meta
-      name="description"
-      content={description || effectiveDescription || pageTitle}
-    />
-    {(() => {
-      const rawKw = (settings as { keywords?: unknown }).keywords ?? siteConfig.keywords;
-      const kw = typeof rawKw === "string"
-        ? rawKw
-        : Array.isArray(rawKw) && rawKw.length
-          ? rawKw.join(", ")
-          : "";
-      return kw ? <meta name="keywords" content={kw} /> : null;
-    })()}
-    <meta name="author" content={(settings?.["profile"]?.["name"] as string | undefined) ?? (settings?.["name"] ?? profileConfig.name)} />
-
-    <link rel="canonical" href={canonicalUrl} />
-    {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
-    {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} media="(min-width: 1024px)" fetchpriority="high" />}
-    {wallpaperPreloadUrlMobile && <link rel="preload" as="image" href={wallpaperPreloadUrlMobile} media="(max-width: 1023px)" fetchpriority="high" />}
-    <meta property="og:site_name" content={effectiveTitle} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:title" content={pageTitle} />
-    <meta
-      property="og:description"
-      content={description || effectiveDescription || pageTitle}
-    />
-    <meta
-      property="og:image"
-      content={ogImageUrl ?? (typeof siteLogo === "string" ? siteLogo : siteLogo?.url)}
-    />
-    <meta
-      name="twitter:image"
-      content={ogImageUrl ?? (typeof siteLogo === "string" ? siteLogo : siteLogo?.url)}
-    />
-    {
-      setOGTypeArticle ? (
-        <>
-          <meta property="og:type" content="article" />
-          {publishedTime && (
-            <meta
-              property="article:published_time"
-              content={publishedTime instanceof Date ? publishedTime.toISOString() : publishedTime}
-            />
-          )}
-          {modifiedTime && (
-            <meta
-              property="article:modified_time"
-              content={modifiedTime instanceof Date ? modifiedTime.toISOString() : modifiedTime}
-            />
-          )}
-        </>
-      ) : (
-        <meta property="og:type" content="website" />
-      )
-    }
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content={canonicalUrl} />
-    <meta name="twitter:title" content={pageTitle} />
-    <meta
-      name="twitter:description"
-      content={description || effectiveDescription || pageTitle}
+    <SiteSeoMeta
+      title={pageTitle}
+      description={description}
+      effectiveDescription={effectiveDescription}
+      keywords={seoKeywords}
+      authorName={seoAuthorName}
+      canonicalUrl={canonicalUrl}
+      avatarPreloadUrl={avatarPreloadUrl}
+      wallpaperPreloadUrl={wallpaperPreloadUrl}
+      wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile}
+      siteName={effectiveTitle}
+      ogImageUrl={ogImageUrl}
+      siteLogo={siteLogo}
+      ogTypeArticle={setOGTypeArticle}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
     />
 
     {
