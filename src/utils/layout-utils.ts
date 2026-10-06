@@ -13,9 +13,19 @@ const toArray = (src: string | string[] | undefined): string[] => {
 	return [src];
 };
 
-export const getBackgroundImages = (): BackgroundImages => {
-	const bgSrc = backgroundWallpaper.src;
+// 壁纸图源（可传运行时 getWallpaperConfig().src；缺省回退静态默认）
+type BackgroundSrc =
+	| string
+	| string[]
+	| {
+			desktop?: string | string[];
+			mobile?: string | string[];
+	  }
+	| undefined;
 
+export const getBackgroundImages = (
+	bgSrc: BackgroundSrc = backgroundWallpaper.src,
+): BackgroundImages => {
 	if (
 		typeof bgSrc === "object" &&
 		bgSrc !== null &&

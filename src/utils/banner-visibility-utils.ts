@@ -1,5 +1,6 @@
 import { getImageQuality } from "@shared/utils/image-utils";
 import { backgroundWallpaper, displaySettingsConfig } from "@/config";
+import { getWallpaperConfig } from "@/config/runtime";
 import { getBackgroundImages } from "@/utils/layout-utils";
 
 export interface BannerPostMeta {
@@ -182,7 +183,9 @@ export function getBannerVisibilityState(
 		!isPostPage &&
 		!!title;
 
-	const backgroundImages = getBackgroundImages();
+	const backgroundImages = getBackgroundImages(
+		getWallpaperConfig({ settings }).src,
+	);
 	const configQuality = getImageQuality();
 	const mobileQuality = Math.round(configQuality * 0.9);
 
