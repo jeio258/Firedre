@@ -113,11 +113,11 @@ class D1Stmt {
 				success: true,
 				meta: {
 					changes: Number(info.changes ?? 0),
-					lastRowId: Number(info.lastInsertRowid ?? 0),
+					last_row_id: Number(info.lastInsertRowid ?? 0),
 				},
 			};
 		} catch {
-			return { success: false, meta: { changes: 0, lastRowId: 0 } };
+			return { success: false, meta: { changes: 0, last_row_id: 0 } };
 		}
 	}
 }
