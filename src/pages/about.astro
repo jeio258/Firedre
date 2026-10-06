@@ -1,6 +1,5 @@
 ---
 import Markdown from "@components/common/Markdown.astro";
-import { profileConfig } from "@/config";
 import { getProfileConfig, getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
@@ -19,10 +18,11 @@ const aboutHtml = aboutDetail?.html ?? "";
 
 const avatarUrl = await getAuthorAvatarUrl(
 	getSiteConfig(Astro.locals).site_url,
+	getProfileConfig(Astro.locals).avatar,
 );
 const jsonLd = buildProfilePage({
 	site: getSiteConfig(Astro.locals).site_url,
-	profileConfig,
+	profileConfig: getProfileConfig(Astro.locals),
 	authorUrl: Astro.url.toString(),
 	avatarUrl,
 	description: getProfileConfig(Astro.locals).bio,

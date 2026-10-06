@@ -1,5 +1,5 @@
 ---
-import { licenseConfig, profileConfig, siteConfig } from "@/config";
+import { licenseConfig, siteConfig } from "@/config";
 import "@/styles/banner-post.css";
 import Comment from "@components/comment/index.astro";
 
@@ -9,6 +9,9 @@ const settings =
 			settings?: import("@server/settings/service").SettingsShape;
 		}
 	).settings ?? {};
+
+// 运行时 profile 配置（后台可编辑；静态 config 仅兜底其它非可编辑项）
+const profileCfg = getProfileConfig(Astro.locals);
 
 import Markdown from "@components/common/Markdown.astro";
 import EncryptedPost from "@components/features/EncryptedPost.astro";
@@ -38,6 +41,7 @@ import SharePoster from "@/components/misc/SharePoster.svelte";
 import PostShareSponsor from "@/components/pages/PostShareSponsor.astro";
 import {
 	getCoverConfig,
+	getProfileConfig,
 	getSiteConfig,
 	getSponsorConfig,
 } from "@/config/runtime";
@@ -141,8 +145,8 @@ const getDirectImageUrl = (src: string | undefined): string | null => {
 
 const posterCoverUrl = showPostCover ? null : getDirectImageUrl(processedImage);
 const posterCoverSelector = showPostCover ? "#post-cover img" : null;
-const posterAvatarUrl = getDirectImageUrl(profileConfig.avatar);
-const posterAvatarSelector = profileConfig.avatar
+const posterAvatarUrl = getDirectImageUrl(profileCfg.avatar);
+const posterAvatarSelector = profileCfg.avatar
 	? ".profile-avatar-image img"
 	: null;
 
@@ -151,7 +155,7 @@ dayjs.extend(utc);
 const coverBasePath = "";
 const [coverImageRaw, authorAvatarUrl, siteLogo] = await Promise.all([
 	toAbsoluteImageInfo(processedImage, coverBasePath, siteUrl),
-	getAuthorAvatarUrl(siteUrl),
+	getAuthorAvatarUrl(siteUrl, profileCfg.avatar),
 	getSiteLogo(siteUrl),
 ]);
 const coverImage = coverImageRaw ?? undefined;
@@ -160,15 +164,15 @@ const aboutUrl = toAbsoluteUrl("/about/", siteUrl) ?? siteUrl;
 
 const authorPerson = buildPersonEntity({
 	site: siteUrl,
-	profileConfig,
+	profileConfig: profileCfg,
 	authorUrl: aboutUrl,
 	avatarUrl: authorAvatarUrl,
-	description: profileConfig.bio,
+	description: profileCfg.bio,
 });
 
 const publisher = buildPublisherEntity({
 	site: siteUrl,
-	siteConfig,
+	siteConfig: getSiteConfig(Astro.locals),
 	logo: siteLogo,
 });
 
@@ -446,7 +450,7 @@ const [relatedPosts, seriesData] = await Promise.all([
             shareEnabled={!!postConfig.share}
             sponsorEnabled={!!(sponsorCfg.showButtonInPost && siteCfg.pages.sponsor)}
             title={entry.data.title}
-            author={entry.data.author || profileConfig.name}
+            author={entry.data.author || profileCfg.name}
             description={entry.data.description || entry.data.title}
             pubDate={formatDateToYYYYMMDD(entry.data.published)}
             coverImage={posterCoverUrl}
@@ -482,7 +486,7 @@ const [relatedPosts, seriesData] = await Promise.all([
             shareEnabled={!!postConfig.share}
             sponsorEnabled={!!(sponsorCfg.showButtonInPost && siteCfg.pages.sponsor)}
             title={entry.data.title}
-            author={entry.data.author || profileConfig.name}
+            author={entry.data.author || profileCfg.name}
             description={entry.data.description || entry.data.title}
             pubDate={formatDateToYYYYMMDD(entry.data.published)}
             coverImage={posterCoverUrl}

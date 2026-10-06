@@ -67,8 +67,9 @@ async function getLocalImageInfo(
 
 export async function getAuthorAvatarUrl(
 	siteUrl: string = siteConfig.site_url,
+	avatar: string | undefined = profileConfig.avatar,
 ): Promise<string | null> {
-	return toAbsoluteImageUrl(profileConfig.avatar, "", siteUrl);
+	return toAbsoluteImageUrl(avatar, "", siteUrl);
 }
 
 // 本地资源静态 hashed URL（不经 _image 按需优化，用于 LCP 首图直接走 CDN 静态文件）
