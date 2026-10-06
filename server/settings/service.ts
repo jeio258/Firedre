@@ -243,4 +243,5 @@ export interface SettingsShape {
 	categoryStyle?: string;
 	tagStyle?: string;
 	cardBorder?: boolean;
+	cardFollowTheme?: boolean;
 }
