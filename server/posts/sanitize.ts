@@ -139,6 +139,12 @@ export function redactPostSecrets<T>(post: T): T {
 		// 加密文章不泄露任何内容片段：摘要/描述同样清除
 		delete copy.excerpt;
 		delete copy.description;
+		// frontmatter 内同样含有摘录/描述（渲染期写入），一并清除
+		const fm = copy.frontmatter as Record<string, unknown> | undefined;
+		if (fm && typeof fm === "object") {
+			delete fm.excerpt;
+			delete fm.description;
+		}
 	}
 	return copy as T;
 }
