@@ -30,11 +30,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 			const items = isAdmin
 				? await listSiteLinks(cfEnv)
 				: await listEnabledSiteLinks(cfEnv);
-			return json(
-				{ items: items.map(toView) },
-				200,
-				isAdmin ? "private" : "list",
-			);
+			return json({ items }, 200, isAdmin ? "private" : "list");
 		}
 
 		if (segments.length === 1) {
@@ -43,7 +39,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 			const link = await getSiteLink(cfEnv, id);
 			if (!link || (!isAdmin && link.enabled !== true))
 				return notFound("链接不存在");
-			return json(toView(link), 200, isAdmin ? "private" : "default");
+			return json(link, 200, isAdmin ? "private" : "default");
 		}
 
 		return notFound("路径无效");
@@ -56,7 +52,7 @@ export const POST: APIRoute = withAdmin(async ({ request }) => {
 	const body = await request.json().catch(() => null);
 	if (!body || typeof body !== "object") return badRequest("请求体无效");
 	const link = await createSiteLink(cfEnv, body as never);
-	return json({ ok: true, item: toView(link) }, 200, "private");
+	return json({ ok: true, item: link }, 200, "private");
 });
 
 export const PUT: APIRoute = withAdmin(async ({ params, request }) => {
@@ -67,7 +63,7 @@ export const PUT: APIRoute = withAdmin(async ({ params, request }) => {
 	const body = await request.json().catch(() => null);
 	if (!body || typeof body !== "object") return badRequest("请求体无效");
 	const link = await updateSiteLink(cfEnv, id, body as never);
-	return json({ ok: true, item: toView(link) }, 200, "private");
+	return json({ ok: true, item: link }, 200, "private");
 });
 
 export const DELETE: APIRoute = withAdmin(async ({ params }) => {
@@ -82,23 +78,3 @@ export const DELETE: APIRoute = withAdmin(async ({ params }) => {
 
 export const ALL: APIRoute = async () =>
 	methodNotAllowed(["DELETE", "GET", "POST", "PUT"]);
-
-function toView(row: {
-	id: number;
-	name: string;
-	url: string;
-	icon: string;
-	location: "navbar" | "footer" | "profile" | "sponsor";
-	kind: "link" | "qr";
-	enabled: boolean;
-}) {
-	return {
-		id: row.id,
-		name: row.name,
-		url: row.url,
-		icon: row.icon || "",
-		location: row.location,
-		kind: row.kind || "link",
-		enabled: row.enabled === true,
-	};
-}
