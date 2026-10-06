@@ -1,7 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
-import { profileConfig } from "@/config";
-import { getLicenseConfig } from "@/config/runtime";
+import { getLicenseConfig, getProfileConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import { formatDateToYYYYMMDD } from "@/utils/date-utils";
@@ -22,7 +21,7 @@ interface Props {
 const { title, pubDate, author, sourceLink, licenseName, licenseUrl } =
 	Astro.props;
 const className = Astro.props.class;
-const profileConf = profileConfig;
+const profileConf = getProfileConfig(Astro.locals);
 const licenseConf = getLicenseConfig(Astro.locals);
 const postUrl = sourceLink || decodeURIComponent(Astro.url.toString());
 

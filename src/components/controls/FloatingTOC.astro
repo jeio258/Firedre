@@ -1,7 +1,7 @@
 ---
 import type { MarkdownHeading } from "astro";
 import FloatingButton from "@/components/common/FloatingButton.astro";
-import { sidebarLayoutConfig } from "@/config";
+import { getSidebarConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import "@/styles/toc.css";
@@ -19,7 +19,7 @@ const items = encrypted ? [] : computeTocItems(headings, { maxLevel: 3 });
 
 // 悬浮目录的显隐判断已改为直接量 DOM，见下方 script
 const hideSidebarOnPostPage =
-	sidebarLayoutConfig.hideSidebarOnPostPage === true;
+	getSidebarConfig(Astro.locals).hideSidebarOnPostPage === true;
 ---
 
 <!-- 悬浮TOC按钮 -->
