@@ -1,6 +1,7 @@
 import type { CloudflareEnv } from "../../types/env";
 import { bumpContentVersion } from "../settings/service";
 import { chunkArray, uniqueNonEmpty } from "../utils/collections";
+import { UserError } from "../utils/userError";
 
 // 口令静态保护：以 SESSION_SECRET 派生密钥做 AES-GCM 加密后落库，
 // D1 数据单独泄露不再直接暴露口令；历史明文值兼容读取（前缀区分），无 secret 时回退明文。
@@ -75,9 +76,10 @@ function fromB64(s: string): Uint8Array<ArrayBuffer> {
 async function encryptPassword(
 	env: CloudflareEnv,
 	plain: string,
-): Promise<string> {
+): Promise<string | null> {
 	const key = await getCipherKey(env);
-	if (!key) return plain;
+	// 无可用密钥（缺失或短于 32）时返回 null：拒绝明文落库，由调用方报错
+	if (!key) return null;
 	const iv = crypto.getRandomValues(new Uint8Array(12));
 	const ct = await crypto.subtle.encrypt(
 		{ name: "AES-GCM", iv },
@@ -165,10 +167,10 @@ export async function setAlbumPassword(
 		return;
 	}
 	const stored = await encryptPassword(env, trimmed);
-	// 无密钥/短密钥（<32）时 encryptPassword 返回明文：告警一次，避免静默降级
-	if (stored === trimmed) {
-		console.warn(
-			"[gallery] SESSION_SECRET 缺失或短于 32 字符，相册口令将以明文存储（建议配置强密钥）",
+	// 无密钥/短密钥（<32）拒绝明文降级：口令必须加密落库
+	if (stored === null) {
+		throw new UserError(
+			"SESSION_SECRET 缺失或短于 32 字符，无法加密相册口令，已拒绝明文存储。请配置强随机密钥。",
 		);
 	}
 	await env.DB.prepare(
