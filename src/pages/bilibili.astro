@@ -15,7 +15,10 @@ if (!getSiteConfig(Astro.locals).pages.bilibili) {
 	return Astro.redirect("/404/");
 }
 
-const buildTime = formatDateI18nWithTime(new Date());
+const buildTime = formatDateI18nWithTime(
+	new Date(),
+	getSiteConfig(Astro.locals),
+);
 
 // D1 bilibili 组优先，静态 siteConfig.bilibili 兜底
 type BiliGroup = NonNullable<typeof siteConfig.bilibili> & {

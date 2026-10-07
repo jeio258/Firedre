@@ -1,4 +1,4 @@
-import { resolveClientNavbarMode, siteConfig } from "@/config";
+import { resolveClientNavbarMode } from "@/config";
 import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
@@ -20,6 +20,7 @@ import {
 } from "@/utils/grid-layout-utils";
 import { scrollFunction } from "@/utils/scroll-utils";
 import {
+	getStoredTheme,
 	syncBannerHomeTextVisibility,
 	updateNavbarTransparency,
 } from "@/utils/setting-utils";
@@ -258,10 +259,7 @@ function registerSwupHooks(): void {
 			}, 600);
 		}
 
-		const storedTheme =
-			localStorage.getItem("theme") ||
-			siteConfig.themeColor.defaultMode ||
-			"light";
+		const storedTheme = getStoredTheme();
 		let isDark = false;
 
 		if (storedTheme === "system") {

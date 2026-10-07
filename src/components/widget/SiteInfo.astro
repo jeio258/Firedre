@@ -33,7 +33,10 @@ const nodeVersion = process.version || NODE_VERSION;
 // pnpm 版本（常量）
 const pnpmVersion = `v${PNPM_VERSION}`;
 
-const buildTime = formatDateI18nWithTime(new Date());
+const buildTime = formatDateI18nWithTime(
+	new Date(),
+	getSiteConfig(Astro.locals),
+);
 
 const buildPlatform = "Cloudflare Pages";
 

@@ -15,7 +15,10 @@ if (!getSiteConfig(Astro.locals).pages.mal) {
 	return Astro.redirect("/404/");
 }
 
-const buildTime = formatDateI18nWithTime(new Date());
+const buildTime = formatDateI18nWithTime(
+	new Date(),
+	getSiteConfig(Astro.locals),
+);
 
 // D1 myanimelist（含旧 mal 键）组优先，静态 siteConfig.mal 兜底
 type MalGroup = NonNullable<typeof siteConfig.mal> & {

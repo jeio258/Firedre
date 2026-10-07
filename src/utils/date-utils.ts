@@ -1,4 +1,5 @@
 import { siteConfig } from "../config";
+import type { SiteConfig } from "../types/siteConfig";
 
 export function formatDateToYYYYMMDD(date: Date): string {
 	return date.toISOString().substring(0, 10);
@@ -6,10 +7,11 @@ export function formatDateToYYYYMMDD(date: Date): string {
 
 function formatDateI18n(
 	dateInput: Date | string,
-	includeTime?: boolean,
+	includeTime: boolean | undefined,
+	site: SiteConfig,
 ): string {
 	const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
-	const lang = siteConfig.lang || "en";
+	const lang = site.lang || "en";
 
 	// 根据语言设置不同的日期格式
 	const options: Intl.DateTimeFormatOptions = {
@@ -25,8 +27,8 @@ function formatDateI18n(
 	}
 
 	// 如果配置了时区，则将其用于格式化（IANA 时区字符串）
-	if (siteConfig.timezone) {
-		(options as Intl.DateTimeFormatOptions).timeZone = siteConfig.timezone;
+	if (site.timezone) {
+		(options as Intl.DateTimeFormatOptions).timeZone = site.timezone;
 	}
 
 	const localeMap: Record<string, string> = {
@@ -52,8 +54,11 @@ function formatDateI18n(
 		: date.toLocaleDateString(locale, options);
 }
 
-export function formatDateI18nWithTime(dateInput: Date | string): string {
-	return formatDateI18n(dateInput, true);
+export function formatDateI18nWithTime(
+	dateInput: Date | string,
+	site: SiteConfig = siteConfig,
+): string {
+	return formatDateI18n(dateInput, true, site);
 }
 
 // 第三方 API / Memos 数据使用浏览器本地时区的本地化输出
