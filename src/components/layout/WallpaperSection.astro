@@ -315,6 +315,16 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 return visible;
             }
 
+            // SSR 直渲的首图不在 <template> 内，materialize 无法覆盖；
+            // 随机首张命中 index 0 时它就是 LCP 图，需升为 eager+high
+            function prioritizeExistingImage(slideEl: Element | undefined) {
+                if (!slideEl || slideEl.querySelector('template')) return;
+                var img = slideEl.querySelector<HTMLImageElement>('img');
+                if (!img) return;
+                img.setAttribute('loading', 'eager');
+                img.setAttribute('fetchpriority', 'high');
+            }
+
             function getCurrentIndex(slides: HTMLElement[]) {
                 for (var i = 0; i < slides.length; i++) {
                     if (slides[i].classList.contains('active')) return i;
@@ -457,6 +467,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 else slides[k].classList.remove('active');
             }
             materialize(firstSlide, true);
+            prioritizeExistingImage(firstSlide);
             if (firstSlide) {
 
                 requestAnimationFrame(function () {
@@ -477,6 +488,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                     if (!hasActive) s[0].classList.add('active');
                     var idx = getCurrentIndex(s);
                     materialize(s[idx], false);
+                    prioritizeExistingImage(s[idx]);
                     if (isCarouselEnabled()) materializeAhead(s, idx);
                 };
                 if (lgQuery.addEventListener) lgQuery.addEventListener('change', onBreakpointChange);
@@ -513,6 +525,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                 var img = frag.querySelector<HTMLImageElement>('img');
                 var phFrag = frag.querySelector<HTMLElement>('.lqip-placeholder');
                 if (img && high) {
+                    img.setAttribute('loading', 'eager');
                     img.setAttribute('fetchpriority', 'high');
 
                     img.classList.remove('opacity-0', 'transition-opacity', 'duration-500', 'ease-out');
