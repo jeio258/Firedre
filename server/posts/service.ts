@@ -25,7 +25,7 @@ import {
 	resolveCategories,
 	splitMarkdown,
 } from "./frontmatter";
-import { renderMarkdown, stripMarkdown } from "./render";
+import { type RenderedMarkdown, renderMarkdown, stripMarkdown } from "./render";
 import {
 	buildTaxonomyStatements,
 	categoryFilterSql,
@@ -198,18 +198,30 @@ export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 }
 
 // 渲染结果缓存：key = r2_key(内容) + settingsVersion(配置) → 内容或配置变化即失效；
-// TTL 60s 兜底直改 D1 场景；无 caches 环境（vitest）直接 miss
-async function getRenderCache(cacheKey: string) {
+// TTL 60s 兜底直改 D1 场景；无 caches 环境（vitest）直接 miss。
+// frontmatter 一并落缓存：命中时可直接组装详情，无需再读 R2
+async function getRenderCache(
+	cacheKey: string,
+): Promise<RenderedMarkdown | null> {
 	try {
 		if (typeof caches === "undefined") return null;
 		const cached = await caches.default.match(cacheKey);
 		if (!cached) return null;
-		return (await cached.json()) as {
+		const data = (await cached.json()) as {
 			html: string;
 			headings: PostDetail["headings"];
 			words: number;
 			minutes: number;
 			excerpt?: string;
+			frontmatter: PostFrontmatter;
+		};
+		return {
+			html: data.html,
+			headings: data.headings,
+			words: data.words,
+			minutes: data.minutes,
+			excerpt: data.excerpt ?? "",
+			frontmatter: data.frontmatter,
 		};
 	} catch {
 		return null;
@@ -224,6 +236,7 @@ async function setRenderCache(
 		words: number;
 		minutes: number;
 		excerpt?: string;
+		frontmatter: PostFrontmatter;
 	},
 ) {
 	try {
@@ -256,37 +269,43 @@ export async function getPostBySlug(
 	if (!row) return null;
 	if (!options.includeUnpublished && row.published !== 1) return null;
 
-	const object = await env.BUCKET.get(row.r2_key);
-	if (!object) return null;
-
-	const source = await object.text();
-	const { frontmatter, content } = splitMarkdown(source);
-
-	// 渲染缓存：内容(r2_key) + 配置(settingsVersion) 双键，命中跳过整条 Markdown 管线
+	// 渲染缓存：内容(r2_key) + 配置(settingsVersion) 双键，命中跳过整条 Markdown 管线。
+	// f=2 为缓存结构版本段（旧版无 frontmatter）——旧条目键不同、自然失效
 	const settingsVersion = await getSettingsVersionCached(env).catch(() => "");
-	const renderCacheKey = `${RENDER_CACHE_BASE}/${row.r2_key}?v=${settingsVersion}`;
+	const renderCacheKey = `${RENDER_CACHE_BASE}/${row.r2_key}?v=${settingsVersion}&f=2`;
 	const cachedRender = await getRenderCache(renderCacheKey);
-	const rendered = cachedRender
-		? ({
-				html: cachedRender.html,
-				headings: cachedRender.headings,
-				words: cachedRender.words,
-				minutes: cachedRender.minutes,
-				frontmatter,
-				excerpt: cachedRender.excerpt ?? "",
-			} as Awaited<ReturnType<typeof renderMarkdown>>)
-		: await renderMarkdown(content, {
-				frontmatter,
+
+	let rendered: RenderedMarkdown;
+	let source: string | undefined;
+	let content: string | undefined;
+
+	if (cachedRender && !options.includeSource) {
+		// 命中且无需源文 → 直接复用缓存组装，免读 R2
+		// （此前恒先读 R2 再查缓存，命中时空读一次对象与全文）
+		rendered = cachedRender;
+	} else {
+		const object = await env.BUCKET.get(row.r2_key);
+		if (!object) return null;
+		source = await object.text();
+		const split = splitMarkdown(source);
+		content = split.content;
+		if (cachedRender) {
+			// 仅缺源文：仍复用缓存渲染结果，避免重渲染
+			rendered = cachedRender;
+		} else {
+			rendered = await renderMarkdown(content, {
+				frontmatter: split.frontmatter,
 				resolveWikiLink: buildWikiLinkResolver(env),
 			});
-	if (!cachedRender) {
-		await setRenderCache(renderCacheKey, {
-			html: rendered.html,
-			headings: rendered.headings,
-			words: rendered.words,
-			minutes: rendered.minutes,
-			excerpt: rendered.excerpt,
-		});
+			await setRenderCache(renderCacheKey, {
+				html: rendered.html,
+				headings: rendered.headings,
+				words: rendered.words,
+				minutes: rendered.minutes,
+				excerpt: rendered.excerpt,
+				frontmatter: rendered.frontmatter as PostFrontmatter,
+			});
+		}
 	}
 
 	const listItem = recordToListItem(row);
@@ -296,10 +315,7 @@ export async function getPostBySlug(
 		headings: rendered.headings,
 		words: rendered.words || row.words || 0,
 		minutes: rendered.minutes || row.minutes || 0,
-		frontmatter: {
-			...frontmatter,
-			...(rendered.frontmatter as PostFrontmatter),
-		},
+		frontmatter: rendered.frontmatter as PostFrontmatter,
 		description: row.description || row.excerpt || undefined,
 		...(options.includeSource ? { source, markdown: content } : {}),
 	};
