@@ -4,6 +4,9 @@
 /assets/*
   Cache-Control: public, max-age=604800
 
+/katex/*
+  Cache-Control: public, max-age=604800
+
 /favicon/*
   Cache-Control: public, max-age=604800
 
