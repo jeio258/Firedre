@@ -57,6 +57,8 @@ export const fontsList: FontDefinition[] = [
 		cssVariable: "--font-fangzheng-zizhu",
 		provider: "local",
 		display: "swap",
+		// 1.28MB 大字体：不 preload（display:swap 下文本先用兜底渲染），避免最高优先级抢 LCP 带宽
+		preload: false,
 		options: {
 			variants: [
 				{

@@ -3,7 +3,7 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 
 import { Font } from "astro:assets";
-import { fontConfig } from "@/config";
+import { fontConfig, fontsList } from "@/config";
 import { getFontConfig } from "@/config/runtime";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
@@ -15,6 +15,11 @@ const fontCfg = getFontConfig(Astro.locals);
 const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
+
+// 逐字体 preload 开关：大体积字体（CJK）标 preload:false → 不输出 rel=preload，改随 CSS 按需加载
+const noPreloadVars = new Set(
+	fontsList.filter((f) => f.preload === false).map((f) => f.cssVariable),
+);
 
 const selectedIds: string[] =
 	fontCfg.enable && fontCfg.selected
@@ -33,7 +38,7 @@ const selectedFontVars = selectedIds.filter((v) => v !== "system");
 const fontItems = Array.from(allCssVars).map((cssVar) => ({
 	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
 	cssVariable: cssVar as any,
-	preload: selectedFontVars.includes(cssVar),
+	preload: selectedFontVars.includes(cssVar) && !noPreloadVars.has(cssVar),
 }));
 const bodyFontFamily =
 	selectedFontVars.length > 0

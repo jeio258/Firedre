@@ -29,6 +29,10 @@ export type FontDefinition = {
 
 	display?: "auto" | "optional" | "fallback" | "block" | "swap";
 
+	/** 是否输出 `<link rel="preload" as="font">`；大体积字体（如 CJK）建议 false，
+	 *  避免以最高优先级抢 LCP 带宽（仍经 CSS 按需加载）。缺省视为允许。 */
+	preload?: boolean;
+
 	options?: {
 		variants?: Array<{
 			src: string[];

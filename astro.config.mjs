@@ -42,8 +42,11 @@ export default defineConfig({
 		return fontsList
 			.filter((f) => used.has(f.cssVariable))
 			.map((f) => {
+				// preload 是 FontSetup 的逐字体开关（大字体不预载），Astro Font API 不识别该键，需剔除
+				const fontDef = { ...f };
+				delete fontDef.preload;
 				let provider;
-				switch (f.provider) {
+				switch (fontDef.provider) {
 					case "google":
 						provider = fontProviders.google();
 						break;
@@ -63,9 +66,9 @@ export default defineConfig({
 						provider = fontProviders.npm();
 						break;
 					default:
-						provider = f.provider;
+						provider = fontDef.provider;
 				}
-				return { ...f, provider };
+				return { ...fontDef, provider };
 			});
 	})(),
 
