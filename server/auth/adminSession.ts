@@ -24,21 +24,32 @@ export function getSecret(env: AdminAuthEnv): string {
 	return secret;
 }
 
+// btoa/atob 只处理 latin1 字节：先经 TextEncoder 转 UTF-8 字节，
+// 再逐字节拼 binary 串喂给 btoa（对齐 hmacSign），否则中文/emoji 用户名抛 InvalidCharacterError
 function base64urlEncode(input: string) {
-	if (typeof btoa === "function")
-		return btoa(input)
+	const bytes = new TextEncoder().encode(input);
+
+	if (typeof btoa === "function") {
+		let binary = "";
+		for (const byte of bytes) binary += String.fromCharCode(byte);
+		return btoa(binary)
 			.replace(/\+/g, "-")
 			.replace(/\//g, "_")
 			.replace(/=+$/, "");
+	}
 
-	return Buffer.from(input, "utf8").toString("base64url");
+	return Buffer.from(bytes).toString("base64url");
 }
 
 function base64urlDecode(input: string) {
 	const normalized = input.replace(/-/g, "+").replace(/_/g, "/");
 	const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
 
-	if (typeof atob === "function") return atob(padded);
+	if (typeof atob === "function") {
+		const binary = atob(padded);
+		const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+		return new TextDecoder().decode(bytes);
+	}
 
 	return Buffer.from(padded, "base64").toString("utf8");
 }
