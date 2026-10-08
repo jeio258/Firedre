@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import type { CloudflareEnv } from "../../types/env";
+import { sha256Hex } from "../utils/hash";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { getAdminEnvFromProcess, loadAdminEnv } from "./loadAdminEnv";
 
@@ -89,16 +90,6 @@ export async function createSessionToken(
 }
 
 // 密码哈希指纹：会话 token 携带，校验时与当前 password_hash 比对——改密即吊销旧会话
-async function sha256Hex(input: string): Promise<string> {
-	const buf = await crypto.subtle.digest(
-		"SHA-256",
-		new TextEncoder().encode(input),
-	);
-	return Array.from(new Uint8Array(buf))
-		.map((b) => b.toString(16).padStart(2, "0"))
-		.join("");
-}
-
 export async function passwordFingerprint(
 	passwordHash: string,
 ): Promise<string> {

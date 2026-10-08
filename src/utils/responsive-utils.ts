@@ -2,7 +2,7 @@ import { sidebarLayoutConfig as staticSidebarConfig } from "@/config";
 import type { SidebarLayoutConfig } from "@/types/sidebarConfig";
 
 // 运行时配置优先（SSR 传 getSidebarConfig(Astro.locals)），无参数时用静态兜底
-function resolveSidebar(sb?: SidebarLayoutConfig): SidebarLayoutConfig {
+export function resolveSidebar(sb?: SidebarLayoutConfig): SidebarLayoutConfig {
 	return sb ?? staticSidebarConfig;
 }
 

@@ -11,6 +11,7 @@ import {
 	getSettingsVersionCached,
 } from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
+import { sha256Hex } from "../utils/hash";
 import { parseStringList } from "../utils/json";
 import { normalizePinOrder, sortPostsByPinOrder } from "../utils/pinOrder";
 import { UserError } from "../utils/userError";
@@ -444,16 +445,6 @@ export async function upsertPost(
 	await bumpContentVersion(env);
 
 	return { slug: decoded, r2Key };
-}
-
-async function sha256Hex(input: string): Promise<string> {
-	const digest = await crypto.subtle.digest(
-		"SHA-256",
-		new TextEncoder().encode(input),
-	);
-	return [...new Uint8Array(digest)]
-		.map((b) => b.toString(16).padStart(2, "0"))
-		.join("");
 }
 
 export async function deletePost(env: CloudflareEnv, slug: string) {
