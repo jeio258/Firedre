@@ -102,3 +102,23 @@ export function isSafeProxyTarget(url: URL): boolean {
 	if (host.includes(":")) return !isPrivateIPv6(host); // IPv6（URL.hostname 含方括号）
 	return !isPrivateIPv4(host);
 }
+
+/**
+ * 重定向跟随策略（供 cover-proxy 等代理使用）：把 3xx 响应的 `location` 解析为下一跳 URL。
+ * 仅当其为 **https** 且通过 `isSafeProxyTarget` 时返回该 URL，否则返回 null（调用方应拒绝该跳）。
+ * 相对 Location 按「当前 URL」解析——随机图源（如 t.alcy.cc 的 `/pic/pc/…`）返回的正是相对路径，
+ * 因此不能对 3xx 一律 fail-closed，必须解析后逐跳校验再跟随。
+ */
+export function resolveSafeRedirect(
+	current: URL,
+	location: string,
+): URL | null {
+	let next: URL;
+	try {
+		next = new URL(location, current);
+	} catch {
+		return null;
+	}
+	if (next.protocol !== "https:") return null;
+	return isSafeProxyTarget(next) ? next : null;
+}

@@ -1,9 +1,12 @@
 import { withRateLimit } from "@server/utils/rateLimiter";
-import { isSafeProxyTarget } from "@server/utils/safeUrl";
+import { isSafeProxyTarget, resolveSafeRedirect } from "@server/utils/safeUrl";
 import type { APIRoute } from "astro";
 import { cfEnv, methodNotAllowed } from "../../lib/api";
 
 export const prerender = false;
+
+// 重定向最大跳数：超出即放弃（→ 502），避免重定向环
+const MAX_REDIRECTS = 3;
 
 // 远程封面同源代理：按宽度请求 Cloudflare 图像缩放；缩放不可用时透传原图，失败时 302 回退原图
 export const GET: APIRoute = async ({ request }) => {
@@ -83,15 +86,33 @@ export const GET: APIRoute = async ({ request }) => {
 		},
 		async () => {
 			try {
-				const upstream = await fetch(target, {
-					headers: {
-						"user-agent": "Mozilla/5.0 (compatible; FiredreCoverProxy/1.0)",
-					},
-					cf: {
-						image: { width, quality: 80, format: imageFormat },
-						cacheTtl: 86400,
-					},
-				} as RequestInit);
+				// 逐跳跟随 + 每跳校验：默认跟随（redirect:follow）会被 302 指向私网/元数据地址，
+				// 从而绕过上面的初始主机校验；但也不能一律 fail-closed——图源常返回**相对**
+				// Location（如 t.alcy.cc → /pic/pc/548.webp），必须解析后跟随。
+				let current = target;
+				let upstream: Response | null = null;
+				for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+					const res = await fetch(current, {
+						headers: {
+							"user-agent": "Mozilla/5.0 (compatible; FiredreCoverProxy/1.0)",
+						},
+						cf: {
+							image: { width, quality: 80, format: imageFormat },
+							cacheTtl: 86400,
+						},
+						redirect: "manual",
+					} as RequestInit);
+					if (res.status < 300 || res.status >= 400) {
+						upstream = res;
+						break;
+					}
+					const location = res.headers.get("location");
+					if (!location) break;
+					const next = resolveSafeRedirect(current, location);
+					if (!next) break; // 目标不安全或非 https → 不跟随
+					current = next;
+				}
+				if (!upstream) return redirectBack();
 				const contentType = upstream.headers.get("content-type") || "";
 				if (
 					!upstream.ok ||
