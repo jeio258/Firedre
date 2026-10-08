@@ -68,6 +68,19 @@ export function getLqipProps(
 	return { style: style || `background: ${DEFAULT_GRADIENT}` };
 }
 
+/**
+ * 图片加载完成后的统一收尾：淡入 img（opacity=1）并把它同级容器里的
+ * `.lqip-placeholder` 标记为 `loaded`。
+ *
+ * 共用方：`initImageLoadFadeIn`（全局扫描）与各卡片的 img onload
+ * （`MediaCard` / `BilibiliCard` / `BilibiliDetailModal`）——此前四处各写一遍同样的两行。
+ */
+export function revealLqipImage(img: HTMLImageElement): void {
+	img.style.opacity = "1";
+	const ph = img.parentElement?.querySelector(".lqip-placeholder");
+	if (ph) ph.classList.add("loaded");
+}
+
 export function initImageLoadFadeIn(): void {
 	const placeholders =
 		document.querySelectorAll<HTMLElement>(".lqip-placeholder");
@@ -78,17 +91,11 @@ export function initImageLoadFadeIn(): void {
 		if (!img) return;
 
 		if (img.complete && img.naturalWidth > 0) {
-			img.style.opacity = "1";
-			placeholder.classList.add("loaded");
+			revealLqipImage(img);
 		} else {
-			img.addEventListener(
-				"load",
-				() => {
-					img.style.opacity = "1";
-					placeholder.classList.add("loaded");
-				},
-				{ once: true },
-			);
+			img.addEventListener("load", () => revealLqipImage(img), {
+				once: true,
+			});
 			img.addEventListener(
 				"error",
 				() => {

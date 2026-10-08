@@ -1,6 +1,7 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { getFailedCovers, markCoverFailed } from "@/utils/failed-covers";
+import { revealLqipImage } from "@/utils/lqip-utils";
 
 interface Props {
 	href: string;
@@ -49,10 +50,7 @@ $effect(() => {
 });
 
 function handleLoad(e: Event) {
-	const img = e.currentTarget as HTMLImageElement;
-	img.style.opacity = "1";
-	const ph = img.parentElement?.querySelector(".lqip-placeholder");
-	if (ph) ph.classList.add("loaded");
+	revealLqipImage(e.currentTarget as HTMLImageElement);
 }
 
 function handleError(e: Event) {

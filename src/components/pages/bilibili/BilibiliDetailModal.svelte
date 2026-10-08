@@ -2,6 +2,7 @@
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { StandardizedAnime } from "@/types/bilibili";
+import { revealLqipImage } from "@/utils/lqip-utils";
 import { getSeasonTypeColor, getSeasonTypeLabel } from "./seasonTypes";
 
 interface Props {
@@ -68,12 +69,8 @@ function handleKeydown(e: KeyboardEvent) {
 							class="h-full w-full object-cover opacity-0 transition-opacity duration-500"
 							referrerpolicy="no-referrer"
 							crossorigin="anonymous"
-							onload={(e) => {
-								const img = e.currentTarget as HTMLElement;
-								img.style.opacity = '1';
-								const ph = img.parentElement?.querySelector('.lqip-placeholder');
-								if (ph) ph.classList.add('loaded');
-							}}
+							onload={(e) =>
+								revealLqipImage(e.currentTarget as HTMLImageElement)}
 						/>
 					{:else}
 						<div class="flex h-full min-h-[300px] items-center justify-center">

@@ -2,6 +2,7 @@
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { StandardizedAnime } from "@/types/bilibili";
+import { revealLqipImage } from "@/utils/lqip-utils";
 import { getSeasonTypeColor, getSeasonTypeLabel } from "./seasonTypes";
 
 interface Props {
@@ -12,10 +13,7 @@ interface Props {
 let { anime, onclick }: Props = $props();
 
 function handleLoad(e: Event) {
-	const img = e.currentTarget as HTMLImageElement;
-	img.style.opacity = "1";
-	const ph = img.parentElement?.querySelector(".lqip-placeholder");
-	if (ph) ph.classList.add("loaded");
+	revealLqipImage(e.currentTarget as HTMLImageElement);
 }
 
 function handleClick() {
