@@ -5,7 +5,9 @@ import type {
 	PostFrontmatter,
 	TagCountItem,
 } from "../../types/posts";
+import { getSettingsVersionCached } from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
+import { readIsolateCache, writeIsolateCache } from "../utils/isolateCache";
 import {
 	categoryPathFromFrontmatter,
 	normalizeTags,
@@ -102,24 +104,42 @@ export async function syncPostTaxonomy(
 	await runDbBatch(env.DB, buildTaxonomyStatements(env.DB, slug, frontmatter));
 }
 
+// 侧栏组件（SiteStats / Tags / Archive）**每页**都会读这三份清单 → 加 isolate 版本缓存：
+// 内容或配置变更会 bump 版本、缓存即失效；TTL 兜底「直改 D1」的场景。
+async function cachedList<T>(
+	slot: string,
+	env: CloudflareEnv,
+	load: () => Promise<T>,
+): Promise<T> {
+	const version = await getSettingsVersionCached(env).catch(() => "");
+	const hit = readIsolateCache<T>(slot, version);
+	if (hit !== undefined) return hit;
+	const value = await load();
+	writeIsolateCache(slot, version, value);
+	return value;
+}
+
 export async function listCategoryTree(
 	env: CloudflareEnv,
 ): Promise<CategoryTreeNode[]> {
-	const { results } = await env.DB.prepare(`
+	return cachedList("taxonomy.categories", env, async () => {
+		const { results } = await env.DB.prepare(`
     SELECT pt.value AS category_path
     FROM post_taxonomy pt
     INNER JOIN posts p ON p.slug = pt.post_slug
     WHERE pt.type = 'category' AND p.published = 1
   `).all<{ category_path: string }>();
 
-	const paths = (results || []).map((row) => row.category_path);
-	return serializeCategoryTree(buildCategoryTreeFromPaths(paths));
+		const paths = (results || []).map((row) => row.category_path);
+		return serializeCategoryTree(buildCategoryTreeFromPaths(paths));
+	});
 }
 
 export async function listTagCounts(
 	env: CloudflareEnv,
 ): Promise<TagCountItem[]> {
-	const { results } = await env.DB.prepare(`
+	return cachedList("taxonomy.tags", env, async () => {
+		const { results } = await env.DB.prepare(`
     SELECT pt.value AS name, COUNT(*) AS count
     FROM post_taxonomy pt
     INNER JOIN posts p ON p.slug = pt.post_slug
@@ -128,13 +148,15 @@ export async function listTagCounts(
     ORDER BY count DESC, name ASC
   `).all<TagCountItem>();
 
-	return results || [];
+		return results || [];
+	});
 }
 
 export async function listArchiveMonths(
 	env: CloudflareEnv,
 ): Promise<ArchiveMonthItem[]> {
-	const { results } = await env.DB.prepare(`
+	return cachedList("taxonomy.archives", env, async () => {
+		const { results } = await env.DB.prepare(`
     SELECT substr(date, 1, 7) AS month, COUNT(*) AS count
     FROM posts
     WHERE published = 1 AND date IS NOT NULL AND length(date) >= 7
@@ -142,7 +164,8 @@ export async function listArchiveMonths(
     ORDER BY month DESC
   `).all<ArchiveMonthItem>();
 
-	return results || [];
+		return results || [];
+	});
 }
 
 export function categoryFilterSql(category: string) {
