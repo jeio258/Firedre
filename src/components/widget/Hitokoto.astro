@@ -33,6 +33,9 @@ const rotateMinutes = Math.max(1, Number(hk.rotateMinutes) || 5);
   <div
     class="hitokoto-card px-3"
     data-hitokoto-card
+    data-hitokoto-api={hitokotoApi}
+    data-hitokoto-fallback-text={fallbackText}
+    data-hitokoto-fallback-source={fallbackSource}
     data-hitokoto-rotate={rotate ? "true" : "false"}
     data-hitokoto-rotate-minutes={String(rotateMinutes)}
   >
