@@ -12,7 +12,7 @@
     "check": "astro check && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs && node scripts/config-static-guard.mjs",
     "check:settings": "node scripts/settings-matrix-check.mjs",
     "check:config": "node scripts/config-static-guard.mjs",
-    "build": "astro build && node scripts/collapse-routes.mjs",
+    "build": "astro build && node scripts/collapse-routes.mjs && node scripts/minify-worker.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "type-check": "astro check",
