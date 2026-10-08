@@ -238,6 +238,11 @@ async function setRenderCache(
 	}
 }
 
+// 渲染缓存键命名空间：**必须为绝对 URL**——workerd 的 Cache API 对相对字符串会抛
+// `TypeError: Invalid URL`（match/put 双双抛错，被 catch 吞掉 → 缓存恒 miss，等于白写缓存）。
+// `.invalid` 是 RFC 2606 保留 TLD，永不解析，仅作缓存键的占位 origin。
+const RENDER_CACHE_BASE = "https://firedre.invalid/__post_render__";
+
 export async function getPostBySlug(
 	env: CloudflareEnv,
 	slug: string,
@@ -258,7 +263,7 @@ export async function getPostBySlug(
 
 	// 渲染缓存：内容(r2_key) + 配置(settingsVersion) 双键，命中跳过整条 Markdown 管线
 	const settingsVersion = await getSettingsVersionCached(env).catch(() => "");
-	const renderCacheKey = `__post_render__/${row.r2_key}?v=${settingsVersion}`;
+	const renderCacheKey = `${RENDER_CACHE_BASE}/${row.r2_key}?v=${settingsVersion}`;
 	const cachedRender = await getRenderCache(renderCacheKey);
 	const rendered = cachedRender
 		? ({
