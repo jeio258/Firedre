@@ -1,3 +1,11 @@
+import {
+	DIAGRAM_CONTAINER,
+	MERMAID_CONTAINER,
+	MERMAID_ERROR,
+	MERMAID_SVG_DARK,
+	MERMAID_SVG_LIGHT,
+	MERMAID_WRAPPER,
+} from "@shared/plugins/utils/diagramConstants";
 import { mermaidConfig } from "@/config";
 
 // Markdown 增强器：hljs 高亮 + mermaid 渲染（纯命令式 DOM 操作，无框架水合）
@@ -120,14 +128,14 @@ async function renderMermaid(root: ParentNode) {
 					svg: { diagram_id: `mermaid-${index}-dark`, pipeline: "parity" },
 				});
 				container.outerHTML =
-					`<div class="diagram-container mermaid-diagram-container">` +
-					`<div class="mermaid-wrapper">` +
-					`<div class="mermaid-svg-light">${light}</div>` +
-					`<div class="mermaid-svg-dark">${dark}</div>` +
+					`<div class="${DIAGRAM_CONTAINER} ${MERMAID_CONTAINER}">` +
+					`<div class="${MERMAID_WRAPPER}">` +
+					`<div class="${MERMAID_SVG_LIGHT}">${light}</div>` +
+					`<div class="${MERMAID_SVG_DARK}">${dark}</div>` +
 					"</div></div>";
 			} catch {
 				container.outerHTML =
-					`<div class="diagram-container mermaid-diagram-container mermaid-error">` +
+					`<div class="${DIAGRAM_CONTAINER} ${MERMAID_CONTAINER} ${MERMAID_ERROR}">` +
 					`<pre><code>${code.replace(/</g, "&lt;")}</code></pre></div>`;
 			}
 		});

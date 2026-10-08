@@ -364,16 +364,6 @@ function resetLayout() {
 	window.dispatchEvent(event);
 }
 
-function resetWavesEnabled() {
-	wavesEnabled = defaultWavesEnabled;
-	setWavesEnabled(defaultWavesEnabled);
-}
-
-function resetGradientEnabled() {
-	gradientEnabled = defaultGradientEnabled;
-	setGradientEnabled(defaultGradientEnabled);
-}
-
 function resetBannerSettings() {
 	if (
 		isBannerTitleSwitchable &&
