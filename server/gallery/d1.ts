@@ -138,6 +138,9 @@ async function loadPhotos(
 	return results || [];
 }
 
+// 单批语句数上限：D1 batch 的原子性以「一次 batch」为界，故分批不可避免；取 100 覆盖常见相册规模
+const BATCH_CHUNK = 100;
+
 export async function upsertAlbumToD1(
 	env: CloudflareEnv,
 	slug: string,
@@ -179,10 +182,6 @@ export async function upsertAlbumToD1(
 		content,
 	);
 
-	const photoDelete = env.DB.prepare(
-		"DELETE FROM album_photos WHERE album_slug = ?",
-	).bind(slug);
-
 	const photos = Array.isArray(frontmatter.photos) ? frontmatter.photos : [];
 	const photoInserts = photos.map((p, i) =>
 		env.DB.prepare(
@@ -197,11 +196,44 @@ export async function upsertAlbumToD1(
 		),
 	);
 
-	const stmts = [albumUpsert, photoDelete, ...photoInserts];
-	// D1 batch 原子性以单次 batch 为界：分片越小，跨片失败造成照片残缺的窗口越大；
-	// 100 条（覆盖约 98 张照片的相册）可在单 batch 内完成删除+重建
-	for (let i = 0; i < stmts.length; i += 100) {
-		await runDbBatch(env.DB, stmts.slice(i, i + 100));
+	if (photoInserts.length + 2 <= BATCH_CHUNK) {
+		// 快速路径（常见相册）：相册行 + 删旧照片 + 全部新照片能落在**同一个 batch**里，
+		// 由 D1 batch 保证原子 —— 行为与修复前一致。
+		const photoDelete = env.DB.prepare(
+			"DELETE FROM album_photos WHERE album_slug = ?",
+		).bind(slug);
+		await runDbBatch(env.DB, [albumUpsert, photoDelete, ...photoInserts]);
+	} else {
+		// 大相册（语句数超过单批上限）：无法单批原子完成，改为「**先写新、后删旧**」。
+		//
+		// 原实现是「先 DELETE 全部、再分批 INSERT」：后续分片失败会留下
+		// 「旧行已删、新行只写一半」的**永久残缺**（实测 20 张的相册失败后只剩 9 张）。
+		// 先写后删则任一分片失败最多留下「旧+新并存」，**不丢数据**；
+		// 且重复保存会收敛——上次残留的行会在本次被捕获并删除。
+		const prevRows = await env.DB.prepare(
+			"SELECT id FROM album_photos WHERE album_slug = ?",
+		)
+			.bind(slug)
+			.all<{ id: number }>();
+		const prevIds = (prevRows.results || []).map((r) => r.id);
+
+		// 1) 相册行：先保证 albums 存在（album_photos 的外键才有落点）
+		await runDbBatch(env.DB, [albumUpsert]);
+
+		// 2) 分批写入新照片
+		for (let i = 0; i < photoInserts.length; i += BATCH_CHUNK) {
+			await runDbBatch(env.DB, photoInserts.slice(i, i + BATCH_CHUNK));
+		}
+
+		// 3) 删除旧照片行（精确按 id，绝不会误删刚写入的新行）；每语句 ≤100 个占位符
+		for (let i = 0; i < prevIds.length; i += 100) {
+			const chunk = prevIds.slice(i, i + 100);
+			await env.DB.prepare(
+				`DELETE FROM album_photos WHERE id IN (${chunk.map(() => "?").join(",")})`,
+			)
+				.bind(...chunk)
+				.run();
+		}
 	}
 
 	return { frontmatter: { ...frontmatter, source }, content };
