@@ -15,6 +15,7 @@ import ConfigCarrier from "@components/layout/ConfigCarrier.astro";
 import FaviconLinks from "@components/layout/FaviconLinks.astro";
 import SiteSeoMeta from "@components/layout/SiteSeoMeta.astro";
 import { zh_CN } from "@i18n/languages/zh_CN";
+import type { AllPostMetaEntry } from "@server/posts/allPostMeta";
 import type { settingsDefaults } from "@shared/config/settings-defaults";
 import {
 	analyticsConfig,
@@ -66,7 +67,7 @@ interface Props {
 	hasWallpaper?: boolean;
 	wallpaperPreloadUrl?: string | null;
 	wallpaperPreloadUrlMobile?: string | null;
-	allPostMeta?: Array<Record<string, unknown>>;
+	allPostMeta?: AllPostMetaEntry[];
 }
 
 let {

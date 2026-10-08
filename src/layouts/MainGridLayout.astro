@@ -3,6 +3,7 @@ import Footer from "@components/layout/Footer.astro";
 import HeaderTopRow from "@components/layout/HeaderTopRow.astro";
 import NavMenuPanel from "@components/layout/NavMenuPanel.astro";
 import SideBar from "@components/layout/SideBar.astro";
+import { getAllPostMeta } from "@server/posts/allPostMeta";
 import type { MarkdownHeading } from "astro";
 import FloatingControls from "@/components/controls/FloatingControls.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
@@ -137,36 +138,11 @@ const {
 	gridColumnStyle,
 	gridDataAttrs,
 } = sidebar;
-// 全量文章元数据 SSR 直出：日历/推荐文章原本各发一次 /api/allPostMeta.json（实测约 1.1s），
-// 直出后客户端直接命中 window.__allPostMetaCache，省去该请求（字段与端点保持一致）
-const allPostMeta =
-	(
-		await cfEnv.DB.prepare(
-			"SELECT slug, title, description, date, categories, password FROM posts WHERE published = 1 ORDER BY date DESC",
-		).all()
-	).results?.map((row: Record<string, unknown>) => {
-		const r = row as unknown as {
-			slug: string;
-			title: string;
-			description?: string;
-			date: string;
-			categories?: string;
-			password?: string;
-		};
-		let category = "";
-		try {
-			const cats = JSON.parse(r.categories || "[]");
-			category = Array.isArray(cats) && cats.length ? String(cats[0]) : "";
-		} catch {}
-		return {
-			id: r.slug,
-			title: r.title,
-			description: r.description || "",
-			published: new Date(r.date).getTime(),
-			category,
-			password: Boolean(r.password),
-		};
-	}) ?? [];
+// 全量文章元数据 SSR 直出：Calendar/推荐文章客户端直接命中 window.__allPostMetaCache，
+// 省去该请求；查询走 isolate 版本缓存（与 /api/allPostMeta.json 共用），不再每页直查 D1
+const settingsVersion =
+	(Astro.locals as { settingsVersion?: string }).settingsVersion ?? "";
+const allPostMeta = await getAllPostMeta(cfEnv, settingsVersion);
 ---
 
 <Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} publishedTime={publishedTime} modifiedTime={modifiedTime} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl} wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile} allPostMeta={allPostMeta}>
