@@ -1,4 +1,5 @@
 import { withRateLimit } from "@server/utils/rateLimiter";
+import { isSafeProxyTarget } from "@server/utils/safeUrl";
 import type { APIRoute } from "astro";
 import { cfEnv, methodNotAllowed } from "../../lib/api";
 
@@ -19,6 +20,10 @@ export const GET: APIRoute = async ({ request }) => {
 	// 仅代理 https 外链，且不允许代理本站
 	if (target.protocol !== "https:" || target.hostname === url.hostname) {
 		return new Response("Bad Request", { status: 400 });
+	}
+	// SSRF 防护：拒绝私网/环回/链路本地/保留目标与保留 TLD（公网图片主机不受影响）
+	if (!isSafeProxyTarget(target)) {
+		return new Response("Forbidden target", { status: 400 });
 	}
 
 	const width = Math.min(
