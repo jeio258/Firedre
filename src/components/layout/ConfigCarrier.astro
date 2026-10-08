@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import { getSiteConfig, getWallpaperConfig } from "@shared/config/runtime";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）

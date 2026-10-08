@@ -1,8 +1,0 @@
-src/components/controls/ArchivePanel.astro  settings
-src/components/features/FontSetup.astro  settings
-src/components/layout/ConfigCarrier.astro  settings
-src/components/layout/PostMeta.astro  settings
-src/components/layout/PostPage.astro  settings
-src/components/widget/Dynamic.astro  settings
-src/components/widget/SiteInfo.astro  settings
-src/pages/posts/[...slug].astro  SharePoster

@@ -1,7 +1,4 @@
 ---
-const settings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
-
 import { Font } from "astro:assets";
 import { fontConfig, fontsList } from "@/config";
 import { getFontConfig } from "@/config/runtime";
