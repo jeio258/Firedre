@@ -164,36 +164,31 @@ export async function getTaxonomyArchives(env: CloudflareEnv) {
 
 export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	const decoded = decodePostSlug(slug);
-	// 窗口函数单条查询取前后篇：避免全表拉取 slug 再内存 indexOf（O(N)→O(log N)）
-	const row = await env.DB.prepare(`
-    SELECT slug, prev_slug, next_slug FROM (
+	// 单条查询取回「前后篇整行」：窗口函数定位相邻 slug，再按 slug JOIN 取整行。
+	// 原实现为 窗口查询 → 并行两条 SELECT *（3 次 D1，含一次窗口→取行的串行依赖）；
+	// 合并后 1 次 D1 且无该串行依赖，逻辑与返回形状不变。
+	const { results } = await env.DB.prepare(`
+    WITH ranked AS (
       SELECT slug,
         LAG(slug) OVER w AS prev_slug,
         LEAD(slug) OVER w AS next_slug
       FROM posts WHERE published = 1
       WINDOW w AS (ORDER BY pin_order DESC, date DESC)
-    ) WHERE slug = ?
+    ),
+    target AS (SELECT slug, prev_slug, next_slug FROM ranked WHERE slug = ?)
+    SELECT p.*, t.prev_slug, t.next_slug
+    FROM target t JOIN posts p ON p.slug IN (t.slug, t.prev_slug, t.next_slug)
   `)
 		.bind(decoded)
-		.first<{
-			slug: string;
-			prev_slug: string | null;
-			next_slug: string | null;
-		}>();
-	if (!row) return { prev: null, next: null };
+		.all<PostRecord & { prev_slug: string | null; next_slug: string | null }>();
 
-	const [prevRow, nextRow] = await Promise.all([
-		row.prev_slug
-			? env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
-					.bind(row.prev_slug)
-					.first<PostRecord>()
-			: null,
-		row.next_slug
-			? env.DB.prepare("SELECT * FROM posts WHERE slug = ?")
-					.bind(row.next_slug)
-					.first<PostRecord>()
-			: null,
-	]);
+	const rows = results || [];
+	const head = rows[0];
+	if (!head) return { prev: null, next: null };
+
+	const bySlug = new Map(rows.map((r) => [r.slug, r]));
+	const prevRow = head.prev_slug ? bySlug.get(head.prev_slug) : undefined;
+	const nextRow = head.next_slug ? bySlug.get(head.next_slug) : undefined;
 
 	return {
 		prev: prevRow ? recordToListItem(prevRow) : null,
