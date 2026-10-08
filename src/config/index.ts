@@ -1,21 +1,17 @@
 // 配置桶（A5）：值导出全部由运行时 getter 以 defaults 单一源派生，消费方 import 路径不变
+// B20（2026-10-08）：已裁剪零读取方导出——运行期消费统一走 getXxxConfig；
+// 若某导出确需保留静态读取，请在 B21 护栏（scripts/config-static-guard.mjs）基线中说明。
 import {
 	defaultsLocals,
 	getAnalyticsConfig,
-	getAnnouncementConfig,
 	getBooknavConfig,
 	getCommentConfig,
-	getCoverConfig,
 	getDynamicConfig,
 	getEffectsConfig,
-	getExpressiveCodeConfig,
-	getFooterConfig,
 	getLicenseConfig,
 	getMermaidConfig,
 	getMusicConfig,
-	getNavbarConfig,
 	getPanelConfig,
-	getPlantumlConfig,
 	getProfileConfig,
 	getSidebarConfig,
 	getSiteConfig,
@@ -24,32 +20,21 @@ import {
 } from "@shared/config/runtime";
 
 export const siteConfig = getSiteConfig(defaultsLocals);
-export const navBarConfig = getNavbarConfig(defaultsLocals);
 export const sidebarLayoutConfig = getSidebarConfig(defaultsLocals);
 export const backgroundWallpaper = getWallpaperConfig(defaultsLocals);
 export const displaySettingsConfig = getPanelConfig(defaultsLocals);
 export const profileConfig = getProfileConfig(defaultsLocals);
 export const commentConfig = getCommentConfig(defaultsLocals);
 export const musicPlayerConfig = getMusicConfig(defaultsLocals);
-export const footerConfig = getFooterConfig(defaultsLocals);
 export const sakuraConfig = getEffectsConfig(defaultsLocals);
 export const licenseConfig = getLicenseConfig(defaultsLocals);
 export const sponsorConfig = getSponsorConfig(defaultsLocals);
 export const dynamicConfig = getDynamicConfig(defaultsLocals);
-export const announcementConfig = getAnnouncementConfig(defaultsLocals);
-export const coverImageConfig = getCoverConfig(defaultsLocals);
 export const mermaidConfig = getMermaidConfig(defaultsLocals);
-export const plantumlConfig = getPlantumlConfig(defaultsLocals);
 export const analyticsConfig = getAnalyticsConfig(defaultsLocals);
-export const expressiveCodeConfig = getExpressiveCodeConfig(defaultsLocals);
 
 const booknavDefaults = getBooknavConfig(defaultsLocals);
 export const booknavConfig = booknavDefaults.groups;
-export const booknavPageConfig = {
-	title: booknavDefaults.title,
-	description: booknavDefaults.description,
-	favicon: booknavDefaults.favicon,
-};
 
 // 友链页结构常量（原 friendsConfig 原值；动态部分经 friends 组/D1 另行读取）
 export const friendsPageConfig = {
@@ -73,9 +58,6 @@ export function resolveNavbarMode(navbar: {
 	if (navbar.navbarMode) return navbar.navbarMode;
 	return navbar.stickyNavbar === false ? "static" : "fixed";
 }
-
-/** 当前导航栏模式（已按 navbarMode / 旧 stickyNavbar 解析），供各消费方统一读取 */
-export const navbarMode: NavbarMode = resolveNavbarMode(siteConfig.navbar);
 
 let cachedSettingsSrc: unknown = null;
 let clientNavbarMode: NavbarMode | null = null;
