@@ -296,13 +296,12 @@ export async function getRelatedPosts(
 	return result;
 }
 
-export async function fetchPostsForStats(): Promise<
-	Array<{
-		id: string;
-		data: { published: Date; updated?: Date; description?: string };
-	}>
-> {
-	const items = await fetchPostsList({ pageSize: 200 });
+type PostStatsEntry = {
+	id: string;
+	data: { published: Date; updated?: Date; description?: string };
+};
+
+function toPostStats(items: ApiPostListItem[]): PostStatsEntry[] {
 	return items.map((p) => ({
 		id: p.slug,
 		data: {
@@ -311,4 +310,30 @@ export async function fetchPostsForStats(): Promise<
 			description: p.description ?? p.excerpt ?? "",
 		},
 	}));
+}
+
+export async function fetchPostsForStats(): Promise<PostStatsEntry[]> {
+	// SSR：isolate 版本缓存（内容/配置变更即失效，TTL 兜底）——SiteStats 每页都取全量，
+	// 缓存后避免每次渲染都打一次 D1；客户端路径走 HTTP 端点的既有缓存，不在此缓存
+	if (import.meta.env.SSR) {
+		const [
+			{ cfEnv },
+			{ getSettingsVersionCached },
+			{ readIsolateCache, writeIsolateCache },
+		] = await Promise.all([
+			import("../lib/api"),
+			import("@server/settings/service"),
+			import("@server/utils/isolateCache"),
+		]);
+		const version = await getSettingsVersionCached(cfEnv).catch(() => "");
+		const cached = readIsolateCache<PostStatsEntry[]>(
+			"content.postsForStats",
+			version,
+		);
+		if (cached !== undefined) return cached;
+		const value = toPostStats(await fetchPostsList({ pageSize: 200 }));
+		writeIsolateCache("content.postsForStats", version, value);
+		return value;
+	}
+	return toPostStats(await fetchPostsList({ pageSize: 200 }));
 }
