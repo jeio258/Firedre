@@ -42,8 +42,15 @@ async function proxyCacheGet(url: URL): Promise<Response | null> {
 	}
 }
 
+// 仅成功响应可入缓存：把 4xx/5xx（配置缺失、上游错误）缓存 300s 会把故障固化数分钟，
+// 修复配置或上游恢复后仍返回旧的错误响应。
+export function isCacheableResponse(response: Response): boolean {
+	return response.status >= 200 && response.status < 300;
+}
+
 async function proxyCachePut(url: URL, response: Response): Promise<void> {
 	if (import.meta.env.DEV) return;
+	if (!isCacheableResponse(response)) return;
 	try {
 		const headers = new Headers(response.headers);
 		headers.set("Cache-Control", `public, max-age=${CACHE_TTL_SEC}`);
