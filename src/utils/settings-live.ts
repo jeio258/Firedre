@@ -7,12 +7,20 @@ const EVENT = "firedre:settings-changed";
 let currentVersion = document.documentElement.getAttribute(versionAttr) ?? "";
 let checking = false;
 
+// 单次检查上限：请求挂起时靠 AbortSignal 强制结束，避免 checking 永为 true（永久关闭实时感知）
+const CHECK_TIMEOUT_MS = 8000;
+
 /** 比对设置版本；有变化则原地更新注入对象并派发事件。返回是否发生更新。 */
-async function checkSettingsChanged(): Promise<boolean> {
+export async function checkSettingsChanged(
+	timeoutMs: number = CHECK_TIMEOUT_MS,
+): Promise<boolean> {
 	if (checking) return false;
 	checking = true;
 	try {
-		const resp = await fetch("/api/settings/client/", { cache: "no-store" });
+		const resp = await fetch("/api/settings/client/", {
+			cache: "no-store",
+			signal: AbortSignal.timeout(timeoutMs),
+		});
 		if (!resp.ok) return false;
 		const data = (await resp.json()) as {
 			version?: string;
