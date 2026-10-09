@@ -11,8 +11,10 @@ let content = $state("");
 let loading = $state(true);
 let saving = $state(false);
 let message = $state("");
+let loadError = $state("");
 
 async function load() {
+	loadError = "";
 	try {
 		const data = await apiJson<{
 			title?: string;
@@ -28,11 +30,18 @@ async function load() {
 				}
 			}
 		}
-	} catch {}
+	} catch (err) {
+		// 加载失败必须显式告警：否则表单以空/默认值呈现，保存会覆盖真实公告
+		loadError = err instanceof Error ? err.message : "网络错误";
+	}
 	loading = false;
 }
 
 async function save() {
+	if (loadError) {
+		message = "加载失败，请刷新后重试（不保存）";
+		return false;
+	}
 	saving = true;
 	message = "";
 	try {
@@ -77,7 +86,7 @@ onMountAsync(async () => {
 			{#if message}
 				<span class="crud-msg">{message}</span>
 			{/if}
-			<button class="btn-primary" onclick={save} disabled={saving}>
+			<button class="btn-primary" onclick={save} disabled={saving || loadError !== ""}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>
@@ -91,7 +100,11 @@ onMountAsync(async () => {
 		titleField="title"
 	/>
 
-	{#if !loading}
+	{#if loadError}
+		<div class="crud-card">
+			<p class="load-error">加载失败：{loadError}。已禁用保存以避免覆盖真实公告，请刷新后重试。</p>
+		</div>
+	{:else if !loading}
 		<div class="crud-card">
 			<div class="notice-form">
 				<label class="crud-field">
@@ -108,6 +121,15 @@ onMountAsync(async () => {
 </div>
 
 <style>
+	.load-error {
+		margin: 0;
+		padding: 0.5rem 0.65rem;
+		border-radius: 0.5rem;
+		background: rgba(220, 38, 38, 0.1);
+		color: #dc2626;
+		font-size: 0.85rem;
+		line-height: 1.5;
+	}
 	.notice-form {
 		display: flex;
 		flex-direction: column;
