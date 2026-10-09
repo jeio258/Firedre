@@ -45,13 +45,24 @@ async function submit(event: SubmitEvent) {
 			error = data.message || "登录失败";
 			return;
 		}
+		// 登录成功后轮询 /me 确认会话确实生效；未确认则不跳转（避免"看似成功实则未认证"）
+		let confirmed = false;
 		for (let attempt = 0; attempt < 2; attempt++) {
 			try {
 				const me = await fetch("/api/admin/me/", { credentials: "include" });
 				const meData = await me.json();
-				if (meData.authenticated) break;
-			} catch {}
+				if (meData?.authenticated) {
+					confirmed = true;
+					break;
+				}
+			} catch {
+				// 轮询失败按"未确认"处理，下面会重试一次
+			}
 			if (attempt === 0) await new Promise((r) => setTimeout(r, 400));
+		}
+		if (!confirmed) {
+			error = "登录未生效（会话未建立），请重试或检查浏览器 Cookie 设置";
+			return;
 		}
 		if (onSuccess) {
 			onSuccess();
