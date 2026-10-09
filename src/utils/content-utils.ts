@@ -197,13 +197,27 @@ export async function getSeriesPosts(
 	return { seriesName, posts, currentIndex };
 }
 
+// Intl.Segmenter 构造较重（微基准 ~7.9µs/次），而 getRelatedPosts 每文章页会对至多 200 篇
+// 标题各分词一次 → 单例化构造器 + 按标题缓存分词结果（纯函数、输出等价）：
+// 同一标题跨页只分词一次，把 O(页数 × 篇数) 的分词降为 O(篇数)。惰性创建，避免模块加载期开销。
+let zhWordSegmenter: Intl.Segmenter | undefined;
+const TITLE_TOKEN_CACHE_MAX = 500;
+const titleTokenCache = new Map<string, Set<string>>();
+
 function tokenizeTitle(title: string): Set<string> {
+	const cached = titleTokenCache.get(title);
+	if (cached) return cached;
+
+	zhWordSegmenter ??= new Intl.Segmenter("zh", { granularity: "word" });
 	const tokens = new Set<string>();
-	const segmenter = new Intl.Segmenter("zh", { granularity: "word" });
-	for (const { segment, isWordLike } of segmenter.segment(title)) {
+	for (const { segment, isWordLike } of zhWordSegmenter.segment(title)) {
 		if (!isWordLike) continue;
 		tokens.add(segment.toLowerCase());
 	}
+
+	// 有界缓存：超出上限整体清空（标题总数有限，正常不会触发）
+	if (titleTokenCache.size >= TITLE_TOKEN_CACHE_MAX) titleTokenCache.clear();
+	titleTokenCache.set(title, tokens);
 	return tokens;
 }
 
