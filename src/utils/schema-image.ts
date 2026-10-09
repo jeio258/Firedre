@@ -157,7 +157,11 @@ export function getSiteLogo(siteUrl: string = siteConfig.site_url): Promise<{
 } | null> {
 	let p = siteLogoCache.get(siteUrl);
 	if (!p) {
-		p = computeSiteLogo(siteUrl);
+		// 失败不缓存：剔除条目并回落 null（下次调用可重试），避免 rejected Promise 被永久固化
+		p = computeSiteLogo(siteUrl).catch(() => {
+			siteLogoCache.delete(siteUrl);
+			return null;
+		});
 		siteLogoCache.set(siteUrl, p);
 	}
 	return p;
