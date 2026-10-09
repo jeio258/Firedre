@@ -1,5 +1,6 @@
 import type { SakuraConfig } from "@/types/effectsConfig";
 import type { SakuraWorkerInboundMessage } from "@/types/sakura-worker";
+import { createSakuraRandom } from "@/utils/sakura-random";
 
 // 模块状态
 let canvas: OffscreenCanvas | null = null;
@@ -13,50 +14,11 @@ let windowHeight = 0;
 let isRunning = false;
 let isHidden = false; // 页面可见性,隐藏时暂停动画
 
-function getRandom(
-	option: "x" | "y" | "s" | "r" | "a",
-	cfg: SakuraConfig,
-): number;
-function getRandom(
-	option: "fnx" | "fny",
-	cfg: SakuraConfig,
-): (x: number, y: number) => number;
-function getRandom(option: "fnr", cfg: SakuraConfig): (r: number) => number;
-function getRandom(option: "fna", cfg: SakuraConfig): (a: number) => number;
-function getRandom(option: string, cfg: SakuraConfig): unknown {
-	switch (option) {
-		case "x":
-			return Math.random() * windowWidth;
-		case "y":
-			return Math.random() * windowHeight;
-		case "s":
-			return cfg.size.min + Math.random() * (cfg.size.max - cfg.size.min);
-		case "r":
-			return Math.random() * 6;
-		case "a":
-			return (
-				cfg.opacity.min + Math.random() * (cfg.opacity.max - cfg.opacity.min)
-			);
-		case "fnx": {
-			const random =
-				cfg.speed.horizontal.min +
-				Math.random() * (cfg.speed.horizontal.max - cfg.speed.horizontal.min);
-			return (x: number, _y: number) => x + random;
-		}
-		case "fny": {
-			const random =
-				cfg.speed.vertical.min +
-				Math.random() * (cfg.speed.vertical.max - cfg.speed.vertical.min);
-			return (_x: number, y: number) => y + random;
-		}
-		case "fnr":
-			return (r: number) => r + cfg.speed.rotation;
-		case "fna":
-			return (alpha: number) => alpha - cfg.speed.fadeSpeed * 0.01;
-		default:
-			return undefined;
-	}
-}
+// 随机取值逻辑与主线程共用（见 src/utils/sakura-random.ts）
+const getRandom = createSakuraRandom(() => ({
+	width: windowWidth,
+	height: windowHeight,
+}));
 
 // Sakura 单片樱花
 interface SakuraFns {
