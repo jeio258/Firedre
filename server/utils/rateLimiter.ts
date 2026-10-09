@@ -1,3 +1,4 @@
+import { pruneBoundedMap } from "@shared/utils/bounded-map";
 import type { CloudflareEnv } from "../../types/env";
 import { getClientIp } from "./clientIp";
 
@@ -99,7 +100,12 @@ async function pruneExpiredWindows(
 		.run();
 }
 
-const memoryStore = new Map<string, { windowStart: number; count: number }>();
+export const MEMORY_STORE_MAX = 5000;
+
+const memoryStore = new Map<
+	string,
+	{ windowStart: number; resetAt: number; count: number }
+>();
 
 export function checkMemoryRateLimit(
 	key: string,
@@ -109,9 +115,15 @@ export function checkMemoryRateLimit(
 	const { windowMs, maxRequests } = config;
 	const windowStart = now - (now % windowMs);
 
+	pruneBoundedMap(memoryStore, now, MEMORY_STORE_MAX);
+
 	const row = memoryStore.get(key);
 	if (!row || row.windowStart !== windowStart) {
-		memoryStore.set(key, { windowStart, count: 1 });
+		memoryStore.set(key, {
+			windowStart,
+			resetAt: windowStart + windowMs,
+			count: 1,
+		});
 		return {
 			allowed: true,
 			remaining: maxRequests - 1,
