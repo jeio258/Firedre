@@ -76,20 +76,16 @@ function sortPosts(posts: PostListItem[]) {
 	return sortPostsByPinOrder(posts);
 }
 
-export async function listPosts(
-	env: CloudflareEnv,
-	options: {
-		page?: number;
-		pageSize?: number;
-		category?: string;
-		tag?: string;
-		month?: string;
-		includeUnpublished?: boolean;
-	} = {},
-): Promise<PostsListResponse> {
-	const page = Math.max(1, options.page || 1);
-	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
-
+// 列表查询构造：category/tag 走 taxonomy JOIN，month 走 substr(date)。
+// 不使用 DISTINCT：taxonomy JOIN 恒为 1:1 —— tag 因主键 (post_slug,type,value) + 固定 value 至多一行；
+// category 由 buildTaxonomyStatements 保证每篇恰一行（唯一写入者）。故无需去重，
+// 省掉 SQLite 的 `USE TEMP B-TREE FOR DISTINCT`（EXPLAIN QUERY PLAN 实测）。
+export function buildListPostsQuery(options: {
+	category?: string;
+	tag?: string;
+	month?: string;
+	includeUnpublished?: boolean;
+}) {
 	const joins: string[] = [];
 	const conditions: string[] = [];
 	const binds: unknown[] = [];
@@ -107,39 +103,61 @@ export async function listPosts(
 		const filter = tagFilterSql(options.tag);
 		joins.push(filter.join);
 		conditions.push(filter.where);
-		binds.push(filter.binds[0]);
+		binds.push(...filter.binds);
 	}
 
 	if (options.month) {
 		const filter = monthFilterSql(options.month);
 		if (filter.join) joins.push(filter.join);
 		conditions.push(filter.where);
-		binds.push(filter.binds[0]);
+		binds.push(...filter.binds);
 	}
 
 	const joinSql = [...new Set(joins)].join("\n");
 	const whereSql = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-	const countRow = await env.DB.prepare(`
-    SELECT COUNT(DISTINCT p.slug) AS total
+	return {
+		binds,
+		countSql: `
+    SELECT COUNT(*) AS total
     FROM posts p
     ${joinSql}
     ${whereSql}
-  `)
+  `,
+		listSql: `
+    SELECT p.*
+    FROM posts p
+    ${joinSql}
+    ${whereSql}
+    ORDER BY p.pin_order DESC, p.date DESC
+    LIMIT ? OFFSET ?
+  `,
+	};
+}
+
+export async function listPosts(
+	env: CloudflareEnv,
+	options: {
+		page?: number;
+		pageSize?: number;
+		category?: string;
+		tag?: string;
+		month?: string;
+		includeUnpublished?: boolean;
+	} = {},
+): Promise<PostsListResponse> {
+	const page = Math.max(1, options.page || 1);
+	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
+	const { binds, countSql, listSql } = buildListPostsQuery(options);
+
+	const countRow = await env.DB.prepare(countSql)
 		.bind(...binds)
 		.first<{ total: number }>();
 
 	const total = countRow?.total || 0;
 	const offset = (page - 1) * pageSize;
 
-	const { results } = await env.DB.prepare(`
-    SELECT DISTINCT p.*
-    FROM posts p
-    ${joinSql}
-    ${whereSql}
-    ORDER BY p.pin_order DESC, p.date DESC
-    LIMIT ? OFFSET ?
-  `)
+	const { results } = await env.DB.prepare(listSql)
 		.bind(...binds, pageSize, offset)
 		.all<PostRecord>();
 
