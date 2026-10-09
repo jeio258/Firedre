@@ -1,10 +1,15 @@
 import type { CloudflareEnv } from "../../types/env";
 import type { NoticeBoard, NoticeBoardDetail } from "../../types/notice";
-import { bumpContentVersion } from "../settings/service";
+import {
+	bumpContentVersion,
+	getSettingsVersionCached,
+} from "../settings/service";
+import { readIsolateCache, writeIsolateCache } from "../utils/isolateCache";
 import { UserError } from "../utils/userError";
 import { normalizeNoticeBoard, parseNoticePayload } from "./normalize";
 
 const NOTICE_ROW_ID = 1;
+const NOTICE_CACHE_SLOT = "notice.board";
 
 interface NoticeRecord {
 	id: number;
@@ -32,16 +37,26 @@ function recordToDetail(row: NoticeRecord): NoticeBoardDetail {
 	};
 }
 
+// isolate 版本缓存：公告变更走 bumpContentVersion（同源版本键）→ 版本变即失效，TTL 兜底。
+// version 可显式传入（免重复解析）；省略时按当前配置/内容版本取。
 export async function getNotice(
 	env: CloudflareEnv,
+	version?: string,
 ): Promise<NoticeBoardDetail | null> {
+	const v = version ?? (await getSettingsVersionCached(env).catch(() => ""));
+	const cached = readIsolateCache<NoticeBoardDetail | null>(
+		NOTICE_CACHE_SLOT,
+		v,
+	);
+	if (cached !== undefined) return cached;
+
 	const row = await env.DB.prepare("SELECT * FROM notice_board WHERE id = ?")
 		.bind(NOTICE_ROW_ID)
 		.first<NoticeRecord>();
 
-	if (!row) return null;
-
-	return recordToDetail(row);
+	const value = row ? recordToDetail(row) : null;
+	writeIsolateCache(NOTICE_CACHE_SLOT, v, value);
+	return value;
 }
 
 export async function upsertNotice(
