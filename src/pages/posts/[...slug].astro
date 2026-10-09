@@ -71,8 +71,16 @@ const [{ getPostBySlug, getPostNeighbors }, { cfEnv }, { apiPostToEntry }] =
 		import("../../utils/post-types"),
 	]);
 let postDetail: Awaited<ReturnType<typeof getPostBySlug>> = null;
+let neighbors: Awaited<ReturnType<typeof getPostNeighbors>> = {
+	prev: null,
+	next: null,
+};
 try {
-	postDetail = await getPostBySlug(cfEnv, slug, {});
+	// 两查询互不依赖 → 并行发起（原先串行 await，多一次串行 D1 往返）
+	[postDetail, neighbors] = await Promise.all([
+		getPostBySlug(cfEnv, slug, {}),
+		getPostNeighbors(cfEnv, slug),
+	]);
 } catch (error) {
 	// D1/R2 异常区别于文章不存在：降级为友好错误页而非默认 500
 	console.error("[posts] 文章读取失败:", error);
@@ -87,10 +95,8 @@ if (!postDetail) {
 
 const { entry, html, headings, words, minutes } = apiPostToEntry(postDetail);
 
-// 上一篇/下一篇 SSR 填充（修复前后篇按钮恒为"主页"的缺陷）：
-// getPostNeighbors 按日期排序返回相邻文章，与 API 端点行为一致；
-// 加密文章仅取 slug/title，不泄露正文
-const neighbors = await getPostNeighbors(cfEnv, slug);
+// 上一篇/下一篇已与文章读取并行取得（getPostNeighbors 按日期排序，与 API 端点一致；
+// 加密文章仅取 slug/title，不泄露正文）
 if (neighbors.prev) {
 	entry.data.prevSlug = neighbors.prev.slug;
 	entry.data.prevTitle = neighbors.prev.title;
