@@ -242,8 +242,8 @@ export const GET: APIRoute = async ({ params, request }) => {
 		const stats = await collectAdminStats(cfEnv.DB);
 		return jsonWithHeaders(stats);
 	} catch (error) {
-		if (action === "stats") return serverError(error);
-		return json({ authenticated: false }, 401, "private");
+		// 未认证已在上方显式返回 401；此处均为非预期错误 → 500，不得伪装成"未认证"
+		return serverError(error);
 	}
 };
 
