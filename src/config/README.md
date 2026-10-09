@@ -43,5 +43,4 @@ const siteConfig = getSiteConfig(defaultsLocals);
 
 ## 环境变量
 
-- **无**。历史上支持过 `PUBLIC_DISPLAY_SETTINGS`（显示设置面板开关）与 `PUBLIC_PAGES_*`（页面开关）两个构建期 env 覆盖，对应实现（`shared/utils/display-settings-utils.ts`、`shared/utils/page-toggle-utils.ts`、`shared/utils/boolean-env.ts`）已在 2026-10-08 删除。
-- 这两类开关现**只由后台设置驱动**（D1：`panel` 分组 / `basic.pageXxx`），运行期即时生效；设置上述 env 不再有任何作用。
+- **无**。页面开关只由后台设置驱动（D1：`panel` 分组 / `basic.pageXxx`），运行期即时生效。

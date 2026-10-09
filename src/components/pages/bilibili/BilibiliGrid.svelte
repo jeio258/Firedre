@@ -46,7 +46,7 @@ onMount(() => {
 			if (cancelled) return;
 			items = Array.isArray(data) ? data : [];
 			loading = false;
-			// 与原先 SSR 初始化一致：默认筛第一个 season_type
+			// 默认筛第一个 season_type
 			activeFilter = String(
 				[...new Set(items.map((i) => i.season_type || 1))].sort(
 					(a, b) => a - b,

@@ -73,7 +73,7 @@ export function getLqipProps(
  * `.lqip-placeholder` 标记为 `loaded`。
  *
  * 共用方：`initImageLoadFadeIn`（全局扫描）与各卡片的 img onload
- * （`MediaCard` / `BilibiliCard` / `BilibiliDetailModal`）——此前四处各写一遍同样的两行。
+ * （`MediaCard` / `BilibiliCard` / `BilibiliDetailModal`）。
  */
 export function revealLqipImage(img: HTMLImageElement): void {
 	img.style.opacity = "1";

@@ -183,9 +183,7 @@ export async function getTaxonomyArchives(env: CloudflareEnv) {
 
 export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	const decoded = decodePostSlug(slug);
-	// 单条查询取回「前后篇整行」：窗口函数定位相邻 slug，再按 slug JOIN 取整行。
-	// 原实现为 窗口查询 → 并行两条 SELECT *（3 次 D1，含一次窗口→取行的串行依赖）；
-	// 合并后 1 次 D1 且无该串行依赖，逻辑与返回形状不变。
+	// 单条查询取回「前后篇整行」：窗口函数定位相邻 slug，再按 slug JOIN 取整行（1 次 D1）。
 	const { results } = await env.DB.prepare(`
     WITH ranked AS (
       SELECT slug,
@@ -288,7 +286,7 @@ export async function getPostBySlug(
 	if (!options.includeUnpublished && row.published !== 1) return null;
 
 	// 渲染缓存：内容(r2_key) + 配置(settingsVersion) 双键，命中跳过整条 Markdown 管线。
-	// f=2 为缓存结构版本段（旧版无 frontmatter）——旧条目键不同、自然失效
+	// f=2 为缓存负载结构版本段：结构变更时递增，旧条目键不同即自然失效
 	const settingsVersion = await getSettingsVersionCached(env).catch(() => "");
 	const renderCacheKey = `${RENDER_CACHE_BASE}/${row.r2_key}?v=${settingsVersion}&f=2`;
 	const cachedRender = await getRenderCache(renderCacheKey);
@@ -299,7 +297,6 @@ export async function getPostBySlug(
 
 	if (cachedRender && !options.includeSource) {
 		// 命中且无需源文 → 直接复用缓存组装，免读 R2
-		// （此前恒先读 R2 再查缓存，命中时空读一次对象与全文）
 		rendered = cachedRender;
 	} else {
 		const object = await env.BUCKET.get(row.r2_key);

@@ -76,7 +76,7 @@ async function highlight(root: ParentNode) {
 	if (!hljs) return;
 	root.querySelectorAll<HTMLElement>("pre code:not(.hljs)").forEach((el) => {
 		try {
-			// hljs 11+ 仅暴露 highlightElement（旧版函数式调用已移除）
+			// hljs 11+ 仅提供 highlightElement
 			hljs.highlightElement(el);
 		} catch {
 			// 单块失败不影响其它

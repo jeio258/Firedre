@@ -13,9 +13,7 @@ import { siteConfig } from "../../config";
 import { createStoredBoolean } from "./shared";
 
 export function getDefaultHue(): number {
-	// 权威来源：客户端设置视图（后台配置的色相）；其次页面内的配置载体；最后才兜底。
-	// 历史问题：直接退到硬编码 250，而面板挂载会把它写进 localStorage，导致用户
-	// 从未设置却出现「本地色相」且长期覆盖云端配置。
+	// 权威来源：客户端设置视图（后台配置的色相）；其次页面内的配置载体；最后才兜底到默认色相
 	const configured = getSiteConfigFromWindow().themeColor?.hue;
 	if (typeof configured === "number" && Number.isFinite(configured)) {
 		return configured;

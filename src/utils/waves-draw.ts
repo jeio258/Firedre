@@ -1,5 +1,3 @@
-// 常量(与原实现一一对应)
-
 const VIEWBOX = { x: 0, y: 24, w: 150, h: 28 } as const;
 
 const WAVE_PATH_D =

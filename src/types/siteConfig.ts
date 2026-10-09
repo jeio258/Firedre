@@ -76,7 +76,7 @@ export type SiteConfig = {
 		followTheme?: boolean;
 		// 导航栏模式：static（不固定，随页面滚动消失）/ fixed（固定在顶部常显）/ dynamic（固定在顶部，下滑隐藏、轻微上滑显示）
 		navbarMode?: NavbarMode;
-		/** @deprecated 由 navbarMode 取代；true→fixed，false→static */
+		// 兼容旧字段：由 navbarMode 优先取代（true→fixed，false→static）；仍被 config/index.ts 读取
 		stickyNavbar?: boolean;
 	};
 

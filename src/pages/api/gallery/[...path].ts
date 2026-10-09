@@ -66,7 +66,6 @@ export const GET: APIRoute = async ({ params, request }) => {
 			return json({ ok: true, config }, 200, "private");
 		}
 
-		// GET unlock 已移除（口令经查询串进日志/历史，且无客户端消费方）；
 		// 解锁统一走下方 POST /unlock（请求体携带口令）
 
 		const album = await getGalleryAlbum(cfEnv, slug, {

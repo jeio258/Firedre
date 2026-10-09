@@ -98,8 +98,7 @@ const panelFlag = (k: string, fallback: boolean) => {
 };
 
 let hue = $state(getHue());
-// 仅当用户真的拖动色相滑块（或点重置）才写入本地偏好：
-// 原先 $effect 无条件 setHue，导致「打开面板」即持久化一个用户从未设置的色相
+// 仅当用户拖动色相滑块（或点重置）才写入本地偏好
 let hueTouched = $state(false);
 const defaultHue = getDefaultHue();
 let wallpaperMode: WALLPAPER_MODE = $state(wallpaperView.mode);

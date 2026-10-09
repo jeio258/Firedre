@@ -50,7 +50,7 @@ function buildAlbumFrontmatter(
 		encrypted: row.encrypted === 1,
 		source: parseSource(row.source),
 	};
-	// 口令不再从 password_hint（已废弃明文列）回填，由调用方经 album_passwords 解密注入
+	// 口令由调用方经 album_passwords 解密后注入（不从 password_hint 回填）
 
 	if (frontmatter.source === "local") {
 		frontmatter.photos = photos.map((p) => ({
@@ -204,12 +204,9 @@ export async function upsertAlbumToD1(
 		).bind(slug);
 		await runDbBatch(env.DB, [albumUpsert, photoDelete, ...photoInserts]);
 	} else {
-		// 大相册（语句数超过单批上限）：无法单批原子完成，改为「**先写新、后删旧**」。
-		//
-		// 原实现是「先 DELETE 全部、再分批 INSERT」：后续分片失败会留下
-		// 「旧行已删、新行只写一半」的**永久残缺**（实测 20 张的相册失败后只剩 9 张）。
-		// 先写后删则任一分片失败最多留下「旧+新并存」，**不丢数据**；
-		// 且重复保存会收敛——上次残留的行会在本次被捕获并删除。
+		// 大相册（语句数超过单批上限）：无法单批原子完成，采用「先写新、后删旧」。
+		// 任一分片失败最多留下「旧+新并存」，不丢数据；重复保存会收敛
+		// （上次残留行由本次捕获并删除）。
 		const prevRows = await env.DB.prepare(
 			"SELECT id FROM album_photos WHERE album_slug = ?",
 		)

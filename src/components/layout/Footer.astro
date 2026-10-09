@@ -18,8 +18,7 @@ const footerLinks: SiteLinkView[] = await listEnabledSiteLinks(
 
 const currentYear = new Date().getFullYear();
 
-// 页脚自定义 HTML 只走后台 customHtml（src/config/FooterConfig.html 为上游静态资源，
-// Workers 无文件系统不可读，fs 分支已移除）
+// 页脚自定义 HTML 只走后台 customHtml（Workers 无文件系统，不读本地 HTML）
 const customFooterHtml = "";
 ---
 
