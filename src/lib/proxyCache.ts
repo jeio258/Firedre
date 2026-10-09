@@ -48,16 +48,40 @@ export function isCacheableResponse(response: Response): boolean {
 	return response.status >= 200 && response.status < 300;
 }
 
+// 存储副本要用边缘 TTL（public,max-age）才会被 Cache API 保存；但 handler 原意的浏览器
+// 缓存头（如 json(...,"private") 的 private,no-store）不能丢——否则命中时被改成 public，
+// 会让浏览器缓存本不该缓存的内容，且 MISS/HIT 语义不一致。故把原 Cache-Control 另存于
+// 内部头，命中回放时还原（见 buildHitHeaders）。
+const ORIGIN_CC_HEADER = "X-Firedre-Origin-Cache-Control";
+
+export function buildStoredHeaders(originHeaders: Headers): Headers {
+	const headers = new Headers(originHeaders);
+	const originCC = originHeaders.get("Cache-Control");
+	if (originCC) headers.set(ORIGIN_CC_HEADER, originCC);
+	headers.set("Cache-Control", `public, max-age=${CACHE_TTL_SEC}`);
+	headers.set("X-Firedre-Cache", "MISS");
+	return headers;
+}
+
+export function buildHitHeaders(cachedHeaders: Headers): Headers {
+	const headers = new Headers(cachedHeaders);
+	const originCC = headers.get(ORIGIN_CC_HEADER);
+	headers.delete(ORIGIN_CC_HEADER);
+	if (originCC) headers.set("Cache-Control", originCC);
+	headers.set("X-Firedre-Cache", "HIT");
+	return headers;
+}
+
 async function proxyCachePut(url: URL, response: Response): Promise<void> {
 	if (import.meta.env.DEV) return;
 	if (!isCacheableResponse(response)) return;
 	try {
-		const headers = new Headers(response.headers);
-		headers.set("Cache-Control", `public, max-age=${CACHE_TTL_SEC}`);
-		headers.set("X-Firedre-Cache", "MISS");
 		await caches.default.put(
 			cacheKey(url),
-			new Response(response.body, { status: response.status, headers }),
+			new Response(response.body, {
+				status: response.status,
+				headers: buildStoredHeaders(response.headers),
+			}),
 		);
 	} catch {
 		// 缓存写入失败不影响主流程
@@ -80,9 +104,10 @@ async function proxyEarlyResponse(
 	const cached = await proxyCacheGet(url);
 	if (!cached) return null;
 
-	const headers = new Headers(cached.headers);
-	headers.set("X-Firedre-Cache", "HIT");
-	return new Response(await cached.text(), { status: cached.status, headers });
+	return new Response(await cached.text(), {
+		status: cached.status,
+		headers: buildHitHeaders(cached.headers),
+	});
 }
 
 // 三段式代理路由的公共包装：early（限流/缓存命中）→ 业务 handler → 结果回填缓存
