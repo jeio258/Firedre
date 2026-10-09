@@ -5,6 +5,7 @@ import {
 } from "@server/utils/isolateCache";
 import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "./config/runtime";
+import { buildHtmlCacheKey } from "./lib/htmlCacheKey";
 
 export interface SettingsLocals {
 	settings: import("@server/settings/service").SettingsView;
@@ -83,8 +84,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			const { cfEnv } = await import("./lib/api");
 			settingsVersion = await getSettingsVersionCached(cfEnv);
 
-			// key 含 pathname + search：避免将来按 query 渲染的页面（分页/筛选/预览）串缓存
-			htmlCacheKey = `${url.origin}/__html_cache__/${url.pathname}${url.search}?v=${settingsVersion}`;
+			// HTML 页按 path 渲染（query 与渲染无关）→ 键仅含 pathname + 版本；
+			// 详见 src/lib/htmlCacheKey.ts（跟踪参数不再导致缓存 miss）
+			htmlCacheKey = buildHtmlCacheKey(url, settingsVersion);
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
 				const headers = new Headers({
