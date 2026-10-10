@@ -1,15 +1,28 @@
-import { defaultsLocals, getSiteConfig } from "@shared/config/runtime";
-import type { WikiLinkResolver } from "@shared/plugins/remark-wiki-link-runtime";
 // biome-ignore lint/suspicious/noShadowRestrictedNames: 沿用 mdast-util-toString 原名
 import { toString } from "mdast-util-to-string";
+import rehypeRaw from "rehype-raw";
+import rehypeStringify from "rehype-stringify";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import remarkSmartypants from "remark-smartypants";
+import { unified } from "unified";
 import { visit } from "unist-util-visit";
-import type { MarkdownHeading } from "../../types/posts";
-import { rehypeSanitizeDangerous } from "./sanitize";
+import "katex/dist/contrib/mhchem.mjs"; // mhchem 扩展
+import { defaultsLocals, getSiteConfig } from "@shared/config/runtime";
 
 const siteConfig = getSiteConfig(defaultsLocals);
 
-// 重型 markdown 依赖链（unified + remark/rehype + markdown-preset + katex/mhchem）**不再顶层静态导入**，
-// 改为 buildProcessor 内按需 `await import()`：避免它们进入 Worker 冷启动求值（曾致 CPU 超限 1102）。
+import {
+	sharedRehypePlugins,
+	sharedRemarkPlugins,
+} from "@shared/plugins/markdown-preset.mjs";
+import {
+	remarkWikiLinkRuntime,
+	type WikiLinkResolver,
+} from "@shared/plugins/remark-wiki-link-runtime";
+import type { MarkdownHeading } from "../../types/posts";
+import { rehypeSanitizeDangerous } from "./sanitize";
 
 export { stripMarkdown } from "./markdown";
 
@@ -87,39 +100,11 @@ function rehypeCollectHeadings() {
 	};
 }
 
-interface UnifiedProcessor {
+interface UnifiedProcessor extends ReturnType<typeof unified> {
 	use(...args: unknown[]): UnifiedProcessor;
-	process(input: { value: string; data: Record<string, unknown> }): Promise<{
-		value: unknown;
-		data: { frontmatter?: unknown; headings?: unknown };
-	}>;
 }
 
-async function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
-	const [
-		{ unified },
-		{ default: remarkParse },
-		{ default: remarkGfm },
-		{ default: remarkSmartypants },
-		{ default: remarkRehype },
-		{ default: rehypeRaw },
-		{ default: rehypeStringify },
-		{ sharedRemarkPlugins, sharedRehypePlugins },
-		{ remarkWikiLinkRuntime },
-	] = await Promise.all([
-		import("unified"),
-		import("remark-parse"),
-		import("remark-gfm"),
-		import("remark-smartypants"),
-		import("remark-rehype"),
-		import("rehype-raw"),
-		import("rehype-stringify"),
-		import("@shared/plugins/markdown-preset.mjs"),
-		import("@shared/plugins/remark-wiki-link-runtime"),
-	]);
-	// mhchem 扩展（副作用：向 katex 注册 mhchem 宏）
-	await import("katex/dist/contrib/mhchem.mjs");
-
+function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 	return (unified() as unknown as UnifiedProcessor)
 		.use(remarkParse)
 		.use(remarkGfm)
@@ -154,7 +139,7 @@ export async function renderMarkdown(
 	content: string,
 	options: RenderMarkdownOptions = {},
 ): Promise<RenderedMarkdown> {
-	const processor = await buildProcessor(options.resolveWikiLink ?? null);
+	const processor = buildProcessor(options.resolveWikiLink ?? null);
 	const data: Record<string, unknown> = {
 		frontmatter: options.frontmatter ?? {},
 	};
