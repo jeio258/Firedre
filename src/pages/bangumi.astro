@@ -10,10 +10,10 @@ const bg: BangumiGroup =
 	(settings as { bangumi?: BangumiGroup }).bangumi ?? siteConfig.bangumi ?? {};
 
 import "@/styles/pages/common.css";
+import { getSiteConfig } from "@shared/config/runtime";
 import { Icon } from "astro-icon/components";
 import BangumiGrid from "@/components/pages/bangumi/BangumiGrid.svelte";
 import { siteConfig } from "@/config";
-import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";

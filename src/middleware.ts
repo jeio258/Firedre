@@ -4,7 +4,7 @@ import {
 	writeIsolateCache,
 } from "@server/utils/isolateCache";
 import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
-import { getPlantumlConfig } from "./config/runtime";
+import { getPlantumlConfig } from "@shared/config/runtime";
 import { buildHtmlCacheKey } from "./lib/htmlCacheKey";
 
 export interface SettingsLocals {

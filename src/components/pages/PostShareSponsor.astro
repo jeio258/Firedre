@@ -1,11 +1,11 @@
 ---
+import { url } from "@shared/utils/url-utils";
 // 文章页「分享/赞助」块：原在 posts/[...slug].astro 的加密/公开两个分支里各出现一次
 // （结构完全相同），抽取为共享组件。逐字搬运，UI 与拆分前完全一致。
 import { Icon } from "astro-icon/components";
 import SharePoster from "@/components/misc/SharePoster.svelte";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import { url } from "@/utils/url-utils";
 
 interface Props {
 	shareEnabled: boolean;

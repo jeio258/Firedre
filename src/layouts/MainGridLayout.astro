@@ -4,17 +4,17 @@ import HeaderTopRow from "@components/layout/HeaderTopRow.astro";
 import NavMenuPanel from "@components/layout/NavMenuPanel.astro";
 import SideBar from "@components/layout/SideBar.astro";
 import { getAllPostMeta } from "@server/posts/allPostMeta";
+import {
+	getNavbarConfig,
+	getSidebarConfig,
+	getWallpaperConfig,
+} from "@shared/config/runtime";
 import type { MarkdownHeading } from "astro";
 import FloatingControls from "@/components/controls/FloatingControls.astro";
 import CategoryBar from "@/components/layout/CategoryBar.astro";
 import SidebarColumn from "@/components/layout/SidebarColumn.astro";
 import WallpaperSection from "@/components/layout/WallpaperSection.astro";
 import { resolveNavbarMode, siteConfig } from "@/config";
-import {
-	getNavbarConfig,
-	getSidebarConfig,
-	getWallpaperConfig,
-} from "@/config/runtime";
 import { getBannerVisibilityState } from "@/utils/banner-visibility-utils";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";

@@ -1,7 +1,7 @@
 import { getSettingsVersion } from "@server/settings/service";
-import { url } from "@utils/url-utils";
+import { getSiteConfig } from "@shared/config/runtime";
+import { url } from "@shared/utils/url-utils";
 import type { APIContext } from "astro";
-import { getSiteConfig } from "@/config/runtime";
 
 export const prerender = false;
 

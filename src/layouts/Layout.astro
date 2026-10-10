@@ -16,6 +16,12 @@ import FaviconLinks from "@components/layout/FaviconLinks.astro";
 import SiteSeoMeta from "@components/layout/SiteSeoMeta.astro";
 import { zh_CN } from "@i18n/languages/zh_CN";
 import type { AllPostMetaEntry } from "@server/posts/allPostMeta";
+import {
+	getExpressiveCodeConfig,
+	getNavbarConfig,
+	getProfileConfig,
+	getSiteConfig,
+} from "@shared/config/runtime";
 import type { settingsDefaults } from "@shared/config/settings-defaults";
 import {
 	analyticsConfig,
@@ -26,12 +32,6 @@ import {
 	resolveNavbarMode,
 	siteConfig,
 } from "@/config";
-import {
-	getExpressiveCodeConfig,
-	getNavbarConfig,
-	getProfileConfig,
-	getSiteConfig,
-} from "@/config/runtime";
 import {
 	BANNER_HEIGHT,
 	BANNER_HEIGHT_HOME,

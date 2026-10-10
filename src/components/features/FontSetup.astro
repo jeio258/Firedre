@@ -1,7 +1,7 @@
 ---
 import { Font } from "astro:assets";
+import { getFontConfig } from "@shared/config/runtime";
 import { fontConfig, fontsList } from "@/config";
-import { getFontConfig } from "@/config/runtime";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）

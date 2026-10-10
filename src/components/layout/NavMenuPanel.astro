@@ -1,9 +1,9 @@
 ---
+import { getNavbarConfig, getSiteConfig } from "@shared/config/runtime";
+import { url } from "@shared/utils/url-utils";
 import { Icon } from "astro-icon/components";
 import SafeIcon from "@/components/common/SafeIcon.astro";
-import { getNavbarConfig, getSiteConfig } from "@/config/runtime";
 import type { NavBarLink } from "@/types/config";
-import { url } from "@/utils/url-utils";
 
 interface Props {
 	links: NavBarLink[];

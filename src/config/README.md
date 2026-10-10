@@ -5,10 +5,13 @@
 ```
 src/config/
 ├── index.ts            # 配置索引 barrel（值导出全由 @shared/config/runtime getter 派生，统一导出面）
-├── runtime.ts          # re-export shim（真身在 shared/config/runtime.ts）
 ├── FooterConfig.html   # 页脚展示资源（仅 Footer.astro 使用）
 └── README.md           # 本文件
 ```
+
+> R2（2026-10-10）：原 `src/config/runtime.ts` 与 `src/utils/url-utils.ts` 是转发 `@shared/*` 的**纯 re-export shim**，
+> 使同一模块存在双路径。已删除两 shim，消费者统一改为规范路径 `@shared/config/runtime` / `@shared/utils/url-utils`
+> （`@shared/*` 为双端中立层，server/shared 亦直接依赖，不可反向依赖 `src/`）。
 
 ## 配置单一源（A5 后现状，2026-10-01 落地）
 

@@ -3,18 +3,18 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 
 import "@/styles/pages/common.css";
+import { getSiteConfig } from "@shared/config/runtime";
 import { Icon } from "astro-icon/components";
 import DynamicFeed from "@/components/pages/dynamic/DynamicFeed.svelte";
 import DynamicItemTemplate from "@/components/pages/dynamic/DynamicItemTemplate.astro";
 import { commentConfig, dynamicConfig, siteConfig } from "@/config";
-import { getSiteConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import type { CommentConfig } from "@/types/commentConfig";
 import type { DynamicConfig } from "@/types/dynamicConfig";
 import "@/styles/pages/dynamic.css";
-import { url } from "@/utils/url-utils";
+import { url } from "@shared/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 

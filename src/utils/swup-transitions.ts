@@ -1,5 +1,6 @@
+import { getExpressiveCodeConfigFromWindow } from "@shared/config/runtime";
+import { pathsEqual, url } from "@shared/utils/url-utils";
 import { resolveClientNavbarMode } from "@/config";
-import { getExpressiveCodeConfigFromWindow } from "@/config/runtime";
 import {
 	BANNER_HEIGHT_HOME,
 	BANNER_HEIGHT_NON_HOME,
@@ -24,7 +25,6 @@ import {
 	syncBannerHomeTextVisibility,
 	updateNavbarTransparency,
 } from "@/utils/setting-utils";
-import { pathsEqual, url } from "@/utils/url-utils";
 
 function startProgressBar(): void {
 	const bar = document.getElementById("progress-bar");

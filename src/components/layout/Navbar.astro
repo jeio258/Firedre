@@ -1,26 +1,26 @@
 ---
 import { Picture } from "astro:assets";
 import * as path from "node:path";
-import { getFallbackFormat, getImageFormats } from "@shared/utils/image-utils";
-import type { ImageMetadata } from "astro";
-import { Icon } from "astro-icon/components";
-import DisplaySettings from "@/components/controls/DisplaySettingsIntegrated.svelte";
-import LightDarkSwitch from "@/components/controls/LightDarkSwitch.svelte";
-import Search from "@/components/controls/Search.svelte";
-import MusicPlayer from "@/components/features/MusicPlayer.astro";
 import {
 	getMusicConfig,
 	getNavbarConfig,
 	getPanelConfig,
 	getSiteConfig,
 	getWallpaperConfig,
-} from "@/config/runtime";
+} from "@shared/config/runtime";
+import { getFallbackFormat, getImageFormats } from "@shared/utils/image-utils";
+import { url } from "@shared/utils/url-utils";
+import type { ImageMetadata } from "astro";
+import { Icon } from "astro-icon/components";
+import DisplaySettings from "@/components/controls/DisplaySettingsIntegrated.svelte";
+import LightDarkSwitch from "@/components/controls/LightDarkSwitch.svelte";
+import Search from "@/components/controls/Search.svelte";
+import MusicPlayer from "@/components/features/MusicPlayer.astro";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { NavBarLink } from "@/types/config";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";
-import { url } from "@/utils/url-utils";
 import DropdownMenu from "./DropdownMenu.astro";
 
 const wallpaperConfig = getWallpaperConfig(Astro.locals);

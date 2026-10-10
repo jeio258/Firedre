@@ -3,8 +3,8 @@ import {
 	listEnabledSiteLinks,
 	type SiteLinkView,
 } from "@server/siteLinks/service";
-import { getFooterConfig, getProfileConfig } from "@/config/runtime";
-import { url } from "@/utils/url-utils";
+import { getFooterConfig, getProfileConfig } from "@shared/config/runtime";
+import { url } from "@shared/utils/url-utils";
 import { cfEnv } from "../../lib/api";
 
 const footerConfigRuntime = getFooterConfig(Astro.locals);

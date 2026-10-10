@@ -1,11 +1,11 @@
 ---
 import "@/styles/pages/dynamic-comments.css";
-import Comment from "@/components/comment/index.astro";
 import {
 	getCommentConfig,
 	getDynamicConfig,
 	getSiteConfig,
-} from "@/config/runtime";
+} from "@shared/config/runtime";
+import Comment from "@/components/comment/index.astro";
 import Layout from "@/layouts/Layout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）

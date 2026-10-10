@@ -1,13 +1,13 @@
 <script lang="ts">
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { url as formatUrl, getSearchUrl } from "@shared/utils/url-utils";
 import { navigateToPage } from "@utils/navigation-utils";
 import { onMount } from "svelte";
 import Icon from "@/components/common/Icon.svelte";
 import type { SearchResult } from "@/global";
 import { FLOATING_PANEL_CLOSE_EVENT } from "@/utils/floating-panel-utils";
 import { searchPostsApi } from "@/utils/search-api";
-import { url as formatUrl, getSearchUrl } from "@/utils/url-utils";
 
 let keywordDesktop = "";
 let keywordMobile = "";

@@ -1,3 +1,4 @@
+import { getCategoryUrl } from "@shared/utils/url-utils";
 import { dedupByKey, fetchWithDedup } from "./fetch-dedup";
 import {
 	type ApiPostDetail,
@@ -5,7 +6,6 @@ import {
 	apiPostToPostForList,
 	type PostForList,
 } from "./post-types";
-import { getCategoryUrl } from "./url-utils";
 
 export type { ApiPostDetail, ApiPostListItem, PostForList };
 

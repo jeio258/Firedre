@@ -8,6 +8,7 @@ import {
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import type { SettingsView } from "@server/settings/service";
+import { getPanelConfig, getWallpaperConfig } from "@shared/config/runtime";
 import {
 	BREAKPOINT_COMPACT,
 	BREAKPOINT_TABLET,
@@ -57,7 +58,6 @@ import {
 	displaySettingsConfig,
 	siteConfig,
 } from "@/config";
-import { getPanelConfig, getWallpaperConfig } from "@/config/runtime";
 import type { WALLPAPER_MODE } from "@/types/config";
 import AppearanceTab from "./AppearanceTab.svelte";
 import EffectsTab from "./EffectsTab.svelte";

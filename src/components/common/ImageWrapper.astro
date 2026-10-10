@@ -7,10 +7,10 @@ import {
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@shared/utils/image-utils";
+import { url } from "@shared/utils/url-utils";
 import type { ImageMetadata } from "astro";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import { getLqipProps } from "@/utils/lqip-utils";
-import { url } from "@/utils/url-utils";
 
 interface Props {
 	id?: string;

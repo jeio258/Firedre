@@ -1,9 +1,9 @@
 ---
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
+import { getCategoryDisplayName, url } from "@shared/utils/url-utils";
 import { Icon } from "astro-icon/components";
 import { getCategoryList, getSortedPostsList } from "@/utils/content-utils";
-import { getCategoryDisplayName, url } from "@/utils/url-utils";
 
 interface Props {
 	currentPostCategory?: string;

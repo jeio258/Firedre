@@ -1,8 +1,9 @@
 // SharePoster 的纯辅助函数（自组件拆分，原在组件脚本内，无组件状态依赖）。
 // 依赖 iconsData / siteConfig / url-utils，与组件解耦后可复用、可单测。
+
+import { url as withBase } from "@shared/utils/url-utils";
 import { siteConfig } from "@/config";
 import iconsData from "@/constants/icons-data.json";
-import { url as withBase } from "@/utils/url-utils";
 
 export function loadImage(src: string): Promise<HTMLImageElement | null> {
 	return new Promise((resolve) => {

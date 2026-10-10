@@ -1,8 +1,8 @@
 import * as path from "node:path";
+import { isAbsoluteUrl, url } from "@shared/utils/url-utils";
 import type { ImageMetadata } from "astro";
 import { profileConfig, siteConfig } from "@/config";
 import { defaultFavicons } from "@/constants/icon";
-import { isAbsoluteUrl, url } from "./url-utils";
 
 const projectImages = import.meta.glob<ImageMetadata>(
 	"/src/**/*.{png,jpg,jpeg,webp,avif,gif,svg}",

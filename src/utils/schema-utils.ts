@@ -1,10 +1,10 @@
-import type { ProfileConfig, SiteConfig } from "@/types/config";
 import {
 	getSearchUrl,
 	isAbsoluteUrl,
 	normalizeSiteUrl,
 	url,
-} from "./url-utils";
+} from "@shared/utils/url-utils";
+import type { ProfileConfig, SiteConfig } from "@/types/config";
 
 export function toAbsoluteUrl(
 	src: string | undefined | null,

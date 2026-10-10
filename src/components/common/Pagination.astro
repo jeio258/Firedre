@@ -1,4 +1,5 @@
 ---
+import { url } from "@shared/utils/url-utils";
 import type { Page } from "astro";
 import { Icon } from "astro-icon/components";
 import PageJump from "@/components/common/PageJump.svelte";
@@ -8,7 +9,6 @@ import {
 	computePaginationPages,
 	PAGINATION_ELLIPSIS,
 } from "@/utils/pagination-window";
-import { url } from "@/utils/url-utils";
 
 interface Props {
 	page: Page;

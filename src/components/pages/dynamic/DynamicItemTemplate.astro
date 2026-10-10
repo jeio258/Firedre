@@ -2,14 +2,14 @@
 import { Icon } from "astro-icon/components";
 import "@/styles/markdown.css";
 import "@/styles/markdown-extend.styl";
+import { getDynamicConfig, getProfileConfig } from "@shared/config/runtime";
+import { url } from "@shared/utils/url-utils";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import DynamicGallery from "@/components/pages/dynamic/DynamicGallery.astro";
 import DynamicInlineComments from "@/components/pages/dynamic/DynamicInlineComments.astro";
 import { dynamicConfig } from "@/config";
-import { getDynamicConfig, getProfileConfig } from "@/config/runtime";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
-import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 

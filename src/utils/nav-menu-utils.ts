@@ -2,7 +2,7 @@ import {
 	listEnabledSiteLinks,
 	type SiteLinkView,
 } from "@server/siteLinks/service";
-import { getNavbarConfig, getSiteConfig } from "@/config/runtime";
+import { getNavbarConfig, getSiteConfig } from "@shared/config/runtime";
 import type { NavBarLink } from "@/types/config";
 import { resolveNavbarLinks } from "@/utils/navbar-i18n";
 import { cfEnv } from "../lib/api";

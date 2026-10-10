@@ -1,6 +1,6 @@
+import { getWallpaperConfig } from "@shared/config/runtime";
 import { getImageQuality } from "@shared/utils/image-utils";
 import { backgroundWallpaper, displaySettingsConfig } from "@/config";
-import { getWallpaperConfig } from "@/config/runtime";
 import { getBackgroundImages } from "@/utils/layout-utils";
 
 export interface BannerPostMeta {

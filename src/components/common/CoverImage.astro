@@ -1,14 +1,14 @@
 ---
+import { getCoverConfig } from "@shared/config/runtime";
 import {
 	getImageFormats,
 	getImageQuality,
 	shouldAddNoReferrer,
 } from "@shared/utils/image-utils";
+import { url } from "@shared/utils/url-utils";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
-import { getCoverConfig } from "@/config/runtime";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
 import { getLqipProps } from "@/utils/lqip-utils";
-import { url } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 

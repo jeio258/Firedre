@@ -1,6 +1,6 @@
+import { pathsEqual, url } from "@shared/utils/url-utils";
 import { backgroundWallpaper } from "@/config";
 import { isTabletOrBelowViewport } from "@/utils/breakpoints";
-import { pathsEqual, url } from "@/utils/url-utils";
 
 const TITLE_FADE_RATIO = 0.5;
 const BLUR_RAMP_SCROLL = 300;

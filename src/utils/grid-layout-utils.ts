@@ -2,11 +2,11 @@
  * 主网格列布局与侧边栏可见性 / 吸顶间距管理（从 Layout.astro 迁出）。
  */
 
+import { isArticleDetailPage } from "@shared/utils/url-utils";
 import {
 	computeGridColumns,
 	gridColumnVarsToStyle,
 } from "@/utils/responsive-utils";
-import { isArticleDetailPage } from "@/utils/url-utils";
 
 const sidebarStickyState: Record<
 	"left" | "right",

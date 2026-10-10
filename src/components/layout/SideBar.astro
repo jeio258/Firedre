@@ -1,4 +1,6 @@
 ---
+import { getMusicConfig, getSidebarConfig } from "@shared/config/runtime";
+import { isArticleDetailPage } from "@shared/utils/url-utils";
 import type { MarkdownHeading } from "astro";
 import type { AstroComponentFactory } from "astro/runtime/server/index.js";
 import Advertisement from "@/components/widget/Advertisement.astro";
@@ -14,13 +16,11 @@ import SiteInfo from "@/components/widget/SiteInfo.astro";
 import SiteStats from "@/components/widget/SiteStats.astro";
 import Tags from "@/components/widget/Tags.astro";
 import { sidebarLayoutConfig } from "@/config";
-import { getMusicConfig, getSidebarConfig } from "@/config/runtime";
 import type {
 	MobileBottomComponentConfig,
 	WidgetComponentConfig,
 } from "@/types/config";
 import { isWidgetVisibleOnPageType } from "@/utils/responsive-utils";
-import { isArticleDetailPage } from "@/utils/url-utils";
 
 interface Props {
 	class?: string;

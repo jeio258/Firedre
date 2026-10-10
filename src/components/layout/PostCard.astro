@@ -3,13 +3,13 @@ import {
 	getApiUrlList,
 	processCoverImageSync,
 } from "@shared/utils/image-utils";
+import { getTagUrl } from "@shared/utils/url-utils";
 import { Icon } from "astro-icon/components";
 import CoverImage from "@/components/common/CoverImage.astro";
 import PostMetadata from "@/components/layout/PostMeta.astro";
 import PostStats from "@/components/layout/PostStats.astro";
 import { siteConfig } from "@/config";
 import type { PostForList } from "@/utils/post-types";
-import { getTagUrl } from "@/utils/url-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 

@@ -1,7 +1,7 @@
 ---
-import { katexStylesheetPath } from "@/lib/katexAssets";
 // KaTeX 样式：vendor 到 /katex/（含字体），仅文章页以 link 按需加载，不进全站共享 CSS
-import { url } from "@/utils/url-utils";
+import { url } from "@shared/utils/url-utils";
+import { katexStylesheetPath } from "@/lib/katexAssets";
 ---
 
 <link rel="stylesheet" href={url(katexStylesheetPath())} />
