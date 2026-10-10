@@ -1,7 +1,7 @@
 ---
 import { Font } from "astro:assets";
 import { getFontConfig } from "@shared/config/runtime";
-import { fontConfig, fontsList } from "@/config";
+import { fontConfig } from "@/config";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -12,11 +12,6 @@ const fontCfg = getFontConfig(Astro.locals);
 const allCssVars = fontConfig.enable
 	? collectUsedFontCssVars(fontConfig)
 	: new Set<string>();
-
-// 逐字体 preload 开关：大体积字体（CJK）标 preload:false → 不输出 rel=preload，改随 CSS 按需加载
-const noPreloadVars = new Set(
-	fontsList.filter((f) => f.preload === false).map((f) => f.cssVariable),
-);
 
 const selectedIds: string[] =
 	fontCfg.enable && fontCfg.selected
@@ -35,7 +30,9 @@ const selectedFontVars = selectedIds.filter((v) => v !== "system");
 const fontItems = Array.from(allCssVars).map((cssVar) => ({
 	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
 	cssVariable: cssVar as any,
-	preload: selectedFontVars.includes(cssVar) && !noPreloadVars.has(cssVar),
+	// 所选（正文字体）preload：首屏 LCP 文字用此字体渲染，必须与 HTML 并行加载，
+	// 否则字体被推迟到 CSS 之后才被发现 → 首屏白屏数秒（曾在生产把 LCP 拖到 ~6s）
+	preload: selectedFontVars.includes(cssVar),
 }));
 const bodyFontFamily =
 	selectedFontVars.length > 0
