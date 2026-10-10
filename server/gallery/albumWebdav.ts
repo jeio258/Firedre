@@ -3,15 +3,12 @@ import type {
 	AlbumWebDavConfig,
 	AlbumWebDavRuntimeOptions,
 } from "../../types/album";
-import {
-	type AlbumAccessParams,
-	verifyAlbumAccess,
-} from "../../utils/albumAuth";
+import { type AlbumAccessParams, verifyAlbumAccess } from "../utils/albumAuth";
 import {
 	detectMediaTypeFromMime,
 	detectMediaTypeFromUrl,
 	MEDIA_EXT,
-} from "../../utils/albumMedia";
+} from "../utils/albumMedia";
 import { UserError } from "../utils/userError";
 import {
 	assertTargetInWebDavScope,

@@ -1,5 +1,5 @@
 import type { AlbumPhoto } from "../../types/album";
-import { detectMediaTypeFromMime, MEDIA_EXT } from "../../utils/albumMedia";
+import { detectMediaTypeFromMime, MEDIA_EXT } from "../utils/albumMedia";
 import { fetchWithRetry } from "../utils/fetchRetry";
 import { UserError } from "../utils/userError";
 
