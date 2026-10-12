@@ -1,4 +1,4 @@
-// site 域 getter（B4 自 runtime.ts 机械拆分，逻辑零改动）
+// site 域 getter
 import type { SiteConfig } from "../../../src/types/siteConfig";
 import { normalizeSiteUrl } from "../../utils/url-utils";
 import { bool, groupOf, num, settingsOf, str } from "./helpers";

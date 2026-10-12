@@ -1,4 +1,4 @@
-// layout 域 getter（B4 自 runtime.ts 机械拆分，逻辑零改动）
+// layout 域 getter
 import type { FooterConfig } from "@/types/config";
 import type {
 	NavBarConfig,

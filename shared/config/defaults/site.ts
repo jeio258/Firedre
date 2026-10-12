@@ -32,7 +32,7 @@ export const siteDefaults = {
 		pageSponsor: true,
 		keywords:
 			"Firedre,Astro,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
-		// ── 结构字段（A4：自 siteConfig 原值搬移，非后台可编辑项） ──
+		// ── 结构字段（非后台可编辑项） ──
 		lang: resolveSiteLang("zh_CN"),
 		foldArticle: true,
 		pagination: { postsPerPage: 10 },

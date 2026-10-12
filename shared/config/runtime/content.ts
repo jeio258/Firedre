@@ -1,4 +1,4 @@
-// content 域 getter（B4 自 runtime.ts 机械拆分，逻辑零改动）
+// content 域 getter
 import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
 import type {
 	AnalyticsConfig,

@@ -6,7 +6,7 @@ export const featuresDefaults = {
 		postNavigation: true,
 		relatedPosts: true,
 		randomPosts: true,
-		// ── 结构字段（A4：自 siteConfig.post 原值搬移） ──
+		// ── 结构字段（非后台可编辑项） ──
 		showLastModified: true,
 		outdatedThreshold: 30,
 		generateOgImages: false,

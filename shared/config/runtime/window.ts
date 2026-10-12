@@ -1,4 +1,4 @@
-// 客户端 window 设置视图（B4 自 runtime.ts 机械拆分）
+// 客户端 window 设置视图
 
 import { getExpressiveCodeConfig } from "./content";
 import type { SettingsLike } from "./helpers";

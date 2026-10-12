@@ -1,4 +1,4 @@
-// theme 域 getter（B4 自 runtime.ts 机械拆分，逻辑零改动）
+// theme 域 getter
 import type { BackgroundWallpaperConfig } from "@/types/backgroundWallpaper";
 import type { SakuraConfig } from "@/types/config";
 import type { DisplaySettingsConfig } from "@/types/displaySettingsConfig";

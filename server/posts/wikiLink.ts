@@ -1,4 +1,4 @@
-// 文章 WikiLink 解析器（自 service.ts 拆分，含模块级元数据缓存）。
+// 文章 WikiLink 解析器（含模块级元数据缓存）。
 // 缓存随文章写操作由 clearWikiLinkCache() 失效。
 import type {
 	WikiLinkPostMeta,

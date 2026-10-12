@@ -26,7 +26,7 @@ export const appearanceDefaults = {
 		overlayOpacity: 0.8,
 		overlayBlur: 10,
 		overlayCardOpacity: 0.6,
-		// ── 结构字段（A4：自 backgroundWallpaper 原值整体内嵌，getter 透传源） ──
+		// ── 结构字段（非后台可编辑项；getter 透传源） ──
 		wallpaperBase: {
 			mode: "banner",
 			playerEnable: true,
@@ -124,7 +124,7 @@ export const appearanceDefaults = {
 		showCalendar: true,
 		hideSidebarOnPostPage: false,
 		noSidebarContentWidth: 0.6,
-		// ── 结构字段（A4：自 sidebarLayoutConfig 原值搬移） ──
+		// ── 结构字段（非后台可编辑项） ──
 		enable: true,
 		position: "both",
 		tabletSidebar: "left",

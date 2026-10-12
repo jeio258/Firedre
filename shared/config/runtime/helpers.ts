@@ -3,7 +3,7 @@ import type { BooknavFaviconConfig, BooknavGroup } from "@/types/booknavConfig";
 import type { NavBarLink } from "@/types/navBarConfig";
 import { settingsDefaults } from "../settings-defaults";
 
-/** A5：defaults-only 视图（无 D1 覆盖），供无 locals 上下文的纯函数/桶使用 */
+/** defaults-only 视图（无 D1 覆盖），供无 locals 上下文的纯函数/桶使用 */
 export const defaultsLocals: { settings: Record<string, unknown> } = {
 	settings: settingsDefaults,
 };
