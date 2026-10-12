@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// B21 护栏：运行期代码不得从静态 @/config 快照读取「后台可编辑字段」。
+// 护栏：运行期代码不得从静态 @/config 快照读取「后台可编辑字段」。
 // 背景：R1–R4 修复的就是「后台改了设置、前台仍用静态 defaults」这类真 bug。
 // 判据：src/** 中 `import { X } from "@/config"`（或相对 ../config）得到的静态 config 对象，
 //       其对 adminSettingsSchema 可编辑字段的一级成员访问 → 视为可疑，须走运行时 getter。

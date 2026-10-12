@@ -22,7 +22,7 @@ module.exports = {
 };
 `;
 
-// 白名单：无表单组由专属编辑器管理；结构字段为 getter 模板（A4），不应进表单
+// 白名单：无表单组由专属编辑器管理；结构字段为 getter 模板，不应进表单
 const DEDICATED_EDITOR_GROUPS = new Set([
 	"announcement", // AdminNoticeEditor
 	"dynamic", // AdminDynamic

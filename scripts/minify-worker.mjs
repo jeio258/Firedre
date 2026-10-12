@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// ⑥ 构建收尾：压缩 Cloudflare Pages 的 _worker.js（advanced mode 目录形态）。
+// 构建收尾：压缩 Cloudflare Pages 的 _worker.js（advanced mode 目录形态）。
 // astro/vite 的 SSR 产物默认不压缩（dist/_worker.js/index.js 约 4.5MB 源码）。
 // 用 esbuild transform（非 bundle）→ 保留 import "cloudflare:workers"/"node:*" 等外部导入不变。
 // 收益：上传体积、Worker 解析与冷启动（线上另有 br/gzip，带宽收益有限）。
@@ -27,7 +27,7 @@ const out = transformSync(src, {
 	// `Object.defineProperty(x, "name", …)`；本项目的产物流在 Cloudflare **发布阶段**
 	// 执行这些静态初始化块时会抛
 	//   TypeError: Object.defineProperty called on non-object
-	// 直接导致 Function 发布失败（2026-10-08 线上事故）。
+	// 直接导致 Function 发布失败。
 	// 下方有断言兜底：一旦产物凭空多出 static 块，构建立即失败而不是把坏 worker 发上线。
 	format: "esm",
 	target: "esnext",

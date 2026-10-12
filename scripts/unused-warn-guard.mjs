@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 // 护栏：把 astro check 的「未使用变量」告警（ts6133）纳入门禁——新增即失败。
 //
-// 背景（2026-10-08）：Hitokoto.astro 曾出现
-//   const hitokotoApi = hk.api;        // 取到后台配置，却从未使用 → 配置静默失效
-// astro check 一直把它报为 `warning ts(6133)`，但 `check` 只把 **error** 当失败 →
-// 这条真 bug 的线索被长期无视。故把该类告警与基线比对：新增即失败，原有入基线。
+// 防错：astro check 对未使用变量只报 warning(ts6133)，而 check 只把 error 当失败 →
+// 曾因此漏掉「配置取到却未使用 → 静默失效」的真 bug。故将该类告警与基线比对：
+// 新增即失败，原有入基线。
 //
 // 用法：node scripts/unused-warn-guard.mjs [--update]
 import { spawnSync } from "node:child_process";
