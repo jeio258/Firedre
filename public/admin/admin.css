@@ -279,7 +279,7 @@ body {
 .nav-item {
 	display: flex;
 	align-items: center;
-	/* 触控热区 ≥44px（P3）：原为 38px，侧栏条目在触屏/移动端点按偏窄 */
+	/* 触控热区 ≥44px：侧栏条目在触屏/移动端点按偏窄，故放大热区 */
 	min-height: 44px;
 	gap: 0.65rem;
 	padding: 0.52rem 0.65rem;
@@ -2230,10 +2230,10 @@ a:focus-visible,
 	outline-offset: 2px;
 }
 
-/* P7（方案 B：直接改尺寸）——原 AA 违规项直接达标
-   1) 移动菜单开关 32→44（主触控控件）
-   2) 表单控件与按钮下限 ≥24×24（WCAG 2.5.8 AA）
-   3) 复选框 13×13 → 24×24（原为浏览器默认尺寸） */
+/* 尺寸满足 WCAG 2.5.8 AA：
+   1) 移动菜单开关 2.75rem（主触控控件）
+   2) 表单控件与按钮下限 ≥24×24
+   3) 复选框 24×24 */
 .menu-toggle {
 	width: 2.75rem;
 	min-width: 2.75rem;
@@ -2253,7 +2253,7 @@ input[type="checkbox"] {
 	height: 1.5rem;
 }
 
-/* ==== R1 token 层（后台设计系统最小集；渐进替换旧值，不删除旧规则）====
+/* ==== token 层（后台设计系统最小集；渐进替换旧值，不删除旧规则）====
    字号：--fs-1(12) --fs-2(13) --fs-3(14) --fs-4(16) --fs-5(20)
    间距：8px 栅格；圆角 3 档；阴影 2 档 */
 :root {
@@ -2283,7 +2283,7 @@ input[type="checkbox"] {
 	font-weight: 600;
 }
 
-/* R1-4：能力标签（登录页）+ 列表元信息分列（时间/分类语义区分，替代中点串联） */
+/* 能力标签（登录页）+ 列表元信息分列（时间/分类语义区分，替代中点串联） */
 .login-sub .cap {
 	display: inline-block;
 	margin-right: var(--sp-1, 0.5rem);

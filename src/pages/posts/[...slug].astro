@@ -76,7 +76,7 @@ let neighbors: Awaited<ReturnType<typeof getPostNeighbors>> = {
 	next: null,
 };
 try {
-	// 两查询互不依赖 → 并行发起（原先串行 await，多一次串行 D1 往返）
+	// 两查询互不依赖 → 并行发起
 	[postDetail, neighbors] = await Promise.all([
 		getPostBySlug(cfEnv, slug, {}),
 		getPostNeighbors(cfEnv, slug),

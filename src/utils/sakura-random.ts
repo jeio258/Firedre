@@ -13,9 +13,8 @@ export interface SakuraRandomFn {
 }
 
 /**
- * 樱花随机取值工厂（主线程 SakuraEffect 与 sakura.worker 共用同一套逻辑，
- * 原先两处各写一遍相同的 switch）。尺寸来源由调用方以 getDims 注入 —— 两个执行环境
- * 各自维护自己的 windowWidth/Height。
+ * 樱花随机取值工厂（主线程 SakuraEffect 与 sakura.worker 共用同一套逻辑）。
+ * 尺寸来源由调用方以 getDims 注入 —— 两个执行环境各自维护自己的 windowWidth/Height。
  */
 export function createSakuraRandom(getDims: () => SakuraDims): SakuraRandomFn {
 	const fn = (option: string, cfg: SakuraConfig): unknown => {

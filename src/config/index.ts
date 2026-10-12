@@ -1,6 +1,6 @@
-// 配置桶（A5）：值导出全部由运行时 getter 以 defaults 单一源派生，消费方 import 路径不变
-// B20（2026-10-08）：已裁剪零读取方导出——运行期消费统一走 getXxxConfig；
-// 若某导出确需保留静态读取，请在 B21 护栏（scripts/config-static-guard.mjs）基线中说明。
+// 配置桶：值导出全部由运行时 getter 以 defaults 单一源派生，消费方 import 路径不变
+// 已裁剪零读取方导出——运行期消费统一走 getXxxConfig；
+// 若某导出确需保留静态读取，须在 scripts/config-static-guard.mjs 基线中说明。
 import {
 	defaultsLocals,
 	getAnalyticsConfig,
@@ -36,7 +36,7 @@ export const analyticsConfig = getAnalyticsConfig(defaultsLocals);
 const booknavDefaults = getBooknavConfig(defaultsLocals);
 export const booknavConfig = booknavDefaults.groups;
 
-// 友链页结构常量（原 friendsConfig 原值；动态部分经 friends 组/D1 另行读取）
+// 友链页结构常量（动态部分经 friends 组/D1 另行读取）
 export const friendsPageConfig = {
 	title: "",
 	description: "",

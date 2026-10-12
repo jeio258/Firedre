@@ -12,9 +12,9 @@ export interface SettingsLocals {
 	settingsVersion?: string;
 }
 
-// HTML 边缘缓存（P0-1 档位 1）：s-maxage=60 让 CDN 短暂缓存降 TTFB；
-// 去掉 stale-while-revalidate=86400 —— 旧 HTML 引用已随部署消失的哈希资产会导致
-// 白屏（404.html 按 MIME 拒绝执行），陈旧窗口从 10min/24h 压到 60s，配合 P0-2 自愈重载
+// HTML 边缘缓存：s-maxage=60 让 CDN 短暂缓存降 TTFB；
+// 不使用 stale-while-revalidate —— 旧 HTML 引用已随部署消失的哈希资产会导致
+// 白屏（404.html 按 MIME 拒绝执行），陈旧窗口保持 60s，配合自愈重载
 const HTML_CACHE_CONTROL = "public, max-age=0, s-maxage=60";
 // CF 专用：指示 Cloudflare 边缘按此 TTL 缓存本响应（Pages 默认不缓存 HTML，需此头 + 站点缓存规则配合）
 const HTML_CDN_CACHE_CONTROL = "public, max-age=60";
@@ -160,7 +160,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 				settingsVersion;
 		}
 	} catch (e) {
-		// A1：D1 故障路径动态接管——以 defaults 铺底渲染（替代原空配置），页面开关同步派生
+		// D1 故障路径动态接管——以 defaults 铺底渲染，页面开关同步派生
 		console.warn(
 			"[middleware] 站点设置加载失败，本次请求以运行时默认值渲染",
 			e,

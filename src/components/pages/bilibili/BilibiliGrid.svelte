@@ -12,7 +12,7 @@ import { getSeasonTypeLabel } from "./seasonTypes";
 
 interface Props {
 	// uid 入参：数据由客户端经 /api/bilibili 同源代理拉取（带边缘缓存+限流），
-	// SSR 不再阻塞在第三方请求上（原为页面 SSR 直连 B 站 API）
+	// SSR 不阻塞在第三方请求上
 	uid: string;
 	itemsPerPage?: number;
 }
