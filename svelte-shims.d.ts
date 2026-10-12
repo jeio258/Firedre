@@ -56,3 +56,6 @@ interface R2Bucket {
 		options?: unknown,
 	): Promise<{ objects: R2Object[]; truncated: boolean; cursor?: string }>;
 }
+
+// katex mhchem 无类型声明；renderMarkdown 以动态 import 加载（副作用注册宏），需此 ambient 声明
+declare module "katex/dist/contrib/mhchem.mjs";
