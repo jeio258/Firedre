@@ -50,7 +50,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             <div class:list={["slide-item block lg:hidden", index === 0 && "active"]} data-index={index}>
                 {index === 0 ? (
                     /* 首图直接渲染：轮播图位于 <template> 内需等 JS 实例化才开始下载，
-                       首图不进模板可在解析期即发起请求（等价预加载），修 LCP */
+                       首图不进模板可在解析期即发起请求（等价预加载），修 LCP。
+                       eager：lazy 会让首屏背景推迟到站点加载后才出现（延迟 1-2s） */
                     <ImageWrapper
                         alt="Mobile background image of the blog"
                         class="object-cover h-full w-full"
@@ -59,7 +60,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         width={828}
                         widths={[640, 828]}
                         sizes="100vw"
-                        loading="lazy"
+                        loading="eager"
+                        fetchpriority="high"
                         fadeIn={false}
                         quality={state.mobileQuality}
                     />
@@ -92,7 +94,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         width={1920}
                         widths={[1280, 1920]}
                         sizes="100vw"
-                        loading="lazy"
+                        loading="eager"
+                        fetchpriority="high"
                         fadeIn={false}
                         quality={state.configQuality}
                     />
@@ -180,7 +183,8 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
                         width={1920}
                         widths={[1280, 1920]}
                         sizes="100vw"
-                        loading="lazy"
+                        loading="eager"
+                        fetchpriority="high"
                         quality={state.configQuality}
                     />
                 </template>
