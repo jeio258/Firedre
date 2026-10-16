@@ -149,17 +149,24 @@ export async function listPosts(
 	const page = Math.max(1, options.page || 1);
 	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
 	const { binds, countSql, listSql } = buildListPostsQuery(options);
-
-	const countRow = await env.DB.prepare(countSql)
-		.bind(...binds)
-		.first<{ total: number }>();
-
-	const total = countRow?.total || 0;
 	const offset = (page - 1) * pageSize;
 
-	const { results } = await env.DB.prepare(listSql)
-		.bind(...binds, pageSize, offset)
-		.all<PostRecord>();
+	const countStmt = env.DB.prepare(countSql).bind(...binds);
+	const listStmt = env.DB.prepare(listSql).bind(...binds, pageSize, offset);
+
+	// COUNT 与 SELECT 合并为单次 D1 往返（batch 同事务内顺序执行，只读无副作用）。
+	// dev shim 的 DB 无 batch()，退回逐条 await——结果与语义完全不变，仅多一次往返。
+	let countRow: { total: number } | null = null;
+	let results: PostRecord[] = [];
+	if (typeof (env.DB as { batch?: unknown }).batch === "function") {
+		const [countRes, listRes] = await env.DB.batch([countStmt, listStmt]);
+		countRow = (countRes?.results?.[0] as { total: number }) ?? null;
+		results = (listRes?.results as PostRecord[]) ?? [];
+	} else {
+		countRow = await countStmt.first<{ total: number }>();
+		results = (await listStmt.all<PostRecord>()).results || [];
+	}
+	const total = countRow?.total || 0;
 
 	return {
 		posts: sortPosts((results || []).map(recordToListItem)),

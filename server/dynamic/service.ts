@@ -46,20 +46,27 @@ export async function listDynamics(
 }> {
 	const page = Math.max(1, options.page || 1);
 	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
-
-	const countRow = await env.DB.prepare(
-		"SELECT COUNT(*) AS total FROM dynamics",
-	).first<{ total: number }>();
-	const total = countRow?.total || 0;
 	const offset = (page - 1) * pageSize;
 
-	const { results } = await env.DB.prepare(`
+	const countStmt = env.DB.prepare("SELECT COUNT(*) AS total FROM dynamics");
+	const listStmt = env.DB.prepare(`
     SELECT * FROM dynamics
     ORDER BY pinned DESC, published DESC
     LIMIT ? OFFSET ?
-  `)
-		.bind(pageSize, offset)
-		.all<DynamicRecord>();
+  `).bind(pageSize, offset);
+
+	// COUNT 与 SELECT 合并单次 D1 往返（同 listPosts）；dev shim 无 batch 时退回串行
+	let countRow: { total: number } | null = null;
+	let results: DynamicRecord[] = [];
+	if (typeof (env.DB as { batch?: unknown }).batch === "function") {
+		const [countRes, listRes] = await env.DB.batch([countStmt, listStmt]);
+		countRow = (countRes?.results?.[0] as { total: number }) ?? null;
+		results = (listRes?.results as DynamicRecord[]) ?? [];
+	} else {
+		countRow = await countStmt.first<{ total: number }>();
+		results = (await listStmt.all<DynamicRecord>()).results || [];
+	}
+	const total = countRow?.total || 0;
 
 	const items = await Promise.all((results || []).map(renderDynamicItem));
 
