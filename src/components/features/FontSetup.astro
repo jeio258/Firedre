@@ -1,7 +1,7 @@
 ---
 import { Font } from "astro:assets";
 import { getFontConfig } from "@shared/config/runtime";
-import { fontConfig } from "@/config";
+import { fontConfig, fontsList } from "@/config";
 import { collectUsedFontCssVars } from "@/utils/fontHelper";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
@@ -27,12 +27,19 @@ const MONO_FONT_STACK =
 	'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
 const selectedFontVars = selectedIds.filter((v) => v !== "system");
 
+// 字体级 preload 开关（缺省 true）：大体积字体（如 1.28MB 的方正筑紫）在 fontConfig 里
+// 显式 preload:false，避免以最高优先级抢 LCP 带宽。此处必须读取该开关——否则被 selected
+// 选为正文字体的大字体仍会被强制预载，与 fontConfig 意图相反。
+const fontPreloadable = new Map(
+	fontsList.map((f) => [f.cssVariable, f.preload !== false]),
+);
+
 const fontItems = Array.from(allCssVars).map((cssVar) => ({
 	// biome-ignore lint/suspicious/noExplicitAny: astro:assets 的 Font 组件 cssVariable prop 类型不接受动态 CSS 变量字符串
 	cssVariable: cssVar as any,
-	// 所选（正文字体）preload：首屏 LCP 文字用此字体渲染，必须与 HTML 并行加载，
-	// 否则字体被推迟到 CSS 之后才被发现 → 首屏白屏数秒（曾在生产把 LCP 拖到 ~6s）
-	preload: selectedFontVars.includes(cssVar),
+	// 所选（正文字体）preload：首屏 LCP 文字与 HTML 并行加载；受字体级 preload:false 覆盖
+	preload:
+		selectedFontVars.includes(cssVar) && (fontPreloadable.get(cssVar) ?? true),
 }));
 const bodyFontFamily =
 	selectedFontVars.length > 0
