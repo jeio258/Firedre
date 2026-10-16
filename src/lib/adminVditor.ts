@@ -1,6 +1,5 @@
 // Vditor 后台明暗跟随：类同时加到 .vditor root 与 html（弹窗/面板在 body 末，需 html 继承）
-const CONTENT_THEME_PATH =
-	"https://cdn.jsdelivr.net/npm/vditor@3.11.3/dist/css/content-theme";
+const CONTENT_THEME_PATH = "/vditor/dist/css/content-theme";
 
 let vditorCtor: typeof import("vditor").default | null = null;
 
@@ -47,7 +46,7 @@ const ADMIN_TOOLBAR = [
 	"edit-mode",
 ];
 
-/** 统一的 Vditor 初始化：所见即所得模式 + 本地 CDN + 明暗主题跟随 */
+/** 统一的 Vditor 初始化：所见即所得模式 + 同域 CDN（/vditor，见 scripts/copy-vditor.mjs）+ 明暗主题跟随 */
 export async function createAdminVditor(
 	selector: string,
 	options: {
@@ -68,7 +67,7 @@ export async function createAdminVditor(
 		height: options.height,
 		mode: "wysiwyg",
 		value: options.value,
-		cdn: "https://cdn.jsdelivr.net/npm/vditor@3.11.3",
+		cdn: "/vditor",
 		cache: { enable: false },
 		theme: dark ? "dark" : "classic",
 		preview: {
