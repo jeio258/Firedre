@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE INDEX IF NOT EXISTS idx_posts_date ON posts(date DESC);
 CREATE INDEX IF NOT EXISTS idx_posts_published ON posts(published);
 CREATE INDEX IF NOT EXISTS idx_posts_pin_order ON posts(pin_order DESC, date DESC);
+-- 列表主查询：WHERE published=1 ORDER BY pin_order DESC, date DESC —— 复合索引让过滤+排序
+-- 走同一索引，免去「单列过滤后回表排序」；与上面两个单列索引并存（各自仍有用途）
+CREATE INDEX IF NOT EXISTS idx_posts_published_pin_order
+  ON posts(published, pin_order DESC, date DESC);
 
 CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(
   slug UNINDEXED,
