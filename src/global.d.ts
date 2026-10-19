@@ -92,7 +92,7 @@ declare global {
 		__allPostMetaCache?: Array<{
 			id: string | number;
 			title: string;
-			published: string;
+			published: number;
 		}>;
 		__calendarInit?: boolean;
 
