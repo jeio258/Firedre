@@ -8,6 +8,9 @@ export const prerender = false;
 // 重定向最大跳数：超出即放弃（→ 502），避免重定向环
 const MAX_REDIRECTS = 3;
 
+// 上游回源超时：慢/挂起图源不得长期占用 Worker 并发槽位（同 fetchRetry 默认）
+const UPSTREAM_TIMEOUT_MS = 10_000;
+
 // 远程封面同源代理：按宽度请求 Cloudflare 图像缩放；缩放不可用时透传原图，失败时 302 回退原图
 export const GET: APIRoute = async ({ request }) => {
 	const url = new URL(request.url);
@@ -101,6 +104,7 @@ export const GET: APIRoute = async ({ request }) => {
 							cacheTtl: 86400,
 						},
 						redirect: "manual",
+						signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
 					} as RequestInit);
 					if (res.status < 300 || res.status >= 400) {
 						upstream = res;
