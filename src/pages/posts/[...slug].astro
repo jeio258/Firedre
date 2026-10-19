@@ -64,12 +64,15 @@ export const prerender = false;
 const slug = Astro.params.slug || "";
 
 // Firedre：运行时从 D1+R2 获取文章并渲染
-const [{ getPostBySlug, getPostNeighbors }, { cfEnv }, { apiPostToEntry }] =
-	await Promise.all([
-		import("@server/posts/service"),
-		import("../../lib/api"),
-		import("../../utils/post-types"),
-	]);
+const [
+	{ getPostBySlug, getPostNeighbors, PostBodyMissingError },
+	{ cfEnv },
+	{ apiPostToEntry },
+] = await Promise.all([
+	import("@server/posts/service"),
+	import("../../lib/api"),
+	import("../../utils/post-types"),
+]);
 let postDetail: Awaited<ReturnType<typeof getPostBySlug>> = null;
 let neighbors: Awaited<ReturnType<typeof getPostNeighbors>> = {
 	prev: null,
@@ -84,9 +87,16 @@ try {
 } catch (error) {
 	// D1/R2 异常区别于文章不存在：降级为友好错误页而非默认 500
 	console.error("[posts] 文章读取失败:", error);
+	const bodyMissing = error instanceof PostBodyMissingError;
 	return new Response(
 		`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${getSiteConfig(Astro.locals).title}</title></head><body style="display:flex;align-items:center;justify-content:center;min-height:60vh;font-family:system-ui"><p>文章加载失败，请稍后刷新重试。</p></body></html>`,
-		{ status: 500, headers: { "Content-Type": "text/html; charset=utf-8" } },
+		{
+			status: 500,
+			headers: {
+				"Content-Type": "text/html; charset=utf-8",
+				...(bodyMissing ? { "X-Firedre-Post-Body-Missing": "1" } : {}),
+			},
+		},
 	);
 }
 if (!postDetail) {

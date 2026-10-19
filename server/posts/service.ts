@@ -284,6 +284,15 @@ async function setRenderCache(
 // `.invalid` 是 RFC 2606 保留 TLD，永不解析，仅作缓存键的占位 origin。
 const RENDER_CACHE_BASE = "https://firedre.invalid/__post_render__";
 
+// D1 有元数据但 R2 正文对象缺失（数据损坏）：区别于「文章不存在」，
+// 供路由返回 500 友好错误页并带可监控标记，避免被伪装成 404
+export class PostBodyMissingError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "PostBodyMissingError";
+	}
+}
+
 export async function getPostBySlug(
 	env: CloudflareEnv,
 	slug: string,
@@ -311,7 +320,11 @@ export async function getPostBySlug(
 		rendered = cachedRender;
 	} else {
 		const object = await env.BUCKET.get(row.r2_key);
-		if (!object) return null;
+		if (!object) {
+			throw new PostBodyMissingError(
+				`R2 正文对象缺失（数据损坏）: slug=${decoded} r2_key=${row.r2_key}`,
+			);
+		}
 		source = await object.text();
 		const split = splitMarkdown(source);
 		content = split.content;
