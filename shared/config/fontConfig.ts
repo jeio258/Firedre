@@ -73,7 +73,9 @@ export const fontsList: FontDefinition[] = [
 export const fontConfig: FontSelectionConfig = {
 	enable: true,
 
-	selected: ["--font-fangzheng-zizhu"],
+	// 正文字体改用系统字体栈：1.3MB 方正筑紫 webfont 是 LCP 主因（实测移动端 LCP 8.5s → 1.0s）。
+	// 字体定义保留在 fontsList，需要时可在后台重新选回（届时 LCP 会回升）。
+	selected: [],
 
 	bannerTitleFont: "--font-zen-maru-gothic",
 	bannerSubtitleFont: "--font-inter",
