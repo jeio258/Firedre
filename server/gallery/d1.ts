@@ -3,7 +3,11 @@ import type { CloudflareEnv } from "../../types/env";
 import { chunkArray, uniqueNonEmpty } from "../utils/collections";
 import { runDbBatch } from "../utils/dbBatch";
 import { parseStringList } from "../utils/json";
-import { getAlbumPassword, getAlbumPasswordsMap } from "./password";
+import {
+	ALBUM_PASSWORD_DECRYPT_FAILED,
+	getAlbumPassword,
+	getAlbumPasswordsMap,
+} from "./password";
 
 interface AlbumRow {
 	slug: string;
@@ -78,7 +82,8 @@ export async function getAlbumFromD1(
 	const frontmatter = buildAlbumFrontmatter(row, photos);
 	// 编辑回显口令从加密表解密注入（password_hint 不再存口令）
 	const pwd = await getAlbumPassword(env, slug);
-	if (pwd) frontmatter.password = pwd;
+	// 解密失败哨兵不得回填（否则后台编辑会回显哨兵字符串而非真实口令）
+	if (pwd && pwd !== ALBUM_PASSWORD_DECRYPT_FAILED) frontmatter.password = pwd;
 	return { frontmatter, content: row.content };
 }
 
@@ -120,7 +125,7 @@ export async function getAlbumsFromD1Map(
 	for (const row of rows) {
 		const fm = buildAlbumFrontmatter(row, photosBySlug.get(row.slug) ?? []);
 		const pwd = pwdMap.get(row.slug);
-		if (pwd) fm.password = pwd;
+		if (pwd && pwd !== ALBUM_PASSWORD_DECRYPT_FAILED) fm.password = pwd;
 		map.set(row.slug, { frontmatter: fm, content: row.content });
 	}
 	return map;
