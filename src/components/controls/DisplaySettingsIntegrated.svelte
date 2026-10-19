@@ -118,7 +118,8 @@ let isMobileWidth = $state(
 		? window.innerWidth < BREAKPOINT_LIST_LAYOUT
 		: false,
 );
-let isMobileViewport = $state(
+// 组件局部：<1024（tablet-or-below）判定；与全局 isMobileViewport()(<768) 语义不同，勿混用
+let isTabletViewport = $state(
 	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_TABLET : false,
 );
 let isSwitching = $state(false);
@@ -198,7 +199,7 @@ const isFullscreenBlurRampEnabled = $derived.by(() => {
 	const enable = backgroundWallpaper.fullscreen?.blurRamp?.enable;
 	if (typeof enable === "boolean") return enable;
 	if (!enable) return true;
-	return isMobileViewport ? enable.mobile : enable.desktop;
+	return isTabletViewport ? enable.mobile : enable.desktop;
 });
 let overlaySettingsIsDefault = $derived(
 	(!isOverlayOpacitySwitchable || overlayOpacity === defaultOverlayOpacity) &&
@@ -476,7 +477,7 @@ function switchWallpaperMode(newMode: WALLPAPER_MODE) {
 function checkScreenSize() {
 	isSmallScreen = window.innerWidth < BREAKPOINT_WIDE;
 	isMobileWidth = window.innerWidth < BREAKPOINT_LIST_LAYOUT;
-	isMobileViewport = window.innerWidth < BREAKPOINT_TABLET;
+	isTabletViewport = window.innerWidth < BREAKPOINT_TABLET;
 	// 低于380px强制网格模式
 	if (window.innerWidth < BREAKPOINT_COMPACT && currentLayout === "list") {
 		currentLayout = "grid";
