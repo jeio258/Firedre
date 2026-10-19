@@ -11,6 +11,7 @@ import type { SettingsView } from "@server/settings/service";
 import { getPanelConfig, getWallpaperConfig } from "@shared/config/runtime";
 import {
 	BREAKPOINT_COMPACT,
+	BREAKPOINT_LIST_LAYOUT,
 	BREAKPOINT_TABLET,
 	BREAKPOINT_WIDE,
 } from "@utils/breakpoints";
@@ -111,9 +112,11 @@ let mounted = $state(false);
 let isSmallScreen = $state(
 	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_WIDE : false,
 );
-// 780 为面板/列表默认布局的移动阈值（is:inline 脚本同用，暂未收敛进断点模块）
+// BREAKPOINT_LIST_LAYOUT(780)：面板/列表默认布局移动阈值（is:inline 脚本同用）
 let isMobileWidth = $state(
-	typeof window !== "undefined" ? window.innerWidth < 780 : false,
+	typeof window !== "undefined"
+		? window.innerWidth < BREAKPOINT_LIST_LAYOUT
+		: false,
 );
 let isMobileViewport = $state(
 	typeof window !== "undefined" ? window.innerWidth < BREAKPOINT_TABLET : false,
@@ -472,7 +475,7 @@ function switchWallpaperMode(newMode: WALLPAPER_MODE) {
 
 function checkScreenSize() {
 	isSmallScreen = window.innerWidth < BREAKPOINT_WIDE;
-	isMobileWidth = window.innerWidth < 780;
+	isMobileWidth = window.innerWidth < BREAKPOINT_LIST_LAYOUT;
 	isMobileViewport = window.innerWidth < BREAKPOINT_TABLET;
 	// 低于380px强制网格模式
 	if (window.innerWidth < BREAKPOINT_COMPACT && currentLayout === "list") {
@@ -555,7 +558,9 @@ onMount(() => {
 		currentLayout = savedLayout;
 	} else {
 		currentLayout =
-			window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
+			window.innerWidth < BREAKPOINT_LIST_LAYOUT
+				? mobileDefaultLayout
+				: defaultLayout;
 	}
 
 	// resize 高频触发，rAF 合帧避免连续重算布局状态

@@ -305,6 +305,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             function getVisibleSlides(): HTMLElement[] {
                 if (!container) return [];
                 var all = container.querySelectorAll<HTMLElement>('.slide-item');
+                // >=1024 等价 BREAKPOINT_TABLET（is:inline 无法 import，改动需同步 breakpoints.ts）
                 var isLg = window.innerWidth >= 1024;
                 var visible = [];
                 for (var i = 0; i < all.length; i++) {
@@ -559,6 +560,7 @@ const bgOverlayZIndex = backgroundWallpaper.overlay?.zIndex ?? 0;---
             function sync() {
                 if (!container) return;
                 var all = container.querySelectorAll('.banner-image-slot');
+                // >=1024 等价 BREAKPOINT_TABLET（is:inline 无法 import，改动需同步 breakpoints.ts）
                 var isLg = window.innerWidth >= 1024;
                 for (var i = 0; i < all.length; i++) {
                     var el = all[i];

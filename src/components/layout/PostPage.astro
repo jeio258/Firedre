@@ -67,6 +67,7 @@ const coverPositionClass =
 <script is:inline define:vars={{ defaultLayout, mobileDefaultLayout, columnWidth }}>
   (function() {
     const savedLayout = localStorage.getItem('postListLayout');
+    // 数值=BREAKPOINT_LIST_LAYOUT(780)/BREAKPOINT_COMPACT(380)，改动需同步 breakpoints.ts
     const effectiveDefault = window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
     // 低于380px强制网格模式
     const effectiveLayout = window.innerWidth < 380 ? 'grid' : (savedLayout || effectiveDefault);
@@ -106,6 +107,7 @@ const coverPositionClass =
     const mobileDefaultLayout =
       postListContainer.getAttribute("data-mobile-default-layout") || defaultLayout;
 
+    // 数值=BREAKPOINT_LIST_LAYOUT(780)/BREAKPOINT_COMPACT(380)，改动需同步 breakpoints.ts
     const effectiveDefault = window.innerWidth < 780 ? mobileDefaultLayout : defaultLayout;
     let currentLayout = savedLayout || effectiveDefault;
 

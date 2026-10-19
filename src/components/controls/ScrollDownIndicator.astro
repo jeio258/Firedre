@@ -40,6 +40,7 @@ import { Icon } from "astro-icon/components";
     function updatePosition() {
       var indicator = document.getElementById("scroll-down-indicator");
       if (!indicator) return;
+      // >1023 即 >=1024，等价 BREAKPOINT_TABLET（is:inline 无法 import，改动需同步 breakpoints.ts）
       if (window.innerWidth > 1023 || !/EdgA\//i.test(navigator.userAgent)) {
         indicator.style.removeProperty("bottom");
         return;
