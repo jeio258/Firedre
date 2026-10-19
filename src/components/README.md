@@ -42,12 +42,9 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 - `ArchivePanel.astro` - 归档面板组件（服务端渲染 + 客户端筛选/折叠）
 
 **交互组件**
-- `DisplaySettings.svelte` - 显示设置组件
 - `DisplaySettingsIntegrated.svelte` - 集成显示设置组件
-- `LayoutSwitchButton.svelte` - 布局切换按钮
 - `LightDarkSwitch.svelte` - 主题切换组件
 - `Search.svelte` - 搜索功能组件
-- `WallpaperSwitch.svelte` - 壁纸模式切换组件
 
 ### 🔧 common/ - 公共可复用组件
 
@@ -166,3 +163,192 @@ Firefly 项目中所有可复用组件的集中管理。组件按照功能和职
 | **comment/** | 评论系统 | 第三方服务集成 |
 | **analytics/** | 数据统计 | 分析和统计服务 |
 | **misc/** | 工具和辅助 | 其他杂项功能 |
+
+## 📋 完整组件清单（按实际目录，随代码核对）
+
+> 上述分段为功能分类说明；以下按实际目录罗列全部组件（含 admin/ 后台专用），新增/删除组件时以此为准。
+
+### `layout/`
+
+- `AdminHead.astro`
+- `BannerHomeTextOverlay.astro`
+- `BannerPostMetaOverlay.astro`
+- `CategoryBar.astro`
+- `ConfigCarrier.astro`
+- `DropdownMenu.astro`
+- `FaviconLinks.astro`
+- `Footer.astro`
+- `HeaderTopRow.astro`
+- `NavMenuPanel.astro`
+- `Navbar.astro`
+- `PostCard.astro`
+- `PostMeta.astro`
+- `PostPage.astro`
+- `PostStats.astro`
+- `SideBar.astro`
+- `SidebarColumn.astro`
+- `SiteSeoMeta.astro`
+- `WallpaperSection.astro`
+
+### `controls/`
+
+- `AppearanceTab.svelte`
+- `ArchivePanel.astro`
+- `BackToComment.astro`
+- `BackToHome.astro`
+- `BackToTop.astro`
+- `DisplaySettingsIntegrated.svelte`
+- `EffectsTab.svelte`
+- `FloatingControls.astro`
+- `FloatingTOC.astro`
+- `LightDarkSwitch.svelte`
+- `ScrollDownIndicator.astro`
+- `Search.svelte`
+- `WallpaperTab.svelte`
+
+### `common/`
+
+- `ButtonLink.astro`
+- `ButtonTag.astro`
+- `ClientPagination.svelte`
+- `CoverImage.astro`
+- `DropdownItem.astro`
+- `DropdownItem.svelte`
+- `DropdownPanel.astro`
+- `FilterControls.svelte`
+- `FloatingButton.astro`
+- `GridSkeleton.svelte`
+- `Icon.svelte`
+- `ImageWrapper.astro`
+- `Markdown.astro`
+- `PageJump.svelte`
+- `Pagination.astro`
+- `SafeIcon.astro`
+- `TabNav.svelte`
+- `WidgetLayout.astro`
+
+### `widget/`
+
+- `Advertisement.astro`
+- `Announcement.astro`
+- `Calendar.astro`
+- `Categories.astro`
+- `Dynamic.astro`
+- `DynamicSidebar.svelte`
+- `Hitokoto.astro`
+- `Music.astro`
+- `Profile.astro`
+- `SidebarTOC.astro`
+- `SiteInfo.astro`
+- `SiteStats.astro`
+- `Tags.astro`
+
+### `features/`
+
+- `BackgroundPlayer.astro`
+- `CodeGroupManager.astro`
+- `EncryptedContent.astro`
+- `EncryptedPost.astro`
+- `FancyboxManager.astro`
+- `FontSetup.astro`
+- `GithubCardManager.astro`
+- `KatexManager.astro`
+- `MusicManager.astro`
+- `MusicPlayer.astro`
+- `MusicPlayerView.astro`
+- `SakuraEffect.astro`
+- `TypewriterText.astro`
+- `WavesEffect.astro`
+
+### `pages/`
+
+- `AdvancedSearch.svelte`
+- `MediaCard.svelte`
+- `PostShareSponsor.astro`
+
+### `comment/`
+
+- `Artalk.astro`
+- `Disqus.astro`
+- `Giscus.astro`
+- `Twikoo.astro`
+- `Waline.astro`
+- `index.astro`
+
+### `analytics/`
+
+- `GoogleAnalytics.astro`
+- `La51Analytics.astro`
+- `MicrosoftClarity.astro`
+- `UmamiAnalytics.astro`
+
+### `misc/`
+
+- `License.astro`
+- `RecommendedPost.astro`
+- `SeriesNav.astro`
+- `SharePoster.svelte`
+
+### `admin/charts/`
+
+- `AdminAreaChart.svelte`
+
+### `pages/bangumi/`
+
+- `BangumiGrid.svelte`
+- `BangumiSection.svelte`
+- `Card.svelte`
+
+### `pages/bilibili/`
+
+- `BilibiliCard.svelte`
+- `BilibiliDetailModal.svelte`
+- `BilibiliGrid.svelte`
+
+### `pages/dynamic/`
+
+- `DynamicFeed.svelte`
+- `DynamicGallery.astro`
+- `DynamicInlineComments.astro`
+- `DynamicItemTemplate.astro`
+
+### `pages/gallery/`
+
+- `AlbumCard.astro`
+- `PhotoCard.astro`
+
+### `pages/mal/`
+
+- `Card.svelte`
+- `MalGrid.svelte`
+- `MalSection.svelte`
+
+### `pages/vndb/`
+
+- `Card.svelte`
+- `VndbGrid.svelte`
+- `VndbSection.svelte`
+
+### `admin/`
+
+- `AdminApp.svelte`
+- `AdminContentEditor.svelte`
+- `AdminCrudEditor.svelte`
+- `AdminDashboard.svelte`
+- `AdminDynamic.svelte`
+- `AdminFriendsEditor.svelte`
+- `AdminGalleryAlbum.svelte`
+- `AdminGalleryHub.svelte`
+- `AdminLogin.svelte`
+- `AdminNoticeEditor.svelte`
+- `AdminPageConfig.svelte`
+- `AdminPostEditor.svelte`
+- `AdminPostList.svelte`
+- `AdminSettings.svelte`
+- `AdminSetup.svelte`
+- `AdminSidebar.svelte`
+- `AdminSiteLinksEditor.svelte`
+- `AdminThemeSwitch.svelte`
+- `JsonEditor.svelte`
+- `RecordsEditor.svelte`
+- `Switch.svelte`
