@@ -19,6 +19,39 @@ import {
 
 export const prerender = false;
 
+// 扁平键写入白名单：basic 组「可编辑标量字段」（源 shared/config/defaults/site.ts）。
+// 结构字段 lang / foldArticle / pagination / favicon / navbar 不可经扁平键写入
+// （否则可绕过 schema 直接改写语言、分页与导航结构）。
+const BASIC_FLAT_WRITABLE = new Set([
+	"title",
+	"subtitle",
+	"description",
+	"keywords",
+	"siteUrl",
+	"siteStartDate",
+	"timezone",
+	"faviconUrl",
+	"hue",
+	"defaultMode",
+	"pageWidth",
+	"categoryBar",
+	"categoryStyle",
+	"tagStyle",
+	"cardBorder",
+	"cardFollowTheme",
+	"cardRadius",
+	"pageFriends",
+	"pageGuestbook",
+	"pageDynamic",
+	"pageGallery",
+	"pageBooknav",
+	"pageBilibili",
+	"pageBangumi",
+	"pageVndb",
+	"pageMal",
+	"pageSponsor",
+]);
+
 export const GET: APIRoute = async ({ url, request }) => {
 	try {
 		// 公开态无合法消费方（前端走 /api/settings/client 白名单子集），完整设置仅管理员可见
@@ -100,6 +133,11 @@ export const PUT: APIRoute = async ({ request }) => {
 					Object.keys(body).length > 0 &&
 					Object.values(body).every((v) => v === null || typeof v !== "object");
 				if (isFlat) {
+					const unknown = Object.keys(body).filter(
+						(k) => !BASIC_FLAT_WRITABLE.has(k),
+					);
+					if (unknown.length)
+						return badRequest(`不支持的字段：${unknown.join(", ")}`);
 					await saveSettingsGroup(
 						cfEnv,
 						"basic",
