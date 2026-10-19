@@ -198,7 +198,13 @@ async function updateAlbumFrontmatter(
 	}
 
 	const object = await env.BUCKET.get(galleryAlbumR2Key(slug));
-	if (!object) return;
+	if (!object) {
+		// D1 与 R2 均无该相册：本次 frontmatter 更新未生效（相册不存在），记录以便排查
+		console.warn(
+			`[gallery] 相册 frontmatter 更新跳过：D1/R2 均无 slug=${slug}`,
+		);
+		return;
+	}
 	const { frontmatter, content } = splitGalleryMarkdown(await object.text());
 	const next = apply(frontmatter);
 	if (!next) return;
