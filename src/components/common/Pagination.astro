@@ -61,7 +61,7 @@ const jumpHrefFirst = url("/");
 
       <div class="btn-card flex items-center rounded-(--radius-large) px-4 h-11 gap-1.5">
         <PageJump
-          client:load
+          client:idle
           variant="current"
           currentPage={page.currentPage}
           lastPage={page.lastPage}
@@ -120,7 +120,7 @@ const jumpHrefFirst = url("/");
           if (p == HIDDEN)
             return (
               <PageJump
-                client:load
+                client:idle
                 variant="ellipsis"
                 currentPage={page.currentPage}
                 lastPage={page.lastPage}

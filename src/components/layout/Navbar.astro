@@ -202,7 +202,7 @@ const logoVariants = await Promise.all(
             <div class="flex col-start-3 justify-self-end">
 
                 <Search
-                    client:load
+                    client:idle
                 />
                 {(musicConfigRuntime.showInNavbar && musicConfigRuntime.enable !== false) && (
                     <button aria-label={i18n(I18nKey.music)} aria-controls="music-nav-panel" aria-expanded="false" class="btn-plain scale-animation rounded-lg h-[44px] w-[44px] active:scale-90" id="music-player-switch">
@@ -227,7 +227,7 @@ const logoVariants = await Promise.all(
                         </button>
                 )}
                 {                }
-                <LightDarkSwitch client:load></LightDarkSwitch>
+                <LightDarkSwitch client:idle></LightDarkSwitch>
                 <a
                   href={url("/admin/")}
                   aria-label="后台管理"

@@ -15,9 +15,9 @@ export interface SettingsLocals {
 // HTML 边缘缓存：s-maxage=60 让 CDN 短暂缓存降 TTFB；
 // 不使用 stale-while-revalidate —— 旧 HTML 引用已随部署消失的哈希资产会导致
 // 白屏（404.html 按 MIME 拒绝执行），陈旧窗口保持 60s，配合自愈重载
-const HTML_CACHE_CONTROL = "public, max-age=0, s-maxage=60";
+const HTML_CACHE_CONTROL = "public, max-age=0, s-maxage=180";
 // CF 专用：指示 Cloudflare 边缘按此 TTL 缓存本响应（Pages 默认不缓存 HTML，需此头 + 站点缓存规则配合）
-const HTML_CDN_CACHE_CONTROL = "public, max-age=60";
+const HTML_CDN_CACHE_CONTROL = "public, max-age=180";
 
 // 安全响应头对缓存命中与渲染路径统一生效
 function applySecurityHeaders(headers: Headers) {
