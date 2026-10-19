@@ -11,7 +11,7 @@ export function toDateKey(
 
 /** 热力图计数：按「月 × 周（每月 4 周，第 4 周吸收月末剩余天）」聚合同年文章数 */
 export function buildHeatmapCounts(
-	posts: Array<{ published: string }>,
+	posts: Array<{ published: string | number }>,
 	year: number,
 ): number[][] {
 	const heatmapData = Array.from({ length: 12 }, () => [0, 0, 0, 0]);
