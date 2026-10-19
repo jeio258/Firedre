@@ -5,7 +5,6 @@
 ```
 src/config/
 ├── index.ts            # 配置索引 barrel（值导出全由 @shared/config/runtime getter 派生，统一导出面）
-├── FooterConfig.html   # 页脚展示资源（仅 Footer.astro 使用）
 └── README.md           # 本文件
 ```
 
