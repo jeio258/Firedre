@@ -10,7 +10,7 @@ import {
 import { url } from "@shared/utils/url-utils";
 import type { ImageMetadata } from "astro";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
-import { getLqipProps } from "@/utils/lqip-utils";
+import { getLqipPropsForImage } from "@/utils/lqip-utils";
 
 interface Props {
 	id?: string;
@@ -107,11 +107,7 @@ const responsiveProps = {
 };
 
 // LQIP 渐变占位
-const lqipProps = isLocal
-	? getLqipProps(src, basePath)
-	: isPublic
-		? getLqipProps(src, basePath, true)
-		: getLqipProps(src);
+const lqipProps = getLqipPropsForImage(src, basePath, isLocal, isPublic);
 ---
 <div id={id} class:list={[className, 'overflow-hidden relative']}>
     {fadeIn && showLqip && <div class="lqip-placeholder absolute inset-0 pointer-events-none" style={lqipProps.style} aria-hidden="true"></div>}

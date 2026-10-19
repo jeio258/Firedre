@@ -8,7 +8,7 @@ import {
 import { url } from "@shared/utils/url-utils";
 import ImageWrapper from "@/components/common/ImageWrapper.astro";
 import type { ImageFormat, ResponsiveImageLayout } from "@/types/config";
-import { getLqipProps } from "@/utils/lqip-utils";
+import { getLqipPropsForImage } from "@/utils/lqip-utils";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
 
@@ -63,11 +63,7 @@ const imageClass = "w-full h-full object-cover";
 const imageStyle = `object-position: ${position};`;
 
 // LQIP 渐变占位
-const lqipProps = isLocal
-	? getLqipProps(src, basePath)
-	: isPublic
-		? getLqipProps(src, basePath, true)
-		: getLqipProps(src);
+const lqipProps = getLqipPropsForImage(src, basePath, isLocal, isPublic);
 
 const widths = widthsProp ?? [828];
 const sizes = preview

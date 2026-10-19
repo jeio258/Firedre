@@ -58,6 +58,18 @@ function getLqipStyle(
 	return gradient ? `background: ${gradient}` : undefined;
 }
 
+// 组件层统一入口：本地图带 basePath 取 src: key；public 图带 public: 前缀。
+// 消除 CoverImage / ImageWrapper 两处相同的三元判定（改判定逻辑只需改这一处）
+export function getLqipPropsForImage(
+	src: string,
+	basePath: string | undefined,
+	isLocal: boolean,
+	isPublic: boolean,
+): { style: string } {
+	if (isLocal) return getLqipProps(src, basePath);
+	return isPublic ? getLqipProps(src, basePath, true) : getLqipProps(src);
+}
+
 export function getLqipProps(
 	src: string,
 	basePath?: string,
