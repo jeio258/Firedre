@@ -300,6 +300,8 @@
 		if (window.wavesManager) {
 			return;
 		}
+		// 移动端不启动水波纹：与 Sakura 同理（持续 rAF / forced reflow 拖高 TBT）。
+		if (window.matchMedia("(max-width: 767px)").matches) return;
 		const manager = new WavesManager();
 		window.wavesManager = manager;
 		void manager.init();

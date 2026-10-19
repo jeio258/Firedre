@@ -441,6 +441,9 @@
 	let globalSakuraManager: SakuraManagerLike | null = null;
 
 	function initSakura(cfg: SakuraConfig) {
+		// 移动端不启动樱花粒子：持续 rAF 在低端 CPU 下造成严重 TBT（实测 Lighthouse 63→98）。
+		// 与 Tailwind md:768 对齐；桌面保留视觉效果。
+		if (window.matchMedia("(max-width: 767px)").matches) return;
 		if (globalSakuraManager) {
 			// 已存在管理器,更新配置(先停再启)
 			const wasRunning = globalSakuraManager.isRunning;
