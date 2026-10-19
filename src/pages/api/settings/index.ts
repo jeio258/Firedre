@@ -89,7 +89,8 @@ export const PUT: APIRoute = async ({ request }) => {
 					(SETTING_GROUPS as readonly string[]).includes(body.group)
 				) {
 					const data = (body.data ?? {}) as Record<string, unknown>;
-					if (typeof data !== "object" || data === null)
+					// 数组 typeof 也是 object，必须显式拒绝，否则会把组值写成 JSON 数组污染结构
+					if (typeof data !== "object" || data === null || Array.isArray(data))
 						return badRequest("data 无效");
 					await saveSettingsGroup(cfEnv, body.group as never, data);
 					return json({ ok: true });
