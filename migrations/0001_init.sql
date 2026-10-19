@@ -116,7 +116,7 @@ VALUES
   (3, 'Astro', 'https://avatars.githubusercontent.com/u/44914786?v=4&s=640', 'The web framework for content-driven websites. ⭐️ Star to support our work!', 'https://github.com/withastro/astro', 'Framework', 8, 1);
 
 -- ========== 相册 ==========
--- 相册访问密码（明文存 D1，供 SSR 加密与解锁校验）
+-- 相册访问密码（AES-GCM 密文存 D1，供 SSR 解密与解锁校验；明文不落库）
 CREATE TABLE IF NOT EXISTS album_passwords (
   album_slug TEXT PRIMARY KEY,
   password TEXT NOT NULL,
