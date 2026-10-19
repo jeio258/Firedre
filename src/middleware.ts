@@ -128,7 +128,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
 					const { ensureDefaultAbout } = await import("@server/about/seed");
 					await ensureDefaultAbout(cfEnv);
 				} catch {
-					// seed 失败不影响请求
+					// seed 失败不影响请求；重置标记允许后续请求重试（原实现失败后 isolate 内永不重试）
+					seedFlag.__FIREDRE_SEEDED__ = false;
 				}
 			})();
 		}
