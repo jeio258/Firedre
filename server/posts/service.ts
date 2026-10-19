@@ -514,7 +514,10 @@ export async function deletePost(env: CloudflareEnv, slug: string) {
 		env.DB.prepare("DELETE FROM posts WHERE slug = ?").bind(decoded),
 		env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(decoded),
 	]);
-	await env.BUCKET.delete(row.r2_key).catch(() => {});
+	await env.BUCKET.delete(row.r2_key).catch((e) => {
+		// 仅遗留孤儿 R2 对象（D1 已删），不影响删除结果；记录以便后续清理
+		console.warn(`[posts] R2 正文删除失败（孤儿对象）key=${row.r2_key}`, e);
+	});
 
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
