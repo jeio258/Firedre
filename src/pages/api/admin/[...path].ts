@@ -217,7 +217,11 @@ export const GET: APIRoute = async ({ params, request }) => {
 
 	// 初始化状态：公开查询，供登录页/初始化页判断是否需创建管理员
 	if (action === "setup-status") {
-		return jsonWithHeaders({ setup: !(await hasAdminUser(cfEnv.DB)) });
+		try {
+			return jsonWithHeaders({ setup: !(await hasAdminUser(cfEnv.DB)) });
+		} catch (error) {
+			return serverError(error);
+		}
 	}
 
 	if (action !== "me" && action !== "stats")

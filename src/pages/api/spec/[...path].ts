@@ -16,7 +16,12 @@ export const GET: APIRoute = async ({ params }) => {
 	const segments = pathSegments(params);
 	if (segments.length !== 1) return badRequest("路径无效");
 
-	const name = decodeURIComponent(segments[0]);
+	let name: string;
+	try {
+		name = decodeURIComponent(segments[0]);
+	} catch {
+		return badRequest("路径无效");
+	}
 	if (!isValidSpecName(name)) return badRequest("路径无效");
 
 	try {
