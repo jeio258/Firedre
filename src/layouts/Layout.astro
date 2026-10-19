@@ -429,8 +429,11 @@ const seoAuthorName =
         }
       } catch (e) {}
 
+      // 安全读取：localStorage 在隐私模式/禁用存储下抛 SecurityError，未捕获会中断整个初始化脚本
+      window.safeGet = function (key) { try { return localStorage.getItem(key); } catch { return null; } };
+
       // 获取存储的主题，如果没有则使用默认值
-      const theme = localStorage.getItem("theme") || defaultMode;
+      const theme = safeGet("theme") || defaultMode;
 
       function getSystemTheme() {
         return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -460,11 +463,11 @@ const seoAuthorName =
         isDark ? darkTheme : lightTheme
       );
 
-      const hue = localStorage.getItem("hue") || configHue;
+      const hue = safeGet("hue") || configHue;
       document.documentElement.style.setProperty("--hue", hue);
 
       // 设置卡片透明度（全屏透明模式下使用），优先使用用户自定义值
-      const storedCardOpacity = localStorage.getItem("overlayCardOpacity");
+      const storedCardOpacity = safeGet("overlayCardOpacity");
       const parsedCardOpacity = storedCardOpacity === null ? NaN : Number.parseFloat(storedCardOpacity);
       const resolvedCardOpacity = Number.isFinite(parsedCardOpacity)
         ? Math.min(1, Math.max(0, parsedCardOpacity))
@@ -472,7 +475,7 @@ const seoAuthorName =
       document.documentElement.style.setProperty("--card-transparent-opacity", String(resolvedCardOpacity));
 
       // 卡片圆角（rem），优先使用用户自定义值，否则用后台全局配置
-      const storedRadius = localStorage.getItem("cardRadius");
+      const storedRadius = safeGet("cardRadius");
       const parsedRadius = storedRadius === null ? NaN : Number.parseFloat(storedRadius);
       const resolvedRadius = Number.isFinite(parsedRadius) && parsedRadius >= 0
         ? Math.min(4, parsedRadius)
@@ -481,7 +484,7 @@ const seoAuthorName =
 
       // 初始化壁纸模式 - 在页面渲染前同步应用（其余布局由 CSS 属性选择器接管）
       const wallpaperMode = isWallpaperSwitchable
-        ? localStorage.getItem("wallpaperMode") || defaultWallpaperMode
+        ? safeGet("wallpaperMode") || defaultWallpaperMode
         : defaultWallpaperMode;
 
       document.documentElement.setAttribute(
@@ -503,7 +506,7 @@ const seoAuthorName =
 
       // 初始化水波纹动画状态 - 在 html 元素上设置属性，CSS 会立即生效
       (function applyWavesEnabled() {
-        const wavesEnabled = localStorage.getItem("wavesEnabled");
+        const wavesEnabled = safeGet("wavesEnabled");
         if (wavesEnabled !== null) {
           document.documentElement.setAttribute("data-waves-enabled", wavesEnabled);
         }
@@ -511,7 +514,7 @@ const seoAuthorName =
 
       // 初始化渐变过渡状态 - 在 html 元素上设置属性，CSS 会立即生效
       (function applyGradientEnabled() {
-        const gradientEnabled = localStorage.getItem("gradientEnabled");
+        const gradientEnabled = safeGet("gradientEnabled");
         if (gradientEnabled !== null) {
           document.documentElement.setAttribute("data-gradient-enabled", gradientEnabled);
         }
@@ -519,7 +522,7 @@ const seoAuthorName =
 
       // 初始化横幅标题显示状态 - 在 html 元素上设置属性，CSS 会立即生效
       (function applyBannerTitleEnabled() {
-        const bannerTitleEnabled = localStorage.getItem("bannerTitleEnabled");
+        const bannerTitleEnabled = safeGet("bannerTitleEnabled");
         if (bannerTitleEnabled !== null) {
           document.documentElement.setAttribute("data-banner-title-enabled", bannerTitleEnabled);
         }
@@ -577,12 +580,12 @@ const seoAuthorName =
       defaultFollowTheme: (settings?.cardFollowTheme ?? siteConfig.card.followTheme) === true,
     }}>
       (function() {
-        var stored = localStorage.getItem("cardBorderEnabled");
+        var stored = safeGet("cardBorderEnabled");
         var border = stored !== null ? stored === "true" : defaultBorder;
         if (border) document.documentElement.classList.add("enable-card-border");
         else document.documentElement.classList.remove("enable-card-border");
 
-        stored = localStorage.getItem("cardFollowThemeEnabled");
+        stored = safeGet("cardFollowThemeEnabled");
         var follow = stored !== null ? stored === "true" : defaultFollowTheme;
         if (follow) document.body.classList.add("card-follow-theme-hue");
         else document.body.classList.remove("card-follow-theme-hue");
