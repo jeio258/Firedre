@@ -179,7 +179,10 @@ export function mapFrontmatterToRecord(frontmatter: PostFrontmatter) {
 		normalizeCategories(frontmatter.categories) ??
 		(frontmatter.category ? [String(frontmatter.category)] : []);
 	const tags = normalizeTags(frontmatter.tags) ?? [];
-	const date = String(frontmatter.published || frontmatter.date || "");
+	// 日期规范化：非法日期置空不写入 D1（RSS 处 new Date(post.date || 0) 已兜底）；合法保留原串
+	const rawDate = String(frontmatter.published || frontmatter.date || "");
+	const date =
+		rawDate && !Number.isNaN(new Date(rawDate).getTime()) ? rawDate : "";
 	const cover = frontmatter.image || frontmatter.cover || "";
 	const description = frontmatter.description || frontmatter.excerpt || "";
 	const excerpt = frontmatter.excerpt || frontmatter.description || "";
