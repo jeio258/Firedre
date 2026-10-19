@@ -6,8 +6,9 @@ import type { CloudflareEnv } from "../../types/env";
 import { upsertPost } from "./service";
 
 let schemaReady = false;
-// 引导失败标记：持久性故障（如迁移 SQL 有误）时不逐请求重试 batch
-let schemaFailed = false;
+// 引导失败时间戳：冷却期内不重试 batch（防持久性故障逐请求重试），冷却后允许重试以自愈瞬时故障
+let schemaFailedAt = 0;
+const SCHEMA_RETRY_COOLDOWN_MS = 30_000;
 
 // 引号感知的 SQL 语句拆分：D1.exec 按换行截断多行语句，无法执行本迁移文件；
 // 分号仅在字符串字面量之外才视为语句结束（SQL 字符串用 '' 转义，成对翻转恰好正确）
@@ -35,7 +36,9 @@ function splitSqlStatements(sql: string): string[] {
 
 // 数据库 schema 引导：缺表（全新库未跑迁移）时执行幂等基线迁移，避免渲染层查询 500
 export async function ensureSchema(env: CloudflareEnv): Promise<void> {
-	if (schemaReady || schemaFailed) return;
+	if (schemaReady) return;
+	if (schemaFailedAt && Date.now() - schemaFailedAt < SCHEMA_RETRY_COOLDOWN_MS)
+		return;
 	try {
 		await env.DB.prepare("SELECT 1 FROM site_settings LIMIT 1").run();
 		schemaReady = true;
@@ -53,7 +56,7 @@ export async function ensureSchema(env: CloudflareEnv): Promise<void> {
 			`[bootstrap] 空库已自动应用基线迁移（${statements.length} 条语句）`,
 		);
 	} catch (e) {
-		schemaFailed = true;
+		schemaFailedAt = Date.now();
 		console.warn("[bootstrap] 数据库初始化失败，页面将以空数据渲染", e);
 	}
 }
