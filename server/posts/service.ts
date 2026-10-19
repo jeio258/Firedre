@@ -267,7 +267,11 @@ async function setRenderCache(
 		await caches.default.put(
 			cacheKey,
 			new Response(JSON.stringify(data), {
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					// TTL 60s 兜底直改 D1（与 getRenderCache 注释一致）：Cache API 无 Cache-Control 头不缓存（恒 miss）
+					"Cache-Control": "public, max-age=0, s-maxage=60",
+				},
 			}),
 		);
 	} catch {

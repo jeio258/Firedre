@@ -28,7 +28,11 @@ export const GET: APIRoute = async ({ request, url }) => {
 				await caches.default.put(
 					cacheKey,
 					new Response(body, {
-						headers: { "Content-Type": "application/json; charset=utf-8" },
+						headers: {
+							"Content-Type": "application/json; charset=utf-8",
+							// Cache API 无 Cache-Control 头不缓存（恒 miss），加 s-maxage=60 使其可命中
+							"Cache-Control": "public, max-age=0, s-maxage=60",
+						},
 					}),
 				);
 			} catch {
