@@ -9,8 +9,12 @@ export async function collectAdminStats(db: CloudflareEnv["DB"]) {
 		string,
 		{ label: string; 发布: number; 草稿: number }
 	>();
+	// 自然月回溯 12 个月（取各月 1 日 UTC），避免"减 30 天"在跨月/2 月/闰年造成标签错位或重复
+	const now = new Date();
 	for (let i = 11; i >= 0; i--) {
-		const d = new Date(Date.now() - i * 30 * 86400_000);
+		const d = new Date(
+			Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1),
+		);
 		const key = monthLabel(d);
 		months.set(key, { label: key, 发布: 0, 草稿: 0 });
 	}
