@@ -60,13 +60,17 @@ export const GET: APIRoute = async ({ url, request }) => {
 	// 仅缓存成功结果；播放链接有时效，TTL 保持短
 	const cacheKey = new Request(url.toString(), { method: "GET" });
 	if (cachesRef) {
-		const cached = await cachesRef.default.match(cacheKey);
-		if (cached) {
-			// cache.match 返回的 headers 不可变，外层 middleware 需追加安全头，需重建
-			return new Response(cached.body, {
-				status: cached.status,
-				headers: cached.headers,
-			});
+		try {
+			const cached = await cachesRef.default.match(cacheKey);
+			if (cached) {
+				// cache.match 返回的 headers 不可变，外层 middleware 需追加安全头，需重建
+				return new Response(cached.body, {
+					status: cached.status,
+					headers: cached.headers,
+				});
+			}
+		} catch {
+			// 缓存不可用不影响主流程
 		}
 	}
 

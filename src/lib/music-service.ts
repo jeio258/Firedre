@@ -149,18 +149,21 @@ export async function resolveViaLx(opts: {
 	const lxSource = await getLxSource(scriptKey);
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
 	let timedOut = false;
+	const resolvePromise = lxSource.getMusicUrl(
+		opts.source,
+		{
+			[ID_FIELD[opts.source] ?? "id"]: opts.id,
+			id: opts.id,
+			name: opts.name,
+			singer: opts.singer,
+		},
+		opts.quality,
+	);
+	// 超时后败方 promise 的 rejection 需吞掉，否则 unhandled rejection（timedOut 时另有 abortInflight 兜底）
+	resolvePromise.catch(() => {});
 	try {
 		return await Promise.race([
-			lxSource.getMusicUrl(
-				opts.source,
-				{
-					[ID_FIELD[opts.source] ?? "id"]: opts.id,
-					id: opts.id,
-					name: opts.name,
-					singer: opts.singer,
-				},
-				opts.quality,
-			),
+			resolvePromise,
 			new Promise<never>((_, reject) => {
 				timeoutId = setTimeout(() => {
 					timedOut = true;
