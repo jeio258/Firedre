@@ -73,7 +73,7 @@ export async function checkD1RateLimit(
 			};
 		}
 
-		void pruneExpiredWindows(db, now, windowMs).catch(() => {});
+		pruneExpiredWindowsThrottled(db, now, windowMs);
 
 		return {
 			allowed: true,
@@ -85,6 +85,22 @@ export async function checkD1RateLimit(
 		}
 		return { allowed: true, remaining: maxRequests };
 	}
+}
+
+// 每个放行请求跑一次全表 DELETE 是真实的写放大；改为每个 isolate 至多 60 秒一次。
+// 清理只删已过窗的行，被删的键下次插入即重开窗口，计数与锁定结果不受节流影响。
+const PRUNE_INTERVAL_MS = 60_000;
+let lastPruneAt = 0;
+
+function pruneExpiredWindowsThrottled(
+	db: D1Database,
+	now: number,
+	windowMs: number,
+) {
+	if (now - lastPruneAt < PRUNE_INTERVAL_MS) return;
+	// 先占位再发起，避免同 isolate 并发请求一起撞进同一轮清理
+	lastPruneAt = now;
+	void pruneExpiredWindows(db, now, windowMs).catch(() => {});
 }
 
 async function pruneExpiredWindows(

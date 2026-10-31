@@ -18,13 +18,8 @@ const { class: className, style, widgetConfig } = Astro.props;
 
 const showTitle = widgetConfig?.showTitle !== false;
 
-// Firedre：站点设置里可关闭公告（统一走 runtime getter）
-const announcement = getAnnouncementConfig(Astro.locals);
-if (announcement.enable === false) {
-	return null;
-}
-
 // Firedre：公告来自 D1（后台可编辑），fallback 到运行时配置
+const announcement = getAnnouncementConfig(Astro.locals);
 const notice = await getNotice(cfEnv);
 const fallback = announcement;
 const title = notice?.title || fallback.title || i18n(I18nKey.announcement);
@@ -35,6 +30,15 @@ const sections: NoticeSection[] = notice?.sections?.length
 		: [];
 const link = fallback.link;
 const closable = fallback.closable !== false;
+
+// Firedre：enabled 字段没有写入者（恒为 true），改为按实际内容显隐：
+// 标题、正文、sections 全空则不渲染（title 的 i18n 兜底不参与判断）。
+const hasContent = Boolean(
+	notice?.title?.trim() || fallback.title?.trim() || sections.length,
+);
+if (!hasContent) {
+	return null;
+}
 ---
 
 <WidgetLayout

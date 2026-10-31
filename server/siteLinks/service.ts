@@ -1,5 +1,7 @@
 import type { CloudflareEnv } from "../../types/env";
+import { getSettingsVersionCached } from "../settings/service";
 import { createCrudService } from "../utils/crud";
+import { readIsolateCache, writeIsolateCache } from "../utils/isolateCache";
 import { safeUrlScheme } from "../utils/safeUrl";
 import { UserError } from "../utils/userError";
 import type {
@@ -112,6 +114,19 @@ const service = createCrudService<
 
 export const listSiteLinks = service.list;
 
+const ENABLED_CACHE_SLOT = "siteLinks.enabled";
+
+// isolate 版本缓存：外链增删改走 CRUD 内建的 bumpContentVersion → 版本变即失效，TTL 兜底。
+// 缓存全量启用行；按 location 过滤在内存完成——排序以 location 为首键，过滤不改变相对顺序。
+async function listEnabledAll(env: CloudflareEnv): Promise<SiteLinkView[]> {
+	const version = await getSettingsVersionCached(env).catch(() => "");
+	const cached = readIsolateCache<SiteLinkView[]>(ENABLED_CACHE_SLOT, version);
+	if (cached !== undefined) return cached;
+	const all = await service.listEnabled(env);
+	writeIsolateCache(ENABLED_CACHE_SLOT, version, all);
+	return all;
+}
+
 // 每请求记忆化：同一请求内多次按 location 查询只查一次全量（按请求对象缓存）
 const linkCache = new WeakMap<object, Record<string, SiteLinkView[]>>();
 export async function listEnabledSiteLinks(
@@ -127,7 +142,7 @@ export async function listEnabledSiteLinks(
 		}
 		const key = location ?? "__all";
 		if (store[key]) return store[key];
-		const all = await service.listEnabled(env);
+		const all = await listEnabledAll(env);
 		for (const l of all) {
 			if (!store[l.location]) store[l.location] = [];
 			// 按行 id 去重：防历史重复行缺陷复发，且不误删同名不同址的合法链接
@@ -137,7 +152,8 @@ export async function listEnabledSiteLinks(
 		store.__all = all;
 		return store[key] ?? [];
 	}
-	return service.listEnabled(env, location);
+	const all = await listEnabledAll(env);
+	return location ? all.filter((l) => l.location === location) : all;
 }
 
 export const getSiteLink = service.get;
