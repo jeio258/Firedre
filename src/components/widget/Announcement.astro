@@ -18,26 +18,18 @@ const { class: className, style, widgetConfig } = Astro.props;
 
 const showTitle = widgetConfig?.showTitle !== false;
 
-// Firedre：公告来自 D1（后台可编辑），fallback 到运行时配置
+// Firedre：公告内容单一真源为 D1 notice_board（后台公告管理页），
+// site_settings.announcement 仅存启停开关（显式 false 强制隐藏）
 const announcement = getAnnouncementConfig(Astro.locals);
 const notice = await getNotice(cfEnv);
-const fallback = announcement;
-const title = notice?.title || fallback.title || i18n(I18nKey.announcement);
-const sections: NoticeSection[] = notice?.sections?.length
-	? notice.sections
-	: fallback.content
-		? [{ label: "", lines: [{ text: String(fallback.content) }] }]
-		: [];
-const link = fallback.link;
-const closable = fallback.closable !== false;
+const title = notice?.title || i18n(I18nKey.announcement);
+const sections: NoticeSection[] = notice?.sections ?? [];
+const link = announcement.link;
+const closable = announcement.closable !== false;
 
-// enabled 由后台公告管理页写入（site_settings.announcement）：
-// 显式 false 强制隐藏；未设置时按实际内容显隐——标题、正文、sections 全空则不渲染
-// （title 的 i18n 兜底不参与判断）。
-const enabled = fallback.enable !== false;
-const hasContent = Boolean(
-	notice?.title?.trim() || fallback.title?.trim() || sections.length,
-);
+// 标题、正文、sections 全空则不渲染（title 的 i18n 兜底不参与判断）。
+const enabled = announcement.enable !== false;
+const hasContent = Boolean(notice?.title?.trim() || sections.length);
 if (!enabled || !hasContent) {
 	return null;
 }

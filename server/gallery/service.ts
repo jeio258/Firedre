@@ -27,7 +27,6 @@ import {
 	toAlbumSummary,
 } from "./frontmatter";
 import {
-	deleteAlbumPassword,
 	getAlbumPassword,
 	getAlbumPasswordsMap,
 	setAlbumPassword,
@@ -340,13 +339,16 @@ export async function upsertGalleryAlbum(
 export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 	if (!isValidGallerySlug(slug)) throw new UserError("相册 slug 格式无效");
 
-	// D1 为权威：先删库（album_webdav 无外键，必须同批显式删，否则同 slug 重建会继承旧 WebDAV 源），
+	// D1 为权威：先删库（album_webdav 无外键、album_passwords 同理，必须同批显式删，
+	// 否则同 slug 重建会继承旧 WebDAV 源与旧口令），
 	// 成功后再清 R2；反向操作一旦 R2 失败会留下「库已删、R2 残留」的假成功
 	await runDbBatch(env.DB, [
 		env.DB.prepare("DELETE FROM albums WHERE slug = ?").bind(slug),
 		env.DB.prepare("DELETE FROM album_webdav WHERE album_slug = ?").bind(slug),
+		env.DB.prepare("DELETE FROM album_passwords WHERE album_slug = ?").bind(
+			slug,
+		),
 	]);
-	await deleteAlbumPassword(env, slug);
 
 	// 级联清理相册专属照片对象（_uploads 共享池不受影响）与 index.md，防 R2 孤儿累积；
 	// 失败只告警：D1 已删，残留对象可由运维按前缀补删

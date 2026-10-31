@@ -101,7 +101,6 @@ onMountAsync(async () => {
 		enableKey="enabled"
 		enableLabel="启用公告"
 		title="公告"
-		titleField="title"
 	/>
 
 	{#if loadError}

@@ -4,7 +4,7 @@
 	/* 颜色令牌全部复用前台 variables.styl（随 .dark 类自动明暗切换），
 	   此处仅保留后台专属、前台未提供的非颜色令牌 */
 	/* 抽屉（移动端侧栏）断点，与 AdminApp.toggleSidebar 运行时读取保持一致 */
-	--admin-drawer-bp: 767px;
+	--admin-drawer-bp: 900px;
 	--primary-deep: oklch(0.52 0.16 var(--hue));
 	--sb-w: 15rem;
 	--sb-collapsed: 4.25rem;

@@ -357,11 +357,6 @@ export function getAnnouncementConfig(locals: unknown): AnnouncementConfig {
 	return {
 		enable: bool(a.enabled, undefined as unknown as boolean),
 		closable: bool(a.closable, true),
-		title: str(a.title, ""),
-		content: str(a.content, ""),
-		...(Array.isArray(a.sections) && a.sections.length
-			? { sections: a.sections }
-			: {}),
 		link: {
 			enable: true,
 			text: "了解更多",

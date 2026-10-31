@@ -1,6 +1,4 @@
 export type AnnouncementConfig = {
-	title?: string;
-	content: string;
 	icon?: string;
 	type?: "info" | "warning" | "success" | "error";
 	closable?: boolean;
@@ -10,6 +8,5 @@ export type AnnouncementConfig = {
 		url?: string;
 		external?: boolean;
 	};
-	sections?: unknown[];
 	enable?: boolean;
 };

@@ -136,8 +136,5 @@ export const siteDefaults = {
 	},
 	announcement: {
 		enabled: true,
-		sections: "",
-		title: "",
-		content: "",
 	},
 } as const;
