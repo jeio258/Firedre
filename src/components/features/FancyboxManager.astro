@@ -210,17 +210,17 @@
     revokeAllSvgBlobUrls();
   }
 
-  // 首次绑定延迟到空闲：fancybox 核心 114KB 不随页面加载立即拉取；
-  // 用户点击图片时 pointerdown 提前触发，swup/动态内容事件仍即时绑定
+  // 懒加载：fancybox 核心 114KB 不随页面预载；首次 pointerdown（捕获阶段）提前触发
+  // import + 预绑定，8 秒兜底定时器保证无交互场景最终完成绑定；
+  // swup/动态内容/解密事件不经 startOnce，直接 setup() 即时绑定
   let started = false;
   const startOnce = () => {
     if (started) return;
     started = true;
     setup();
   };
-  if ("requestIdleCallback" in window) requestIdleCallback(() => startOnce());
-  else setTimeout(startOnce, 200);
   document.addEventListener("pointerdown", startOnce, { once: true, capture: true });
+  setTimeout(startOnce, 8000);
 
   if (!window.__fancyboxInit) {
     window.__fancyboxInit = true;

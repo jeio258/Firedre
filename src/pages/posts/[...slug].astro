@@ -103,6 +103,22 @@ if (!postDetail) {
 
 const { entry, html, headings, words, minutes } = apiPostToEntry(postDetail);
 
+// KaTeX 按需注入：rehype-katex 已在 SSR 产出 class="katex" 的即判信号；
+// 源文本特征正则兜底（宁可误报不可漏报）；frontmatter math: true 强制开启。
+// 检测前剥离 script/style：Astro 岛 hydration 脚本含 ${v} 模板串，会把单 dollar
+// 正则打满误报，使按需加载失效
+const htmlNoScript = html.replace(
+	/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,
+	"",
+);
+const hasKatexOutput = /class="katex[ "]/.test(htmlNoScript);
+const hasMathMarkers =
+	/\$\$|\\\(|\\\)|\\\[|\\\]|\\begin\{|\$[^\s$][^$\n]*\$/.test(htmlNoScript);
+const forceKatex =
+	postDetail.frontmatter?.math === true ||
+	postDetail.frontmatter?.math === "true";
+const needKatex = hasKatexOutput || hasMathMarkers || forceKatex;
+
 // 上一篇/下一篇已与文章读取并行取得（getPostNeighbors 按日期排序，与 API 端点一致；
 // 加密文章仅取 slug/title，不泄露正文）
 if (neighbors.prev) {
@@ -267,7 +283,7 @@ const [relatedPosts, seriesData] = await Promise.all([
   bannerPostMeta={bannerPostMeta}
 >
 
-  <KatexManager slot="head" />
+  {needKatex && <KatexManager slot="head" />}
 
   <script
     is:inline
