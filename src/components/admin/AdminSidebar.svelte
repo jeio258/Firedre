@@ -96,19 +96,6 @@ let {
 </aside>
 
 <style>
-	.sidebar {
-		width: 248px;
-		background: var(--card-bg);
-		border-right: 1px solid var(--line-color);
-	}
-
-	.sidebar .brand {
-		display: flex;
-		align-items: center;
-		gap: 0.6rem;
-		padding: 1rem 0.85rem 0.85rem;
-		border-bottom: 1px solid var(--line-color);
-	}
 
 	.sidebar .brand-logo {
 		width: 1.9rem;
@@ -118,24 +105,6 @@ let {
 		object-fit: contain;
 		flex-shrink: 0;
 		background: var(--btn-regular-bg);
-	}
-
-	.sidebar .brand-text {
-		font-size: 1rem;
-		font-weight: 700;
-		letter-spacing: 0.01em;
-		color: var(--deep-text);
-	}
-
-	.sidebar .menu-close {
-		margin-left: auto;
-		color: var(--text-muted);
-		border-radius: 0.55rem;
-	}
-
-	.sidebar .menu-close:hover {
-		background: var(--btn-regular-bg);
-		color: var(--deep-text);
 	}
 
 	.sidebar .nav {
@@ -151,56 +120,6 @@ let {
 
 	.sidebar .nav-group:last-child {
 		margin-bottom: 0;
-	}
-
-	.sidebar .nav-title {
-		margin: 0 0 0.4rem;
-		padding: 0 0.55rem;
-		font-size: 0.68rem;
-		font-weight: 600;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		color: var(--text-muted);
-	}
-
-	.sidebar .nav-item {
-		gap: 0.6rem;
-		padding: 0.5rem 0.6rem;
-		border-radius: 0.55rem;
-		font-size: 0.875rem;
-		color: var(--deep-text);
-		transform: none;
-	}
-
-	.sidebar .nav-item:hover {
-		background: color-mix(in srgb, var(--btn-regular-bg) 65%, transparent);
-		color: var(--deep-text);
-		transform: none;
-	}
-
-	.sidebar .nav-icon {
-		display: inline-flex;
-		align-items: center;
-		color: var(--text-muted);
-	}
-
-	.sidebar .nav-item:hover .nav-icon,
-	.sidebar .nav-item.active .nav-icon {
-		color: var(--primary-text);
-	}
-
-	.sidebar .nav-item.active {
-		background: var(--btn-regular-bg);
-		color: var(--primary-text);
-		font-weight: 600;
-		box-shadow: none;
-	}
-
-	.sidebar .nav-item.active::before {
-		left: -0.35rem;
-		width: 3px;
-		height: 1rem;
-		background: var(--primary-fill);
 	}
 
 	.sidebar .s3parent {
@@ -234,25 +153,6 @@ let {
 		font-weight: 600;
 	}
 
-	.sidebar .side-foot {
-		flex-shrink: 0;
-		padding: 0.55rem 0.6rem 0.7rem;
-		border-top: 1px solid var(--line-color);
-	}
-
-	.sidebar .side-foot .site-link {
-		gap: 0.6rem;
-		padding: 0.45rem 0.55rem;
-		border-radius: 0.5rem;
-		font-size: 0.78rem;
-		color: var(--text-muted);
-	}
-
-	.sidebar .side-foot .site-link:hover {
-		background: var(--btn-regular-bg);
-		color: var(--primary-text);
-	}
-
 	.sidebar .user {
 		padding: 0.4rem 0.55rem 0.1rem;
 	}
@@ -261,14 +161,6 @@ let {
 		width: 1.75rem;
 		height: 1.75rem;
 		background: var(--btn-regular-bg);
-	}
-
-	.sidebar .user-name {
-		font-size: 0.82rem;
-	}
-
-	.sidebar .user-role {
-		font-size: 0.72rem;
 	}
 
 	@media (max-width: 900px) {
@@ -324,5 +216,4 @@ let {
 			z-index: 45;
 			background: color-mix(in srgb, var(--deep-text) 40%, transparent);
 		}
-	}
-</style>
+	}</style>

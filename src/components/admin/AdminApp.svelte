@@ -432,37 +432,6 @@ onMount(() => {
 {/if}
 
 <style>
-	.topbar {
-		display: flex;
-		align-items: center;
-		gap: 14px;
-		flex: 0 0 58px;
-		height: 58px;
-		padding: 0 20px;
-		background: var(--card-bg);
-		border-bottom: 1px solid var(--line-color);
-	}
-	.crumb {
-		flex: 0 1 auto;
-		min-width: 0;
-		gap: 7px;
-	}
-	.crumb-page {
-		margin: 0;
-		font-size: 15px;
-		font-weight: 700;
-		color: var(--primary-text);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.top-actions {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-left: auto;
-		flex: 0 0 auto;
-	}
 	.actions-divider {
 		flex: 0 0 auto;
 		width: 1px;
@@ -493,29 +462,6 @@ onMount(() => {
 	.site-ext,
 	.user-menu {
 		flex: 0 0 auto;
-	}
-	.user-trigger {
-		height: 34px;
-		gap: 6px;
-		border-radius: 999px;
-	}
-	.user-trigger:hover {
-		background: var(--btn-regular-bg);
-	}
-	.avatar {
-		width: 26px;
-		height: 26px;
-		border-radius: 999px;
-		object-fit: cover;
-	}
-	.caret {
-		color: var(--text-muted);
-	}
-	.main {
-		width: 100%;
-		max-width: 1240px;
-		margin: 0 auto;
-		padding: 24px 26px 48px;
 	}
 
 	@media (max-width: 900px) {
@@ -568,5 +514,4 @@ onMount(() => {
 		.main {
 			padding: 16px 14px 36px;
 		}
-	}
-</style>
+	}</style>
