@@ -19,49 +19,28 @@ const { class: className, style, widgetConfig } = Astro.props;
 
 const showTitle = widgetConfig?.showTitle !== false;
 
-// 版本号（模板固定值，避免 Worker 运行时文件系统访问）
-const FIREFLY_VERSION = "6.17.1";
-const ASTRO_VERSION = "7.2.3";
-const PNPM_VERSION = "11.22.0";
-
-const NODE_VERSION = "v22.23.2";
-const nodeVersion = process.version || NODE_VERSION;
-
-// pnpm 版本（常量）
-const pnpmVersion = `v${PNPM_VERSION}`;
+// 构建信息由 astro.config 在构建时捕获注入（全局常量，见 src/types/build-info.d.ts）；
+// Workers 运行时的 process 值不反映构建环境，禁止在此处直接读 process
+const nodeVersion = __BUILD_NODE_VERSION__;
+const pnpmVersion =
+	__PNPM_VERSION__ === "unknown" ? "unknown" : `v${__PNPM_VERSION__}`;
 
 const buildTime = formatDateI18nWithTime(
-	new Date(),
+	new Date(__BUILD_TIME__),
 	getSiteConfig(Astro.locals),
 );
 
 const buildPlatform = "Cloudflare Pages";
 
-// 系统信息（平台 + 架构）
-const platformMap: Record<string, string> = {
-	win32: "Windows",
-	darwin: "macOS",
-	linux: "Linux",
-	freebsd: "FreeBSD",
-};
-const archMap: Record<string, string> = {
-	x64: "x86_64",
-	arm64: "ARM64",
-	arm: "ARM",
-	ia32: "x86",
-};
-const osName = platformMap[process.platform] || process.platform;
-const archName = archMap[process.arch] || process.arch;
-const systemInfo = `${osName} / ${archName}`;
+const systemInfo = __BUILD_OS__;
 
 const siteUrl = getSiteConfig(Astro.locals).site_url;
 const siteDomain = siteUrl
 	? siteUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
 	: "unknown";
 
-const licenseName = getLicenseConfig(Astro.locals).enable
-	? getLicenseConfig(Astro.locals).name
-	: "None";
+const license = getLicenseConfig(Astro.locals);
+const licenseName = license.enable ? license.name : "None";
 
 const mainItems = [
 	{
@@ -72,7 +51,7 @@ const mainItems = [
 	{
 		icon: "mdi:clover",
 		label: i18n(I18nKey.siteInfoBlogVersion),
-		value: `Firefly v${FIREFLY_VERSION}`,
+		value: `Firefly v${__FIREDRE_VERSION__}`,
 		href: "https://github.com/jeio258/Firedre",
 	},
 	{
@@ -97,12 +76,12 @@ const detailItems: {
 	{
 		icon: "mdi:clover",
 		label: "Firefly",
-		value: `v${FIREFLY_VERSION}`,
+		value: `v${__FIREDRE_VERSION__}`,
 	},
 	{
 		icon: "material-symbols:rocket-launch-outline",
 		label: i18n(I18nKey.siteInfoAstroVersion),
-		value: `v${ASTRO_VERSION}`,
+		value: `v${__ASTRO_VERSION__}`,
 	},
 	{
 		icon: "fa7-brands:node-js",
@@ -137,7 +116,6 @@ const detailItems: {
   style={style}
 >
   <div class="flex flex-col gap-2">
-    {                   }
     <div class="flex flex-col gap-2">
       {
         mainItems.map((item: { icon: string; label: string; value: string; href?: string }) => (
@@ -173,7 +151,6 @@ const detailItems: {
       }
     </div>
 
-    {                 }
     <site-info-collapse
       data-expand-text={i18n(I18nKey.siteInfoExpand)}
       data-collapse-text={i18n(I18nKey.siteInfoCollapse)}

@@ -26,6 +26,35 @@ const vditorVersion = JSON.parse(
 	),
 ).version;
 
+// 构建信息在构建时一次性捕获（SiteInfo 组件展示用）：
+// Workers 运行时的 process.platform/arch/version 是 workerd 的值，
+// 不反映构建环境，运行时取会得到「Linux / 」这类残缺结果
+const buildPkg = JSON.parse(
+	readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+);
+const astroVersion = JSON.parse(
+	readFileSync(
+		new URL("./node_modules/astro/package.json", import.meta.url),
+		"utf8",
+	),
+).version;
+const pnpmVersion =
+	/^pnpm\/([\d.]+)/.exec(process.env.npm_config_user_agent ?? "")?.[1] ??
+	"unknown";
+const buildOsNames = {
+	win32: "Windows",
+	darwin: "macOS",
+	linux: "Linux",
+	freebsd: "FreeBSD",
+};
+const buildArchNames = {
+	x64: "x86_64",
+	arm64: "ARM64",
+	arm: "ARM",
+	ia32: "x86",
+};
+const buildOs = `${buildOsNames[process.platform] ?? process.platform} / ${buildArchNames[process.arch] ?? process.arch}`;
+
 // https://astro.build/config
 export default defineConfig({
 	site: siteConfig.site_url,
@@ -287,6 +316,12 @@ export default defineConfig({
 	vite: {
 		define: {
 			__VDITOR_VERSION__: JSON.stringify(vditorVersion),
+			__FIREDRE_VERSION__: JSON.stringify(buildPkg.version),
+			__ASTRO_VERSION__: JSON.stringify(astroVersion),
+			__PNPM_VERSION__: JSON.stringify(pnpmVersion),
+			__BUILD_NODE_VERSION__: JSON.stringify(process.version),
+			__BUILD_OS__: JSON.stringify(buildOs),
+			__BUILD_TIME__: JSON.stringify(new Date().toISOString()),
 		},
 		plugins: [
 			tailwindcss(),
