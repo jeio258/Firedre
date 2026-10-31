@@ -72,21 +72,21 @@ const fields: CrudField[] = [
 		{/snippet}
 		{#snippet children({ item })}
 		{@const i = item as { imgurl?: string; title?: string; enabled?: boolean; desc?: string; siteurl?: string; tags?: string[] }}
-		<div class="friend-info">
+		<div class="f-row">
 			<img src={i.imgurl} alt={i.title} class="avatar" />
-			<div class="friend-text">
-				<div class="friend-name">
-					{i.title}
+			<div class="f-text">
+				<div class="f-name">
+					<strong>{i.title}</strong>
 					{#if !i.enabled}
-						<span class="u-chip off">未启用</span>
+						<span class="ui-badge">未启用</span>
 					{/if}
 				</div>
-				<div class="friend-desc">{i.desc || "无描述"}</div>
-				<div class="friend-url">{i.siteurl}</div>
+				<div class="f-desc ui-sub">{i.desc || "无描述"}</div>
+				<div class="f-url ui-sub">{i.siteurl}</div>
 				{#if i.tags && i.tags.length > 0}
-					<div class="friend-tags">
+					<div class="f-tags">
 						{#each i.tags as tag}
-							<span class="tag">{tag}</span>
+							<span class="ui-badge">{tag}</span>
 						{/each}
 					</div>
 				{/if}
@@ -96,56 +96,36 @@ const fields: CrudField[] = [
 </AdminCrudEditor>
 
 <style>
-	.friend-info {
+	.f-row {
 		display: flex;
 		align-items: center;
-		gap: 0.8rem;
+		gap: 12px;
 	}
 	.avatar {
 		width: 52px;
 		height: 52px;
-		border-radius: 0.75rem;
 		object-fit: cover;
 		flex-shrink: 0;
-		background: var(--btn-regular-bg);
 	}
-
-	.friend-text {
+	.f-text {
 		min-width: 0;
 	}
-	.friend-name {
-		font-weight: 600;
+	.f-name {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
+		gap: 8px;
 	}
-	.friend-desc {
-		font-size: 0.85rem;
-		color: var(--text-muted);
+	.f-desc,
+	.f-url {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 420px;
 	}
-	.friend-url {
-		font-size: 0.75rem;
-		color: var(--primary);
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		max-width: 420px;
-	}
-	.friend-tags {
+	.f-tags {
 		display: flex;
-		gap: 0.3rem;
-		margin-top: 0.3rem;
+		gap: 6px;
+		margin-top: 4px;
 		flex-wrap: wrap;
-	}
-	.tag {
-		font-size: 0.7rem;
-		padding: 0.1rem 0.5rem;
-		background: var(--btn-regular-bg);
-		border-radius: 0.3rem;
-		color: var(--text-muted);
 	}
 </style>

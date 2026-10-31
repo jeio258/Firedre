@@ -182,151 +182,166 @@ onMountAsync(async () => {
 });
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>{title}</h2>
-			<p class="crud-sub">共 {items.length} 条</p>
+			<h2 class="ui-title">{title}</h2>
+			<p class="ui-sub">共 {items.length} 条</p>
 		</div>
-		<div class="crud-head-actions">
+		<div class="ui-acts">
 			{#if message}
-				<span class="crud-msg">{message}</span>
+				<span class="ui-badge">{message}</span>
 			{/if}
 			{#if !showForm}
-				<button class="btn-primary" onclick={openCreate}>{addLabel}</button>
+				<button class="ui-btn ui-btn-primary" onclick={openCreate}>{addLabel}</button>
 			{/if}
 		</div>
 	</div>
 
-		{#if configBlock}
-			{@render configBlock()}
-		{/if}
+	{#if configBlock}
+		{@render configBlock()}
+	{/if}
 
-		{#if extraBlock}
-			<div class="crud-extra">
-				{@render extraBlock()}
-			</div>
-		{/if}
+	{#if extraBlock}
+		<div class="extra">
+			{@render extraBlock()}
+		</div>
+	{/if}
 
 	{#if error}
-		<div class="crud-empty">{error}</div>
+		<div class="ui-card">
+			<div class="ui-empty">{error}</div>
+		</div>
 	{:else if loading}
-		<div class="crud-empty">加载中…</div>
+		<div class="ui-card">
+			<div class="ui-empty">加载中…</div>
+		</div>
 	{:else if showForm}
-		<div class="crud-card">
-			<div class="crud-form-head">
-				<h3>{editingId ? `编辑${entityName}` : `添加${entityName}`}</h3>
-				<button class="btn-text" onclick={cancelForm}>取消</button>
+		<div class="ui-card">
+			<div class="ui-card-h">
+				{editingId ? `编辑${entityName}` : `添加${entityName}`}
+				<span class="head-end">
+					<button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={cancelForm}>取消</button>
+				</span>
 			</div>
-			<div class="crud-form">
-				{#each fields as f}
-					<label class="crud-field">
-						{#if f.type !== "checkbox"}
-							<span>{f.label}</span>
-						{/if}
+			<div class="ui-card-b">
+				<div class="ui-grid">
+					{#each fields as f}
 						{#if f.type === "checkbox"}
-							<div class="check-line">
-								<Switch
-									on={Boolean(formValues[f.key])}
-									label={f.label}
-									toggle={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
-								/>
-								<span class="check-text">{f.label}</span>
+							<div class="ui-field">
+								<span class="ui-label">{f.label}</span>
+								<div class="check-line">
+									<Switch
+										on={Boolean(formValues[f.key])}
+										label={f.label}
+										toggle={() => (formValues[f.key] = !Boolean(formValues[f.key]))}
+									/>
+								</div>
 							</div>
-						{:else if f.type === "select"}
-							<select aria-label="筛选" bind:value={formValues[f.key]}>
-								{#each f.options ?? [] as opt}
-									<option value={opt.value}>{opt.label}</option>
-								{/each}
-							</select>
-						{:else if f.type === "number"}
-							<input type="number" min="0" bind:value={formValues[f.key]} />
 						{:else}
-							<input type="text" placeholder={f.placeholder} bind:value={formValues[f.key]} />
+							<label class="ui-field">
+								<span class="ui-label">{f.label}</span>
+								{#if f.type === "select"}
+									<select class="ui-select" aria-label={f.label} bind:value={formValues[f.key]}>
+										{#each f.options ?? [] as opt}
+											<option value={opt.value}>{opt.label}</option>
+										{/each}
+									</select>
+								{:else if f.type === "number"}
+									<input
+										class="ui-input"
+										type="number"
+										min="0"
+										aria-label={f.label}
+										bind:value={formValues[f.key]}
+									/>
+								{:else}
+									<input
+										class="ui-input"
+										type="text"
+										aria-label={f.label}
+										placeholder={f.placeholder}
+										bind:value={formValues[f.key]}
+									/>
+								{/if}
+							</label>
 						{/if}
-					</label>
-				{/each}
-			</div>
-			<div class="crud-form-actions">
-				<button class="btn-primary" onclick={submit} disabled={saving}>
-					{saving ? "保存中…" : "保存"}
-				</button>
+					{/each}
+				</div>
+				<div class="form-acts">
+					<button class="ui-btn ui-btn-primary" onclick={submit} disabled={saving}>
+						{saving ? "保存中…" : "保存"}
+					</button>
+				</div>
 			</div>
 		</div>
 	{:else if items.length === 0}
-		<div class="crud-empty">
-			暂无{entityName}，点击「{addLabel}」创建第一条。
+		<div class="ui-card">
+			<div class="ui-empty">暂无{entityName}，点击「{addLabel}」创建第一条。</div>
 		</div>
 	{:else}
-		<div class="crud-list">
-			{#each items as item}
-				<div class="crud-row">
-					<div class="crud-row-main">
-						{@render children({ item, onEdit: () => openEdit(item), onRemove: () => remove(item) })}
-					</div>
-					<div class="crud-row-actions">
-						<button class="btn-ghost" onclick={() => openEdit(item)}>编辑</button>
-						<button class="btn-danger-text" onclick={() => remove(item)}>删除</button>
-					</div>
-				</div>
-			{/each}
+		<div class="ui-card">
+			<div class="table-scroll">
+				<table class="ui-table">
+					<thead>
+						<tr>
+							<th>内容</th>
+							<th class="col-acts">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each items as item}
+							<tr>
+								<td>
+									{@render children({ item, onEdit: () => openEdit(item), onRemove: () => remove(item) })}
+								</td>
+								<td class="col-acts">
+									<div class="row-acts">
+										<button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => openEdit(item)}>
+											编辑
+										</button>
+										<button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => remove(item)}>
+											删除
+										</button>
+									</div>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	{/if}
 </div>
 
 <style>
-
-	.crud-head h2 {
-		margin: 0;
-		font-size: 1.12rem;
-		font-weight: 700;
-		color: var(--deep-text);
-	}
-
-
-
-
-
-
-
-
-
-
-	.crud-extra {
+	.extra {
 		display: contents;
 	}
-
-
-	.crud-form-head h3 {
-		margin: 0;
-		font-size: 0.95rem;
-		font-weight: 600;
-		color: var(--deep-text);
+	.table-scroll {
+		overflow-x: auto;
 	}
-
-
-	.crud-field input,
-	.crud-field select {
-		padding: 0.48rem 0.65rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.88rem;
-		width: 100%;
-		box-sizing: border-box;
+	.col-acts {
+		width: 1%;
+		white-space: nowrap;
 	}
-
-	.check-line input {
-		width: auto;
-		accent-color: var(--primary);
+	.row-acts,
+	.head-end {
+		display: flex;
+		align-items: center;
+		gap: 6px;
 	}
-
-
-
-
-
-
-
-
-	</style>
+	.head-end {
+		margin-left: auto;
+	}
+	.check-line {
+		display: flex;
+		align-items: center;
+		height: 36px;
+	}
+	.form-acts {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 14px;
+	}
+</style>

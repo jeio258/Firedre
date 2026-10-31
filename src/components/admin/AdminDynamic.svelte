@@ -165,18 +165,18 @@ onMountAsync(async () => {
 });
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>动态管理</h2>
-			<p class="crud-sub">共 {items.length} 条</p>
+			<h2 class="ui-title">动态管理</h2>
+			<p class="ui-sub">共 {items.length} 条</p>
 		</div>
-		<div class="crud-head-actions">
+		<div class="ui-acts">
 			{#if message}
-				<span class="crud-msg">{message}</span>
+				<span class="ui-sub">{message}</span>
 			{/if}
 			{#if !showForm}
-				<button class="btn-primary" onclick={openCreate}>+ 新增动态</button>
+				<button class="ui-btn ui-btn-primary" onclick={openCreate}>+ 新增动态</button>
 			{/if}
 		</div>
 	</div>
@@ -191,122 +191,118 @@ onMountAsync(async () => {
 	/>
 
 	{#if error}
-		<div class="crud-empty">{error}</div>
-	{:else if loading}
-		<div class="crud-empty">加载中…</div>
-	{:else if showForm}
-		<div class="crud-card">
-			<div class="crud-form-head">
-				<h3>{editingId ? "编辑动态" : "新增动态"}</h3>
-				<button class="btn-text" onclick={cancelForm}>取消</button>
-			</div>
-			<div class="notice-form">
-				<label class="crud-field">
-					<span>内容</span>
-					<textarea rows="5" placeholder="输入动态内容" bind:value={formContent}></textarea>
-				</label>
-				<label class="check-line">
-					<Switch on={formPinned} label="置顶开关" toggle={() => (formPinned = !formPinned)} />
-					<span class="check-text">置顶</span>
-				</label>
-				<label class="crud-field">
-					<span>地点（可选）</span>
-					<input type="text" placeholder="如：北京 / 上海" bind:value={formLocation} />
-				</label>
-			</div>
-			<div class="crud-form-actions">
-				<button class="btn-primary" onclick={submit} disabled={saving}>
-					{saving ? "保存中…" : "保存"}
-				</button>
-			</div>
+		<div class="ui-card">
+			<div class="ui-empty">{error}</div>
 		</div>
-	{:else if items.length === 0}
-		<div class="crud-empty">暂无动态，点击「新增动态」创建第一条。</div>
-	{:else}
-		<div class="crud-list">
-			{#each items as item}
-				<div class="crud-row">
-					<div class="crud-row-main">
-						<p class="dyn-content">{truncate(item.content)}</p>
-						<div class="dyn-meta">
-							<span>{formatDate(item.published)}</span>
-							{#if item.pinned}
-								<span class="u-chip on">置顶</span>
-							{/if}
-							{#if item.location}
-								<span class="dyn-loc">{item.location}</span>
-							{/if}
+	{:else if loading}
+		<div class="ui-card">
+			<div class="ui-empty">加载中…</div>
+		</div>
+	{:else if showForm}
+		<div class="ui-card">
+			<div class="ui-card-h">
+				{editingId ? "编辑动态" : "新增动态"}
+				<div class="ui-acts">
+					<button class="ui-btn ui-btn-ghost ui-btn-sm" onclick={cancelForm}>取消</button>
+				</div>
+			</div>
+			<div class="ui-card-b">
+				<div class="ui-grid">
+					<label class="ui-field field-wide">
+						<span class="ui-label">内容</span>
+						<textarea class="ui-input" rows="5" placeholder="输入动态内容" bind:value={formContent}></textarea>
+					</label>
+					<label class="ui-field">
+						<span class="ui-label">地点（可选）</span>
+						<input class="ui-input" type="text" placeholder="如：北京 / 上海" bind:value={formLocation} />
+					</label>
+					<div class="ui-field">
+						<span class="ui-label">置顶</span>
+						<div class="switch-row">
+							<Switch on={formPinned} label="置顶开关" toggle={() => (formPinned = !formPinned)} />
 						</div>
 					</div>
-					<div class="crud-row-actions">
-						<button class="btn-ghost" onclick={() => openEdit(item)}>编辑</button>
-						<button class="btn-danger-text" onclick={() => remove(item)}>删除</button>
-					</div>
 				</div>
-			{/each}
+				<div class="form-acts">
+					<button class="ui-btn ui-btn-primary" onclick={submit} disabled={saving}>
+						{saving ? "保存中…" : "保存"}
+					</button>
+				</div>
+			</div>
+		</div>
+	{:else}
+		<div class="ui-card">
+			<div class="ui-card-h">时间线</div>
+			{#if items.length === 0}
+				<div class="ui-empty">暂无动态，点击「新增动态」创建第一条。</div>
+			{:else}
+				{#each items as item}
+					<div class="ui-card-b tl-item">
+						<div class="tl-main">
+							<p class="tl-text">{truncate(item.content)}</p>
+							<div class="tl-meta ui-sub">
+								<span>{formatDate(item.published)}</span>
+								{#if item.pinned}
+									<span class="ui-badge ui-badge-warn">置顶</span>
+								{/if}
+								{#if item.location}
+									<span>{item.location}</span>
+								{/if}
+							</div>
+						</div>
+						<div class="tl-acts">
+							<button class="ui-btn ui-btn-sm" onclick={() => openEdit(item)}>编辑</button>
+							<button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => remove(item)}>删除</button>
+						</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	{/if}
 </div>
 
 <style>
-	.notice-form {
-		display: flex;
-		flex-direction: column;
-		gap: 0.9rem 1rem;
+	.field-wide {
+		grid-column: 1 / -1;
+		grid-template-rows: 18px auto;
 	}
-	@media (min-width: 640px) {
-		.notice-form {
-			display: grid;
-			grid-template-columns: 1fr;
-		}
-	}
-	.crud-field input,
-	.crud-field textarea {
-		padding: 0.48rem 0.65rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.88rem;
-		width: 100%;
-		box-sizing: border-box;
-		font-family: inherit;
-	}
-	textarea {
+	textarea.ui-input {
+		height: auto;
 		min-height: 120px;
+		padding: 8px 10px;
+		line-height: 1.5;
 		resize: vertical;
 	}
-	.dyn-content {
-		margin: 0 0 0.3rem;
-		font-size: 0.9rem;
-		word-break: break-word;
-		color: var(--deep-text);
-	}
-	.dyn-meta {
+	.switch-row {
 		display: flex;
 		align-items: center;
-		gap: 0.6rem;
-		font-size: 0.78rem;
-		color: var(--text-muted);
 	}
-	.u-chip.on {
-		background: color-mix(in oklch, var(--warning) 18%, transparent);
-		color: var(--warning);
-		padding: 0.1rem 0.5rem;
-		border-radius: 999px;
-		font-size: 0.72rem;
-		font-weight: 600;
+	.form-acts {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 14px;
 	}
-	.dyn-loc {
-		color: var(--primary);
+	.tl-item {
+		display: flex;
+		align-items: center;
+		gap: 16px;
 	}
-
-
-
-
-
-
-	.check-line input {
-		accent-color: var(--primary);
+	.tl-main {
+		flex: 1;
+		min-width: 0;
+	}
+	.tl-text {
+		margin: 0 0 4px;
+		word-break: break-word;
+	}
+	.tl-meta {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	.tl-acts {
+		display: flex;
+		gap: 6px;
+		flex-shrink: 0;
 	}
 </style>

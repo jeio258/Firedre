@@ -64,30 +64,32 @@ async function toggle() {
 onMount(load);
 </script>
 
-<details class="modcfg">
-	<summary>
-		<span class="mct">{title}</span>
-		<span class="mccaret">▾</span>
+<details class="ui-card cfg">
+	<summary class="ui-card-h">
+		<span>{title}</span>
+		<span class="caret">▾</span>
 	</summary>
-	<div class="mcin">
+	<div class="ui-card-b cfg-body">
 		{#if loadError}
-			<p class="mc-err">加载失败：{loadError}。当前显示值不可信，请勿改动，稍后重试。</p>
+			<p class="ui-badge ui-badge-warn load-err" role="alert">
+				加载失败：{loadError}。当前显示值不可信，请勿改动，稍后重试。
+			</p>
 		{/if}
-		<label class="mctr">
+		<label class="toggle-row">
 			<span>{enableLabel}</span>
 			<Switch on={enabled} label={enableLabel} toggle={toggle} disabled={saving || loadError !== ""} />
 		</label>
 		{#if titleField}
-			<div class="mcfg">
-				<div class="a2f">
-					<label>页面标题</label>
-					<input type="text" aria-label="页面标题" bind:value={titleVal} />
-				</div>
+			<div class="ui-grid">
+				<label class="ui-field">
+					<span class="ui-label">页面标题</span>
+					<input class="ui-input" type="text" aria-label="页面标题" bind:value={titleVal} />
+				</label>
 				{#if descField}
-					<div class="a2f w">
-						<label>页面描述</label>
-						<textarea rows="3" aria-label="页面描述" bind:value={descVal}></textarea>
-					</div>
+					<label class="ui-field field-wide">
+						<span class="ui-label">页面描述</span>
+						<textarea class="ui-input" rows="3" aria-label="页面描述" bind:value={descVal}></textarea>
+					</label>
 				{/if}
 			</div>
 		{/if}
@@ -95,13 +97,47 @@ onMount(load);
 </details>
 
 <style>
-	.mc-err {
-		margin: 0 0 0.5rem;
-		padding: 0.4rem 0.55rem;
-		border-radius: 0.4rem;
-		background: rgba(220, 38, 38, 0.1);
-		color: #dc2626;
-		font-size: 0.82rem;
+	.cfg > summary {
+		cursor: pointer;
+		list-style: none;
+	}
+	.cfg > summary::-webkit-details-marker {
+		display: none;
+	}
+	.caret {
+		margin-left: auto;
+		transition: transform 0.18s;
+	}
+	.cfg[open] .caret {
+		transform: rotate(180deg);
+	}
+	.cfg-body {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.toggle-row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 16px;
+	}
+	.field-wide {
+		grid-column: 1 / -1;
+		grid-template-rows: 18px auto;
+	}
+	textarea.ui-input {
+		height: auto;
+		min-height: 72px;
+		padding: 8px 10px;
 		line-height: 1.5;
+		resize: vertical;
+	}
+	.load-err {
+		display: block;
+		margin: 0;
+		padding: 6px 10px;
+		line-height: 1.5;
+		white-space: normal;
 	}
 </style>

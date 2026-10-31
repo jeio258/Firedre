@@ -1,5 +1,4 @@
 <script lang="ts">
-import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
@@ -76,17 +75,17 @@ onMountAsync(async () => {
 });
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>公告管理</h2>
-			<p class="crud-sub">单条公告内容（标题 + 文本）</p>
+			<h2 class="ui-title">公告管理</h2>
+			<p class="ui-sub">单条公告内容（标题 + 文本）</p>
 		</div>
-		<div class="crud-head-actions">
+		<div class="ui-acts">
 			{#if message}
-				<span class="crud-msg">{message}</span>
+				<span class="ui-badge">{message}</span>
 			{/if}
-			<button class="btn-primary" onclick={save} disabled={saving || loadError !== ""}>
+			<button class="ui-btn ui-btn-primary" onclick={save} disabled={saving || loadError !== ""}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>
@@ -101,54 +100,41 @@ onMountAsync(async () => {
 	/>
 
 	{#if loadError}
-		<div class="crud-card">
-			<p class="load-error">加载失败：{loadError}。已禁用保存以避免覆盖真实公告，请刷新后重试。</p>
+		<div class="ui-card">
+			<div class="ui-card-b">
+				<p class="ui-sub">加载失败：{loadError}。已禁用保存以避免覆盖真实公告，请刷新后重试。</p>
+			</div>
 		</div>
 	{:else if !loading}
-		<div class="crud-card">
-			<div class="notice-form">
-				<label class="crud-field">
-					<span>公告标题</span>
-					<input aria-label="公告标题" type="text" bind:value={title} />
-				</label>
-				<label class="crud-field">
-					<span>公告内容</span>
-					<textarea aria-label="公告内容" bind:value={content} placeholder="请输入公告内容"></textarea>
-				</label>
+		<div class="ui-card">
+			<div class="ui-card-b">
+				<div class="notice-form">
+					<label class="ui-field">
+						<span class="ui-label">公告标题</span>
+						<input class="ui-input" aria-label="公告标题" type="text" bind:value={title} />
+					</label>
+					<label class="ui-field field-area">
+						<span class="ui-label">公告内容</span>
+						<textarea class="ui-input" aria-label="公告内容" bind:value={content} placeholder="请输入公告内容"></textarea>
+					</label>
+				</div>
 			</div>
 		</div>
 	{/if}
 </div>
 
 <style>
-	.load-error {
-		margin: 0;
-		padding: 0.5rem 0.65rem;
-		border-radius: 0.5rem;
-		background: rgba(220, 38, 38, 0.1);
-		color: #dc2626;
-		font-size: 0.85rem;
-		line-height: 1.5;
-	}
 	.notice-form {
-		display: flex;
-		flex-direction: column;
-		gap: 0.9rem 1rem;
+		display: grid;
+		gap: 14px;
 	}
-	.notice-form input,
-	.notice-form textarea {
-		padding: 0.48rem 0.65rem;
-		border: 1px solid var(--line-divider);
-		border-radius: 0.5rem;
-		background: transparent;
-		color: var(--deep-text);
-		font-size: 0.88rem;
-		width: 100%;
-		box-sizing: border-box;
-		font-family: inherit;
+	.field-area {
+		grid-template-rows: 18px auto;
 	}
-	textarea {
-		min-height: 160px;
+	.field-area textarea {
+		height: auto;
+		min-height: 200px;
+		padding: 8px 10px;
 		resize: vertical;
 		line-height: 1.6;
 	}

@@ -98,129 +98,121 @@ let publishedCount = $derived(posts.filter((p) => p.published === 1).length);
 let draftCount = $derived(posts.length - publishedCount);
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>文章管理</h2>
-			<p class="crud-sub">
-				<span class="stat">共 <b>{posts.length}</b> 篇</span><span class="stat">已发布 <b>{publishedCount}</b></span><span class="stat">草稿 <b>{draftCount}</b></span>{#if selected.size > 0}
-					· 已选 {selected.size}{/if}
+			<h2 class="ui-title">文章管理</h2>
+			<p class="ui-sub">
+				共 <b>{posts.length}</b> 篇 · 已发布 <b>{publishedCount}</b> · 草稿 <b>{draftCount}</b>
+				{#if selected.size > 0}· 已选 {selected.size}{/if}
 			</p>
 		</div>
-		<div class="crud-head-actions">
-			<select aria-label="筛选文章状态" bind:value={status}>
-				<option value="all">全部状态</option>
-				<option value="published">已发布</option>
-				<option value="draft">草稿</option>
-			</select>
-			<input type="search" aria-label="搜索文章" placeholder="搜索文章…" bind:value={search} />
-			<label class="row-selectall">
-				<input
-					type="checkbox" aria-label="全选文章"
-					checked={filtered.length > 0 && selected.size === filtered.length}
-					onchange={toggleAll}
-				/>
-				全选
-			</label>
-			{#if selected.size > 0}
-				<button class="btn-danger-text" onclick={batchDelete} disabled={deleting}>
-					{deleting ? "删除中…" : `删除选中 (${selected.size})`}
-				</button>
-			{/if}
-			<a class="btn btn-primary" href="/admin/posts/new/">新建文章</a>
+		<div class="ui-acts">
+			<a class="ui-btn ui-btn-primary" href="/admin/posts/new/">新建文章</a>
 		</div>
 	</div>
 
-	<div class="crud-card" style="padding:.6rem 1.25rem">
-		{#if loading}
-			<div class="list-empty">加载中…</div>
-		{:else if error}
-			<div class="list-empty error">{error}</div>
-		{:else if filtered.length === 0}
-			<div class="list-empty">暂无文章</div>
-		{:else}
-			{#each filtered as post (post.slug)}
-				<div class="list-row" class:selected={selected.has(post.slug)}>
-					<label class="row-check">
-						<input
-							type="checkbox" aria-label={`选择文章：${post.title}`}
-							checked={selected.has(post.slug)}
-							onchange={() => toggle(post.slug)}
-						/>
-					</label>
-					<div class="list-main">
-						<div class="list-title">{post.title}</div>
-						<div class="list-sub">
-							<span>{post.date}</span>
-							<span class="mono">{post.slug}</span>
-						</div>
-					</div>
-					{#if post.pin_order}<span class="u-chip pin">置顶</span>{/if}
-					{#if post.password}<span class="u-chip lock">加密</span>{/if}
-					<span class="u-chip {post.published === 1 ? 'ok' : 'off'}">
-						{post.published === 1 ? "已发布" : "草稿"}
-					</span>
-					<div class="crud-row-actions">
-						<a class="btn-ghost" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
-						<button class="btn-danger-text" onclick={() => remove(post.slug)}>删除</button>
-					</div>
+	<div class="ui-card">
+		<div class="ui-card-h">
+			<span>文章列表</span>
+			<div class="ui-acts">
+				{#if selected.size > 0}
+					<button
+						class="ui-btn ui-btn-sm"
+						onclick={batchDelete}
+						disabled={deleting}
+					>
+						{deleting ? "删除中…" : `删除选中 (${selected.size})`}
+					</button>
+				{/if}
+			</div>
+		</div>
+
+		<div class="ui-card-b">
+			<div class="ui-grid">
+				<div class="ui-field">
+					<label class="ui-label" for="post-status">状态</label>
+					<select
+						id="post-status"
+						class="ui-select"
+						aria-label="筛选文章状态"
+						bind:value={status}
+					>
+						<option value="all">全部状态</option>
+						<option value="published">已发布</option>
+						<option value="draft">草稿</option>
+					</select>
 				</div>
-			{/each}
+				<div class="ui-field">
+					<label class="ui-label" for="post-search">搜索</label>
+					<input
+						id="post-search"
+						class="ui-input"
+						type="search"
+						aria-label="搜索文章"
+						placeholder="搜索文章…"
+						bind:value={search}
+					/>
+				</div>
+			</div>
+		</div>
+
+		{#if loading}
+			<div class="ui-empty">加载中…</div>
+		{:else if error}
+			<div class="ui-empty">{error}</div>
+		{:else if filtered.length === 0}
+			<div class="ui-empty">暂无文章</div>
+		{:else}
+			<table class="ui-table">
+				<thead>
+					<tr>
+						<th>
+							<input
+								type="checkbox"
+								aria-label="全选文章"
+								checked={filtered.length > 0 &&
+									selected.size === filtered.length}
+								onchange={toggleAll}
+							/>
+						</th>
+						<th>标题</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each filtered as post (post.slug)}
+						<tr>
+							<td>
+								<input
+									type="checkbox"
+									aria-label={`选择文章：${post.title}`}
+									checked={selected.has(post.slug)}
+									onchange={() => toggle(post.slug)}
+								/>
+							</td>
+							<td>
+								<div>{post.title}</div>
+								<div class="ui-sub">{post.date} · {post.slug}</div>
+							</td>
+							<td>
+								<div class="ui-acts">
+									{#if post.pin_order}<span class="ui-badge ui-badge-warn">置顶</span>{/if}
+									{#if post.password}<span class="ui-badge">加密</span>{/if}
+									<span class="ui-badge">{post.published === 1 ? "已发布" : "草稿"}</span>
+								</div>
+							</td>
+							<td>
+								<div class="ui-acts">
+									<a class="ui-btn ui-btn-sm ui-btn-ghost" href={`/admin/posts/edit/${encodeURIComponent(post.slug)}/`}>编辑</a>
+									<button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => remove(post.slug)}>删除</button>
+								</div>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		{/if}
 	</div>
 </div>
-
-<style>
-	.row-selectall {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		font-size: 0.82rem;
-		color: var(--text-muted);
-		cursor: pointer;
-	}
-	.row-selectall input,
-	.row-check input {
-		accent-color: var(--primary);
-	}
-	.row-check {
-		display: inline-flex;
-		flex-shrink: 0;
-	}
-	.list-row.selected {
-		background: color-mix(in oklch, var(--primary) 7%, transparent);
-		border-radius: 0.5rem;
-	}
-	.mono {
-		font-family: ui-monospace, monospace;
-		font-size: 0.74rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-	.u-chip.lock {
-		background: var(--btn-regular-bg);
-		color: var(--text-muted);
-	}
-	.list-empty {
-		text-align: center;
-		padding: 3rem 1rem;
-		color: var(--text-muted);
-	}
-	.list-empty.error {
-		color: var(--danger);
-	}
-	.btn-ghost {
-		text-decoration: none;
-		border-radius: var(--radius-medium);
-		font-size: 0.85rem;
-	}
-	@media (max-width: 767px) {
-		.crud-head-actions {
-			width: 100%;
-		}
-		.list-row {
-			flex-wrap: wrap;
-		}
-	}
-</style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onDestroy, onMount, tick } from "svelte";
+import { onDestroy, tick } from "svelte";
 import type Vditor from "vditor";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
@@ -87,27 +87,31 @@ onMountAsync(async () => {
 onDestroy(() => vditorThemeObserver?.disconnect());
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>{titles[section] || "内容编辑"}</h2>
-			<p class="crud-sub">编辑 about/index.md（frontmatter + Markdown 正文）</p>
+			<h2 class="ui-title">{titles[section] || "内容编辑"}</h2>
+			<p class="ui-sub">编辑 about/index.md（frontmatter + Markdown 正文）</p>
 		</div>
-		<div class="crud-head-actions">
+		<div class="ui-acts">
 			{#if message}
-				<span class="crud-msg">{message}</span>
+				<span class="ui-badge">{message}</span>
 			{/if}
-			<button class="btn-primary" onclick={save} disabled={saving}>
+			<button class="ui-btn ui-btn-primary" onclick={save} disabled={saving}>
 				{saving ? "保存中…" : "保存"}
 			</button>
 		</div>
 	</div>
 
 	{#if loaded}
-		<div class="card editor-body">
-			<div id="vditor-editor"></div>
+		<div class="ui-card">
+			<div class="ui-card-b">
+				<div id="vditor-editor"></div>
+			</div>
 		</div>
 	{:else}
-		<div class="crud-empty">{message || "加载中…"}</div>
+		<div class="ui-card">
+			<div class="ui-empty">{message || "加载中…"}</div>
+		</div>
 	{/if}
 </div>

@@ -502,7 +502,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	{#if loaded}
 		<main class="pe-paper">
 			<input
-				class="pe-title"
+			 class="pe-title"
 				placeholder="文章标题（必填）"
 				bind:value={title}
 				oninput={() => {
@@ -541,10 +541,10 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	<div class="pe-drawer-body">
 		<section class="pe-block">
 			<h4 class="pe-block-title">发布</h4>
-			<label class="crud-field">
-				<span>状态</span>
+			<label class="ui-field">
+				<span class="ui-label">状态</span>
 				<select
-					value={draft ? "draft" : hidden ? "hidden" : "publish"}
+					 class="ui-input" value={draft ? "draft" : hidden ? "hidden" : "publish"}
 					onchange={(e) => {
 						const value = e.currentTarget.value;
 						draft = value === "draft";
@@ -557,18 +557,18 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 				</select>
 			</label>
 			<div class="row2">
-				<label class="crud-field">
-					<span>发布日期</span>
-					<input type="date" bind:value={published} />
+				<label class="ui-field">
+					<span class="ui-label">发布日期</span>
+					<input  class="ui-input" type="date" bind:value={published} />
 				</label>
-				<label class="crud-field">
-					<span>更新日期</span>
-					<input type="date" bind:value={updated} />
+				<label class="ui-field">
+					<span class="ui-label">更新日期</span>
+					<input  class="ui-input" type="date" bind:value={updated} />
 				</label>
 			</div>
 
-			<div class="crud-field">
-				<span>分类</span>
+			<div class="ui-field">
+				<span class="ui-label">分类</span>
 				<div class="chips">
 					{#each categories as category (category)}
 						<span class="chip">
@@ -581,7 +581,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 						</span>
 					{/each}
 					<input
-						class="chip-input"
+					 class="chip-input"
 						placeholder={categories.length ? "继续添加…" : "输入后回车添加"}
 						bind:value={categoryInput}
 						onkeydown={(e) => onChipKeydown(e, "category", categoryInput)}
@@ -601,8 +601,8 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 				{/if}
 			</div>
 
-			<div class="crud-field">
-				<span>标签</span>
+			<div class="ui-field">
+				<span class="ui-label">标签</span>
 				<div class="chips">
 					{#each tags as tag (tag)}
 						<span class="chip">
@@ -615,7 +615,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 						</span>
 					{/each}
 					<input
-						class="chip-input"
+					 class="chip-input"
 						placeholder={tags.length ? "继续添加…" : "输入后回车添加"}
 						bind:value={tagInput}
 						onkeydown={(e) => onChipKeydown(e, "tag", tagInput)}
@@ -633,10 +633,10 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 				<span class="check-text">允许评论</span>
 			</label>
 
-			<label class="crud-field">
-				<span>固定链接（slug）</span>
+			<label class="ui-field">
+				<span class="ui-label">固定链接（slug）</span>
 				<input
-					type="text"
+					 class="ui-input" type="text"
 					bind:value={slug}
 					disabled={!isNew}
 					placeholder="english-slug"
@@ -665,9 +665,9 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 				</div>
 			</div>
 			{#if !coverAuto}
-				<label class="crud-field">
-					<span>封面图地址</span>
-					<input type="text" bind:value={image} placeholder="https://… 或 /path" />
+				<label class="ui-field">
+					<span class="ui-label">封面图地址</span>
+					<input  class="ui-input" type="text" bind:value={image} placeholder="https://… 或 /path" />
 				</label>
 			{/if}
 			<div class="pe-cover-actions">
@@ -688,8 +688,8 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 
 		<section class="pe-block">
 			<h4 class="pe-block-title">简介</h4>
-			<label class="crud-field">
-				<span>简介 / 描述</span>
+			<label class="ui-field">
+				<span class="ui-label">简介 / 描述</span>
 				<textarea rows="4" bind:value={description} placeholder="用于列表与 SEO"
 				></textarea>
 			</label>
@@ -700,26 +700,26 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 				<summary>更多</summary>
 				<div class="pe-more-body">
 					<div class="row2">
-						<label class="crud-field">
-							<span>系列</span>
-							<input type="text" bind:value={series} />
+						<label class="ui-field">
+							<span class="ui-label">系列</span>
+							<input  class="ui-input" type="text" bind:value={series} />
 						</label>
-						<label class="crud-field">
-							<span>序号</span>
-							<input type="number" bind:value={seriesOrder} />
+						<label class="ui-field">
+							<span class="ui-label">序号</span>
+							<input  class="ui-input" type="number" bind:value={seriesOrder} />
 						</label>
 					</div>
-					<label class="crud-field">
-						<span>访问密码（加密文章）</span>
-						<input type="text" bind:value={password} />
+					<label class="ui-field">
+						<span class="ui-label">访问密码（加密文章）</span>
+						<input  class="ui-input" type="text" bind:value={password} />
 					</label>
-					<label class="crud-field">
-						<span>密码提示</span>
-						<input type="text" bind:value={passwordHint} />
+					<label class="ui-field">
+						<span class="ui-label">密码提示</span>
+						<input  class="ui-input" type="text" bind:value={passwordHint} />
 					</label>
-					<label class="crud-field">
-						<span>原文链接</span>
-						<input type="text" bind:value={sourceLink} placeholder="https://…" />
+					<label class="ui-field">
+						<span class="ui-label">原文链接</span>
+						<input  class="ui-input" type="text" bind:value={sourceLink} placeholder="https://…" />
 					</label>
 				</div>
 			</details>
@@ -916,7 +916,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 		gap: 0.7rem;
 	}
-	.row2 > .crud-field {
+	.row2 > .ui-field {
 		min-width: 0;
 	}
 

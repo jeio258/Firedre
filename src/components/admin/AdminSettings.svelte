@@ -279,7 +279,7 @@ onMountAsync(async () => {
 	{/if}
 {/snippet}
 
-<div class="crud-page">
+<div class="ui-page">
 	<div class="settings-head">
 		<div class="settings-t">
 			<h2 class="settings-title">站点设置</h2>
@@ -305,9 +305,9 @@ onMountAsync(async () => {
 	{/if}
 
 	{#if loading}
-		<div class="crud-empty">加载中…</div>
+		<div class="ui-empty">加载中…</div>
 	{:else if loadError}
-		<div class="crud-empty danger">{loadError}</div>
+		<div class="ui-empty">{loadError}</div>
 	{:else}
 		{#each groups as group (group.key)}
 			<section class="card">
@@ -574,7 +574,7 @@ onMountAsync(async () => {
 		color: var(--warning);
 		border-color: color-mix(in oklch, var(--warning) 35%, transparent);
 	}
-	.crud-empty.danger {
+	.ui-empty.danger-error {
 		color: var(--warning);
 		border-color: color-mix(in oklch, var(--warning) 40%, var(--line-color));
 	}

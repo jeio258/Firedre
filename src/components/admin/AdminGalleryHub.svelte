@@ -124,17 +124,17 @@ onMountAsync(async () => {
 });
 </script>
 
-<div class="crud-page">
-	<div class="crud-head">
+<div class="ui-page">
+	<div class="ui-head">
 		<div>
-			<h2>相册管理</h2>
-			<p class="crud-sub">共 {albums.length} 个相册</p>
+			<h2 class="ui-title">相册管理</h2>
+			<p class="ui-sub">共 {albums.length} 个相册</p>
 		</div>
-		<div class="crud-head-actions">
+		<div class="ui-acts">
 			{#if message}
-				<span class="crud-msg">{message}</span>
+				<span class="ui-sub">{message}</span>
 			{/if}
-			<button class="btn-primary" onclick={create}>+ 新增相册</button>
+			<button class="ui-btn ui-btn-primary" onclick={create}>+ 新增相册</button>
 		</div>
 	</div>
 
@@ -147,15 +147,15 @@ onMountAsync(async () => {
 	/>
 
 	{#if loading}
-		<div class="crud-empty">加载中…</div>
+		<div class="ui-empty">加载中…</div>
 	{:else if albums.length === 0}
-		<div class="crud-empty">暂无相册，点击「新增相册」开始。</div>
+		<div class="ui-empty">暂无相册，点击「新增相册」开始。</div>
 	{:else}
-		<p class="sort-hint">拖动卡片调整相册显示顺序，松开即保存；聚焦卡片后用 ←/→ 方向键同样可调整。</p>
-		<div class="album-grid">
+		<p class="ui-sub sort-hint">拖动卡片调整相册显示顺序，松开即保存；聚焦卡片后用 ←/→ 方向键同样可调整。</p>
+		<div class="ui-grid album-grid">
 			{#each albums as album, index (album.slug)}
 				<a
-					class="album-card"
+					class="ui-card album-card"
 					class:dragging={dragIndex === index}
 					href={editHref(album.slug)}
 					draggable="true"
@@ -165,13 +165,11 @@ onMountAsync(async () => {
 					onkeydown={(e) => onCardKeydown(e, index)}
 				>
 					<div
-						class="thumb"
-						style={album.cover
-							? `background-image:url('${album.cover}')`
-							: "background:linear-gradient(135deg,#0e7490,#06b6d4)"}
+						class="cover"
+						style={album.cover ? `background-image:url('${album.cover}')` : ""}
 					>
 						{#if !album.cover}
-							<span class="img-glyph">
+							<span class="glyph">
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
 									<rect x="3" y="4" width="18" height="16" rx="2" />
 									<circle cx="8.5" cy="9.5" r="1.6" />
@@ -181,7 +179,7 @@ onMountAsync(async () => {
 						{/if}
 						<button
 							type="button"
-							class="album-del"
+							class="ui-btn ui-btn-sm card-del"
 							onclick={(e) => {
 								e.preventDefault();
 								e.stopPropagation();
@@ -191,16 +189,18 @@ onMountAsync(async () => {
 							删除
 						</button>
 					</div>
-					<div class="album-info">
-						<span class="album-name">{album.title}</span>
-						<span class="album-count">{album.count ?? 0} 张</span>
-					</div>
-					{#if album.encrypted || album.source === "webdav"}
-						<div class="album-chips">
-							{#if album.encrypted}<span class="u-chip on">加密</span>{/if}
-							{#if album.source === "webdav"}<span class="u-chip on">WebDAV</span>{/if}
+					<div class="ui-card-b">
+						<div class="album-body">
+							<strong class="album-name">{album.title}</strong>
+							<span class="ui-badge">{album.count ?? 0} 张</span>
 						</div>
-					{/if}
+						{#if album.encrypted || album.source === "webdav"}
+							<div class="album-chips">
+								{#if album.encrypted}<span class="ui-badge ui-badge-warn">加密</span>{/if}
+								{#if album.source === "webdav"}<span class="ui-badge">WebDAV</span>{/if}
+							</div>
+						{/if}
+					</div>
 				</a>
 			{/each}
 		</div>
@@ -209,52 +209,55 @@ onMountAsync(async () => {
 
 <style>
 	.sort-hint {
-		color: var(--text-muted);
-		font-size: 0.82rem;
-		margin: 0 0 0.4rem;
+		margin: 0 0 8px;
+	}
+	.album-card {
+		margin: 0;
+		display: block;
 	}
 	.album-card.dragging {
 		opacity: 0.6;
 	}
-	.thumb {
+	.cover {
+		aspect-ratio: 16 / 10;
 		background-size: cover;
 		background-position: center;
 		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
-	.album-del {
+	.glyph svg {
+		width: 28px;
+		height: 28px;
+	}
+	.card-del {
 		position: absolute;
-		top: 0.4rem;
-		right: 0.4rem;
-		border: none;
-		background: rgba(0, 0, 0, 0.45);
-		color: #fff;
-		font-size: 0.72rem;
-		padding: 0.15rem 0.5rem;
-		border-radius: 0.4rem;
-		cursor: pointer;
+		top: 8px;
+		right: 8px;
 		opacity: 0;
 		transition: opacity 0.15s;
 	}
-	.album-card:hover .album-del {
+	.album-card:hover .card-del,
+	.album-card:focus-within .card-del {
 		opacity: 1;
+	}
+	.album-body {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		min-width: 0;
+	}
+	.album-name {
+		min-width: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	.album-chips {
 		display: flex;
-		gap: 0.3rem;
-		padding: 0 0.9rem 0.7rem;
-	}
-	.u-chip.on {
-		background: color-mix(in oklch, var(--primary) 18%, transparent);
-		color: var(--primary);
-	}
-	@media (max-width: 1023px) {
-		.album-grid {
-			grid-template-columns: repeat(3, 1fr);
-		}
-	}
-	@media (max-width: 640px) {
-		.album-grid {
-			grid-template-columns: repeat(2, 1fr);
-		}
+		gap: 6px;
+		margin-top: 8px;
 	}
 </style>
