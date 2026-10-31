@@ -105,8 +105,10 @@ export async function getAlbumsFromD1Map(
 			.bind(...chunk)
 			.all<AlbumRow>();
 		rows.push(...(albumRes.results || []));
+		// ORDER BY 以 album_slug 为首键：跨 slug 的全局顺序无消费方（按 slug 分组），
+		// 这样写恰好命中 idx_album_photos_album_sort，免去跨组合并的临时排序
 		const photoRes = await env.DB.prepare(
-			`SELECT album_slug, url, type, poster, date, sort_order FROM album_photos WHERE album_slug IN (${placeholders}) ORDER BY sort_order ASC, id ASC`,
+			`SELECT album_slug, url, type, poster, date, sort_order FROM album_photos WHERE album_slug IN (${placeholders}) ORDER BY album_slug ASC, sort_order ASC, id ASC`,
 		)
 			.bind(...chunk)
 			.all<AlbumPhotoRow & { album_slug: string }>();

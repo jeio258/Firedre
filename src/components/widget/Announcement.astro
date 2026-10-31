@@ -31,12 +31,14 @@ const sections: NoticeSection[] = notice?.sections?.length
 const link = fallback.link;
 const closable = fallback.closable !== false;
 
-// Firedre：enabled 字段没有写入者（恒为 true），改为按实际内容显隐：
-// 标题、正文、sections 全空则不渲染（title 的 i18n 兜底不参与判断）。
+// enabled 由后台公告管理页写入（site_settings.announcement）：
+// 显式 false 强制隐藏；未设置时按实际内容显隐——标题、正文、sections 全空则不渲染
+// （title 的 i18n 兜底不参与判断）。
+const enabled = fallback.enable !== false;
 const hasContent = Boolean(
 	notice?.title?.trim() || fallback.title?.trim() || sections.length,
 );
-if (!hasContent) {
+if (!enabled || !hasContent) {
 	return null;
 }
 ---
