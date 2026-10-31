@@ -341,7 +341,7 @@ onMount(() => {
 			<div class="backdrop open" onclick={() => (sidebarOpen = false)}></div>
 		{/if}
 
-				<AdminSidebar
+		<AdminSidebar
 			open={sidebarOpen}
 			section={section}
 			settingsCat={settingsCat}
@@ -363,14 +363,17 @@ onMount(() => {
 					<h1 class="crumb-page">{titleOf(section)}</h1>
 				</div>
 				<div class="top-actions">
-					<button class="btn btn-primary" onclick={saveAll} disabled={savingAll}>
-						{@html iconSvg("save")}<span class="btn-label">保存全部</span>
-					</button>
-				<a class="btn btn-primary" href="/admin/posts/new/">
-					{@html iconSvg("plus")}<span class="btn-label">新建文章</span>
-				</a>
-				<AdminThemeSwitch />
-				<a class="icon-btn site-ext" href="/" target="_blank" rel="noopener" aria-label="预览站点">
+					{#if section === "settings"}
+						<button class="btn btn-primary save-all" onclick={saveAll} disabled={savingAll}>
+							{@html iconSvg("save")}<span class="btn-label">保存全部</span>
+						</button>
+					{/if}
+					<a class="btn btn-ghost new-post" href="/admin/posts/new/" aria-label="新建文章">
+						{@html iconSvg("plus")}<span class="btn-label">新建文章</span>
+					</a>
+					<span class="actions-divider" aria-hidden="true"></span>
+					<span class="theme-slot"><AdminThemeSwitch /></span>
+					<a class="icon-btn site-ext" href="/" target="_blank" rel="noopener" aria-label="预览站点">
 						{@html iconSvg("external")}
 					</a>
 					<div class="user-menu">
@@ -407,13 +410,13 @@ onMount(() => {
 						{/if}
 					</div>
 				</div>
-		</header>
+			</header>
 
-		<div class="save-toast" class:show={saveToast} class:err={saveToastKind === "err"}>
-			{saveToast}
-		</div>
+			<div class="save-toast" class:show={saveToast} class:err={saveToastKind === "err"}>
+				{saveToast}
+			</div>
 
-		<div class="content">
+			<div class="content">
 				<main class="main">
 					{#if viewError}
 						<div class="admin-error">{viewError}</div>
@@ -427,3 +430,143 @@ onMount(() => {
 		</div>
 	</div>
 {/if}
+
+<style>
+	.topbar {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		flex: 0 0 58px;
+		height: 58px;
+		padding: 0 20px;
+		background: var(--card-bg);
+		border-bottom: 1px solid var(--line-color);
+	}
+	.crumb {
+		flex: 0 1 auto;
+		min-width: 0;
+		gap: 7px;
+	}
+	.crumb-page {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 700;
+		color: var(--primary-text);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.top-actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-left: auto;
+		flex: 0 0 auto;
+	}
+	.actions-divider {
+		flex: 0 0 auto;
+		width: 1px;
+		height: 18px;
+		background: var(--line-color);
+	}
+	.save-all,
+	.new-post {
+		height: 34px;
+		padding: 0 12px;
+		font-size: 13px;
+	}
+	.new-post {
+		background: var(--card-bg);
+		border-color: var(--line-color);
+		color: var(--deep-text);
+	}
+	.new-post:hover {
+		background: var(--btn-regular-bg);
+		border-color: var(--line-color);
+		color: var(--primary-text);
+	}
+	.theme-slot {
+		display: inline-flex;
+		align-items: center;
+		flex: 0 0 auto;
+	}
+	.site-ext,
+	.user-menu {
+		flex: 0 0 auto;
+	}
+	.user-trigger {
+		height: 34px;
+		gap: 6px;
+		border-radius: 999px;
+	}
+	.user-trigger:hover {
+		background: var(--btn-regular-bg);
+	}
+	.avatar {
+		width: 26px;
+		height: 26px;
+		border-radius: 999px;
+		object-fit: cover;
+	}
+	.caret {
+		color: var(--text-muted);
+	}
+	.main {
+		width: 100%;
+		max-width: 1240px;
+		margin: 0 auto;
+		padding: 24px 26px 48px;
+	}
+
+	@media (max-width: 900px) {
+		.topbar {
+			gap: 10px;
+			padding: 0 14px;
+		}
+		.crumb {
+			flex: 1 1 auto;
+		}
+		.crumb-group,
+		.crumb-sep,
+		.actions-divider,
+		.site-ext {
+			display: none;
+		}
+		/* 主题切换在移动端保留：后台与前台共用同一开关，不能因窄屏失去入口 */
+		.theme-slot {
+			display: inline-flex;
+			flex: 0 0 auto;
+		}
+		.crumb-page {
+			font-size: 14px;
+		}
+		.top-actions {
+			gap: 6px;
+		}
+		.save-all {
+			height: 32px;
+			padding: 0 10px;
+		}
+		.new-post {
+			width: 32px;
+			height: 32px;
+			padding: 0;
+			justify-content: center;
+		}
+		.new-post .btn-label {
+			display: none;
+		}
+		.user-trigger {
+			width: 34px;
+			padding: 0;
+			justify-content: center;
+		}
+		.user-trigger .user-name,
+		.user-trigger .caret {
+			display: none;
+		}
+		.main {
+			padding: 16px 14px 36px;
+		}
+	}
+</style>
