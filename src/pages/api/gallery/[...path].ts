@@ -19,6 +19,12 @@ import {
 	upsertGalleryHub,
 } from "@server/gallery/service";
 import {
+	detectGalleryUploadType,
+	GALLERY_UPLOAD_MAX_SIZE,
+	putGalleryFile,
+	sanitizeGalleryUploadName,
+} from "@server/gallery/upload";
+import {
 	deleteAlbumWebDavConfig,
 	getAlbumWebDavConfig,
 	setAlbumWebDavConfig,
@@ -87,6 +93,97 @@ export const POST: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
 	const slug = segments[0];
 	if (!slug || !isValidGallerySlug(slug)) return notFound();
+
+	if (slug === "imgbed-test") {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
+		return withRateLimit(
+			cfEnv,
+			request,
+			{
+				windowMs: 60_000,
+				maxRequests: 10,
+				failOpen: false,
+				scope: "imgbed-test",
+			},
+			async () => {
+				try {
+					const body = (await request.json().catch(() => ({}))) as {
+						endpoint?: string;
+						token?: string;
+						dir?: string;
+					};
+					const endpoint = String(body.endpoint || "").trim();
+					const token = String(body.token || "").trim();
+					const dir = String(body.dir || "").trim();
+					if (!endpoint || !token) return badRequest("请提供图床端点与密钥");
+					const { testImgbedConnection } = await import(
+						"@server/gallery/imgbed"
+					);
+					const result = await testImgbedConnection(endpoint, token, dir);
+					return json({ ok: true, count: result.count });
+				} catch (error) {
+					return fromServiceError(error);
+				}
+			},
+		);
+	}
+
+	if (segments[1] === "photos" && !segments[2]) {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
+		return withRateLimit(
+			cfEnv,
+			request,
+			{
+				windowMs: 60_000,
+				maxRequests: 30,
+				failOpen: false,
+				scope: "gallery-upload",
+			},
+			async () => {
+				try {
+					const form = await request.formData();
+					const file = form.get("file");
+					if (!(file instanceof File) || !file.size)
+						return badRequest("缺少文件");
+					if (file.size > GALLERY_UPLOAD_MAX_SIZE)
+						return json({ message: "文件过大，最大支持 25MB" }, 413);
+					const type = detectGalleryUploadType(file.name);
+					if (!type)
+						return json({ message: "不支持的文件格式，仅支持图片或视频" }, 415);
+
+					const { setAlbumPhotos } = await import("@server/gallery/service");
+
+					const safeName = sanitizeGalleryUploadName(file.name);
+					const url = await putGalleryFile(cfEnv, slug, file, safeName);
+
+					const existing = await getGalleryAlbum(cfEnv, slug);
+					if (!existing) {
+						await upsertGalleryAlbum(
+							cfEnv,
+							slug,
+							`---\nlayout: gallery-album\ntitle: ${slug}\nsource: local\n---\n`,
+						);
+					}
+					const photos = [
+						...(existing?.frontmatter.photos ?? []),
+						{ url, type },
+					];
+					await setAlbumPhotos(cfEnv, slug, photos);
+					return json({
+						ok: true,
+						url,
+						name: safeName,
+						type,
+						count: photos.length,
+					});
+				} catch (error) {
+					return fromServiceError(error);
+				}
+			},
+		);
+	}
 
 	if (segments[1] === "imgbed" && segments[2] === "photos") {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);

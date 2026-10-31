@@ -23,11 +23,11 @@ export function inferFileBase(listUrl: string): string {
 	}
 }
 
-export async function fetchImgbedPhotos(
+async function listImgbedFiles(
 	listUrl: string,
 	token: string,
 	dir: string,
-): Promise<AlbumPhoto[]> {
+): Promise<ImgbedListFile[]> {
 	if (!listUrl || !token) throw new UserError("图床配置不完整");
 	if (!/^https?:\/\//.test(listUrl))
 		throw new UserError("图床 API 端点需以 http(s):// 开头");
@@ -47,14 +47,20 @@ export async function fetchImgbedPhotos(
 			`图床列目录失败 (${response.status})，请检查 API 端点/密钥/目录`,
 		);
 
-	let data: { files?: ImgbedListFile[] } = {};
 	try {
-		data = (await response.json()) as { files?: ImgbedListFile[] };
+		const data = (await response.json()) as { files?: ImgbedListFile[] };
+		return Array.isArray(data.files) ? data.files : [];
 	} catch {
 		throw new UserError("图床返回了无法解析的响应");
 	}
+}
 
-	const files = Array.isArray(data.files) ? data.files : [];
+export async function fetchImgbedPhotos(
+	listUrl: string,
+	token: string,
+	dir: string,
+): Promise<AlbumPhoto[]> {
+	const files = await listImgbedFiles(listUrl, token, dir);
 	if (!files.length) throw new UserError("图床目录中未找到文件");
 
 	const fileBase = inferFileBase(listUrl);
@@ -72,4 +78,14 @@ export async function fetchImgbedPhotos(
 
 	if (!photos.length) throw new UserError("图床目录中没有图片或视频文件");
 	return photos;
+}
+
+// 连通性测试：目录为空不算失败，仅验证端点/密钥可达且响应可解析
+export async function testImgbedConnection(
+	listUrl: string,
+	token: string,
+	dir: string,
+): Promise<{ count: number }> {
+	const files = await listImgbedFiles(listUrl, token, dir);
+	return { count: files.length };
 }
