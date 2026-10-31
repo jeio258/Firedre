@@ -223,12 +223,38 @@ export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	};
 }
 
+// L1 isolate 级渲染缓存：免每请求的 Cache API IO（借鉴下游 renderCache 的 LRU 思路）。
+// 容量 64 条 LRU + TTL 60s（与 L2 的兜底语义一致，防止 isolate 内读到 1 小时旧数据）。
+const RENDER_L1_MAX = 64;
+const RENDER_L1_TTL_MS = 60_000;
+const renderL1 = new Map<string, { data: RenderedMarkdown; expires: number }>();
+function readRenderL1(key: string): RenderedMarkdown | null {
+	const hit = renderL1.get(key);
+	if (!hit) return null;
+	if (Date.now() > hit.expires) {
+		renderL1.delete(key);
+		return null;
+	}
+	renderL1.delete(key);
+	renderL1.set(key, hit);
+	return hit.data;
+}
+function writeRenderL1(key: string, data: RenderedMarkdown) {
+	renderL1.set(key, { data, expires: Date.now() + RENDER_L1_TTL_MS });
+	if (renderL1.size > RENDER_L1_MAX) {
+		const oldest = renderL1.keys().next().value;
+		if (oldest !== undefined) renderL1.delete(oldest);
+	}
+}
+
 // 渲染结果缓存：key = r2_key(内容) + settingsVersion(配置) → 内容或配置变化即失效；
 // TTL 60s 兜底直改 D1 场景；无 caches 环境（vitest）直接 miss。
 // frontmatter 一并落缓存：命中时可直接组装详情，无需再读 R2
 async function getRenderCache(
 	cacheKey: string,
 ): Promise<RenderedMarkdown | null> {
+	const l1 = readRenderL1(cacheKey);
+	if (l1) return l1;
 	try {
 		if (typeof caches === "undefined") return null;
 		const cached = await caches.default.match(cacheKey);
@@ -265,6 +291,7 @@ async function setRenderCache(
 		frontmatter: PostFrontmatter;
 	},
 ) {
+	writeRenderL1(cacheKey, { ...data, excerpt: data.excerpt ?? "" });
 	try {
 		if (typeof caches === "undefined") return;
 		await caches.default.put(
@@ -372,6 +399,11 @@ function escapeFtsKeyword(keyword: string): string {
 		.join(" AND ");
 }
 
+/** 转义 LIKE 通配符（配合 SQL 中的 ESCAPE '\' 使用） */
+function escapeLikeKeyword(keyword: string): string {
+	return keyword.replace(/([\\%_])/g, "\\$&");
+}
+
 export async function searchPosts(
 	env: CloudflareEnv,
 	keyword: string,
@@ -379,7 +411,30 @@ export async function searchPosts(
 ): Promise<PostListItem[]> {
 	const q = keyword.trim();
 	if (!q) return [];
-	const safeQuery = escapeFtsKeyword(q);
+
+	// 双通道：posts_fts 为 FTS5 trigram 分词，MATCH 只对 ≥3 个字符的查询有命中；
+	// 不足 3 字符（双字中文词、单字、短 ASCII）走 LIKE 子串通道；≥3 字 MATCH 为空时
+	// 也回退 LIKE（多关键词切分后含 <3 字 token 时 trigram 无法命中，但子串实际存在）
+	const runLikeQuery = async () => {
+		const likePattern = `%${escapeLikeKeyword(q)}%`;
+		const { results } = await env.DB.prepare(`
+    SELECT p.* FROM posts_fts f
+    JOIN posts p ON p.slug = f.slug
+    WHERE (
+      f.title LIKE ? ESCAPE '\\' OR
+      f.excerpt LIKE ? ESCAPE '\\' OR
+      f.content LIKE ? ESCAPE '\\'
+    ) AND p.published = 1
+      AND (p.password IS NULL OR p.password = '')
+    ORDER BY p.pin_order DESC, p.date DESC
+    LIMIT ?
+  `)
+			.bind(likePattern, likePattern, likePattern, limit)
+			.all<PostRecord>();
+		return sortPosts((results || []).map(recordToListItem));
+	};
+
+	if ([...q].length < 3) return runLikeQuery();
 
 	const { results } = await env.DB.prepare(`
     SELECT p.* FROM posts_fts f
@@ -389,10 +444,11 @@ export async function searchPosts(
     ORDER BY rank
     LIMIT ?
   `)
-		.bind(safeQuery, limit)
+		.bind(escapeFtsKeyword(q), limit)
 		.all<PostRecord>();
 
-	return sortPosts((results || []).map(recordToListItem));
+	if (results?.length) return sortPosts(results.map(recordToListItem));
+	return runLikeQuery();
 }
 
 export async function upsertPost(
