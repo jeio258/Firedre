@@ -90,9 +90,12 @@ declare global {
 			heatmapWeekTemplate: string;
 		};
 		__allPostMetaCache?: Array<{
-			id: string | number;
+			id: string;
 			title: string;
+			description: string;
 			published: number;
+			category: string;
+			password: boolean;
 		}>;
 		__calendarInit?: boolean;
 
@@ -115,30 +118,13 @@ declare global {
 	}
 }
 
+// /api/posts/search/ 实际返回经 searchPostsApi 映射后仅此 3 字段
 interface SearchResult {
 	url: string;
 	meta: {
 		title: string;
 	};
 	excerpt: string;
-	content?: string;
-	word_count?: number;
-	filters?: Record<string, unknown>;
-	anchors?: Array<{
-		element: string;
-		id: string;
-		text: string;
-		location: number;
-	}>;
-	weighted_locations?: Array<{
-		weight: number;
-		balanced_score: number;
-		location: number;
-	}>;
-	locations?: number[];
-	raw_content?: string;
-	raw_url?: string;
-	sub_results?: SearchResult[];
 }
 
 export type { SearchResult };

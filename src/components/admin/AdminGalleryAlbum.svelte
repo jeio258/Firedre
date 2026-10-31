@@ -533,7 +533,7 @@ onMount(() => {
 							</label>
 							<label class="ui-field" style="grid-column:1/-1">
 								<span class="ui-label">描述</span>
-								<textarea class="ui-input area" rows="3" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
+								<textarea class="ga-area" rows="3" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
 							</label>
 							<label class="check-line" style="grid-column:1/-1">
 								<Switch on={hadEncrypted} label="加密相册" toggle={() => (hadEncrypted = !hadEncrypted)} />
@@ -570,7 +570,7 @@ onMount(() => {
 						<input class="ui-input" type="text" bind:value={imgbedDir} placeholder="album" autocomplete="off" />
 					</label>
 				</div>
-				<div class="row-flex">
+				<div class="ga-row-flex">
 					<button class="ui-btn" onclick={testImgbed} disabled={imgbedTesting}>
 						{imgbedTesting ? "测试中…" : "测试连接"}
 					</button>
@@ -615,12 +615,12 @@ onMount(() => {
 						{:else}
 							<div class="ui-empty">暂无照片，在下方粘贴图片地址或从图床获取</div>
 						{/if}
-						<label class="ui-field field-wide">
+						<label class="ui-field ga-field-wide">
 							<span class="ui-label">照片列表（每行一个 URL，可选 type）</span>
-							<textarea class="ui-input area" rows="6" bind:value={photosText} placeholder={"https://…/1.jpg\nhttps://…/2.jpg video"}></textarea>
+							<textarea class="ga-area" rows="6" bind:value={photosText} placeholder={"https://…/1.jpg\nhttps://…/2.jpg video"}></textarea>
 						</label>
 						{#if imgbedEnabled}
-							<div class="row-flex">
+							<div class="ga-row-flex">
 								<span class="ui-sub">
 									图床：{imgbedEndpoint || "（未设置端点）"} ｜ 目录：{imgbedDir || "（根目录）"}
 								</span>
@@ -641,9 +641,9 @@ onMount(() => {
 		<section class="ui-card">
 					<div class="ui-card-h">访问密码</div>
 					<div class="ui-card-b">
-						<label class="ui-field field-tall">
+						<label class="ui-field ga-field-tall">
 							<span class="ui-label">相册访问密码（存 D1，不写入文件）</span>
-							<div class="row-flex">
+							<div class="ga-row-flex">
 								<input class="ui-input" type="password" bind:value={passwordInput} placeholder={hasPassword ? "已设置密码，输入新密码可修改" : "设置访问密码"} autocomplete="off" />
 								<button class="ui-btn ui-btn-primary" onclick={savePassword} disabled={passwordSaving}>
 									{passwordSaving ? "保存中…" : "保存密码"}
@@ -708,185 +708,3 @@ onMount(() => {
 {/if}
 
 <input class="hidden-input" type="file" multiple accept="image/*,video/*" bind:this={fileInput} onchange={onPickFiles} />
-
-<style>
-	.slug-input {
-		width: 220px;
-	}
-	.stack-fields {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
-	}
-	.field-wide {
-		grid-template-rows: 18px auto;
-	}
-	.ui-card-b > .field-wide {
-		margin-top: 12px;
-	}
-	.field-tall {
-		grid-template-rows: 18px auto;
-	}
-	.area {
-		height: auto;
-		min-height: 96px;
-		resize: vertical;
-	}
-	.row-flex {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		flex-wrap: wrap;
-	}
-	.row-flex .ui-input {
-		flex: 1 1 180px;
-	}
-	.photo-grid {
-		display: grid;
-		grid-template-columns: repeat(6, minmax(0, 1fr));
-		gap: 8px;
-	}
-	.photo-tile {
-		aspect-ratio: 1;
-		background-size: cover;
-		background-position: center;
-		position: relative;
-		overflow: hidden;
-	}
-	.tile-tag {
-		position: absolute;
-		bottom: 4px;
-		right: 4px;
-	}
-	.imgbed-grid {
-		margin-bottom: 12px;
-	}
-	.card-h-up .ui-sub {
-		margin-left: 0;
-	}
-	.card-h-up .up-btn {
-		margin-left: auto;
-	}
-	.modal-mask {
-		position: fixed;
-		inset: 0;
-		z-index: 80;
-		background: color-mix(in srgb, var(--deep-text) 45%, transparent);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		padding: 16px;
-	}
-	.modal-panel {
-		width: min(520px, 100%);
-		max-height: 80vh;
-		display: flex;
-		flex-direction: column;
-		background: var(--card-bg);
-		border: 1px solid var(--line-color);
-		border-radius: 12px;
-		overflow: hidden;
-	}
-	.modal-head {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 8px;
-		padding: 12px 16px;
-		border-bottom: 1px solid var(--line-color);
-		font-size: 13px;
-		font-weight: 600;
-		color: var(--deep-text);
-	}
-	.modal-body {
-		padding: 12px 16px;
-		overflow-y: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-	.modal-foot {
-		display: flex;
-		justify-content: flex-end;
-		gap: 8px;
-		padding: 12px 16px;
-		border-top: 1px solid var(--line-color);
-	}
-	.up-row {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-	}
-	.up-thumb {
-		width: 40px;
-		height: 40px;
-		flex: none;
-		border: 1px solid var(--line-color);
-		border-radius: 8px;
-		background: var(--page-bg);
-	}
-	.up-main {
-		flex: 1;
-		min-width: 0;
-		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 4px;
-	}
-	.up-name {
-		font-size: 12.5px;
-		color: var(--deep-text);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		max-width: 100%;
-	}
-	.up-bar {
-		width: 100%;
-		height: 6px;
-		border: 1px solid var(--line-color);
-		border-radius: 999px;
-		background: var(--page-bg);
-		overflow: hidden;
-	}
-	.up-bar-fill {
-		height: 100%;
-		background: var(--primary-fill);
-	}
-	.up-err {
-		white-space: normal;
-		text-align: left;
-	}
-	.up-fixed {
-		position: fixed;
-		right: 16px;
-		bottom: 16px;
-		z-index: 80;
-		width: min(360px, calc(100vw - 32px));
-		background: var(--card-bg);
-		border: 1px solid var(--line-color);
-		border-radius: 12px;
-		padding: 10px 12px;
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-	}
-	.up-fixed-text {
-		font-size: 12px;
-		color: var(--text-muted);
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-	.hidden-input {
-		display: none;
-	}
-	@media (max-width: 767px) {
-		.slug-input {
-			width: 100%;
-		}
-		.photo-grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
-	}
-</style>
