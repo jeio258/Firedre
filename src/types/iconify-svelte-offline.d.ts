@@ -8,6 +8,9 @@ declare module "@iconify/svelte/offline" {
 		style?: string;
 		width?: string | number;
 		height?: string | number;
+		color?: string;
+		rotate?: string | number;
+		inline?: boolean;
 	}
 
 	const Icon: Component<IconProps>;

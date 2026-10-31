@@ -1,5 +1,5 @@
 import { setMaxListeners } from "node:events";
-import { existsSync, realpathSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import cloudflare from "@astrojs/cloudflare";
 import svelte from "@astrojs/svelte";
@@ -17,6 +17,14 @@ if (process.env.NODE_ENV === "development") {
 const adapter = cloudflare({
 	imageService: "passthrough",
 });
+
+// vditor 静态资源落盘路径带版本号（scripts/copy-vditor.mjs 同源读取），引用方经此常量拼 URL
+const vditorVersion = JSON.parse(
+	readFileSync(
+		new URL("./node_modules/vditor/package.json", import.meta.url),
+		"utf8",
+	),
+).version;
 
 // https://astro.build/config
 export default defineConfig({
@@ -277,6 +285,9 @@ export default defineConfig({
 		svelte(),
 	],
 	vite: {
+		define: {
+			__VDITOR_VERSION__: JSON.stringify(vditorVersion),
+		},
 		plugins: [
 			tailwindcss(),
 			// @mermanjs/web/render 会 re-export dist/index.js，而 index.js 内含整包 wasm 的懒加载

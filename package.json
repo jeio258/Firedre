@@ -1,7 +1,7 @@
 {
 	"name": "firedre",
 	"type": "module",
-	"version": "6.16.5",
+	"version": "6.17.0",
 	"engines": {
 		"node": ">=22.23.0"
 	},
@@ -9,7 +9,7 @@
 	"scripts": {
 		"dev": "node scripts/copy-vditor.mjs --dev && astro dev",
 		"start": "astro dev",
-		"check": "node scripts/unused-warn-guard.mjs && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs && node scripts/config-static-guard.mjs",
+		"check": "node scripts/unused-warn-guard.mjs && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs && node scripts/config-static-guard.mjs && vitest run && tsc --noEmit -p tsconfig.server.json",
 		"check:settings": "node scripts/settings-matrix-check.mjs",
 		"check:config": "node scripts/config-static-guard.mjs",
 		"check:bless": "node scripts/unused-warn-guard.mjs --update",
@@ -40,7 +40,6 @@
 		"check:svelte": "svelte-check --tsconfig ./tsconfig.svelte.json"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.10",
 		"@astrojs/svelte": "9.0.1",
 		"@fancyapps/ui": "^6.1.14",
 		"@iconify-json/fa7-brands": "^1.2.4",
@@ -86,13 +85,13 @@
 		"stylus": "^0.64.0",
 		"svelte": "^5.56.8",
 		"tailwindcss": "^4.3.3",
-		"typescript": "^6.0.3",
 		"unified": "^11.0.5",
 		"unist-util-visit": "^5.1.0",
 		"vditor": "^3.11.3",
 		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
+		"@astrojs/check": "^0.9.10",
 		"@astrojs/cloudflare": "^12.6.13",
 		"@astrojs/ts-plugin": "^1.10.11",
 		"@biomejs/biome": "2.5.9",
@@ -107,6 +106,7 @@
 		"postcss-import": "^16.1.1",
 		"postcss-nesting": "^14.0.1",
 		"svelte-check": "^4.7.6",
+		"typescript": "^6.0.3",
 		"vitest": "^4.1.11",
 		"wrangler": "^4.127.0"
 	}

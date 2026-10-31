@@ -1,5 +1,6 @@
 // Vditor 后台明暗跟随：类同时加到 .vditor root 与 html（弹窗/面板在 body 末，需 html 继承）
-const CONTENT_THEME_PATH = "/vditor/dist/css/content-theme";
+// __VDITOR_VERSION__ 由 astro.config.mjs vite.define 注入（与 copy-vditor.mjs 落盘路径同源）
+const CONTENT_THEME_PATH = `/vditor/${__VDITOR_VERSION__}/dist/css/content-theme`;
 
 let vditorCtor: typeof import("vditor").default | null = null;
 
@@ -67,7 +68,7 @@ export async function createAdminVditor(
 		height: options.height,
 		mode: "wysiwyg",
 		value: options.value,
-		cdn: "/vditor",
+		cdn: `/vditor/${__VDITOR_VERSION__}`,
 		cache: { enable: false },
 		theme: dark ? "dark" : "classic",
 		preview: {

@@ -1,7 +1,4 @@
 import { h } from "hastscript";
-import githubCardData from "../constants/github-card-data.json" with {
-	type: "json",
-};
 import { isValidGithubRepository } from "../utils/github-card-utils.ts";
 
 export function GithubCardComponent(properties, children) {
@@ -19,8 +16,9 @@ export function GithubCardComponent(properties, children) {
 
 	const repo = properties.repo;
 	const cardUuid = `GC${Math.random().toString(36).slice(-6)}`; // Collisions are not important
-	const data = githubCardData[repo.toLowerCase()] ?? null;
-	const hasData = data !== null;
+	// 构建期数据表已移除（原 github-card-data.json 恒为空），卡片数据由客户端 GithubCardManager 拉取
+	const data = null;
+	const hasData = false;
 
 	const avatarUrl = data?.avatarUrl
 		? `${data.avatarUrl}${data.avatarUrl.includes("?") ? "&" : "?"}s=32`
