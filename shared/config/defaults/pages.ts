@@ -1,11 +1,8 @@
 // settingsDefaults 的 pages 域分组（自 settings-defaults.ts 机械拆分，内容零改动）
 export const pagesDefaults = {
-	friends: {
-		enabled: true,
-	},
-	gallery: {
-		enabled: true,
-	},
+	// 组名被 SETTING_GROUPS 与专属编辑器依赖，字段清空后仍保留
+	friends: {},
+	gallery: {},
 	bookmarks: {
 		title: "",
 		description: "",
@@ -14,22 +11,16 @@ export const pagesDefaults = {
 		favicon: '{"enabled":true,"api":"https://a.favicon.im/{domain}"}',
 	},
 	bilibili: {
-		enabled: true,
 		uid: "38932988",
 		title: "哔哩哔哩",
 	},
 	vndb: {
-		enabled: false,
-		mode: "dynamic",
 		username: "u358128",
 	},
 	myanimelist: {
-		enabled: false,
 		username: "",
 	},
 	bangumi: {
-		enabled: false,
-		mode: "dynamic",
 		username: "1143164",
 	},
 	sponsor: {

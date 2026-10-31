@@ -43,9 +43,7 @@ const STRUCTURAL_FIELDS = {
 		"postListLayout",
 		"vndb",
 	],
-	bangumi: ["mode"],
-	vndb: ["mode"],
-	nav: ["navItems", "social"],
+	nav: ["navItems"],
 	panel: ["overlaySwitchable"],
 	post: [
 		"generateOgImages",

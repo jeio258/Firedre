@@ -6,7 +6,6 @@ export const pageGroups: Group[] = [
 		title: "哔哩哔哩",
 		category: "页面配置",
 		fields: [
-			{ name: "enabled", label: "启用 B 站页面", type: "boolean" },
 			{ name: "uid", label: "B 站 UID", type: "text" },
 			{ name: "title", label: "页面标题", type: "text" },
 		],
@@ -47,28 +46,19 @@ export const pageGroups: Group[] = [
 		key: "vndb",
 		title: "VNDB",
 		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用 VNDB 页面", type: "boolean" },
-			{ name: "username", label: "VNDB 用户名", type: "text" },
-		],
+		fields: [{ name: "username", label: "VNDB 用户名", type: "text" }],
 	},
 	{
 		key: "myanimelist",
 		title: "MyAnimeList",
 		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用 MAL 页面", type: "boolean" },
-			{ name: "username", label: "MAL 用户名", type: "text" },
-		],
+		fields: [{ name: "username", label: "MAL 用户名", type: "text" }],
 	},
 	{
 		key: "bangumi",
 		title: "番组计划",
 		category: "页面配置",
-		fields: [
-			{ name: "enabled", label: "启用 Bangumi 页面", type: "boolean" },
-			{ name: "username", label: "Bangumi 用户名", type: "text" },
-		],
+		fields: [{ name: "username", label: "Bangumi 用户名", type: "text" }],
 	},
 	{
 		key: "bookmarks",

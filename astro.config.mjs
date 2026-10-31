@@ -1,4 +1,6 @@
 import { setMaxListeners } from "node:events";
+import { existsSync, realpathSync } from "node:fs";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import cloudflare from "@astrojs/cloudflare";
 import svelte from "@astrojs/svelte";
 import swup from "@swup/astro";
@@ -277,6 +279,24 @@ export default defineConfig({
 	vite: {
 		plugins: [
 			tailwindcss(),
+			// @mermanjs/web/render 会 re-export dist/index.js，而 index.js 内含整包 wasm 的懒加载
+			// （不可达：应用只用 render 表面 + 显式 wasm URL 初始化），不重定向会额外打出 6.9MB 整包 wasm。
+			{
+				name: "firedre:merman-wasm-dedupe",
+				enforce: "pre",
+				resolveId(source, importer) {
+					if (
+						source === "../pkg/merman_wasm.js" &&
+						importer?.includes("/@mermanjs/web/dist/index.js")
+					) {
+						const target = fileURLToPath(
+							new URL("../pkg/render/merman_wasm.js", pathToFileURL(importer)),
+						);
+						if (existsSync(target)) return realpathSync(target);
+					}
+					return null;
+				},
+			},
 			// 纯 astro dev（v12 适配器，非 workerd）时 cloudflare:workers 不可用，垫片避免模块加载崩溃
 			{
 				name: "firedre:cf-env-dev-shim",

@@ -13,7 +13,6 @@ export const extensionsDefaults = {
 		enable: false,
 	},
 	license: {
-		type: "",
 		enabled: true,
 		name: "CC BY-NC-SA 4.0",
 		url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",

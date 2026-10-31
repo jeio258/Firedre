@@ -9,8 +9,9 @@ import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
+const siteCfg = getSiteConfig(Astro.locals);
 
-if (!getSiteConfig(Astro.locals).pages.vndb) {
+if (!siteCfg.pages.vndb) {
 	return Astro.redirect("/404/");
 }
 
@@ -23,8 +24,8 @@ const vndb: VndbGroup =
 
 const vndbConfig = {
 	userId: (vndb.username ?? vndb.userId) || "",
-	apiUrl: vndb.apiUrl || "https://api.vndb.org/kana",
-	vnBaseUrl: vndb.vnBaseUrl || "https://vndb.org/",
+	apiUrl: vndb.apiUrl || siteCfg.vndb?.apiUrl || "https://api.vndb.org/kana",
+	vnBaseUrl: vndb.vnBaseUrl || siteCfg.vndb?.vnBaseUrl || "https://vndb.org/",
 	apiToken: vndb.apiToken || "",
 	pagination: {
 		limit: 100,

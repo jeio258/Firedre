@@ -487,7 +487,8 @@ export async function upsertPost(
 	);
 
 	// 正文先写 R2 版本化 key，成功后才跑 D1 批量切换指针：R2 失败时旧指针/旧正文完整保留
-	// （D1 批量失败仅残留 R2 孤儿对象，由对账脚本清理）；内容未变时跳过写直接复用旧指针
+	// （D1 批量失败仅残留本次新对象，无指针引用；旧对象此时仍被引用，不能提前删）
+	// 内容未变时跳过写直接复用旧指针
 	const prevRow = await env.DB.prepare(
 		"SELECT r2_key FROM posts WHERE slug = ?",
 	)
@@ -509,6 +510,19 @@ export async function upsertPost(
 	// 清除 WikiLink 缓存，确保后续请求获取最新数据
 	clearWikiLinkCache();
 	await bumpContentVersion(env);
+
+	// 指针切换成功后才回收上一版对象：放最后一步，失败只留孤儿对象、不影响保存结果。
+	// put 之前不能删（D1 批量失败会丢正文）；r2_key !== r2Key 保证不误删当前正在使用的 key。
+	if (prevRow?.r2_key && prevRow.r2_key !== r2Key) {
+		try {
+			await env.BUCKET.delete(prevRow.r2_key);
+		} catch (e) {
+			console.warn(
+				`[posts] R2 旧正文删除失败（孤儿对象）key=${prevRow.r2_key} slug=${decoded}`,
+				e,
+			);
+		}
+	}
 
 	return { slug: decoded, r2Key };
 }

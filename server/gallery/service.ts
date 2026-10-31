@@ -6,6 +6,7 @@ import type {
 import type { CloudflareEnv } from "../../types/env";
 import type { GalleryAlbumDetail, GalleryHubDetail } from "../../types/gallery";
 import { bumpContentVersion } from "../settings/service";
+import { runDbBatch } from "../utils/dbBatch";
 import { constantTimeEqual } from "../utils/timingSafe";
 import { UserError } from "../utils/userError";
 import {
@@ -14,12 +15,7 @@ import {
 	isValidGallerySlug,
 } from "./constants";
 import type { AlbumD1Data } from "./d1";
-import {
-	deleteAlbumFromD1,
-	getAlbumFromD1,
-	getAlbumsFromD1Map,
-	upsertAlbumToD1,
-} from "./d1";
+import { getAlbumFromD1, getAlbumsFromD1Map, upsertAlbumToD1 } from "./d1";
 import {
 	normalizeAlbumSlugs,
 	parseAlbumSource,
@@ -344,11 +340,20 @@ export async function upsertGalleryAlbum(
 export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 	if (!isValidGallerySlug(slug)) throw new UserError("相册 slug 格式无效");
 
-	// 级联清理相册专属照片对象（_uploads 共享池不受影响），防 R2 孤儿累积
+	// D1 为权威：先删库（album_webdav 无外键，必须同批显式删，否则同 slug 重建会继承旧 WebDAV 源），
+	// 成功后再清 R2；反向操作一旦 R2 失败会留下「库已删、R2 残留」的假成功
+	await runDbBatch(env.DB, [
+		env.DB.prepare("DELETE FROM albums WHERE slug = ?").bind(slug),
+		env.DB.prepare("DELETE FROM album_webdav WHERE album_slug = ?").bind(slug),
+	]);
+	await deleteAlbumPassword(env, slug);
+
+	// 级联清理相册专属照片对象（_uploads 共享池不受影响）与 index.md，防 R2 孤儿累积；
+	// 失败只告警：D1 已删，残留对象可由运维按前缀补删
 	const prefix = `gallery/${slug}/files/`;
 	let removedFiles = 0;
-	let cursor: string | undefined;
 	try {
+		let cursor: string | undefined;
 		do {
 			const page = await env.BUCKET.list({ prefix, cursor });
 			for (const obj of page.objects ?? []) {
@@ -357,14 +362,11 @@ export async function deleteGalleryAlbum(env: CloudflareEnv, slug: string) {
 			}
 			cursor = page.truncated ? page.cursor : undefined;
 		} while (cursor);
+		await env.BUCKET.delete(galleryAlbumR2Key(slug));
 	} catch (e) {
-		// 清理失败不阻断删除主流程，残留对象可由运维按前缀补删
-		console.warn(`[gallery] 相册 ${slug} 照片对象清理失败`, e);
+		console.warn(`[gallery] 相册 ${slug} R2 对象清理失败（D1 已删除）`, e);
 	}
 
-	await deleteAlbumFromD1(env, slug);
-	await env.BUCKET.delete(galleryAlbumR2Key(slug));
-	await deleteAlbumPassword(env, slug);
 	await bumpContentVersion(env);
 
 	const hub = await getGalleryHub(env, { includeSource: true });

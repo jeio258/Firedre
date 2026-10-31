@@ -205,7 +205,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			!url.pathname.startsWith("/admin") &&
 			!url.pathname.startsWith("/api");
 
-		if (isCacheableHtml && htmlCacheKey && response.status === 200) {
+		// 404 页由 rewrite 渲染时可能与正常页同样返回 200，只靠 status 会把它写进当前请求路径的缓存键
+		const noStore = response.headers.get("x-firedre-no-store") === "1";
+
+		if (
+			isCacheableHtml &&
+			htmlCacheKey &&
+			response.status === 200 &&
+			!noStore
+		) {
 			response.headers.set("Cache-Control", HTML_CACHE_CONTROL);
 			response.headers.set(
 				"Cloudflare-CDN-Cache-Control",

@@ -1,5 +1,4 @@
 export type MusicPlayerConfig = {
-	autoplay?: boolean;
 	mode?: "meting" | "local";
 	volume?: number;
 	playMode?: "list" | "one" | "random";

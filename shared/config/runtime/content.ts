@@ -144,7 +144,6 @@ export function getMusicConfig(locals: unknown): MusicPlayerConfig {
 		enable: bool(m.enabled, true),
 		showInNavbar: bool(m.showInNavbar, true),
 		showInSidebar: bool(m.showInSidebar, true),
-		autoplay: bool(m.autoplay, false),
 		sourceScript: str(m.sourceScript, "kh-v1.7.16"),
 		mode: str(m.mode, "local") as "meting" | "local",
 		volume: num(m.volume, 0.7),
@@ -188,13 +187,6 @@ export function getCoverConfig(locals: unknown): CoverImageConfig {
 			c.randomCoverImage as CoverImageConfig["randomCoverImage"];
 	}
 	return {
-		...(typeof c.enable === "boolean" ? { enable: c.enable } : {}),
-		...(typeof c.defaultImage === "string" && c.defaultImage
-			? { defaultImage: c.defaultImage }
-			: {}),
-		...(typeof c.configurable === "boolean"
-			? { configurable: c.configurable }
-			: {}),
 		enableInPost: bool(c.enableInPost, true),
 		enableInPostOverlay: bool(c.enableInPostOverlay, false),
 		showLoading: bool(c.showLoading, false),
@@ -206,7 +198,6 @@ export function getFontConfig(locals: unknown): FontSelectionConfig {
 	const s = settingsOf(locals);
 	const f = groupOf(s, "font");
 	return {
-		...(typeof f.scale === "number" ? { fontScale: f.scale } : {}),
 		enable: bool(f.enable, true),
 		...(typeof f.selected === "string" || Array.isArray(f.selected)
 			? { selected: f.selected as FontSelectionConfig["selected"] }

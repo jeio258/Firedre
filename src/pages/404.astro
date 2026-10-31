@@ -4,6 +4,10 @@ import { Icon } from "astro-icon/components";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
+
+// 该页会被其它路由 rewrite 复用（同一响应对象），middleware 无法仅凭 status 判定是否为错误页，
+// 故显式打标记，middleware 见标记即跳过边缘缓存写入与 CDN 缓存头
+Astro.response.headers.set("x-firedre-no-store", "1");
 ---
 
 <MainGridLayout title={i18n(I18nKey.notFound)} description={i18n(I18nKey.notFoundDescription)}>

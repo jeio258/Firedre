@@ -32,7 +32,6 @@ export const featuresDefaults = {
 	},
 	music: {
 		enabled: true,
-		autoplay: false,
 		showInNavbar: true,
 		showInSidebar: true,
 		mode: "local",
@@ -70,8 +69,6 @@ export const featuresDefaults = {
 		darkTheme: "cyborg",
 	},
 	dynamic: {
-		memosEnable: false,
-		memosApiUrl: "https://memos.example.com",
 		enabled: true,
 		title: "",
 		description: "",

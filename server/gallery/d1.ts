@@ -240,7 +240,3 @@ export async function upsertAlbumToD1(
 
 	return { frontmatter: { ...frontmatter, source }, content };
 }
-
-export async function deleteAlbumFromD1(env: CloudflareEnv, slug: string) {
-	await env.DB.prepare("DELETE FROM albums WHERE slug = ?").bind(slug).run();
-}

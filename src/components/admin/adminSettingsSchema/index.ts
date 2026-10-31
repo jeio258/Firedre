@@ -133,18 +133,14 @@ export const FIELD_ORDER: Record<string, string[]> = {
 	// 总开关放最前
 	font: [
 		"enable",
-		"scale",
 		"bannerTitleFont",
 		"bannerSubtitleFont",
 		"navbarTitleFont",
 		"codeFont",
 	],
-	// 开关 → 图源 → 可配性 → 展示
+	// 图源 → 展示
 	cover: [
-		"enable",
-		"defaultImage",
 		"randomCoverImage",
-		"configurable",
 		"enableInPost",
 		"enableInPostOverlay",
 		"showLoading",
@@ -157,7 +153,6 @@ export const FIELD_ORDER: Record<string, string[]> = {
 		"showInNavbar",
 		"showInSidebar",
 		"mode",
-		"autoplay",
 		"volume",
 		"playMode",
 		"showLyrics",
@@ -183,7 +178,7 @@ export const FIELD_ORDER: Record<string, string[]> = {
 	],
 	bookmarks: ["title", "description", "favicon", "groups"],
 	footer: ["enable", "text", "startYear", "icp", "customHtml"],
-	license: ["enabled", "name", "type", "url", "icon"],
+	license: ["enabled", "name", "url", "icon"],
 };
 
 function withFieldOrder(group: Group): Group {

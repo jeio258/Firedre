@@ -3,7 +3,6 @@ const settings =
 	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
 // D1 bangumi 组优先，静态 siteConfig.bangumi 兜底
 type BangumiGroup = NonNullable<typeof siteConfig.bangumi> & {
-	enabled?: boolean;
 	username?: string;
 };
 const bg: BangumiGroup =
@@ -19,15 +18,19 @@ import { i18n } from "@/i18n/translation";
 import MainGridLayout from "@/layouts/MainGridLayout.astro";
 
 // 运行时站点配置（后台可编辑；静态 config 为兜底）
+const siteCfg = getSiteConfig(Astro.locals);
 
-if (!getSiteConfig(Astro.locals).pages.bangumi) {
+if (!siteCfg.pages.bangumi) {
 	return Astro.redirect("/404/");
 }
 
 const bangumiConfig = {
 	username: (bg.username ?? bg.userId) || "",
-	apiUrl: bg.apiUrl || "https://api.bangumi.one",
-	subjectBaseUrl: bg.subjectBaseUrl || "https://bangumi.one/subject/",
+	apiUrl: bg.apiUrl || siteCfg.bangumi?.apiUrl || "https://api.bangumi.one",
+	subjectBaseUrl:
+		bg.subjectBaseUrl ||
+		siteCfg.bangumi?.subjectBaseUrl ||
+		"https://bangumi.one/subject/",
 	// 从配置文件中读取各分类是否启用，若未配置则使用默认值
 	categories: {
 		book: bg.categories?.book ?? true,

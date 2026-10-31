@@ -14,12 +14,6 @@ export const featureGroups: Group[] = [
 		title: "字体",
 		category: "外观布局",
 		fields: [
-			{
-				name: "scale",
-				label: "字体缩放 (%)",
-				type: "number",
-				hint: "默认 100",
-			},
 			{ name: "enable", label: "启用自定义字体", type: "boolean" },
 			{
 				name: "bannerTitleFont",
@@ -143,9 +137,6 @@ export const featureGroups: Group[] = [
 		title: "封面图片",
 		category: "外观布局",
 		fields: [
-			{ name: "enable", label: "启用封面", type: "boolean" },
-			{ name: "defaultImage", label: "默认封面 URL", type: "text" },
-			{ name: "configurable", label: "文章可自定义封面", type: "boolean" },
 			{ name: "showLoading", label: "加载动画", type: "boolean" },
 			{ name: "enableInPost", label: "文章页显示封面图", type: "boolean" },
 			{
@@ -200,7 +191,6 @@ export const featureGroups: Group[] = [
 				],
 			},
 			{ name: "showLyrics", label: "启用歌词显示", type: "boolean" },
-			{ name: "autoplay", label: "自动播放", type: "boolean" },
 			{ name: "metingApi", label: "Meting API 地址", type: "text" },
 			{
 				name: "metingServer",

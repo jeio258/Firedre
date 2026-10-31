@@ -39,6 +39,7 @@ import {
 	PAGE_WIDTH,
 } from "@/constants/constants";
 import { toClientSettings } from "@/utils/client-settings";
+import { serializeInlineJson } from "@/utils/inline-json";
 import { isHomePage } from "@/utils/layout-utils";
 import {
 	getAuthorAvatarUrl,
@@ -359,9 +360,9 @@ const seoAuthorName =
 
     {/* i18n 词典内联：外置端点需额外一次请求（实测 0.82–1.07s / 12.6KB），
         内联后无需网络往返，且保证 island 水合前词典就绪（消除执行顺序竞态） */}
-    <script is:inline set:html={`window.__FIREDRE_I18N__ = ${JSON.stringify(currentI18n)};`} />
+    <script is:inline set:html={`window.__FIREDRE_I18N__ = ${serializeInlineJson(currentI18n)};`} />
     {allPostMeta.length > 0 && (
-      <script is:inline set:html={`window.__allPostMetaCache = ${JSON.stringify(allPostMeta)};`} />
+      <script is:inline set:html={`window.__allPostMetaCache = ${serializeInlineJson(allPostMeta)};`} />
     )}
     <script
       is:inline
@@ -373,8 +374,8 @@ const seoAuthorName =
         defaultWallpaperMode: ((settings?.["theme"])?.["mode"] ?? backgroundWallpaper.mode),
         isWallpaperSwitchable:
           (settings?.["panel"] ?? displaySettingsConfig).wallpaperModeSwitchable,
-        darkTheme: getExpressiveCodeConfig(settings).darkTheme,
-        lightTheme: getExpressiveCodeConfig(settings).lightTheme,
+        darkTheme: getExpressiveCodeConfig({ settings }).darkTheme,
+        lightTheme: getExpressiveCodeConfig({ settings }).lightTheme,
         baseUrl: import.meta.env.BASE_URL,
         cardTransparentOpacity: ((settings?.["theme"])?.["overlayCardOpacity"] ?? settings?.["theme"]?.["overlay"]?.cardOpacity ?? backgroundWallpaper.overlay?.cardOpacity) ?? 0.6,
         cardRadius: (settings?.["cardRadius"] ?? siteConfig.card?.radius) ?? 1,
@@ -412,9 +413,10 @@ const seoAuthorName =
       // 设置实时感知（L2）：SSR 版本号落地为 data 属性，供 settings-live 模块比对
       document.documentElement.setAttribute("data-settings-version", String(settingsVersion));
 
-      // 后台配置版本变化时清除访客偏好键，使面板与站点回落到新配置；
+      // 后台配置版本变化时清除跟随站点配置的访客偏好键，使面板与站点回落到新配置；
+      // wallpaperMode 与 postListLayout 属访客个人选择，版本变化不重置；
       // hue 仅在后台色相配置本身变化时重置，其余设置变更不影响用户自设色相
-      var PREF_KEYS = ["wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity","wallpaperMode","postListLayout"];
+      var PREF_KEYS = ["wavesEnabled","gradientEnabled","sakuraEnabled","bannerTitleEnabled","bannerCarouselEnabled","cardBorderEnabled","cardFollowThemeEnabled","overlayOpacity","overlayBlur","overlayCardOpacity"];
       try {
         // 清除无 hueSource=user 标记的脏色相，只保留用户自设值
         if (localStorage.getItem("hue") !== null && localStorage.getItem("hueSource") !== "user") {

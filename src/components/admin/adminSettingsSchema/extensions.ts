@@ -34,12 +34,6 @@ export const extensionGroups: Group[] = [
 		category: "扩展功能",
 		fields: [
 			{ name: "enabled", label: "启用许可声明", type: "boolean" },
-			{
-				name: "type",
-				label: "许可类型",
-				type: "text",
-				placeholder: "CC BY-NC-SA 4.0",
-			},
 			{ name: "url", label: "许可链接", type: "text" },
 			{
 				name: "name",

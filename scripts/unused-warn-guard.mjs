@@ -5,7 +5,7 @@
 // 曾因此漏掉「配置取到却未使用 → 静默失效」的真 bug。故将该类告警与基线比对：
 // 新增即失败，原有入基线。
 //
-// 用法：node scripts/unused-warn-guard.mjs [--update]
+// 用法：node scripts/unused-warn-guard.mjs [--update]（--update 等价 pnpm check:bless）
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -13,6 +13,16 @@ import { fileURLToPath } from "node:url";
 const ROOT = fileURLToPath(new URL("..", import.meta.url)).replace(/\/+$/, "");
 const BASELINE = `${ROOT}/scripts/unused-warn-baseline.txt`;
 const UPDATE = process.argv.includes("--update");
+
+// 基线缺失必须失败：自动重建会让「删掉基线文件」成为绕过门禁的后门（fail-open）
+if (!UPDATE && !existsSync(BASELINE)) {
+	console.error(
+		"[unused-warn-guard] ✗ 基线文件缺失：scripts/unused-warn-baseline.txt\n" +
+			"      不再自动重建（否则删除基线即可绕过门禁）。确需重建基线时显式执行：\n" +
+			"        pnpm check:bless",
+	);
+	process.exit(1);
+}
 
 const r = spawnSync("npx", ["astro", "check"], {
 	encoding: "utf8",
@@ -38,7 +48,7 @@ for (const m of clean.matchAll(new RegExp(re.source, "gm"))) {
 }
 const now = [...hits].sort();
 
-if (UPDATE || !existsSync(BASELINE)) {
+if (UPDATE) {
 	writeFileSync(BASELINE, `${now.join("\n")}${now.length ? "\n" : ""}`);
 	console.log(
 		`[unused-warn-guard] 已写入基线（${now.length} 条）：scripts/unused-warn-baseline.txt`,
