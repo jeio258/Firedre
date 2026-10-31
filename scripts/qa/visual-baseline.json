@@ -1,0 +1,195 @@
+{
+	"desktop|首页": {
+		"#navbar": {
+			"rect": [74, 0, 1293, 72],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [58, 88, 1325, 1228],
+			"offscreen": false
+		},
+		"#banner-images-container": {
+			"rect": [0, 0, 1440, 900],
+			"offscreen": false
+		},
+		".post-card-item": {
+			"rect": [370, 160, 701, 208],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"desktop|文章页": {
+		"#navbar": {
+			"rect": [74, 0, 1293, 72],
+			"offscreen": false
+		},
+		".custom-md": {
+			"rect": [406, 774, 629, 4119],
+			"offscreen": false
+		},
+		"#post-cover": {
+			"rect": [406, 372, 629, 354],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"desktop|关于页": {
+		"#navbar": {
+			"rect": [74, 0, 1293, 72],
+			"offscreen": false
+		},
+		".custom-md": null
+	},
+	"desktop|友链页": {
+		"#navbar": {
+			"rect": [74, 0, 1293, 72],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [58, 88, 1325, 1228],
+			"offscreen": false
+		}
+	},
+	"tablet|首页": {
+		"#navbar": {
+			"rect": [16, 0, 802, 72],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [0, 88, 834, 1052],
+			"offscreen": false
+		},
+		"#banner-images-container": {
+			"rect": [0, 0, 834, 1112],
+			"offscreen": false
+		},
+		".post-card-item": {
+			"rect": [312, 160, 506, 208],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"tablet|文章页": {
+		"#navbar": {
+			"rect": [16, 0, 802, 72],
+			"offscreen": false
+		},
+		".custom-md": {
+			"rect": [348, 704, 434, 4623],
+			"offscreen": false
+		},
+		"#post-cover": {
+			"rect": [348, 412, 434, 244],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"tablet|关于页": {
+		"#navbar": {
+			"rect": [16, 0, 802, 72],
+			"offscreen": false
+		},
+		".custom-md": null
+	},
+	"tablet|友链页": {
+		"#navbar": {
+			"rect": [16, 0, 802, 72],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [0, 88, 834, 1052],
+			"offscreen": false
+		}
+	},
+	"mobile|首页": {
+		"#navbar": {
+			"rect": [0, 0, 375, 63],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [0, 77, 375, 1803],
+			"offscreen": false
+		},
+		"#banner-images-container": {
+			"rect": [0, 0, 375, 667],
+			"offscreen": false
+		},
+		".post-card-item": {
+			"rect": [7, 140, 361, 147],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"mobile|文章页": {
+		"#navbar": {
+			"rect": [0, 0, 375, 63],
+			"offscreen": false
+		},
+		".custom-md": {
+			"rect": [28, 568, 319, 4340],
+			"offscreen": false
+		},
+		"#post-cover": {
+			"rect": [28, 347, 319, 180],
+			"offscreen": false
+		},
+		"#footer": null
+	},
+	"mobile|关于页": {
+		"#navbar": {
+			"rect": [0, 0, 375, 63],
+			"offscreen": false
+		},
+		".custom-md": null
+	},
+	"mobile|友链页": {
+		"#navbar": {
+			"rect": [0, 0, 375, 63],
+			"offscreen": false
+		},
+		"#main-grid": {
+			"rect": [0, 77, 375, 1669],
+			"offscreen": false
+		}
+	},
+	"admin|后台-首页": {
+		".admin-shell": null,
+		"#admin-app": null,
+		"aside": {
+			"rect": [0, 0, 240, 900],
+			"offscreen": false
+		},
+		"a.nav-item": {
+			"rect": [10, 93, 218, 44],
+			"offscreen": false
+		}
+	},
+	"admin|后台-文章": {
+		".crud-head": {
+			"rect": [268, 82, 1144, 159],
+			"offscreen": false
+		},
+		".crud-page": {
+			"rect": [268, 82, 1144, 403],
+			"offscreen": false
+		},
+		"a.nav-item": {
+			"rect": [10, 93, 218, 44],
+			"offscreen": false
+		}
+	},
+	"admin|后台-设置": {
+		".s2-host": {
+			"rect": [268, 220, 1144, 1534],
+			"offscreen": false
+		},
+		".a2f": {
+			"rect": [289, 931, 541, 84],
+			"offscreen": true
+		},
+		"a.nav-item": {
+			"rect": [10, 93, 218, 44],
+			"offscreen": false
+		}
+	}
+}

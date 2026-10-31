@@ -1,0 +1,20 @@
+{
+	"/": { "error": "props is not defined" },
+	"/page/2/": { "error": "props is not defined" },
+	"/about/": { "error": "props is not defined" },
+	"/archive/": { "error": "props is not defined" },
+	"/categories/": { "error": "props is not defined" },
+	"/tags/": { "error": "props is not defined" },
+	"/series/": { "error": "props is not defined" },
+	"/friends/": { "error": "props is not defined" },
+	"/sponsor/": { "error": "props is not defined" },
+	"/guestbook/": { "error": "props is not defined" },
+	"/gallery/": { "error": "props is not defined" },
+	"/dynamic/": { "error": "props is not defined" },
+	"/booknav/": { "error": "props is not defined" },
+	"/search/": { "error": "props is not defined" },
+	"/rss/": { "error": "props is not defined" },
+	"/posts/firedre/": { "error": "props is not defined" },
+	"dark:/": { "error": "props is not defined" },
+	"dark:/posts/firedre/": { "error": "props is not defined" }
+}

@@ -65,15 +65,10 @@ docs/
 CODEBUDDY.md
 AI_CONTEXT.md
 
-# QA 与测试产物整体仅本地（tests/ 与 scripts/qa/ 已退出跟踪）
 
-# 测试与 QA 仅本地（2026-09-20：测试脚本/测试产物/日志不提交远程）
-tests/
-scripts/qa/
+# CI workflows 仅本地
 .github/workflows/
 
-# 测试配置仅本地（tests/ 与 scripts/qa/ 同步退出远程）
-vitest.config.ts
 
 # Lighthouse/Chrome 运行时垃圾（含 WSL 路径形态的文件名）：禁止入库
 *lighthouse.*
