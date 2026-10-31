@@ -86,7 +86,6 @@ export const siteDefaults = {
 		bilibili: { uid: "38932988" },
 		bangumi: {
 			userId: "1143164",
-			mode: "dynamic",
 			apiUrl: "https://api.bangumi.pro",
 			subjectBaseUrl: "https://api.bangumi.pro/subject/",
 			categoryOrder: ["anime", "book", "music", "game"],
@@ -94,7 +93,6 @@ export const siteDefaults = {
 		},
 		vndb: {
 			userId: "u358128",
-			mode: "static",
 			downloadCovers: false,
 			apiUrl: "https://api.vndb.org/kana",
 			vnBaseUrl: "https://vndb.org/",

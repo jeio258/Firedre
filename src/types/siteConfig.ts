@@ -158,7 +158,6 @@ export type SiteConfig = {
 
 	bangumi?: {
 		userId?: string;
-		mode?: "static" | "dynamic";
 		apiUrl?: string;
 		subjectBaseUrl?: string;
 		categoryOrder?: ("anime" | "game" | "book" | "music" | "real")[];
@@ -175,7 +174,6 @@ export type SiteConfig = {
 
 	vndb?: {
 		userId?: string;
-		mode?: "static" | "dynamic";
 		downloadCovers?: boolean;
 		apiUrl?: string;
 		vnBaseUrl?: string;
