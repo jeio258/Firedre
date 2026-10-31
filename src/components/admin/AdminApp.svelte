@@ -29,7 +29,6 @@ let pwdError = $state("");
 let pwdSaving = $state(false);
 
 let collapsed = $state(false);
-let s3open = $state(false);
 let settingsCat = $state(0);
 
 function toggleCollapse() {
@@ -57,10 +56,6 @@ function toggleSidebar() {
 		toggleCollapse();
 	}
 }
-function toggleS3() {
-	s3open = !s3open;
-}
-
 const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	dashboard: () => import("./AdminDashboard.svelte"),
 	posts: () => import("./AdminPostList.svelte"),
@@ -153,16 +148,6 @@ async function navigate(pathname: string) {
 	await render(parsed.section, parsed.slug);
 	sidebarOpen = false;
 	userMenuOpen = false;
-}
-function goSettings(cat: number) {
-	settingsCat = cat;
-	s3open = true;
-	if (section === "settings") {
-		render("settings");
-	} else {
-		window.history.pushState({}, "", "/admin/settings/");
-		navigate("/admin/settings/");
-	}
 }
 
 async function handleNav(event: MouseEvent) {
@@ -344,12 +329,8 @@ onMount(() => {
 		<AdminSidebar
 			open={sidebarOpen}
 			section={section}
-			settingsCat={settingsCat}
-			s3open={s3open}
 			username={username}
 			onClose={() => (sidebarOpen = false)}
-			onToggleS3={toggleS3}
-			onGoSettings={goSettings}
 		/>
 
 		<div class="body">

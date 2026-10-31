@@ -5,23 +5,10 @@ import { iconSvg, isActive, NAV_GROUPS } from "@/lib/adminNav";
 interface Props {
 	open: boolean;
 	section: string;
-	settingsCat: number;
-	s3open: boolean;
 	username: string;
 	onClose: () => void;
-	onToggleS3: () => void;
-	onGoSettings: (ci: number) => void;
 }
-let {
-	open,
-	section,
-	settingsCat,
-	s3open,
-	username,
-	onClose,
-	onToggleS3,
-	onGoSettings,
-}: Props = $props();
+let { open, section, username, onClose }: Props = $props();
 </script>
 
 <aside class="sidebar" class:open={open}>
@@ -38,32 +25,14 @@ let {
 			<div class="nav-group">
 				<p class="nav-title">{group.title}</p>
 				{#if group.settings}
-					<div class="s3wrap" class:open={s3open && section === "settings"}>
-						<a
-							href="/admin/settings/"
-							class="nav-item s3parent"
-							class:active={section === "settings"}
-							onclick={() => {	onToggleS3();
-								if (section !== "settings") onGoSettings(0);
-							}}
-						>
-							<span class="nav-icon">{@html iconSvg("settings")}</span>
-							<span class="nav-label">站点设置</span>
-							<span class="s3caret">{@html iconSvg("chevron")}</span>
-						</a>
-						<div class="s3sub">
-							{#each CATEGORIES as label, ci}
-								<button
-									type="button"
-									class="s3cat"
-									class:on={section === "settings" && settingsCat === ci}
-									onclick={() => onGoSettings(ci)}
-								>
-									{label}
-								</button>
-							{/each}
-						</div>
-					</div>
+				<a
+					href="/admin/settings/"
+					class="nav-item"
+					class:active={section === "settings"}
+				>
+					<span class="nav-icon">{@html iconSvg("settings")}</span>
+					<span class="nav-label">站点设置</span>
+				</a>
 				{:else}
 					{#each group.items as item (item.href)}
 						<a
@@ -120,37 +89,6 @@ let {
 
 	.sidebar .nav-group:last-child {
 		margin-bottom: 0;
-	}
-
-	.sidebar .s3parent {
-		cursor: pointer;
-		user-select: none;
-	}
-
-	.sidebar .s3caret {
-		color: var(--text-muted);
-	}
-
-	.sidebar .s3sub {
-		border-left: 1px solid var(--line-color);
-	}
-
-	.sidebar .s3cat {
-		padding: 0.42rem 0.55rem;
-		border-radius: 0.45rem;
-		font-size: 0.8rem;
-		color: var(--text-muted);
-	}
-
-	.sidebar .s3cat:hover {
-		background: color-mix(in srgb, var(--btn-regular-bg) 65%, transparent);
-		color: var(--deep-text);
-	}
-
-	.sidebar .s3cat.on {
-		background: var(--btn-regular-bg);
-		color: var(--primary-text);
-		font-weight: 600;
 	}
 
 	.sidebar .user {
