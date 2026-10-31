@@ -1382,12 +1382,7 @@ html.dark .lg-field input {
 	.main {
 		padding: 1rem 0.85rem 2rem;
 	}
-	.stat-grid {
-		grid-template-columns: 1fr 1fr;
-	}
-	.dash-cols,
-	.editor-layout,
-	.crud-form {
+	.editor-layout {
 		grid-template-columns: minmax(0, 1fr);
 	}
 	.gal-grid {
