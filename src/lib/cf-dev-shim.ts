@@ -40,32 +40,18 @@ try {
 	db = new DatabaseSync(join(stateDir, "local-d1.sqlite"));
 	db.exec("PRAGMA journal_mode = WAL");
 
-	// 幂等建迁移记录表
-	db.exec(
-		"CREATE TABLE IF NOT EXISTS __firedre_migrations (name TEXT PRIMARY KEY)",
-	);
-	const applied = new Set<string>();
-	for (const row of db
-		.prepare("SELECT name FROM __firedre_migrations")
-		.all() as Array<{ name: string }>) {
-		applied.add(row.name);
-	}
-
-	// 按序执行未应用的 migrations/*.sql
+	// migrations 只保留幂等基线 0001：每次启动全量重放，改基线（加表/索引）后重启 dev 即生效
 	const migDir = join(root, "migrations");
 	if (existsSync(migDir)) {
 		const files = readdirSync(migDir)
 			.filter((f) => f.endsWith(".sql"))
 			.sort();
 		for (const file of files) {
-			if (applied.has(file)) continue;
-			const sql = readFileSync(join(migDir, file), "utf8");
-			db.exec(sql);
-			db.prepare("INSERT INTO __firedre_migrations (name) VALUES (?)").run(
-				file,
-			);
-			console.log(`[cf-dev-shim] 已应用迁移 ${file}`);
+			db.exec(readFileSync(join(migDir, file), "utf8"));
+			console.log(`[cf-dev-shim] 已重放迁移 ${file}`);
 		}
+		// 旧记账表已无用途（全量重放不依赖记账），清掉残留
+		db.exec("DROP TABLE IF EXISTS __firedre_migrations");
 	}
 } catch (e) {
 	console.error("[cf-dev-shim] D1 初始化失败:", (e as Error).message);

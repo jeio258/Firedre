@@ -1,6 +1,8 @@
--- Firedre D1 基线（由 0001~0011 合并而来，等价于旧链最终态）
+-- Firedre D1 基线（唯一迁移文件：由旧链 0001~0011、查询索引补丁、FTS trigram 重建全部合并而来）
 -- 幂等：CREATE TABLE/INDEX IF NOT EXISTS；种子 INSERT OR IGNORE（显式 id 以便冲突忽略）
 -- 不含数据迁移语句：旧库废弃结构与冗余列一律不再创建
+-- 规则：后续任何表结构变更直接改本文件（幂等可重复执行），不再新增迁移文件；
+--       线上已存在的库用 wrangler d1 execute --file 本文件 手动重放收敛
 
 -- ========== 文章（正文存 R2，r2_key 指向） ==========
 CREATE TABLE IF NOT EXISTS posts (
@@ -31,13 +33,18 @@ CREATE INDEX IF NOT EXISTS idx_posts_pin_order ON posts(pin_order DESC, date DES
 -- 走同一索引，免去「单列过滤后回表排序」；与上面两个单列索引并存（各自仍有用途）
 CREATE INDEX IF NOT EXISTS idx_posts_published_pin_order
   ON posts(published, pin_order DESC, date DESC);
+-- 全量文章元数据（allPostMeta）：WHERE published=1 ORDER BY date DESC
+CREATE INDEX IF NOT EXISTS idx_posts_published_date
+  ON posts (published, date DESC);
 
+-- trigram 分词：中文按 3 字符滑窗索引，任意位置子串可命中；
+-- 2 字查询 MATCH 命中为 0 是 FTS5 硬限制，由 searchPosts 的 LIKE 通道兜底
 CREATE VIRTUAL TABLE IF NOT EXISTS posts_fts USING fts5(
   slug UNINDEXED,
   title,
   excerpt,
   content,
-  tokenize = 'unicode61'
+  tokenize = 'trigram'
 );
 
 -- 分类（type='category'）与标签（type='tag'）统一表
@@ -160,6 +167,9 @@ CREATE TABLE IF NOT EXISTS album_photos (
 
 CREATE INDEX IF NOT EXISTS idx_album_photos_album_slug
   ON album_photos (album_slug);
+-- 相册照片加载（loadPhotos）：WHERE album_slug=? ORDER BY sort_order ASC, id ASC
+CREATE INDEX IF NOT EXISTS idx_album_photos_album_sort
+  ON album_photos (album_slug, sort_order, id);
 
 -- ========== 后台管理员 ==========
 CREATE TABLE IF NOT EXISTS admin_users (
