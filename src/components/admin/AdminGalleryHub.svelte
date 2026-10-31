@@ -152,7 +152,7 @@ onMountAsync(async () => {
 		<div class="ui-empty">暂无相册，点击「新增相册」开始。</div>
 	{:else}
 		<p class="ui-sub sort-hint">拖动卡片调整相册显示顺序，松开即保存；聚焦卡片后用 ←/→ 方向键同样可调整。</p>
-		<div class="ui-grid album-grid">
+		<div class="ui-grid">
 			{#each albums as album, index (album.slug)}
 				<a
 					class="ui-card album-card"

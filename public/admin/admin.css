@@ -10,7 +10,8 @@
 	--sb-collapsed: 4.25rem;
 	--topbar-h: 3.5rem;
 	--radius-medium: 0.55rem;
-	--shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+	--shadow-card:
+		0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
 }
 html.dark {
 	--shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28);
@@ -25,7 +26,8 @@ body {
 	height: 100%;
 }
 body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+	font-family:
+		-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
 	background: var(--page-bg);
 	color: var(--deep-text);
 }
@@ -93,10 +95,6 @@ body {
 	background: color-mix(in oklch, var(--primary) 15%, transparent);
 	color: var(--primary);
 }
-.u-chip.pin {
-	background: color-mix(in oklch, #d97706 15%, transparent);
-	color: #d97706;
-}
 .u-chip.on {
 	background: color-mix(in oklch, var(--primary) 15%, transparent);
 	color: var(--primary);
@@ -142,7 +140,9 @@ body {
 	border-radius: 0.6rem;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.2s, transform 0.2s;
+	transition:
+		opacity 0.2s,
+		transform 0.2s;
 	font-size: 0.85rem;
 }
 .toast.show {
@@ -260,7 +260,10 @@ body {
 	border-radius: 0.55rem;
 	white-space: nowrap;
 	cursor: pointer;
-	transition: background 0.14s, color 0.14s, transform 0.14s;
+	transition:
+		background 0.14s,
+		color 0.14s,
+		transform 0.14s;
 	position: relative;
 }
 .nav-item:hover {
@@ -601,25 +604,10 @@ body {
 		transform: none;
 	}
 }
-.crud-msg.err {
-	color: var(--danger);
-}
-@media (min-width: 768px) {
-	.crud-form {
-		grid-template-columns: 1fr 1fr;
-	}
-}
 @media (max-width: 760px) {
 	.mcfg {
 		grid-template-columns: 1fr;
 	}
-}
-/* profile 分组用 grid-template-areas 手动布局，不启用 subgrid */
-.a2card.profile .a2fg > .a2f {
-	display: flex;
-	flex-direction: column;
-	grid-row: auto;
-	grid-template-rows: none;
 }
 /* JSON 字段编辑器：网格内仅显示统一高度的触发器，编辑在模态框中进行 */
 .je-trigger {
@@ -638,7 +626,9 @@ body {
 	box-sizing: border-box;
 	cursor: pointer;
 	text-align: left;
-	transition: border-color 0.15s, box-shadow 0.15s;
+	transition:
+		border-color 0.15s,
+		box-shadow 0.15s;
 }
 .je-trigger:hover {
 	border-color: var(--primary);
@@ -762,9 +752,6 @@ body {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
-.a2f.w {
-	grid-column: 1 / -1;
-}
 
 .editor-layout {
 	display: grid;
@@ -775,19 +762,15 @@ body {
 .editor-layout > * {
 	min-width: 0;
 }
-
-.album-grid {
-	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: 1rem;
-}
 .album-card {
 	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
 	border-radius: var(--radius-large);
 	overflow: hidden;
 	cursor: pointer;
-	transition: border-color 0.15s, transform 0.15s;
+	transition:
+		border-color 0.15s,
+		transform 0.15s;
 	box-shadow: var(--shadow-card);
 }
 .album-card:hover {
@@ -795,7 +778,7 @@ body {
 	transform: translateY(-2px);
 }
 .thumb {
-	aspect-ratio: 16/10;
+	aspect-ratio: 16 / 10;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -816,109 +799,6 @@ body {
 	--ctl-bd-soft: 1px solid var(--line-divider);
 	--ctl-bg: var(--card-bg);
 }
-.a2f input,
-.a2f select,
-.crud-field input,
-.crud-field select,
-.mcfg input,
-.mcfg select,
-.site-url-block input,
-.pwd-panel input,
-.editor-title input,
-.crud-head input,
-.crud-head select {
-	height: 2.4rem;
-	padding: 0 0.8rem;
-	line-height: normal;
-	font-size: var(--ctl-fs);
-	border-radius: var(--ctl-r);
-	background: var(--ctl-bg);
-	color: var(--deep-text);
-	border: var(--ctl-bd);
-	font-family: inherit;
-	box-sizing: border-box;
-	transition: border-color 0.15s, box-shadow 0.15s;
-	width: 100%;
-	min-width: 0;
-}
-.a2f textarea.mono {
-	font-size: 0.8rem;
-}
-.a2f input,
-.a2f select,
-.a2f textarea,
-.crud-field input,
-.crud-field select,
-.crud-field textarea,
-.mcfg input,
-.mcfg textarea,
-.site-url-block input,
-.pwd-panel input,
-.editor-title input,
-.crud-head input,
-.crud-head select {
-	transition: border-color 0.15s, box-shadow 0.15s;
-}
-.a2f input:focus,
-.a2f select:focus,
-.a2f textarea:focus,
-.crud-field input:focus,
-.crud-field select:focus,
-.crud-field textarea:focus,
-.mcfg input:focus,
-.mcfg textarea:focus,
-.site-url-block input:focus,
-.pwd-panel input:focus,
-.editor-title input:focus,
-.crud-head input:focus,
-.crud-head select:focus {
-	outline: none;
-	border-color: var(--primary);
-	box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent);
-}
-html.dark .a2f input,
-html.dark .a2f select,
-html.dark .a2f textarea,
-html.dark .crud-field input,
-html.dark .crud-field select,
-html.dark .crud-field textarea,
-html.dark .mcfg input,
-html.dark .mcfg textarea,
-html.dark .site-url-block input,
-html.dark .pwd-panel input {
-	background: var(--card-bg);
-}
-html.dark .a2card > header {
-	background: rgba(255, 255, 255, 0.03);
-}
-.a2card header .cnt {
-	font-size: 0.64rem;
-	padding: 0.12rem 0.6rem;
-	margin-left: auto;
-	background: var(--card-bg);
-	border: 1px solid var(--line-divider);
-	color: var(--text-muted);
-}
-.a2card .a2tr .sw {
-	order: 2;
-}
-
-/* 个人资料：简介居左、所在地与邮箱居右，版面平衡 */
-.a2card.profile .a2fg {
-	grid-template-columns: 1fr 1fr;
-	grid-template-areas:
-		"name avatar"
-		"bio loc"
-		"bio eml";
-	gap: 0.95rem 1.1rem;
-	align-items: start;
-}
-.a2card.profile .a2f.ar-name { grid-area: name; }
-.a2card.profile .a2f.ar-avatar { grid-area: avatar; }
-.a2card.profile .a2f.ar-bio { grid-area: bio; }
-.a2card.profile .a2f.ar-loc { grid-area: loc; }
-.a2card.profile .a2f.ar-eml { grid-area: eml; }
-.a2card.profile .a2f.ar-bio textarea { min-height: 7rem; }
 
 /* ═══ 侧边栏：复用前台令牌，随 .dark 类自动明暗（浅色浅底、深色深底）═══ */
 .sidebar {
@@ -953,7 +833,9 @@ html.dark .a2card > header {
 	color: var(--text-muted);
 }
 .sidebar .nav-item {
-	transition: background-color 0.15s, color 0.15s;
+	transition:
+		background-color 0.15s,
+		color 0.15s;
 	gap: 0.6rem;
 	padding: 0.5rem 0.6rem;
 	border-radius: 0.55rem;
@@ -1041,7 +923,11 @@ html.dark .a2card > header {
 }
 .content {
 	background:
-		radial-gradient(1200px 500px at 85% -10%, color-mix(in oklch, var(--primary) 7%, transparent), transparent 60%),
+		radial-gradient(
+			1200px 500px at 85% -10%,
+			color-mix(in oklch, var(--primary) 7%, transparent),
+			transparent 60%
+		),
 		var(--page-bg);
 }
 .settings-head {
@@ -1121,7 +1007,9 @@ html.dark .a2card > header {
 	font-size: 0.8rem;
 	color: var(--text-muted);
 	line-height: 1.3;
-	transition: background 0.13s, color 0.13s;
+	transition:
+		background 0.13s,
+		color 0.13s;
 }
 .s3cat:hover {
 	background: color-mix(in oklch, var(--primary) 10%, transparent);
@@ -1175,11 +1063,6 @@ html.dark .sw::after {
 	background: var(--on-accent);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
-.a2tr .sw,
-.a2sws .sw {
-	flex: 0 0 42px;
-	width: 42px;
-}
 
 .check-line {
 	display: flex;
@@ -1213,15 +1096,24 @@ html.dark .sw::after {
 .login-bg {
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(160deg, color-mix(in oklch, var(--primary) 18%, #fff) 0%, var(--page-bg) 60%);
+	background: linear-gradient(
+		160deg,
+		color-mix(in oklch, var(--primary) 18%, #fff) 0%,
+		var(--page-bg) 60%
+	);
 }
 html.dark .login-bg {
-	background: linear-gradient(160deg, color-mix(in oklch, var(--deep-text) 8%, var(--page-bg)) 0%, var(--page-bg) 70%);
+	background: linear-gradient(
+		160deg,
+		color-mix(in oklch, var(--deep-text) 8%, var(--page-bg)) 0%,
+		var(--page-bg) 70%
+	);
 }
 .login-grid {
 	position: absolute;
 	inset: 0;
-	background-image: linear-gradient(var(--line-divider) 1px, transparent 1px),
+	background-image:
+		linear-gradient(var(--line-divider) 1px, transparent 1px),
 		linear-gradient(90deg, var(--line-divider) 1px, transparent 1px);
 	background-size: 46px 46px;
 	mask-image: radial-gradient(circle at 50% 35%, #000 0%, transparent 70%);
@@ -1330,7 +1222,9 @@ html.dark .login-grid {
 	color: var(--deep-text);
 	font-size: 0.95rem;
 	font-family: inherit;
-	transition: border-color 0.15s, box-shadow 0.15s;
+	transition:
+		border-color 0.15s,
+		box-shadow 0.15s;
 }
 html.dark .lg-field input {
 	background: var(--card-bg);
@@ -1496,9 +1390,6 @@ html.dark .lg-field input {
 	.crud-form {
 		grid-template-columns: minmax(0, 1fr);
 	}
-	.album-grid {
-		grid-template-columns: 1fr 1fr;
-	}
 	.gal-grid {
 		grid-template-columns: repeat(3, 1fr);
 	}
@@ -1518,7 +1409,9 @@ html.dark .lg-field input {
 	font-size: 0.88rem;
 	opacity: 0;
 	pointer-events: none;
-	transition: opacity 0.2s ease, transform 0.2s ease;
+	transition:
+		opacity 0.2s ease,
+		transform 0.2s ease;
 	z-index: 60;
 }
 .save-toast.show {
