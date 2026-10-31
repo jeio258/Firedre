@@ -190,7 +190,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	setPlantumlRuntimeConfig(getPlantumlConfig(context.locals));
 
-	const response = await next();
+	let response = await next();
 
 	// 安全响应头对所有 HTTP 方法生效（含 API 写操作的响应）
 	applySecurityHeaders(response.headers);
@@ -207,6 +207,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 		// 404 页由 rewrite 渲染时可能与正常页同样返回 200，只靠 status 会把它写进当前请求路径的缓存键
 		const noStore = response.headers.get("x-firedre-no-store") === "1";
+
+		// Astro.rewrite 会把状态硬置回 200（rewrites/handler.js state.status = 200），
+		// 经 rewrite 渲染的 404 页因此以 200 返回（软 404，会被搜索引擎收录）；
+		// 404.astro 已打 no-store 标记，见标记且状态仍为 200 时重建响应纠正为 404。
+		// 直达未知路由由 Astro 自身渲染 404.astro，状态本就是 404，不受影响。
+		if (noStore && response.status === 200) {
+			response = new Response(response.body, {
+				status: 404,
+				statusText: "Not Found",
+				headers: response.headers,
+			});
+		}
 
 		if (
 			isCacheableHtml &&
