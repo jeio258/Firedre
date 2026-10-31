@@ -45,7 +45,14 @@ export const GET: APIRoute = async ({ params, request }) => {
 		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (segments.length === 0) {
 			const hub = await getGalleryHub(cfEnv, { includeSource: isAdmin });
-			if (!hub) return notFound("相册数据不存在");
+			// 空库（R2 尚无 gallery/index.md）是正常初始态，返回空列表让前端渲染「暂无相册」与新建入口
+			if (!hub) {
+				return json(
+					{ frontmatter: { title: "相册" }, albums: [] },
+					200,
+					isAdmin ? "private" : "default",
+				);
+			}
 			return json(hub, 200, isAdmin ? "private" : "default");
 		}
 
