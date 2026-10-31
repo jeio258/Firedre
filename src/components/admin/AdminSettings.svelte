@@ -578,4 +578,44 @@ onMountAsync(async () => {
 		color: var(--warning);
 		border-color: color-mix(in oklch, var(--warning) 40%, var(--line-color));
 	}
+
+	/* 响应式：1080 两列、700 单列；分类条窄屏横向滚动 */
+	@media (max-width: 1080px) {
+		.grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.grid > .fld,
+		.grid.rem1 > .fld:nth-last-child(-n + 4),
+		.grid.rem2 > .fld:nth-last-child(2),
+		.grid.rem2 > .fld:last-child,
+		.grid.solo > .fld {
+			grid-column: span 1;
+		}
+	}
+	@media (max-width: 700px) {
+		.grid {
+			grid-template-columns: 1fr;
+		}
+		.grid > .fld,
+		.grid.rem1 > .fld:nth-last-child(-n + 4),
+		.grid.rem2 > .fld:nth-last-child(2),
+		.grid.rem2 > .fld:last-child,
+		.grid.solo > .fld {
+			grid-column: 1 / -1;
+		}
+		.swgrid {
+			grid-template-columns: 1fr;
+		}
+		.swrow {
+			grid-column: 1 / -1;
+		}
+		.catbar {
+			overflow-x: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+		.catbtn {
+			flex: 0 0 auto;
+			min-width: 96px;
+		}
+	}
 </style>

@@ -50,8 +50,8 @@ Firefly-Lite/
 .claude
 .mimocode
 /dist/
-# 本地化 vditor 编辑器资源需纳入版本控制（dev/生产共用，避免在线 CDN 加载慢）
-!public/vditor/
+# vditor 运行时资源由 scripts/copy-vditor.mjs 生成（dev→public，build→dist），不入库
+public/vditor/
 dev-log.txt
 SECURITY-BACKLOG.md
 tail.log

@@ -7,7 +7,7 @@
 	},
 	"packageManager": "pnpm@11.22.0",
 	"scripts": {
-		"dev": "astro dev",
+		"dev": "node scripts/copy-vditor.mjs --dev && astro dev",
 		"start": "astro dev",
 		"check": "node scripts/unused-warn-guard.mjs && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs && node scripts/config-static-guard.mjs",
 		"check:settings": "node scripts/settings-matrix-check.mjs",
