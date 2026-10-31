@@ -2,10 +2,8 @@ import { env } from "cloudflare:workers";
 import { verifyAdminRequest } from "@server/auth/adminSession";
 import { UserError } from "@server/utils/userError";
 import type { APIContext, APIRoute } from "astro";
-import type { CloudflareEnv } from "../../types/env";
 
-// cloudflare:workers env 由运行时注入，模块声明为 Record<string, any>，此处收敛为项目类型
-export const cfEnv = env as unknown as CloudflareEnv;
+export const cfEnv = env;
 
 export function json(
 	data: unknown,

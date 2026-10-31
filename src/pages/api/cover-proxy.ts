@@ -8,8 +8,9 @@ export const prerender = false;
 // 重定向最大跳数：超出即放弃（→ 502），避免重定向环
 const MAX_REDIRECTS = 3;
 
-// 上游回源超时：慢/挂起图源不得长期占用 Worker 并发槽位（同 fetchRetry 默认）
-const UPSTREAM_TIMEOUT_MS = 10_000;
+// 上游回源超时：移动端弱网下 10s 会长期占住 Worker 并发槽位（首页多张封面并行取图，
+// 一张慢图能把队列拖到 LCP 数秒），6s 后快速 502 让前端 CoverImage 兜底换图
+const UPSTREAM_TIMEOUT_MS = 6_000;
 
 // 远程封面同源代理：按宽度请求 Cloudflare 图像缩放；缩放不可用时透传原图，失败时 302 回退原图
 export const GET: APIRoute = async ({ request }) => {
@@ -127,8 +128,12 @@ export const GET: APIRoute = async ({ request }) => {
 				}
 				const headers = new Headers();
 				headers.set("content-type", contentType);
-				// 浏览器 1 小时（随机图刷新节奏）；边缘 1 天（保证速度，回源至多 1 次/天）
-				headers.set("cache-control", "public, max-age=3600, s-maxage=86400");
+				// 浏览器 1h、边缘 1 天：随机壁纸需要保留换图节奏，不能按天粘住；
+				// 过期后 stale-while-revalidate 先回旧图、后台再验证，避免首屏无图
+				headers.set(
+					"cache-control",
+					"public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+				);
 				const resp = new Response(upstream.body, { headers });
 				if (cache) {
 					try {

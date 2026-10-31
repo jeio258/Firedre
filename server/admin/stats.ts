@@ -28,6 +28,7 @@ export async function collectAdminStats(db: CloudflareEnv["DB"]) {
 		dynCount,
 		frCount,
 		albCount,
+		wordTotal,
 	] = await Promise.all([
 		db
 			.prepare("SELECT published, COUNT(*) AS c FROM posts GROUP BY published")
@@ -70,16 +71,20 @@ export async function collectAdminStats(db: CloudflareEnv["DB"]) {
 			)
 			.first<{ c: number; e: number }>(),
 		db.prepare("SELECT COUNT(*) AS c FROM albums").first<{ c: number }>(),
+		db
+			.prepare(
+				"SELECT COALESCE(SUM(words), 0) AS total FROM posts WHERE published = 1",
+			)
+			.first<{ total: number }>(),
 	]);
 
 	let published = 0;
 	let draft = 0;
-	let words = 0;
+	const words = wordTotal?.total ?? 0;
 	for (const r of postRows.results || []) {
 		if (r.published === 1) published += r.c;
 		else draft += r.c;
 	}
-	for (const r of topRows.results || []) words += r.words || 0;
 
 	for (const r of trendRows.results || []) {
 		if (!r.date) continue;
