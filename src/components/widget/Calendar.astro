@@ -121,6 +121,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
 <script>
   import { escapeHtml } from "@/utils/escape-html";
   import { toDateKey, buildHeatmapCounts } from "@/utils/calendar-utils";
+  import type { AllPostMetaEntry } from "@/../server/posts/allPostMeta";
   const __cfg = window.__fireflyCalendarConfig;
   const monthNames = __cfg.monthNames;
   const yearText = __cfg.yearText;
@@ -133,7 +134,7 @@ window.__fireflyCalendarConfig = { monthNames, weekDays, yearText, currentLang, 
   let currentView = 'day'; // 'day' | 'month' | 'year'
   type CalendarPost = { id: string | number; title: string; published: number };
   let postDateMap: Record<string, CalendarPost[]> = {};
-  let allPostsData: CalendarPost[] = [];
+  let allPostsData: AllPostMetaEntry[] = [];
   let availableYears: number[] = [];
 
   async function fetchData() {
