@@ -180,7 +180,19 @@ const rotateMinutes = Math.max(1, Number(hk.rotateMinutes) || 5);
 			} catch {}
 		}
 
+		// 单飞共享：is:inline 每实例各跑一份，双实例同时挂载会并发打两次 API。
+		// 按 API 分桶避免不同配置串数据；settled 后清除，轮转 refresh 仍各取新数据
+		window.__hitokotoFetch = window.__hitokotoFetch || {};
 		async function fetchHitokoto() {
+			if (!window.__hitokotoFetch[API]) {
+				window.__hitokotoFetch[API] = fetchHitokotoOnce().finally(() => {
+					delete window.__hitokotoFetch[API];
+				});
+			}
+			return window.__hitokotoFetch[API];
+		}
+
+		async function fetchHitokotoOnce() {
 			try {
 				const resp = await fetch(API, { signal: AbortSignal.timeout(5000) });
 				if (!resp.ok) throw new Error("Network response was not ok.");

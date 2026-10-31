@@ -51,11 +51,24 @@ export const GET: APIRoute = async ({ request }) => {
 		request,
 	);
 
-	// 手动构造 302（Response.redirect 的 headers 不可变，外层 middleware 无法追加安全头）
 	// 安全：上游失败/非图片时不 302 回退到用户可控 URL（开放重定向/钓鱼面），
-	// 返回 502 由前端 CoverImage 的错误兜底接管（显示占位/换 API）
-	const redirectBack = () =>
-		new Response("Upstream image unavailable", { status: 502 });
+	// 改返回固定内容的中性灰占位 SVG——壁纸等无前端兜底的消费点不再空白；
+	// CoverImage 的 apiUrls 换源重试依赖 img error 触发，随机封面（image==="api"）模式下
+	// 该路径会被占位短路，属已接受的取舍（备用 API 直连慢网下同样可能挂）
+	const PLACEHOLDER_SVG =
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9">' +
+		'<rect width="16" height="9" fill="#d4d4d8"/>' +
+		'<path d="M0 9 L5.5 3.5 L8.5 6.5 L11 4.5 L16 9 Z" fill="#c4c6cb"/>' +
+		"</svg>";
+	// 短 TTL：占位是暂态，图床恢复后几分钟内自愈；不写 caches.default（仅成功路径 put）
+	const placeholderResponse = () =>
+		new Response(PLACEHOLDER_SVG, {
+			status: 200,
+			headers: {
+				"content-type": "image/svg+xml",
+				"cache-control": "public, max-age=300, stale-while-revalidate=3600",
+			},
+		});
 
 	// 项目全局类型中 caches.default 仅声明 match/put
 	type ProxyCache = {
@@ -117,14 +130,14 @@ export const GET: APIRoute = async ({ request }) => {
 					if (!next) break; // 目标不安全或非 https → 不跟随
 					current = next;
 				}
-				if (!upstream) return redirectBack();
+				if (!upstream) return placeholderResponse();
 				const contentType = upstream.headers.get("content-type") || "";
 				if (
 					!upstream.ok ||
 					!upstream.body ||
 					!contentType.startsWith("image/")
 				) {
-					return redirectBack();
+					return placeholderResponse();
 				}
 				const headers = new Headers();
 				headers.set("content-type", contentType);
@@ -144,7 +157,7 @@ export const GET: APIRoute = async ({ request }) => {
 				}
 				return resp;
 			} catch {
-				return redirectBack();
+				return placeholderResponse();
 			}
 		},
 	);
