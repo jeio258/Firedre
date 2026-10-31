@@ -30,9 +30,9 @@ export const prerender = false;
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
 	const url = new URL(request.url);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (segments[0] === "taxonomy" && segments.length >= 2) {
 			const kind = segments[1];
 			if (kind === "categories")

@@ -210,7 +210,8 @@ export async function handleAlbumWebDavList(
 
 	assertAlbumPasswordReadable(config.albumPassword);
 	assertAlbumAccess({
-		encrypted: Boolean(config.albumPassword),
+		// 以相册的加密标记为准：口令行缺失时 Boolean(albumPassword) 会误判为公开
+		encrypted: config.encrypted || Boolean(config.albumPassword),
 		password: config.albumPassword,
 		accessPassword: body.accessPassword,
 	});

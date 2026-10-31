@@ -71,8 +71,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const isHtmlPage =
 		request.method === "GET" &&
 		!url.pathname.startsWith("/admin") &&
-		!url.pathname.startsWith("/api") &&
-		!url.pathname.startsWith("/i18n.js");
+		!url.pathname.startsWith("/api");
 
 	let htmlCacheKey = "";
 	let settingsVersion = "";

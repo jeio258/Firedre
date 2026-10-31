@@ -1,4 +1,3 @@
-import { redactSensitive } from "@server/settings/sensitive";
 import {
 	getAllSettings,
 	getSettingsVersionCached,
@@ -24,7 +23,7 @@ export const GET: APIRoute = async () => {
 		let payload = readIsolateCache<string>(CACHE_SLOT, version);
 		if (payload === undefined) {
 			const all = await getAllSettings(cfEnv);
-			const settings = toClientSettings(redactSensitive(all));
+			const settings = toClientSettings(all);
 			payload = JSON.stringify({ version, settings });
 			writeIsolateCache(CACHE_SLOT, version, payload);
 		}

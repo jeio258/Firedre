@@ -52,6 +52,13 @@ const BASIC_FLAT_WRITABLE = new Set([
 	"pageSponsor",
 ]);
 
+const isSettingGroup = (key: string): key is SettingGroup =>
+	(SETTING_GROUPS as readonly string[]).includes(key);
+
+// 组值必须是普通对象：typeof null/数组 也是 object，直接存会把组结构污染成数组
+const isPlainRecord = (v: unknown): v is Record<string, unknown> =>
+	typeof v === "object" && v !== null && !Array.isArray(v);
+
 export const GET: APIRoute = async ({ url, request }) => {
 	try {
 		// 公开态无合法消费方（前端走 /api/settings/client 白名单子集），完整设置仅管理员可见
@@ -99,33 +106,28 @@ export const PUT: APIRoute = async ({ request }) => {
 					string,
 					unknown
 				> | null;
-				if (!body || typeof body !== "object") return badRequest("请求体无效");
+				if (!isPlainRecord(body)) return badRequest("请求体无效");
 
-				if (body.groups && typeof body.groups === "object") {
-					const groups = body.groups as Record<string, Record<string, unknown>>;
-					const valid: Record<string, Record<string, unknown>> = {};
-					for (const [key, data] of Object.entries(groups)) {
-						if (!(SETTING_GROUPS as readonly string[]).includes(key)) continue;
-						if (typeof data !== "object" || data === null) continue;
+				if (body.groups !== undefined) {
+					if (!isPlainRecord(body.groups)) return badRequest("groups 无效");
+					const valid: Partial<Record<SettingGroup, Record<string, unknown>>> =
+						{};
+					for (const [key, data] of Object.entries(body.groups)) {
+						if (!isSettingGroup(key)) continue;
+						if (!isPlainRecord(data)) return badRequest(`组 ${key} 的值无效`);
 						valid[key] = data;
 					}
 					// 聚合为单次批量写入，避免 31 组串行全量读写导致保存耗时 ~6s
-					await saveSettingsGroups(
-						cfEnv,
-						valid as Record<SettingGroup, Record<string, unknown>>,
-					);
+					await saveSettingsGroups(cfEnv, valid);
 					return json({ ok: true });
 				}
 
-				if (
-					typeof body.group === "string" &&
-					(SETTING_GROUPS as readonly string[]).includes(body.group)
-				) {
-					const data = (body.data ?? {}) as Record<string, unknown>;
-					// 数组 typeof 也是 object，必须显式拒绝，否则会把组值写成 JSON 数组污染结构
-					if (typeof data !== "object" || data === null || Array.isArray(data))
-						return badRequest("data 无效");
-					await saveSettingsGroup(cfEnv, body.group as never, data);
+				if (body.group !== undefined) {
+					if (typeof body.group !== "string" || !isSettingGroup(body.group))
+						return badRequest("group 无效");
+					const data = body.data ?? {};
+					if (!isPlainRecord(data)) return badRequest("data 无效");
+					await saveSettingsGroup(cfEnv, body.group, data);
 					return json({ ok: true });
 				}
 
@@ -138,11 +140,7 @@ export const PUT: APIRoute = async ({ request }) => {
 					);
 					if (unknown.length)
 						return badRequest(`不支持的字段：${unknown.join(", ")}`);
-					await saveSettingsGroup(
-						cfEnv,
-						"basic",
-						body as Record<string, unknown>,
-					);
+					await saveSettingsGroup(cfEnv, "basic", body);
 					return json({ ok: true });
 				}
 				return badRequest(

@@ -44,8 +44,11 @@ export async function listDynamics(
 	page: number;
 	pageSize: number;
 }> {
-	const page = Math.max(1, options.page || 1);
-	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
+	const page = Math.max(1, Math.floor(options.page || 1));
+	const pageSize = Math.min(
+		200,
+		Math.max(1, Math.floor(options.pageSize || 100)),
+	);
 	const offset = (page - 1) * pageSize;
 
 	const countStmt = env.DB.prepare("SELECT COUNT(*) AS total FROM dynamics");

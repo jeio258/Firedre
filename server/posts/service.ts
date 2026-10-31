@@ -146,8 +146,11 @@ export async function listPosts(
 		includeUnpublished?: boolean;
 	} = {},
 ): Promise<PostsListResponse> {
-	const page = Math.max(1, options.page || 1);
-	const pageSize = Math.min(200, Math.max(1, options.pageSize || 100));
+	const page = Math.max(1, Math.floor(options.page || 1));
+	const pageSize = Math.min(
+		200,
+		Math.max(1, Math.floor(options.pageSize || 100)),
+	);
 	const { binds, countSql, listSql } = buildListPostsQuery(options);
 	const offset = (page - 1) * pageSize;
 
@@ -382,6 +385,7 @@ export async function searchPosts(
     SELECT p.* FROM posts_fts f
     JOIN posts p ON p.slug = f.slug
     WHERE posts_fts MATCH ? AND p.published = 1
+      AND (p.password IS NULL OR p.password = '')
     ORDER BY rank
     LIMIT ?
   `)
@@ -470,10 +474,17 @@ export async function upsertPost(
 	const ftsDelete = env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(
 		decoded,
 	);
+	// 加密文章正文与摘要不进索引：FTS 行可被任意查询读出，写进去等于绕开口令保护
+	const ftsVisible = !mapped.password;
 	const ftsInsert = env.DB.prepare(`
     INSERT INTO posts_fts (slug, title, excerpt, content)
     VALUES (?, ?, ?, ?)
-  `).bind(decoded, String(frontmatter.title), mapped.excerpt || "", plain);
+  `).bind(
+		decoded,
+		String(frontmatter.title),
+		ftsVisible ? mapped.excerpt || "" : "",
+		ftsVisible ? plain : "",
+	);
 
 	// 正文先写 R2 版本化 key，成功后才跑 D1 批量切换指针：R2 失败时旧指针/旧正文完整保留
 	// （D1 批量失败仅残留 R2 孤儿对象，由对账脚本清理）；内容未变时跳过写直接复用旧指针

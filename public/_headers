@@ -12,6 +12,3 @@
 
 /favicon/*
   Cache-Control: public, max-age=604800
-
-/i18n.js
-  Cache-Control: public, max-age=86400

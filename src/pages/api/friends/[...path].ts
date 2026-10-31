@@ -26,9 +26,9 @@ export const prerender = false;
 // GET /api/friends/  - 友链列表（后台含全部，前台展示仅启用）
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (segments.length === 0) {
 			// 公开只显示启用的友链；管理员可见全部（含停用）
 			const items = isAdmin
@@ -67,10 +67,9 @@ export const POST: APIRoute = withAdmin(async ({ request }) => {
 
 export const PUT: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
-
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
 		if (segments.length !== 1) return notFound("路径无效");
 		const id = Number(segments[0]);
 		if (!Number.isInteger(id) || id <= 0) return badRequest("无效的友链ID");
@@ -88,10 +87,9 @@ export const PUT: APIRoute = async ({ params, request }) => {
 
 export const DELETE: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
-
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		if (!isAdmin) return unauthorized();
 		if (segments.length !== 1) return notFound("路径无效");
 		const id = Number(segments[0]);
 		if (!Number.isInteger(id) || id <= 0) return badRequest("无效的友链ID");

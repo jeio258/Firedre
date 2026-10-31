@@ -12,7 +12,6 @@
   "include": [
     "server/**/*",
     "types/**/*",
-    "utils/**/*",
     "shared/**/*",
     "src/config/**/*",
     "src/utils/fetch-dedup.ts"

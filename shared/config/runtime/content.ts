@@ -210,7 +210,7 @@ export function getFontConfig(locals: unknown): FontSelectionConfig {
 		enable: bool(f.enable, true),
 		...(typeof f.selected === "string" || Array.isArray(f.selected)
 			? { selected: f.selected as FontSelectionConfig["selected"] }
-			: { selected: ["--font-fangzheng-zizhu"] }),
+			: { selected: [] }),
 		...(typeof f.bannerTitleFont === "string" && f.bannerTitleFont
 			? { bannerTitleFont: f.bannerTitleFont }
 			: { bannerTitleFont: "--font-zen-maru-gothic" }),

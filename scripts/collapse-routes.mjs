@@ -7,7 +7,6 @@ const routesFile = fileURLToPath(
 
 const COLLAPSE_PREFIXES = [
 	"/vditor/",
-	"/pio/",
 	"/assets/",
 	"/favicon/",
 	"/katex/",

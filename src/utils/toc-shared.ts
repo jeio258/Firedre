@@ -1,4 +1,4 @@
-import { escapeHtmlAttr } from "@/utils/escape-html";
+import { escapeHtml } from "@/utils/escape-html";
 
 export interface TocInput {
 	depth: number;
@@ -82,7 +82,7 @@ function renderBadgeInnerHTML(item: TocItem): string {
 }
 
 export function renderTocItemHTML(item: TocItem): string {
-	const escaped = escapeHtmlAttr(item.text);
+	const escaped = escapeHtml(item.text);
 	return `
         <a
           href="${item.href}"

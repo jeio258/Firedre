@@ -40,9 +40,9 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
 
 	try {
+		const isAdmin = await verifyAdminRequest(request, cfEnv);
 		if (segments.length === 0) {
 			const hub = await getGalleryHub(cfEnv, { includeSource: isAdmin });
 			if (!hub) return notFound("相册数据不存在");

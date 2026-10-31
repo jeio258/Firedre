@@ -87,7 +87,7 @@ let {
 
 const isHomePageCheck = isHomePage(Astro.url.pathname);
 
-// 当前构建语言的 i18n 词典（与 /i18n.js 端点内容一致；siteConfig.lang 决定，当前仅 zh_CN）
+// 当前构建语言的 i18n 词典（siteConfig.lang 决定，当前仅 zh_CN）
 const currentI18n = zh_CN;
 
 // 后台站点设置（覆盖静态 siteConfig 的关键项）：分组键 + 扁平键并存（见 server/settings/merge.ts）

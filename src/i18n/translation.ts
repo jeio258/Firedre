@@ -20,7 +20,7 @@ declare global {
 // 服务端/Node（SSR、测试）：动态加载全部语言。
 const maps: LangMap = await (async () => {
 	if (typeof window !== "undefined") {
-		// 词典由 /i18n.js 注入。defer 经典脚本与 module 脚本在规范中属不同执行队列，
+		// 词典由 Layout 内联注入。defer 经典脚本与 module 脚本在规范中属不同执行队列，
 		// 无先后保证（island 可能先执行）→ 有界等待词典到位，避免水合期读到空表而抛错。
 		let injected = window.__FIREDRE_I18N__;
 		for (let i = 0; !injected && i < 60; i++) {

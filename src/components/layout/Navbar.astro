@@ -19,6 +19,7 @@ import MusicPlayer from "@/components/features/MusicPlayer.astro";
 import I18nKey from "@/i18n/i18nKey";
 import { i18n } from "@/i18n/translation";
 import type { NavBarLink } from "@/types/config";
+import { toClientSettings } from "@/utils/client-settings";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";
 import DropdownMenu from "./DropdownMenu.astro";
@@ -67,9 +68,10 @@ const hasDisplaySettings =
 
 const links: NavBarLink[] = await resolveNavMenuLinks(Astro.locals);
 
-// 展示设置面板仍需后台站点设置快照
-const pageSettings =
-	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {};
+// 展示设置面板需要后台设置快照：只下发给客户端可见组，敏感字段在序列化前已脱敏
+const pageSettings = toClientSettings(
+	(Astro.locals as { settings?: Record<string, unknown> }).settings ?? {},
+);
 
 // 处理导航栏 Logo 图片，image / url 类型支持亮暗色分别设置
 const logoConfig = navbarConfig.logo as

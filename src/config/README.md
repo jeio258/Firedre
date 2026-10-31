@@ -14,7 +14,7 @@ src/config/
 
 ## 配置单一源（A5 后现状，2026-10-01 落地）
 
-- `shared/config/settings-defaults.ts` 是**默认值唯一源**（29 组，与 `SETTING_GROUPS` 一致）；结构字段（navbar / wallpaperBase / 侧栏组件列表 / 导航模板等）已内嵌其中。
+- `shared/config/settings-defaults.ts` 是**默认值唯一源**（30 组，与 `SETTING_GROUPS` 一致）；结构字段（navbar / wallpaperBase / 侧栏组件列表 / 导航模板等）已内嵌其中。
 - `shared/config/runtime/*` 提供各 `getXxxConfig(locals)` getter：取值 D1 后台设置 → settingsDefaults，**无静态兜底**；21 个静态配置文件已删除。
 - `@/config` barrel 的值导出全部由 getter 以 `defaultsLocals` 派生，消费文件 import 路径零改动。
 
