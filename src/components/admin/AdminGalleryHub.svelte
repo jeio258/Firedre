@@ -25,8 +25,11 @@ async function load() {
 	try {
 		const data = await apiJson<{ albums?: AlbumSummary[] }>("/api/gallery/");
 		albums = data.albums || [];
-	} catch {
-		message = "加载失败";
+	} catch (err) {
+		// 404 = 尚无相册，视为空列表，允许直接新增
+		albums = [];
+		const status = (err as { status?: number }).status;
+		if (status !== 404) message = "加载失败";
 	}
 	loading = false;
 }

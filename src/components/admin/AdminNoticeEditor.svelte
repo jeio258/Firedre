@@ -30,8 +30,13 @@ async function load() {
 			}
 		}
 	} catch (err) {
-		// 加载失败必须显式告警：否则表单以空/默认值呈现，保存会覆盖真实公告
-		loadError = err instanceof Error ? err.message : "网络错误";
+		const status = (err as { status?: number }).status;
+		if (status === 404) {
+			// 尚无公告：视为空表单，保存走 upsert 创建，不能因此锁死编辑
+		} else {
+			// 真正的加载失败必须显式告警：否则表单以空/默认值呈现，保存会覆盖真实公告
+			loadError = err instanceof Error ? err.message : "网络错误";
+		}
 	}
 	loading = false;
 }

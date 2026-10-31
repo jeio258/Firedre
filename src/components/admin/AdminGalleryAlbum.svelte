@@ -286,16 +286,10 @@ onMount(() => {
 		<div>
 			<h2 class="ui-title">{isNew ? "创建相册" : `相册：${slug}`}</h2>
 			<p class="ui-sub">
-				<a href="/admin/gallery/">← 返回相册列表</a>
+				<a href="/admin/gallery/">← 返回相册列表</a>{#if message} · {message}{/if}
 			</p>
 		</div>
 		<div class="ui-acts">
-			{#if isNew}
-				<input class="ui-input slug-input" type="text" bind:value={newSlug} placeholder="相册 slug（必填）" autocomplete="off" />
-			{/if}
-			{#if message}
-				<span class="ui-sub">{message}</span>
-			{/if}
 			{#if !isNew}
 				<button class="ui-btn" onclick={removeAlbum} disabled={saving}>删除相册</button>
 			{/if}
@@ -306,9 +300,8 @@ onMount(() => {
 	</div>
 
 	{#if loaded}
-		<div class="editor-layout">
-			<div>
-				<section class="ui-card">
+		
+		<section class="ui-card">
 					<div class="ui-card-h">
 						照片
 						<span class="ui-sub">点击可预览</span>
@@ -351,8 +344,7 @@ onMount(() => {
 						{/if}
 					</div>
 				</section>
-
-				<section class="ui-card">
+		<section class="ui-card">
 					<div class="ui-card-h">访问密码与图床</div>
 					<div class="ui-card-b">
 						<label class="ui-field field-tall">
@@ -384,56 +376,8 @@ onMount(() => {
 						{/if}
 					</div>
 				</section>
-			</div>
-
-			<div>
-				<section class="ui-card">
-					<div class="ui-card-h">相册信息</div>
-					<div class="ui-card-b">
-						<div class="stack-fields">
-							<label class="ui-field">
-								<span class="ui-label">名称</span>
-								<input class="ui-input" type="text" bind:value={formTitle} placeholder="相册标题" autocomplete="off" />
-							</label>
-							<label class="ui-field">
-								<span class="ui-label">封面备注</span>
-								<input class="ui-input" type="text" bind:value={formCover} placeholder="封面图片地址（可选）" autocomplete="off" />
-							</label>
-							<label class="ui-field">
-								<span class="ui-label">访问路径</span>
-								{#if isNew}
-									<input class="ui-input" type="text" bind:value={newSlug} placeholder="english-slug" autocomplete="off" />
-								{:else}
-									<input class="ui-input" type="text" value={slug} disabled />
-								{/if}
-							</label>
-							<label class="ui-field">
-								<span class="ui-label">日期</span>
-								<input class="ui-input" type="text" bind:value={formDate} placeholder="如 2026-08-31" autocomplete="off" />
-							</label>
-							<label class="ui-field">
-								<span class="ui-label">地点</span>
-								<input class="ui-input" type="text" bind:value={formLocation} placeholder="如 杭州市" autocomplete="off" />
-							</label>
-							<label class="ui-field">
-								<span class="ui-label">标签（逗号分隔）</span>
-								<input class="ui-input" type="text" bind:value={formTags} placeholder="如 旅行, 风景" autocomplete="off" />
-							</label>
-							<label class="ui-field field-wide">
-								<span class="ui-label">描述</span>
-								<textarea class="ui-input area" rows="3" bind:value={formDesc} placeholder="相册描述（可选）"></textarea>
-							</label>
-							<label class="check-line">
-								<Switch on={hadEncrypted} label="加密相册" toggle={() => (hadEncrypted = !hadEncrypted)} />
-								<span class="check-text">加密相册</span>
-							</label>
-						</div>
-					</div>
-				</section>
-			</div>
-		</div>
 	{:else}
-		<div class="ui-empty">{message || "加载中…"}</div>
+		<div class="ui-card"><div class="ui-empty">{message || "加载中…"}</div></div>
 	{/if}
 </div>
 
