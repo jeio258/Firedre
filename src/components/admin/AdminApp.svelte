@@ -30,6 +30,7 @@ let View = $state<import("svelte").Component<Record<string, unknown>> | null>(
 let viewProps = $state<Record<string, unknown>>({});
 let viewError = $state("");
 let viewKey = $state("dashboard");
+let viewLoading = $state(false);
 
 let userMenuOpen = $state(false);
 let pwdPanelOpen = $state(false);
@@ -134,9 +135,11 @@ async function render(s: Section, slug?: string) {
 	// 同步标签页标题：登录进入后台后不再残留「登录 -」入口标题，刷新前后一致
 	document.title = `${titleOf(section)} - Firedre 后台`;
 	viewError = "";
+	viewLoading = true;
 	const loader = VIEWS[s];
 	if (!loader) {
 		viewError = "未知页面";
+		viewLoading = false;
 		return;
 	}
 	try {
@@ -150,6 +153,24 @@ async function render(s: Section, slug?: string) {
 		viewKey = slug ?? s;
 	} catch (e) {
 		viewError = e instanceof Error ? e.message : "加载失败";
+	} finally {
+		viewLoading = false;
+	}
+}
+
+/** 登录后空闲期预热全部视图 chunk：首次点击菜单不再等网络下载（总量数百 KB，仅后台加载一次） */
+function warmViews() {
+	const warm = () => {
+		for (const loader of Object.values(VIEWS)) {
+			loader().catch(() => {});
+		}
+	};
+	if ("requestIdleCallback" in window) {
+		(
+			window as Window & { requestIdleCallback: (cb: () => void) => void }
+		).requestIdleCallback(warm);
+	} else {
+		setTimeout(warm, 1500);
 	}
 }
 
@@ -255,6 +276,7 @@ async function checkAccess() {
 				allowed = sectionsOf(navGroups);
 				authed = true;
 				checking = false;
+				warmViews();
 				await navigate(window.location.pathname);
 				return;
 			}
@@ -467,13 +489,13 @@ onMount(() => {
 
 			<div class="content">
 				<main class="main">
-					{#if viewError}
-						<div class="admin-error">{viewError}</div>
-					{:else if View}
-						<View {...viewProps} />
-					{:else}
-						<div class="admin-loading">加载中…</div>
-					{/if}
+				{#if viewError}
+					<div class="admin-error">{viewError}</div>
+				{:else if viewLoading || !View}
+					<div class="admin-loading">加载中…</div>
+				{:else}
+					<View {...viewProps} />
+				{/if}
 				</main>
 			</div>
 		</div>
