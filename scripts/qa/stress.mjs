@@ -1,10 +1,12 @@
 // 10 分钟重复压力测试：多轮采样线上真实站点，统计性能指标与稳定性
 // 用法: node scripts/qa/stress.mjs <base> <分钟数>
+//       ROUNDS=<n> 环境变量可改为按轮数停止（桌面/移动交替），忽略分钟数
 import { launchBrowser } from "./lib.mjs";
 
 const BASE = process.argv[2] || "https://firedre.994613.xyz";
 const MINUTES = Number(process.argv[3] || 10);
-const DEADLINE = Date.now() + MINUTES * 60_000;
+const ROUNDS = Number(process.env.ROUNDS || 0);
+const DEADLINE = ROUNDS ? Infinity : Date.now() + MINUTES * 60_000;
 
 const stats = [];
 const fails = [];
@@ -88,7 +90,7 @@ async function sample(mobile) {
 console.log(
 	`压力测试开始：${BASE}，持续 ${MINUTES} 分钟（桌面+移动交替采样）\n`,
 );
-while (Date.now() < DEADLINE) {
+while (Date.now() < DEADLINE && (ROUNDS ? round < ROUNDS : true)) {
 	round++;
 	const mobile = round % 2 === 0;
 	const r = await sample(mobile);

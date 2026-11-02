@@ -7,13 +7,14 @@ export const siteDefaults = {
 		cardFollowTheme: false,
 		cardRadius: 1,
 		faviconUrl: "/favicon/firefly-32.png",
-		title: "Firedre",
-		subtitle: "Demo site",
+		title: "临渊羡鱼",
+		subtitle: "",
 		description:
 			"Firedre 是基于 Astro Firefly 主题深度云原生化改造的个人博客，全站运行于 Cloudflare Pages / D1 / R2：文章、动态、相册、书签导航、追番数据与留言板一应俱全，后台可视化管理，无需服务器即可稳定运行。",
 		siteUrl: "https://firedre.994613.xyz",
 		siteStartDate: "2025-01-01",
 		timezone: "Asia/Shanghai",
+		allowRegistration: true,
 		pageWidth: 100,
 		categoryBar: true,
 		categoryStyle: "rectangle",
@@ -31,7 +32,7 @@ export const siteDefaults = {
 		pageMal: true,
 		pageSponsor: true,
 		keywords:
-			"Firedre,Astro,Cloudflare,个人博客,技术博客,云原生,D1,R2,ACGN,动态,相册,书签导航,追番",
+			"Firedre, Firefly, Cloudflare, 个人博客, 技术博客, 云原生, ACGN, 动态, 相册, 追番",
 		// ── 结构字段（非后台可编辑项） ──
 		lang: resolveSiteLang("zh_CN"),
 		foldArticle: true,
@@ -111,9 +112,10 @@ export const siteDefaults = {
 	profile: {
 		location: "",
 		email: "",
-		name: "Firedre",
-		avatar: "/favicon/firefly-192.png",
-		bio: "Hello, I'm Firedre.",
+		name: "临渊羡鱼",
+		// 空 = 使用静态资产 src/assets/avatar.avif（与线上一致）
+		avatar: "",
+		bio: "一只爱睡懒觉的猫",
 		links:
 			'[{"name":"qq","icon":"fa7-brands:qq","url":"https://qm.qq.com/q/ZGsFa8qX2G","showName":false},{"name":"GitHub","icon":"fa7-brands:github","url":"https://github.com/jeio258","showName":false},{"name":"Email","icon":"fa7-solid:envelope","url":"mailto:xiaye@msn.com","showName":false},{"name":"RSS","icon":"fa7-solid:rss","url":"/rss/","showName":false}]',
 	},

@@ -2,16 +2,25 @@
 export const prerender = false;
 
 import AdminHead from "@components/layout/AdminHead.astro";
+import { resolveBackendActor } from "@server/auth/perms";
 import AdminApp from "../../components/admin/AdminApp.svelte";
+import { cfEnv } from "../../lib/api";
 
 import "@/styles/variables.styl";
+
+const actor = await resolveBackendActor(Astro.request, cfEnv);
+if (!actor) {
+	return Astro.redirect(
+		`/login/?next=${encodeURIComponent(Astro.url.pathname)}`,
+	);
+}
 ---
 <!doctype html>
 <html lang="zh-CN">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>登录 - Firedre 后台</title>
+	<title>Firedre 后台</title>
 
 	<AdminHead />
 	<style>

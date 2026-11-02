@@ -273,5 +273,43 @@ export async function verifyAdminRequest(
 	request: Request,
 	env?: CloudflareEnv,
 ) {
-	return Boolean(await getAuthenticatedAdminUsername(request, env));
+	if (await getAuthenticatedAdminUsername(request, env)) return true;
+
+	// 统一身份：users.role='admin' 即站长
+	try {
+		const { getAuthUser } = await import("./userSession");
+		const me = await getAuthUser(request, env);
+		return me?.role === "admin";
+	} catch {
+		return false;
+	}
+}
+
+/** 旧库是否还存在 admin_users 行（首次初始化认领用） */
+export async function hasLegacyAdmin(db: D1Database): Promise<boolean> {
+	try {
+		const row = await db
+			.prepare("SELECT id FROM admin_users LIMIT 1")
+			.first<{ id: string }>();
+		return Boolean(row);
+	} catch {
+		return false;
+	}
+}
+
+/** 校验旧管理员密码，用于首次初始化的账号认领 */
+export async function verifyLegacyAdminPassword(
+	db: D1Database,
+	username: string,
+	password: string,
+): Promise<boolean> {
+	const row = await db
+		.prepare(
+			"SELECT password_hash FROM admin_users WHERE username = ? AND enabled = 1",
+		)
+		.bind(username)
+		.first<{ password_hash: string }>();
+	if (!row) return false;
+	const { verifyPasswordAllowPlaintext } = await import("./password");
+	return verifyPasswordAllowPlaintext(password, row.password_hash);
 }

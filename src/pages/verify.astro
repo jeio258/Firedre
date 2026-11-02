@@ -1,0 +1,102 @@
+---
+import { verifySignupToken } from "@server/auth/register";
+import {
+	buildUserSessionCookie,
+	createSessionToken,
+	getAuthUser,
+} from "@server/auth/userSession";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { cfEnv } from "../lib/api";
+
+// 验证链接落地页（设计 D.1）：GET /verify/?token=xxx → 比对 hash → 置 verified=1 →
+// 签发 user_session → 落地个人资料页（自动登录）
+const title = "邮箱验证";
+const description = "完成邮箱验证以激活账号";
+
+const token = Astro.url.searchParams.get("token") ?? "";
+const alreadyLoggedIn = Boolean(await getAuthUser(Astro.request, cfEnv));
+
+type State = "notoken" | "invalid" | "expired" | "banned";
+let state: State = "notoken";
+
+if (token) {
+	const result = await verifySignupToken(cfEnv.DB, token);
+	if (result.ok) {
+		const row = await cfEnv.DB.prepare(
+			"SELECT role, banned FROM users WHERE id = ?",
+		)
+			.bind(result.userId)
+			.first<{ role: string; banned: number }>();
+
+		if (row && row.banned !== 1) {
+			const sessionToken = await createSessionToken(
+				result.userId,
+				row.role || "user",
+				cfEnv,
+			);
+			const secure = Astro.url.protocol === "https:";
+			const res = Astro.redirect("/profile/?verified=1");
+			res.headers.append(
+				"Set-Cookie",
+				buildUserSessionCookie(sessionToken, secure, true),
+			);
+			return res;
+		}
+		state = "banned";
+	} else {
+		state = result.reason === "expired" ? "expired" : "invalid";
+	}
+}
+
+const messages: Record<State, { heading: string; body: string }> = {
+	notoken: {
+		heading: "链接不完整",
+		body: "验证链接缺少 token，请从邮件中重新点击链接，或重新发送验证邮件。",
+	},
+	invalid: {
+		heading: "链接无效",
+		body: "该验证链接无效或已被使用。如果链接已在其他设备打开过，直接登录即可。",
+	},
+	expired: {
+		heading: "链接已过期",
+		body: "验证链接已超过 24 小时有效期，请重新发送一封验证邮件。",
+	},
+	banned: {
+		heading: "账号不可用",
+		body: "该账号已被封禁，无法完成验证。如有疑问请联系站长。",
+	},
+};
+
+const msg = messages[state];
+---
+
+<MainGridLayout title={title} description={description}>
+	<div class="min-h-[70vh] flex items-start justify-center pt-4 sm:pt-10">
+		<div class="card-base w-full max-w-md mx-auto px-7 py-9 rounded-(--radius-large) text-center">
+			<div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-500/10 mb-4">
+				<svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.34 16a2 2 0 001.73 3z" />
+				</svg>
+			</div>
+			<h2 class="text-xl font-bold text-90">{msg.heading}</h2>
+			<p class="text-sm text-50 mt-3 leading-relaxed">{msg.body}</p>
+
+			<div class="mt-6 space-y-3">
+				<a
+					href={alreadyLoggedIn ? "/profile/" : "/login/"}
+					data-no-swup
+					class="block w-full rounded-xl bg-(--primary) px-6 py-2.5 text-sm font-semibold text-white text-center transition-all hover:bg-(--primary)/90"
+				>
+					{alreadyLoggedIn ? "返回个人资料" : "去登录"}
+				</a>
+				<a
+					href="/register/"
+					class="block w-full rounded-xl border border-(--line-divider) bg-(--card-bg) px-6 py-2.5 text-sm font-medium text-75 transition-colors hover:border-(--primary)/40 hover:text-(--primary)"
+				>
+					重新注册 / 重发验证邮件
+				</a>
+			</div>
+		</div>
+	</div>
+</MainGridLayout>

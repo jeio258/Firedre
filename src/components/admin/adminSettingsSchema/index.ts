@@ -58,6 +58,7 @@ export const FIELD_ORDER: Record<string, string[]> = {
 		"siteUrl",
 		"siteStartDate",
 		"timezone",
+		"allowRegistration",
 		"faviconUrl",
 		"hue",
 		"defaultMode",

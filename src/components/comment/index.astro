@@ -11,6 +11,7 @@ import type { PostForList } from "@/utils/post-types";
 import Artalk from "./Artalk.astro";
 import Disqus from "./Disqus.astro";
 import Giscus from "./Giscus.astro";
+import Native from "./Native.astro";
 import Twikoo from "./Twikoo.astro";
 import Waline from "./Waline.astro";
 
@@ -70,6 +71,7 @@ const commentEnabled = commentSettings.enabled !== false;
         {commentService === "giscus" && <Giscus />}
         {commentService === "disqus" && <Disqus identifier={slug} url={url} title={customTitle || postTitle || slug} />}
         {commentService === "artalk" && <Artalk path={path} />}
+        {commentService === "native" && <Native path={path} />}
       </div>
     </div>
   )

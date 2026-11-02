@@ -42,6 +42,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import CoverImage from "@/components/common/CoverImage.astro";
 import PostMetadata from "@/components/layout/PostMeta.astro";
+import LikeButton from "@/components/like/LikeButton.svelte";
 import RecommendedPost from "@/components/misc/RecommendedPost.astro";
 import SeriesNav from "@/components/misc/SeriesNav.astro";
 import PostShareSponsor from "@/components/pages/PostShareSponsor.astro";
@@ -541,6 +542,14 @@ const [relatedPosts, seriesData] = await Promise.all([
           }
         </>
       )}
+
+      {
+        !entry.data.password && (
+          <div class="mb-6 flex justify-center onload-animation">
+            <LikeButton slug={entry.id} client:visible />
+          </div>
+        )
+      }
     </div>
   </div>
 

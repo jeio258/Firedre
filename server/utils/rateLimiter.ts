@@ -114,6 +114,12 @@ async function pruneExpiredWindows(
 		)
 		.bind(now - windowMs)
 		.run();
+	// 登录失败计数只增不减：已过锁定期或一天未再更新的行一并清掉
+	await db
+		.prepare(
+			"DELETE FROM rate_limits WHERE kind = 'login' AND ((locked_until IS NOT NULL AND locked_until < datetime('now')) OR updated_at < datetime('now', '-1 day'))",
+		)
+		.run();
 }
 
 export const MEMORY_STORE_MAX = 5000;

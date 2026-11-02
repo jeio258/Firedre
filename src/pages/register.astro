@@ -1,0 +1,50 @@
+---
+import { getAuthUser } from "@server/auth/userSession";
+import RegisterCard from "@/components/auth/RegisterCard.svelte";
+import Layout from "@/layouts/Layout.astro";
+import { cfEnv } from "../lib/api";
+
+// 已登录用户无需注册
+const me = await getAuthUser(Astro.request, cfEnv);
+if (me) return Astro.redirect("/profile/");
+
+const title = "注册账号";
+const description = "注册 Firedre 账号，验证邮箱后参与评论与互动";
+---
+
+{/* 独立页：只用裸 Layout（无导航栏 / 无侧边栏 / 无页脚），内容为居中卡片 */}
+<Layout title={title} description={description}>
+	<main class="auth-standalone">
+		<a href="/" class="auth-standalone__back">← 返回首页</a>
+		<div class="auth-standalone__card">
+			<RegisterCard client:load />
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.auth-standalone {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 2.5rem 1rem;
+	}
+	.auth-standalone__card {
+		width: 100%;
+		/* 主题把 Tailwind 容器尺度重定义成 --container-md:100%（xs/sm/md 为流式），
+		   裸 Layout 下 max-w-md 不再限宽，故在此显式给定卡片宽度 */
+		max-width: 28rem;
+	}
+	.auth-standalone__back {
+		font-size: 0.875rem;
+		opacity: 0.6;
+		transition: opacity 0.2s ease, color 0.2s ease;
+	}
+	.auth-standalone__back:hover {
+		opacity: 1;
+		color: var(--primary);
+	}
+</style>

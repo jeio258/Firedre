@@ -1,0 +1,53 @@
+---
+import { getOAuthClientConfig, OAUTH_PROVIDERS } from "@server/auth/oauth";
+import LoginCard from "@/components/auth/LoginCard.svelte";
+import Layout from "@/layouts/Layout.astro";
+import { cfEnv } from "../lib/api";
+
+// 已登录跳转由 LoginCard 在客户端按 /api/auth/me/ 处理（HTML 按 path 缓存，不能烘登录态）
+
+// 未配置凭据的 provider 不下发，前端据此整块隐藏第三方登录
+const oauthProviders = OAUTH_PROVIDERS.filter((provider) =>
+	Boolean(getOAuthClientConfig(cfEnv, provider)),
+);
+
+const title = "登录";
+const description = "登录 Firedre，参与评论与互动";
+---
+
+{/* 独立页：只用裸 Layout（无导航栏 / 无侧边栏 / 无页脚），内容为居中卡片 */}
+<Layout title={title} description={description}>
+	<main class="auth-standalone">
+		<a href="/" class="auth-standalone__back">← 返回首页</a>
+		<div class="auth-standalone__card">
+			<LoginCard client:load oauthProviders={oauthProviders} />
+		</div>
+	</main>
+</Layout>
+
+<style>
+	.auth-standalone {
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 2.5rem 1rem;
+	}
+	.auth-standalone__card {
+		width: 100%;
+		/* 主题把 Tailwind 容器尺度重定义成 --container-md:100%（xs/sm/md 为流式），
+		   裸 Layout 下 max-w-md 不再限宽，故在此显式给定卡片宽度 */
+		max-width: 28rem;
+	}
+	.auth-standalone__back {
+		font-size: 0.875rem;
+		opacity: 0.6;
+		transition: opacity 0.2s ease, color 0.2s ease;
+	}
+	.auth-standalone__back:hover {
+		opacity: 1;
+		color: var(--primary);
+	}
+</style>

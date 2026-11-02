@@ -1,0 +1,61 @@
+---
+import { getAuthUser } from "@server/auth/userSession";
+import PermPanel from "@/components/auth/PermPanel.svelte";
+import ProfileCard, {
+	type ProfileUser,
+} from "@/components/auth/ProfileCard.svelte";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+import { cfEnv } from "../lib/api";
+
+// 未登录 → 回登录页并记住回跳
+const me = await getAuthUser(Astro.request, cfEnv);
+if (!me) return Astro.redirect("/login/?next=/profile/");
+
+// 别名邮箱（0007 user_emails）
+const aliasRows = await cfEnv.DB.prepare(
+	"SELECT email FROM user_emails WHERE user_id = ? ORDER BY created_at",
+)
+	.bind(me.id)
+	.all<{ email: string }>();
+
+const user: ProfileUser = {
+	id: me.id,
+	email: me.email,
+	emails: [
+		me.email,
+		...(aliasRows.results || []).map((r: { email: string }) => r.email),
+	],
+	emailVerified: me.email_verified === 1,
+	name: me.name,
+	avatar: me.avatar,
+	bio: me.bio,
+	role: me.role,
+	createdAt: me.created_at,
+};
+
+const verified = Astro.url.searchParams.get("verified") === "1";
+
+const title = "个人资料";
+const description = "管理你的账号资料与安全设置";
+---
+
+<MainGridLayout title={title} description={description}>
+	<div class="min-h-[70vh] pt-2 sm:pt-6">
+		<div class="mb-5">
+			<div class="page-heading">
+				<div class="page-icon" aria-hidden="true">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+					</svg>
+				</div>
+				<div>
+					<h2>{title}</h2>
+					<p>{description}</p>
+				</div>
+			</div>
+		</div>
+		<ProfileCard client:load user={user} verified={verified} />
+		<PermPanel client:load />
+	</div>
+</MainGridLayout>

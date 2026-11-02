@@ -216,3 +216,116 @@ VALUES
   (12, '微信',        '/assets/images/sponsor/wechat.png',    'fa7-brands:weixin',     'sponsor', 'qr',   1, 1),
   (13, 'ko-fi',       'https://ko-fi.com/cuteleaf',           'simple-icons:kofi',     'sponsor', 'link', 2, 1),
   (14, '爱发电',      'https://ifdian.net/a/cuteleaf',        'simple-icons:afdian',   'sponsor', 'link', 3, 1);
+
+-- ========== 用户系统 ==========
+-- users 为全站唯一身份表：前台用户与管理员共用，role='admin' 即可进后台。
+-- 密码指纹（sha256(password).slice(0,16)）内嵌会话 token，改密即吊销旧会话。
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  email_verified INTEGER NOT NULL DEFAULT 0,
+  name TEXT NOT NULL,
+  password TEXT NOT NULL DEFAULT '',
+  avatar TEXT NOT NULL DEFAULT '',
+  bio TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'user',
+  banned INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS oauth_accounts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL CHECK (provider IN ('github','google')),
+  provider_user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (provider, provider_user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_oauth_accounts_user ON oauth_accounts(user_id);
+
+-- 验证/重置 token 只存 sha256，明文仅出现在邮件链接
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL,
+  purpose TEXT NOT NULL CHECK (purpose IN ('signup','reset')),
+  expires_at TEXT NOT NULL,
+  used_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_email_verifications_user
+  ON email_verifications(user_id, purpose);
+
+-- 别名邮箱：与 users.email 同权参与登录解析，全表唯一
+CREATE TABLE IF NOT EXISTS user_emails (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL UNIQUE,
+  verified INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_user_emails_user ON user_emails(user_id);
+
+CREATE TABLE IF NOT EXISTS user_permissions (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  perm TEXT NOT NULL,
+  granted_by TEXT NOT NULL DEFAULT '',
+  granted_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (user_id, perm)
+);
+CREATE INDEX IF NOT EXISTS idx_user_permissions_perm ON user_permissions(perm);
+
+CREATE TABLE IF NOT EXISTS permission_requests (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  perm TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','approved','denied')),
+  note TEXT NOT NULL DEFAULT '',
+  requested_at TEXT NOT NULL DEFAULT (datetime('now')),
+  reviewed_by TEXT,
+  reviewed_at TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_permission_requests_user
+  ON permission_requests(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_permission_requests_status
+  ON permission_requests(status, requested_at DESC);
+
+-- target 不设 FK：可为文章 slug、'guestbook'、'dynamic:<id>' 等伪目标
+CREATE TABLE IF NOT EXISTS comments (
+  id TEXT PRIMARY KEY,
+  target TEXT NOT NULL,
+  parent_id TEXT REFERENCES comments(id) ON DELETE CASCADE,
+  user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  guest_name TEXT NOT NULL DEFAULT '',
+  guest_email TEXT NOT NULL DEFAULT '',
+  content TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending','approved','spam','deleted')),
+  ip TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_comments_target
+  ON comments(target, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_comments_status
+  ON comments(status, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS post_likes (
+  post_slug TEXT NOT NULL,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (post_slug, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_post_likes_slug ON post_likes(post_slug);
+
+-- 发信审计：sendMail 尽力写入，表不可用时静默跳过
+CREATE TABLE IF NOT EXISTS mail_log (
+  id TEXT PRIMARY KEY,
+  to_email TEXT,
+  subject TEXT,
+  status TEXT,
+  detail TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

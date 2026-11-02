@@ -1,6 +1,5 @@
 ---
 import FaviconLinks from "./FaviconLinks.astro";
-import "@/styles/admin-vditor-nexus.css";
 
 interface Props {
 	defaultMode?: string;
@@ -13,9 +12,8 @@ const settings =
 <meta name="robots" content="noindex, nofollow" />
 <FaviconLinks settings={settings} />
 <link rel="stylesheet" href="/admin/admin.css" />
-<!-- Vditor 主样式：必须由所有后台页面引入（后台为 SPA 视图切换，不重载 head），
-     否则从 /admin/ 直接切到编辑器时主样式缺失 -->
-<link rel="stylesheet" href={`/vditor/${__VDITOR_VERSION__}/dist/index.css`} />
+<!-- Markdown 编辑器（EasyMDE）样式由编辑器组件的 import 注入；
+     后台为 SPA 视图切换，首次注入后全后台生效 -->
 <style is:inline set:html={`html{--hue:${defaultHue}}`}></style>
 <script is:inline define:vars={{ defaultMode, defaultHue }}>
 	(function () {

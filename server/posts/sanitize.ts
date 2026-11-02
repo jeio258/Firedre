@@ -20,6 +20,21 @@ const UNSAFE_TAG_NAMES = new Set([
 	"textarea",
 	"select",
 	"keygen",
+	// SVG/SMIL：动画可改写其它元素的 URL 属性，绕过下面的 URL 过滤
+	"svg",
+	"animate",
+	"animatetransform",
+	"animatemotion",
+	"set",
+	"use",
+	"foreignobject",
+	"discard",
+	"handler",
+	"listener",
+	"image",
+	"portal",
+	"marquee",
+	"iframe",
 ]);
 
 const URL_PROPERTY_NAMES = new Set([
@@ -54,6 +69,29 @@ function sanitizeSrcset(value: unknown): string | undefined {
 
 const STRIP_ATTRIBUTE_NAMES = new Set(["srcdoc"]);
 
+// SMIL 动画属性本身不带 URL，但能改写其它元素的 href/src（如 animate attributeName="href"）
+const ANIMATION_ATTRIBUTE_NAMES = new Set([
+	"attributename",
+	"attributetype",
+	"values",
+	"to",
+	"from",
+	"by",
+	"begin",
+	"end",
+	"dur",
+	"repeatcount",
+	"repeatdur",
+	"calcmode",
+	"keytimes",
+	"keysplines",
+	"keypoints",
+	"additive",
+	"accumulate",
+	"restart",
+	"path",
+]);
+
 export function sanitizeUrl(value: unknown): string | undefined {
 	if (typeof value !== "string") return undefined;
 
@@ -81,12 +119,17 @@ export function sanitizeHast(node: unknown): unknown {
 	};
 	if (n?.type === "element") {
 		const tag = String(n.tagName || "").toLowerCase();
-		if (UNSAFE_TAG_NAMES.has(tag)) return null;
+		// 黑名单命中，或带命名空间的标签（svg:script 这类 XML 写法）→ 整个丢弃
+		if (UNSAFE_TAG_NAMES.has(tag) || tag.includes(":")) return null;
 
 		if (n.properties && typeof n.properties === "object") {
 			for (const key of Object.keys(n.properties)) {
 				const lowerKey = key.toLowerCase();
-				if (lowerKey.startsWith("on") || STRIP_ATTRIBUTE_NAMES.has(lowerKey)) {
+				if (
+					lowerKey.startsWith("on") ||
+					STRIP_ATTRIBUTE_NAMES.has(lowerKey) ||
+					ANIMATION_ATTRIBUTE_NAMES.has(lowerKey)
+				) {
 					delete n.properties[key];
 					continue;
 				}

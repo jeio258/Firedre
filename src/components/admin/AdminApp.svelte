@@ -1,8 +1,14 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { groupTitleOf, iconSvg, titleOf } from "@/lib/adminNav";
+import {
+	groupTitleOf,
+	iconSvg,
+	type NavGroup,
+	navGroupsFor,
+	sectionsOf,
+	titleOf,
+} from "@/lib/adminNav";
 import { persistActiveDraft, runSaveAll } from "@/lib/adminSave";
-import AdminLogin from "./AdminLogin.svelte";
 import AdminSidebar from "./AdminSidebar.svelte";
 import AdminThemeSwitch from "./AdminThemeSwitch.svelte";
 
@@ -12,6 +18,10 @@ let authed = $state(false);
 let checking = $state(true);
 let username = $state("");
 let checkFailed = $state(false);
+let isAdmin = $state(false);
+let perms = $state<string[]>([]);
+let navGroups = $state<NavGroup[]>([]);
+let allowed = $state<Set<string>>(new Set());
 let section = $state<Section>("dashboard");
 let sidebarOpen = $state(false);
 let View = $state<import("svelte").Component<Record<string, unknown>> | null>(
@@ -69,6 +79,9 @@ const VIEWS: Record<string, () => Promise<{ default: unknown }>> = {
 	gallery: () => import("./AdminGalleryHub.svelte"),
 	"album-edit": () => import("./AdminGalleryAlbum.svelte"),
 	settings: () => import("./AdminSettings.svelte"),
+	users: () => import("./UserList.svelte"),
+	comments: () => import("./CommentModeration.svelte"),
+	perms: () => import("./PermRequests.svelte"),
 };
 
 const VIEW_PROPS: Record<string, Record<string, unknown>> = {
@@ -105,6 +118,9 @@ function parsePath(pathname: string): { section: Section; slug?: string } {
 			"notice",
 			"about",
 			"settings",
+			"users",
+			"comments",
+			"perms",
 		].includes(first)
 	) {
 		return { section: first };
@@ -137,14 +153,40 @@ async function render(s: Section, slug?: string) {
 	}
 }
 
-function handleLoginSuccess() {
-	authed = true;
-	checking = false;
-	navigate(window.location.pathname);
+function navigateToLogin() {
+	window.location.replace(
+		`/login/?next=${encodeURIComponent(window.location.pathname)}`,
+	);
+}
+
+/** 无权板块的落点：侧栏第一个可见项（权限用户没有仪表盘权限，落点是文章管理） */
+function landingTarget(): { section: string; href: string } | null {
+	for (const group of navGroups) {
+		for (const item of group.items) {
+			const target = item.sections[0];
+			if (allowed.has(target)) return { section: target, href: item.href };
+		}
+	}
+	return null;
 }
 
 async function navigate(pathname: string) {
 	const parsed = parsePath(pathname);
+	// 手输 URL / 旧书签：无权板块统一落回第一个可见页面，一个板块都没有则回站点首页
+	if (!allowed.has(parsed.section)) {
+		const target = landingTarget();
+		if (!target) {
+			window.location.replace("/");
+			return;
+		}
+		if (window.location.pathname !== target.href) {
+			window.history.replaceState({}, "", target.href);
+		}
+		await render(target.section);
+		sidebarOpen = false;
+		userMenuOpen = false;
+		return;
+	}
 	await render(parsed.section, parsed.slug);
 	sidebarOpen = false;
 	userMenuOpen = false;
@@ -169,31 +211,51 @@ async function handleNav(event: MouseEvent) {
 	await navigate(href);
 }
 
-async function checkAuth() {
+type BackendMe = {
+	authenticated?: boolean;
+	canAccess?: boolean;
+	isAdmin?: boolean;
+	username?: string;
+	perms?: string[];
+};
+
+async function checkAccess() {
 	for (let attempt = 0; attempt < 3; attempt++) {
 		const ctrl = new AbortController();
 		const timer = setTimeout(() => ctrl.abort(), 10000);
 		try {
-			const resp = await fetch("/api/admin/me/", {
+			const resp = await fetch("/api/backend/me/", {
 				credentials: "include",
 				signal: ctrl.signal,
 			});
 			if (resp.status === 401) {
-				authed = false;
-				username = "";
 				clearTimeout(timer);
-				checking = false;
+				navigateToLogin();
 				return;
 			}
-			const data = await resp.json();
-			if (typeof data.authenticated === "boolean") {
-				authed = data.authenticated;
-				username = data.username || "";
+			const data = (await resp.json()) as BackendMe;
+			if (typeof data.authenticated !== "boolean") {
 				clearTimeout(timer);
-				checking = false;
-				if (authed) {
-					await navigate(window.location.pathname);
+			} else {
+				clearTimeout(timer);
+				if (!data.authenticated) {
+					navigateToLogin();
+					return;
 				}
+				if (!data.canAccess) {
+					// 已登录但无任何后台权限：回登录页会与「next=/admin/」形成往返，
+					// 唯一合理去处是站点首页
+					window.location.replace("/");
+					return;
+				}
+				isAdmin = data.isAdmin === true;
+				perms = data.perms ?? [];
+				username = data.username || "";
+				navGroups = navGroupsFor({ isAdmin, perms });
+				allowed = sectionsOf(navGroups);
+				authed = true;
+				checking = false;
+				await navigate(window.location.pathname);
 				return;
 			}
 		} catch {
@@ -210,7 +272,7 @@ async function checkAuth() {
 }
 
 function logout() {
-	fetch("/api/admin/logout/", {
+	fetch("/api/auth/logout/", {
 		method: "POST",
 		credentials: "include",
 	}).finally(() => window.location.replace("/admin/"));
@@ -296,7 +358,7 @@ onMount(() => {
 	try {
 		collapsed = localStorage.getItem("admin_sidebar_collapsed") === "1";
 	} catch (e) {}
-	checkAuth();
+	checkAccess();
 	document.addEventListener("click", handleNav);
 	const onDocClick = (e: MouseEvent) => {
 		// 点击 user-menu 外部时收起下拉/密码面板
@@ -319,7 +381,7 @@ onMount(() => {
 {#if checking}
 	<div class="admin-checking">正在加载…</div>
 {:else if !authed}
-	<AdminLogin onSuccess={handleLoginSuccess} />
+	<div class="admin-checking">正在跳转登录…</div>
 {:else}
 	<div class="shell" class:collapsed={collapsed} data-no-swup>
 		{#if sidebarOpen}
@@ -330,6 +392,8 @@ onMount(() => {
 			open={sidebarOpen}
 			section={section}
 			username={username}
+			groups={navGroups}
+			roleLabel={isAdmin ? "管理员" : "普通用户"}
 			onClose={() => (sidebarOpen = false)}
 		/>
 
@@ -349,9 +413,11 @@ onMount(() => {
 							{@html iconSvg("save")}<span class="btn-label">保存全部</span>
 						</button>
 					{/if}
-					<a class="btn btn-ghost new-post" href="/admin/posts/new/" aria-label="新建文章">
-						{@html iconSvg("plus")}<span class="btn-label">新建文章</span>
-					</a>
+					{#if allowed.has("new")}
+						<a class="btn btn-ghost new-post" href="/admin/posts/new/" aria-label="新建文章">
+							{@html iconSvg("plus")}<span class="btn-label">新建文章</span>
+						</a>
+					{/if}
 					<span class="actions-divider" aria-hidden="true"></span>
 					<span class="theme-slot"><AdminThemeSwitch /></span>
 					<a class="icon-btn site-ext" href="/" target="_blank" rel="noopener" aria-label="预览站点">
@@ -365,9 +431,11 @@ onMount(() => {
 						</button>
 						{#if userMenuOpen}
 							<div class="dropdown open">
-								<button class="dd-item" onclick={togglePwdPanel}>
-									{@html iconSvg("settings")} 修改密码
-								</button>
+								{#if isAdmin}
+									<button class="dd-item" onclick={togglePwdPanel}>
+										{@html iconSvg("settings")} 修改密码
+									</button>
+								{/if}
 								<button class="dd-item danger" onclick={logout}>
 									{@html iconSvg("logout")} 退出登录
 								</button>

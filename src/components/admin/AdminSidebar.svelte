@@ -1,14 +1,24 @@
 <script lang="ts">
 import { CATEGORIES } from "@/components/admin/adminSettingsSchema/types";
-import { iconSvg, isActive, NAV_GROUPS } from "@/lib/adminNav";
+import { iconSvg, isActive, NAV_GROUPS, type NavGroup } from "@/lib/adminNav";
 
 interface Props {
 	open: boolean;
 	section: string;
 	username: string;
 	onClose: () => void;
+	/** 已按后台权限裁剪的分组；缺省时用全量（独立使用时保持原行为） */
+	groups?: NavGroup[];
+	roleLabel?: string;
 }
-let { open, section, username, onClose }: Props = $props();
+let {
+	open,
+	section,
+	username,
+	onClose,
+	groups = NAV_GROUPS,
+	roleLabel = "管理员",
+}: Props = $props();
 </script>
 
 <aside class="sidebar" class:open={open}>
@@ -21,7 +31,7 @@ let { open, section, username, onClose }: Props = $props();
 	</div>
 
 	<nav class="nav">
-		{#each NAV_GROUPS as group (group.title)}
+		{#each groups as group (group.title)}
 			<div class="nav-group">
 				<p class="nav-title">{group.title}</p>
 				{#if group.settings}
@@ -58,7 +68,7 @@ let { open, section, username, onClose }: Props = $props();
 			<img class="avatar" src="/favicon/firefly-32.png" alt="" />
 			<div class="user-meta">
 				<span class="user-name">{username || "admin"}</span>
-				<span class="user-role">管理员</span>
+				<span class="user-role">{roleLabel}</span>
 			</div>
 		</div>
 	</div>

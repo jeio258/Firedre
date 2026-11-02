@@ -1,16 +1,14 @@
 <script lang="ts">
 import { onDestroy, tick } from "svelte";
-import type Vditor from "vditor";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { type AdminEditor, createAdminEditor } from "@/lib/adminEditor";
 import { registerSaveAll } from "@/lib/adminSave";
-import { createAdminVditor } from "@/lib/adminVditor";
 import { onMountAsync } from "@/utils/svelte-mount";
 
 let { section = "about", apiPath = "/api/about/" } = $props();
 
-let editor: Vditor | null = null;
-let vditorThemeObserver: MutationObserver | null = null;
+let editor: AdminEditor | null = null;
 let rawContent = $state("");
 let saving = $state(false);
 let message = $state("");
@@ -39,10 +37,14 @@ async function initEditor() {
 		return;
 	}
 
-	editor = await createAdminVditor("vditor-editor", {
+	editor = await createAdminEditor("md-editor", {
 		value: rawContent,
-		height: 520,
-		onThemeObserver: (mo) => (vditorThemeObserver = mo),
+		minHeight: "calc(100vh - 320px)",
+		upload: {
+			url: "/api/admin/upload-image/",
+			fieldName: "file",
+			headers: {},
+		},
 	});
 }
 
@@ -84,7 +86,10 @@ onMountAsync(async () => {
 		content: editor ? editor.getValue() : rawContent,
 	}));
 });
-onDestroy(() => vditorThemeObserver?.disconnect());
+onDestroy(() => {
+	editor?.destroy();
+	editor = null;
+});
 </script>
 
 <div class="ui-page">
@@ -106,7 +111,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 	{#if loaded}
 		<div class="ui-card">
 			<div class="ui-card-b">
-				<div id="vditor-editor"></div>
+				<textarea id="md-editor"></textarea>
 			</div>
 		</div>
 	{:else}

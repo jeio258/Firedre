@@ -150,11 +150,31 @@ async function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 		.use(rehypeStringify, { allowDangerousHtml: true });
 }
 
+// unified processor 建链成本 15–26ms；插件注册后无请求级可变状态，按解析器身份复用。
+// 无解析器（多数页面）只保留一个实例；有解析器（文章 wiki-link）用 WeakMap 按身份分桶。
+let sharedProcessor: Promise<UnifiedProcessor> | null = null;
+const resolverProcessors = new WeakMap<object, Promise<UnifiedProcessor>>();
+
+function getProcessor(
+	resolveWikiLink: WikiLinkResolver | null,
+): Promise<UnifiedProcessor> {
+	if (!resolveWikiLink) {
+		sharedProcessor ??= buildProcessor(null);
+		return sharedProcessor;
+	}
+	let cached = resolverProcessors.get(resolveWikiLink as object);
+	if (!cached) {
+		cached = buildProcessor(resolveWikiLink);
+		resolverProcessors.set(resolveWikiLink as object, cached);
+	}
+	return cached;
+}
+
 export async function renderMarkdown(
 	content: string,
 	options: RenderMarkdownOptions = {},
 ): Promise<RenderedMarkdown> {
-	const processor = await buildProcessor(options.resolveWikiLink ?? null);
+	const processor = await getProcessor(options.resolveWikiLink ?? null);
 	const data: Record<string, unknown> = {
 		frontmatter: options.frontmatter ?? {},
 	};

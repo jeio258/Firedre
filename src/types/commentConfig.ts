@@ -1,6 +1,13 @@
 export type CommentConfig = {
 	enable?: boolean;
-	type: "none" | "twikoo" | "waline" | "giscus" | "disqus" | "artalk";
+	type:
+		| "none"
+		| "native"
+		| "twikoo"
+		| "waline"
+		| "giscus"
+		| "disqus"
+		| "artalk";
 	twikoo?: {
 		envId: string;
 		region?: string;

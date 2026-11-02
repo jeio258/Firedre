@@ -5,7 +5,7 @@ const routesFile = fileURLToPath(
 	new URL("../dist/_routes.json", import.meta.url),
 );
 
-const COLLAPSE_PREFIXES = ["/vditor/", "/assets/", "/favicon/", "/katex/"];
+const COLLAPSE_PREFIXES = ["/assets/", "/favicon/", "/katex/"];
 const MAX_RULES = 100;
 
 const routes = JSON.parse(readFileSync(routesFile, "utf8"));

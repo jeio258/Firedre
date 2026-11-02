@@ -29,6 +29,12 @@ export const siteGroups: Group[] = [
 				placeholder: "Asia/Shanghai",
 			},
 			{
+				name: "allowRegistration",
+				label: "开放注册",
+				type: "boolean",
+				hint: "关闭后仅已注册账号可登录",
+			},
+			{
 				name: "hue",
 				label: "主题色相 (0-360)",
 				type: "number",

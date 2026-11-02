@@ -11,8 +11,17 @@ let lastPreviewPort = null;
 const results = [];
 
 // 无头浏览器：使用 Playwright 自带 Chromium（WSL 本地）。2026-10-06 起弃用 Windows 侧 Chrome。
+// headless shell 未安装时回退到完整 Chromium（本机已有 chromium-1243）。
 async function launchChromium(chromium) {
-	return chromium.launch();
+	try {
+		return await chromium.launch();
+	} catch (e) {
+		if (!/Executable doesn't exist/i.test(e?.message ?? "")) throw e;
+		const fallback =
+			"/home/lyxy/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome";
+		if (!existsSync(fallback)) throw e;
+		return chromium.launch({ executablePath: fallback });
+	}
 }
 
 export function check(name, ok, detail = "") {

@@ -101,9 +101,7 @@ describe("sanitizeHast", () => {
 			},
 			children: [],
 		};
-		sanitizeHast(iframe);
-		expect(iframe.properties.srcdoc).toBeUndefined();
-		expect(iframe.properties.src).toBe("https://example.com");
+		expect(sanitizeHast(iframe)).toBeNull();
 	});
 
 	it("removes javascript: href and keeps normal href", () => {
@@ -117,15 +115,14 @@ describe("sanitizeHast", () => {
 		expect(a.properties.href).toBeUndefined();
 	});
 
-	it("净化 rehype 驼峰属性 xlinkHref（原为绕过面）", () => {
+	it("整族丢弃 svg（xlinkHref 等属性绕过面随之消失）", () => {
 		const link = {
 			type: "element",
 			tagName: "svg",
 			properties: { xlinkHref: "javascript:alert(1)" },
 			children: [],
 		};
-		sanitizeHast(link);
-		expect(link.properties.xlinkHref).toBeUndefined();
+		expect(sanitizeHast(link)).toBeNull();
 	});
 
 	it("移除 mXSS 向量标签（math/annotation-xml/input）", () => {

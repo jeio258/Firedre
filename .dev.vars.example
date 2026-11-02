@@ -3,3 +3,30 @@
 SESSION_SECRET=dev-session-secret-firedre-local-00000000
 # 相册 WebDAV 源密码（仅使用 WebDAV 相册时需要）
 WEBDAV_PASSWORD=your_webdav_password
+
+# 前台用户会话签名密钥（不填则回退 SESSION_SECRET 体系；生产必须单独配置）
+USER_SESSION_SECRET=dev-user-session-secret-firedre-0000000
+
+# 邮件：MAIL_PROVIDER=smtp|brevo|none；缺省按已配置凭据推断（SMTP 优先）
+# ENVIRONMENT 非 prod 时只打印邮件内容并写 mail_log，不发信
+ENVIRONMENT=dev
+MAIL_PROVIDER=
+# SMTP（worker-mailer，465 隐式 TLS / 587 STARTTLS）
+SMTP_HOST=
+SMTP_PORT=465
+SMTP_USER=
+SMTP_PASS=
+SMTP_SECURE=
+# Brevo HTTP API（作为 SMTP 的替代提供商）
+BREVO_API_KEY=
+# 发件人，可写 "站点名 <no-reply@example.com>"
+MAIL_FROM=
+
+# Cloudflare Turnstile（注册/登录人机校验）。本地回环且 ENVIRONMENT!=prod 时可留空
+TURNSTILE_SECRET_KEY=
+
+# OAuth 第三方登录（未配置则登录页隐藏对应入口）
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=

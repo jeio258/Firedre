@@ -1,11 +1,10 @@
 <script lang="ts">
 import { pinyin } from "pinyin-pro";
 import { onDestroy, onMount, tick } from "svelte";
-import type Vditor from "vditor";
 import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
+import { type AdminEditor, createAdminEditor } from "@/lib/adminEditor";
 import { registerSaveAll } from "@/lib/adminSave";
-import { createAdminVditor } from "@/lib/adminVditor";
 import { onMountAsync } from "@/utils/svelte-mount";
 import Switch from "./Switch.svelte";
 
@@ -92,8 +91,7 @@ let rawContent = $state("");
 let slug = $state(initialSlug);
 let isNew = $state(initialIsNew);
 
-let editor: Vditor | null = null;
-let vditorThemeObserver: MutationObserver | null = null;
+let editor: AdminEditor | null = null;
 let saving = $state(false);
 let message = $state("");
 let messageKind = $state<"ok" | "err">("ok");
@@ -286,15 +284,14 @@ async function initEditor() {
 		return;
 	}
 
-	editor = await createAdminVditor("vditor-editor", {
+	editor = await createAdminEditor("md-editor", {
 		value: rawContent,
-		height: 560,
+		minHeight: "calc(100vh - 360px)",
 		upload: {
 			url: "/api/admin/upload-image/",
 			fieldName: "file",
 			headers: {},
 		},
-		onThemeObserver: (mo) => (vditorThemeObserver = mo),
 	});
 }
 
@@ -468,7 +465,10 @@ onMountAsync(async () => {
 		}),
 	);
 });
-onDestroy(() => vditorThemeObserver?.disconnect());
+onDestroy(() => {
+	editor?.destroy();
+	editor = null;
+});
 </script>
 
 <svelte:window
@@ -509,7 +509,7 @@ onDestroy(() => vditorThemeObserver?.disconnect());
 					if (isNew && !slugManuallyEdited) slug = slugifyTitle(title);
 				}}
 			/>
-			<div id="vditor-editor" class="pe-editor"></div>
+			<textarea id="md-editor" class="pe-editor"></textarea>
 		</main>
 	{:else}
 		<div class="pe-loading">{message || "加载中…"}</div>

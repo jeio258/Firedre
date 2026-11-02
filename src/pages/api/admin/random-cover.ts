@@ -1,4 +1,4 @@
-import { verifyAdminRequest } from "@server/auth/adminSession";
+import { canWritePosts } from "@server/auth/perms";
 import { getCoverConfig } from "@shared/config/runtime";
 import type { APIRoute } from "astro";
 import {
@@ -41,8 +41,8 @@ async function resolveRandomCover(urls: string[]): Promise<string> {
 
 /** 后台随机封面图：返回 { enable, url }；enable 决定编辑器写入主题魔法值 api 还是具体地址 */
 export const GET: APIRoute = async ({ request, locals }) => {
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
+	const allowed = await canWritePosts(request, cfEnv, "update");
+	if (!allowed) return unauthorized();
 	try {
 		const cover = getCoverConfig(locals);
 		const randomCover = cover.randomCoverImage;

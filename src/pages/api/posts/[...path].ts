@@ -1,4 +1,4 @@
-import { verifyAdminRequest } from "@server/auth/adminSession";
+import { canAccessBackend, canWritePosts } from "@server/auth/perms";
 import { decodePostSlug, isValidPostSlug } from "@server/posts/frontmatter";
 import { redactPostSecrets } from "@server/posts/sanitize";
 import {
@@ -32,7 +32,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 	const url = new URL(request.url);
 
 	try {
-		const isAdmin = await verifyAdminRequest(request, cfEnv);
+		const isAdmin = await canAccessBackend(request, cfEnv);
 		if (segments[0] === "taxonomy" && segments.length >= 2) {
 			const kind = segments[1];
 			if (kind === "categories")
@@ -108,8 +108,8 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
+	const allowed = await canWritePosts(request, cfEnv, "update");
+	if (!allowed) return unauthorized();
 
 	// 写入操作限流：每分钟最多 10 次（D1 持久化，跨边缘节点一致）
 	return withRateLimit(
@@ -140,8 +140,8 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
+	const allowed = await canWritePosts(request, cfEnv, "delete");
+	if (!allowed) return unauthorized();
 
 	return withRateLimit(
 		cfEnv,

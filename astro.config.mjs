@@ -18,14 +18,6 @@ const adapter = cloudflare({
 	imageService: "passthrough",
 });
 
-// vditor 静态资源落盘路径带版本号（scripts/copy-vditor.mjs 同源读取），引用方经此常量拼 URL
-const vditorVersion = JSON.parse(
-	readFileSync(
-		new URL("./node_modules/vditor/package.json", import.meta.url),
-		"utf8",
-	),
-).version;
-
 // 构建信息在构建时一次性捕获（SiteInfo 组件展示用）：
 // Workers 运行时的 process.platform/arch/version 是 workerd 的值，
 // 不反映构建环境，运行时取会得到「Linux / 」这类残缺结果
@@ -315,7 +307,6 @@ export default defineConfig({
 	],
 	vite: {
 		define: {
-			__VDITOR_VERSION__: JSON.stringify(vditorVersion),
 			__FIREDRE_VERSION__: JSON.stringify(buildPkg.version),
 			__ASTRO_VERSION__: JSON.stringify(astroVersion),
 			__PNPM_VERSION__: JSON.stringify(pnpmVersion),
@@ -395,8 +386,6 @@ export default defineConfig({
 		optimizeDeps: {
 			// workerd dev 下预优化产物访问不到，排除 astro: 虚拟模块规避崩溃
 			exclude: ["astro:assets", "astro/assets/services/noop", "astro:actions"],
-			// 预优化 vditor，避免 dev 首次访问编辑器报 Outdated Optimize Dep
-			include: ["vditor"],
 		},
 		build: {
 			reportCompressedSize: false,

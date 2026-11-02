@@ -1,4 +1,4 @@
-import { verifyAdminRequest } from "@server/auth/adminSession";
+import { canWritePosts } from "@server/auth/perms";
 import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
 import {
@@ -12,8 +12,8 @@ import {
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
-	const isAdmin = await verifyAdminRequest(request, cfEnv);
-	if (!isAdmin) return unauthorized();
+	const allowed = await canWritePosts(request, cfEnv, "update");
+	if (!allowed) return unauthorized();
 
 	return withRateLimit(
 		cfEnv,

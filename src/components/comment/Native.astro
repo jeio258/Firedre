@@ -1,0 +1,37 @@
+---
+// 原生评论外壳：SSR 只烘匿名首屏（HTML 全页缓存 180s，登录态禁止进 HTML），
+// 挂载后由 Native.svelte 重新拉取并把登录态待审评论合并进来
+import {
+	COMMENT_PAGE_SIZE,
+	type CommentListResult,
+	listComments,
+} from "@server/comments/service";
+import Native from "./Native.svelte";
+
+interface Props {
+	path: string;
+}
+
+const { path } = Astro.props as Props;
+
+const [{ cfEnv }] = await Promise.all([import("../../lib/api")]);
+
+let initial: CommentListResult = {
+	items: [],
+	total: 0,
+	page: 1,
+	pageSize: COMMENT_PAGE_SIZE,
+};
+try {
+	initial = await listComments(cfEnv.DB, {
+		target: path,
+		page: 1,
+		pageSize: COMMENT_PAGE_SIZE,
+	});
+} catch (error) {
+	// D1 异常不阻断整页渲染：首屏空列表由客户端重试
+	console.error("[comments] 首屏评论加载失败:", error);
+}
+---
+
+<Native client:visible target={path} {initial} />

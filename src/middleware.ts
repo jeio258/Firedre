@@ -1,5 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 import {
+	isSameOriginRequest,
+	originForbiddenResponse,
+} from "@server/utils/csrf";
+import {
 	readIsolateCache,
 	writeIsolateCache,
 } from "@server/utils/isolateCache";
@@ -67,11 +71,31 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	const { request } = context;
 	const url = new URL(request.url);
 
+	// 写接口同源校验：Cookie 为 SameSite=Lax 之外的第二道防线
+	if (url.pathname.startsWith("/api/") && !isSameOriginRequest(request)) {
+		const blocked = originForbiddenResponse();
+		applySecurityHeaders(blocked.headers);
+		return blocked;
+	}
+
+	// 登录态与认证页不入 HTML 缓存（缓存键不含 Cookie，命中会串号）
+	const cookieHeader = request.headers.get("Cookie") || "";
+	const hasUserSession = /(?:^|;\s*)user_session=/.test(cookieHeader);
+	const isAuthPage = [
+		"/login",
+		"/register",
+		"/verify",
+		"/setup",
+		"/profile",
+	].some((p) => url.pathname === p || url.pathname.startsWith(`${p}/`));
+
 	// HTML 页面快路径：先查缓存，命中即返回，避免 seed/settings/version 串行 D1 查询
 	const isHtmlPage =
 		request.method === "GET" &&
 		!url.pathname.startsWith("/admin") &&
-		!url.pathname.startsWith("/api");
+		!url.pathname.startsWith("/api") &&
+		!hasUserSession &&
+		!isAuthPage;
 
 	let htmlCacheKey = "";
 	let settingsVersion = "";
@@ -198,12 +222,17 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	if (url.pathname.startsWith("/admin") && request.method === "GET") {
 		response.headers.set("Cache-Control", "no-store");
 	}
+	if (request.method === "GET" && (hasUserSession || isAuthPage)) {
+		response.headers.set("Cache-Control", "no-store");
+	}
 	if (request.method === "GET") {
 		const contentType = response.headers.get("content-type") || "";
 		const isCacheableHtml =
 			contentType.includes("text/html") &&
 			!url.pathname.startsWith("/admin") &&
-			!url.pathname.startsWith("/api");
+			!url.pathname.startsWith("/api") &&
+			!hasUserSession &&
+			!isAuthPage;
 
 		// 404 页由 rewrite 渲染时可能与正常页同样返回 200，只靠 status 会把它写进当前请求路径的缓存键
 		const noStore = response.headers.get("x-firedre-no-store") === "1";
