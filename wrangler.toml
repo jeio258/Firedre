@@ -3,6 +3,14 @@ compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
 
+[vars]
+ENVIRONMENT = "prod"
+MAIL_PROVIDER = "smtp"
+SMTP_HOST = "smtp.qq.com"
+SMTP_PORT = "465"
+SMTP_SECURE = "true"
+MAIL_FROM = "Firedre <blog1996@foxmail.com>"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "firedre-blog"
