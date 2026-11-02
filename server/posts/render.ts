@@ -26,6 +26,39 @@ export interface RenderMarkdownOptions {
 	frontmatter?: Record<string, unknown>;
 
 	resolveWikiLink?: WikiLinkResolver;
+
+	/** 按内容特征裁剪重型插件；缺省全部启用，保持既有语义 */
+	features?: MarkdownFeatureFlags;
+}
+
+export interface MarkdownFeatureFlags {
+	math?: boolean;
+	callouts?: boolean;
+	codeGroup?: boolean;
+	diagrams?: boolean;
+	github?: boolean;
+}
+
+/**
+ * 从源码探测所需的 Markdown 特性（只做廉价字符串匹配，无 AST）。
+ * 判断保守：命中任一可疑模式就启用，宁多算不漏渲染。
+ */
+export function detectMarkdownFeatures(
+	source: string,
+): Required<MarkdownFeatureFlags> {
+	// 数学：$...$ / $$...$$（remark-math 语法）
+	const math = /\$\$[\s\S]*?\$\$|\$[^$\n]+\$/.test(source);
+	// 标注块：:::note / > [!NOTE]（rehype-callouts / admonition）
+	const callouts =
+		/^:::+|\n:::+|\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i.test(source);
+	// 代码分组：` ```group ` 或 tab 语法
+	const codeGroup = /```+\s*(?:group|tabs?)\b/i.test(source);
+	// 图表：mermaid / plantuml fenced block
+	const diagrams = /```+\s*(?:mermaid|plantuml|puml)\b/i.test(source);
+	// GitHub 卡片：::github{repo="owner/repo"}
+	const github = /::github\{/.test(source);
+
+	return { math, callouts, codeGroup, diagrams, github };
 }
 
 function remarkReadingTimeLocal() {
@@ -95,7 +128,10 @@ interface UnifiedProcessor {
 	}>;
 }
 
-async function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
+async function buildProcessor(
+	resolveWikiLink: WikiLinkResolver | null,
+	features: Required<MarkdownFeatureFlags>,
+) {
 	const [
 		{ unified },
 		{ default: remarkParse },
@@ -137,6 +173,7 @@ async function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 					},
 				],
 				excerpt: remarkExcerptLocal,
+				math: features.math,
 			}),
 		)
 		.use(remarkRehype, { allowDangerousHtml: true })
@@ -145,27 +182,58 @@ async function buildProcessor(resolveWikiLink: WikiLinkResolver | null) {
 		.use(
 			sharedRehypePlugins(siteConfig, {
 				beforeAutolink: [rehypeCollectHeadings],
+				features: {
+					math: features.math,
+					callouts: features.callouts,
+					codeGroup: features.codeGroup,
+					diagrams: features.diagrams,
+					github: features.github,
+				},
 			}),
 		)
 		.use(rehypeStringify, { allowDangerousHtml: true });
 }
 
-// unified processor 建链成本 15–26ms；插件注册后无请求级可变状态，按解析器身份复用。
-// 无解析器（多数页面）只保留一个实例；有解析器（文章 wiki-link）用 WeakMap 按身份分桶。
-let sharedProcessor: Promise<UnifiedProcessor> | null = null;
-const resolverProcessors = new WeakMap<object, Promise<UnifiedProcessor>>();
+// unified processor 建链成本 15–26ms；插件注册后无请求级可变状态，按身份复用。
+// 无解析器（多数页面）按 5 个特性位分桶（至多 32 种组合）；有解析器（文章
+// wiki-link）解析器是模块级闭包（buildWikiLinkResolver 每次新建），用 WeakMap
+// 以身份为键避免请求泄漏，桶内再按特性位分桶。
+const featureKey = (features: Required<MarkdownFeatureFlags>) =>
+	[
+		features.math ? 1 : 0,
+		features.callouts ? 1 : 0,
+		features.codeGroup ? 1 : 0,
+		features.diagrams ? 1 : 0,
+		features.github ? 1 : 0,
+	].join("");
+const featureProcessors = new Map<string, Promise<UnifiedProcessor>>();
+const resolverProcessors = new WeakMap<
+	object,
+	Map<string, Promise<UnifiedProcessor>>
+>();
 
 function getProcessor(
 	resolveWikiLink: WikiLinkResolver | null,
+	features: Required<MarkdownFeatureFlags>,
 ): Promise<UnifiedProcessor> {
+	const key = featureKey(features);
 	if (!resolveWikiLink) {
-		sharedProcessor ??= buildProcessor(null);
-		return sharedProcessor;
+		let cached = featureProcessors.get(key);
+		if (!cached) {
+			cached = buildProcessor(null, features);
+			featureProcessors.set(key, cached);
+		}
+		return cached;
 	}
-	let cached = resolverProcessors.get(resolveWikiLink as object);
+	let buckets = resolverProcessors.get(resolveWikiLink as object);
+	if (!buckets) {
+		buckets = new Map();
+		resolverProcessors.set(resolveWikiLink as object, buckets);
+	}
+	let cached = buckets.get(key);
 	if (!cached) {
-		cached = buildProcessor(resolveWikiLink);
-		resolverProcessors.set(resolveWikiLink as object, cached);
+		cached = buildProcessor(resolveWikiLink, features);
+		buckets.set(key, cached);
 	}
 	return cached;
 }
@@ -174,7 +242,18 @@ export async function renderMarkdown(
 	content: string,
 	options: RenderMarkdownOptions = {},
 ): Promise<RenderedMarkdown> {
-	const processor = await getProcessor(options.resolveWikiLink ?? null);
+	const features = {
+		math: true,
+		callouts: true,
+		codeGroup: true,
+		diagrams: true,
+		github: true,
+		...options.features,
+	} as Required<MarkdownFeatureFlags>;
+	const processor = await getProcessor(
+		options.resolveWikiLink ?? null,
+		features,
+	);
 	const data: Record<string, unknown> = {
 		frontmatter: options.frontmatter ?? {},
 	};

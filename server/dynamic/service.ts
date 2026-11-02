@@ -1,6 +1,6 @@
 import type { DynamicItem, DynamicRecord } from "../../types/dynamic";
 import type { CloudflareEnv } from "../../types/env";
-import { renderMarkdown } from "../posts/render";
+import { detectMarkdownFeatures, renderMarkdown } from "../posts/render";
 import { bumpContentVersion } from "../settings/service";
 import { dynamicSearchText, extractDynamicImages } from "./plain";
 
@@ -30,6 +30,8 @@ export async function renderDynamicItem(
 	// 渲染时移除图片语法，图片由客户端展示
 	const html = await renderMarkdown(
 		markdown.replace(/!\[([^\]]*)\]\((\S+?)(?:\s+["'][^"']*["'])?\)/g, ""),
+		// 动态正文通常是很短的纯文本，全量插件链在 Free 套餐 10ms CPU 上限下会触发 1102
+		{ features: detectMarkdownFeatures(markdown) },
 	).then((r) => r.html);
 	const searchText = dynamicSearchText(markdown, row.location);
 	return recordToItem(row, html, images, searchText);

@@ -1,10 +1,12 @@
 // /admin 专项审计：视觉/UX/IA/响应式/可访问性/实现质量（真实无头 + 登录）
-// 用法: node scripts/qa/admin-audit.mjs <base>
+// 用法: node scripts/qa/admin-audit.mjs <base> [--suite=settings]
+// --suite=settings：只枚举设置页分类与各组别（原 admin-settings-audit.mjs 并入）
 
 import { writeFileSync } from "node:fs";
 import { launchBrowser, login } from "./lib.mjs";
 
 const BASE = process.argv[2] || "http://localhost:9023";
+const SUITE = process.argv.includes("--suite=settings") ? "settings" : "default";
 const OUT = "/tmp/admin-audit.json";
 const PAGES = [
 	["/admin/", "仪表盘"],
@@ -38,7 +40,46 @@ const PROBE = `(() => {
 	return { effPE, isInteractive, hidden };
 })()`;
 
+async function runSettings() {
+	const { browser, page } = await launchBrowser({ width: 1440, height: 900 });
+	try {
+		await login(page, BASE);
+		await page.goto(BASE + "/admin/settings/", {
+			waitUntil: "load",
+			timeout: 45000,
+		});
+		await page.waitForTimeout(3000);
+		// 打开侧栏设置子菜单
+		const s3 = page.locator(".s3parent");
+		if (await s3.count()) {
+			await s3.first().click();
+			await page.waitForTimeout(800);
+		}
+		const cats = await page.locator(".s3cat").allTextContents();
+		console.log("分类标签:", JSON.stringify(cats));
+		const groups = {};
+		for (let ci = 0; ci < cats.length; ci++) {
+			const cat = page.locator(".s3cat").nth(ci);
+			if (!(await cat.count())) continue;
+			await cat.click();
+			await page.waitForTimeout(1500);
+			const items = await page.locator(".settings-nav .sn").allTextContents();
+			groups[cats[ci]] = items;
+			console.log(`【${cats[ci]}】组别(${items.length}):`, items.join(" | "));
+		}
+		writeFileSync(OUT, JSON.stringify({ suite: "settings", cats, groups }, null, 1));
+		console.log(`→ ${OUT}`);
+	} catch (e) {
+		console.error("settings suite 失败:", e.message.slice(0, 70));
+		process.exitCode = 1;
+	} finally {
+		await browser.close();
+	}
+	process.exit(0);
+}
+
 async function run() {
+	if (SUITE === "settings") return runSettings();
 	for (const vp of VIEWPORTS) {
 		const { browser, page, errors } = await launchBrowser(
 			{ width: vp.width, height: vp.height },

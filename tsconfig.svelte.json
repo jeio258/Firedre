@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "include": [
     ".astro/types.d.ts",
-    "svelte-shims.d.ts",
+    "types/svelte-shims.d.ts",
     "src/**/*.svelte",
     "src/**/*.ts",
     "shared/**/*",

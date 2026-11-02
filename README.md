@@ -194,3 +194,14 @@ types/                  全局类型（含 CloudflareEnv 绑定类型）
 - **上游策略（2026-09 声明）**：本仓库为 [Firefly](https://github.com/CuteLeaf/Firefly) 的实质独立分支——已深度改造（云端动态化、后台管理、音源集成等），后续**不再定期合并上游**；上游仅作设计参考。因此允许对上游来源文件进行自由重构与重命名。
 - 前台主题基于 Firefly（[文档](https://docs-firefly.cuteleaf.cn)），仅作云端动态化与后台扩展
 - 本仓库不包含任何真实凭据（Secrets 均为环境变量注入）
+
+---
+
+## 开发备忘
+
+- 邮件：worker-mailer 直连 QQ SMTP 实测成功（smtp.qq.com:465，授权码，from=登录邮箱）；`cloudflare:sockets` 支持 465/587（25 封锁）；nodemailer 不可用；CF 原生 send_email 需付费计划；provider 抽象 none（正文打日志=本地获取验证链接）/smtp/brevo 预留
+- 缓存约束：HTML 全页缓存 180s——登录态/点赞状态/我的评论必须客户端拉取，禁止烘进缓存 HTML；middleware 绕过带会话 cookie 的请求与 auth 页（防跨用户串号）
+- API 规范：`trailingSlash:"always"`——fetch 一律带尾斜杠；写 API Origin 同源校验；限流复用 rate_limits 表（注册 3/时、登录 8/15分、评论匿名 3条/10分 登录 20条/10分、点赞 60/分）
+- 本地 D1：删 `.wrangler/state/v3/d1/` 重建即全量引导；含 FK 新表的测试夹具必须先插 users 行
+- 图标：astro-icon 离线集合无 material-symbols:shield（有 admin-panel-settings/shield-lock）；后台侧栏图标走 adminNav.ts 内联 SVG
+- 构建：build 后必须重启 wrangler preview（资产清单缓存）；wrangler 本地 workerd 兼容日期上限 2026-09-02

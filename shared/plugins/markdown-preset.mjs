@@ -24,19 +24,24 @@ import { remarkPlantuml } from "./remark-plantuml.js";
 // 运行时渲染链（server/posts/render.ts）的共享插件集合；差异项由调用方注入。
 
 /**
- * @param {{ admonition?: boolean, readingTime?: unknown, wikiLink?: unknown, excerpt?: unknown }} [options]
- * @returns {any[]}
+ * @param {{ admonition?: boolean, readingTime?: unknown, wikiLink?: unknown, excerpt?: unknown, math?: boolean }} [options]
+ * @returns {{ plugins: any[] }}
  */
 export function sharedRemarkPlugins({
 	admonition = true,
 	readingTime,
 	wikiLink,
 	excerpt,
+	math = true,
 }) {
 	const plugins = [];
 	if (admonition) plugins.push(remarkAdmonitionToBlockquoteCallout);
 	plugins.push(
-		remarkMath,
+		// 按内容特征裁剪：只为「内容里确实出现的语法」装配对应插件，
+		// 语义不变（未出现的语法本就产出空结果）。Cloudflare Pages Functions
+		// （Free 套餐）单次调用 CPU 上限 10ms，全量插件链实测中位数 7~15ms，
+		// 超限即 Error 1102（随机 503）。
+		...(math ? [remarkMath] : []),
 		readingTime,
 		wikiLink,
 		remarkImageGrid,
@@ -52,21 +57,29 @@ export function sharedRemarkPlugins({
 
 /**
  * @param {any} siteConfig
- * @param {{ afterCodeGroup?: any[], beforeAutolink?: any[] }} [options]
- * @returns {any[]}
+ * @param {{ afterCodeGroup?: any[], beforeAutolink?: any[], features?: { math?: boolean, callouts?: boolean, codeGroup?: boolean, diagrams?: boolean, github?: boolean } }} [options]
+ * @returns {{ plugins: any[] }}
  */
 export function sharedRehypePlugins(
 	siteConfig,
-	{ afterCodeGroup = [], beforeAutolink = [] } = {},
+	{ afterCodeGroup = [], beforeAutolink = [], features = {} } = {},
 ) {
+	const {
+		math = true,
+		callouts = true,
+		codeGroup = true,
+		diagrams = true,
+		github = true,
+	} = features;
 	const plugins = [
-		[rehypeKatex, { katex }],
-		[rehypeCallouts, { theme: siteConfig.post.rehypeCallouts.theme }],
+		...(math ? [[rehypeKatex, { katex }]] : []),
+		...(callouts
+			? [[rehypeCallouts, { theme: siteConfig.post.rehypeCallouts.theme }]]
+			: []),
 		rehypeSlug,
-		rehypeCodeGroup,
+		...(codeGroup ? [rehypeCodeGroup] : []),
 		...afterCodeGroup,
-		rehypePlantuml,
-		rehypeDiagramPanZoom,
+		...(diagrams ? [rehypePlantuml, rehypeDiagramPanZoom] : []),
 		rehypeFigure,
 		[
 			rehypeImageReferrerPolicy,
@@ -74,7 +87,9 @@ export function sharedRehypePlugins(
 		],
 		[rehypeExternalLinks, { siteUrl: siteConfig.site_url }],
 		[rehypeEmailProtection, { method: "base64" }],
-		[rehypeComponents, { components: { github: GithubCardComponent } }],
+		...(github
+			? [[rehypeComponents, { components: { github: GithubCardComponent } }]]
+			: []),
 		...beforeAutolink,
 		[
 			rehypeAutolinkHeadings,

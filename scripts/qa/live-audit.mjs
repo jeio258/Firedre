@@ -1,5 +1,6 @@
 // 全面无头访问测试（CDP 驱动 Windows Chrome）：
 // 前台页面状态 + 关键元素 + 控制台错误 + 关键交互 + API + 移动端视口
+// --prod 语义：对线上域名只读采样，原 live-prod-audit 并入
 import {
 	check,
 	launchBrowser,
