@@ -137,8 +137,8 @@ export const POST: APIRoute = async ({ params, request }) => {
 				cfEnv,
 				request,
 				{
-					windowMs: 60 * 60_000, // 3 次/时/IP（D.1）
-					maxRequests: 3,
+					windowMs: 60 * 60_000, // 10 次/时/IP（含校验失败；个人博客足够防滥用）
+					maxRequests: 10,
 					scope: "register",
 				},
 				async () => {
