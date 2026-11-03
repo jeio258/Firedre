@@ -308,7 +308,7 @@ async function issueSignupVerification(
 
 export type VerifyOutcome =
 	| { ok: true; userId: string }
-	| { ok: false; reason: "invalid" | "expired" };
+	| { ok: false; reason: "invalid" | "expired" | "already" };
 
 /** hash 比对 → 置 email_verified=1 → 标记 token 已用 */
 export async function verifySignupToken(
@@ -328,7 +328,24 @@ export async function verifySignupToken(
 		.first<{ id: string; user_id: string }>();
 
 	if (!row) {
-		// 从未存在与已用过（重放）对用户是同一条「无效」文案；过期待遇由下方 expires_at 判定
+		// 邮件客户端/网关的链接安全扫描会预取验证链接，一次性 token 因此被提前消费，
+		// 真实点击落到「链接无效」。只要该用户已是已验证状态，就按成功处理（幂等）。
+		const used = await db
+			.prepare(
+				`SELECT user_id FROM email_verifications
+         WHERE token_hash = ? AND purpose = 'signup' AND used_at IS NOT NULL
+         ORDER BY used_at DESC LIMIT 1`,
+			)
+			.bind(tokenHash)
+			.first<{ user_id: string }>();
+		if (used) {
+			const u = await db
+				.prepare("SELECT email_verified FROM users WHERE id = ?")
+				.bind(used.user_id)
+				.first<{ email_verified: number }>();
+			// 已验证过就不再签发会话（避免链接泄漏后重放拿登录态），只回状态让页面提示去登录
+			if (u?.email_verified === 1) return { ok: false, reason: "already" };
+		}
 		return { ok: false, reason: "invalid" };
 	}
 
@@ -341,19 +358,23 @@ export async function verifySignupToken(
 	if (!fresh) return { ok: false, reason: "expired" };
 
 	try {
-		// 不用 db.batch：cf-dev-shim 的本地 D1 仅实现 prepare（兼容 dev/生产两条路径）
-		await db
+		const verifyStmt = db
 			.prepare(
 				"UPDATE users SET email_verified = 1, updated_at = datetime('now') WHERE id = ?",
 			)
-			.bind(row.user_id)
-			.run();
-		await db
+			.bind(row.user_id);
+		const useStmt = db
 			.prepare(
 				"UPDATE email_verifications SET used_at = datetime('now') WHERE id = ?",
 			)
-			.bind(row.id)
-			.run();
+			.bind(row.id);
+		// 两条写合并为一次 D1 往返（验证页 TTFB 的一半耗在这里）；dev shim 无 batch 时退回逐条
+		if (typeof (db as { batch?: unknown }).batch === "function") {
+			await db.batch([verifyStmt, useStmt]);
+		} else {
+			await verifyStmt.run();
+			await useStmt.run();
+		}
 	} catch (e) {
 		console.error("[verify] 激活失败:", e);
 		return { ok: false, reason: "invalid" };

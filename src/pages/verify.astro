@@ -5,18 +5,16 @@ import {
 	createSessionToken,
 	getAuthUser,
 } from "@server/auth/userSession";
-import MainGridLayout from "@/layouts/MainGridLayout.astro";
 import { cfEnv } from "../lib/api";
 
-// 验证链接落地页（设计 D.1）：GET /verify/?token=xxx → 比对 hash → 置 verified=1 →
-// 签发 user_session → 落地个人资料页（自动登录）
+// 验证链接落地页：GET /verify/?token=xxx → 比对 hash → 置 verified=1 → 签发会话 → 落地个人资料页。
+// 刻意不套 MainGridLayout：邮件点击进来的页面只要结果，不需要壁纸/侧栏/动态流，
+// 否则首字节与首屏会被整站资源拖到数秒（实测 TTFB 1.8–3.7s）。
 const title = "邮箱验证";
-const description = "完成邮箱验证以激活账号";
-
 const token = Astro.url.searchParams.get("token") ?? "";
 const alreadyLoggedIn = Boolean(await getAuthUser(Astro.request, cfEnv));
 
-type State = "notoken" | "invalid" | "expired" | "banned";
+type State = "notoken" | "invalid" | "expired" | "banned" | "already";
 let state: State = "notoken";
 
 if (token) {
@@ -44,7 +42,12 @@ if (token) {
 		}
 		state = "banned";
 	} else {
-		state = result.reason === "expired" ? "expired" : "invalid";
+		state =
+			result.reason === "expired"
+				? "expired"
+				: result.reason === "already"
+					? "already"
+					: "invalid";
 	}
 }
 
@@ -55,7 +58,11 @@ const messages: Record<State, { heading: string; body: string }> = {
 	},
 	invalid: {
 		heading: "链接无效",
-		body: "该验证链接无效或已被使用。如果链接已在其他设备打开过，直接登录即可。",
+		body: "该验证链接无效。可以在注册页重新发送一封验证邮件。",
+	},
+	already: {
+		heading: "邮箱已完成验证",
+		body: "这个邮箱已经验证过了，直接登录即可。如果是邮件客户端提前打开了链接，也会看到此提示。",
 	},
 	expired: {
 		heading: "链接已过期",
@@ -70,33 +77,73 @@ const messages: Record<State, { heading: string; body: string }> = {
 const msg = messages[state];
 ---
 
-<MainGridLayout title={title} description={description}>
-	<div class="min-h-[70vh] flex items-start justify-center pt-4 sm:pt-10">
-		<div class="card-base w-full max-w-md mx-auto px-7 py-9 rounded-(--radius-large) text-center">
-			<div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-500/10 mb-4">
-				<svg class="w-7 h-7 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-						d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.34 16a2 2 0 001.73 3z" />
-				</svg>
-			</div>
-			<h2 class="text-xl font-bold text-90">{msg.heading}</h2>
-			<p class="text-sm text-50 mt-3 leading-relaxed">{msg.body}</p>
-
-			<div class="mt-6 space-y-3">
-				<a
-					href={alreadyLoggedIn ? "/profile/" : "/login/"}
-					data-no-swup
-					class="block w-full rounded-xl bg-(--primary) px-6 py-2.5 text-sm font-semibold text-white text-center transition-all hover:bg-(--primary)/90"
-				>
-					{alreadyLoggedIn ? "返回个人资料" : "去登录"}
-				</a>
-				<a
-					href="/register/"
-					class="block w-full rounded-xl border border-(--line-divider) bg-(--card-bg) px-6 py-2.5 text-sm font-medium text-75 transition-colors hover:border-(--primary)/40 hover:text-(--primary)"
-				>
-					重新注册 / 重发验证邮件
-				</a>
-			</div>
-		</div>
-	</div>
-</MainGridLayout>
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="robots" content="noindex, nofollow" />
+		<style>
+			:root {
+				color-scheme: light dark;
+				--page: #fafafa;
+				--card: #ffffff;
+				--text: #1c1917;
+				--muted: #78716c;
+				--line: #e7e5e4;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--page: #0c0a09;
+					--card: #171514;
+					--text: #f5f5f4;
+					--muted: #a8a29e;
+					--line: #292524;
+				}
+			}
+			* { box-sizing: border-box; }
+			body {
+				margin: 0;
+				min-height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 24px 16px;
+				background: var(--page);
+				color: var(--text);
+				font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+			}
+			.card {
+				width: 100%;
+				max-width: 420px;
+				background: var(--card);
+				border: 1px solid var(--line);
+				border-radius: 18px;
+				padding: 32px 28px;
+				text-align: center;
+			}
+			h1 { font-size: 19px; margin: 0 0 10px; }
+			p { font-size: 14px; line-height: 1.7; color: var(--muted); margin: 0 0 22px; }
+			a {
+				display: block;
+				padding: 11px 18px;
+				border-radius: 12px;
+				font-size: 14px;
+				font-weight: 600;
+				text-decoration: none;
+				margin-top: 10px;
+			}
+			a.primary { background: #f97316; color: #fff; }
+			a.ghost { border: 1px solid var(--line); color: var(--text); }
+		</style>
+	</head>
+	<body>
+		<main class="card">
+			<h1>{msg.heading}</h1>
+			<p>{msg.body}</p>
+			<a class="primary" href={alreadyLoggedIn ? "/profile/" : "/login/"}>{alreadyLoggedIn ? "返回个人资料" : "去登录"}</a>
+			<a class="ghost" href="/register/">重新注册 / 重发验证邮件</a>
+		</main>
+	</body>
+</html>

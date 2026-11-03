@@ -204,7 +204,7 @@ describe("邮箱验证 token", () => {
 		expect(latestSignup(id)?.used_at).not.toBeNull();
 	});
 
-	it("已用 token 重放被拒（invalid）", async () => {
+	it("已用 token 重放：不签发会话，返回 already", async () => {
 		const { id } = await seedUser({ verified: 0 });
 		const token = "b".repeat(64);
 		await insertVerification({
@@ -215,9 +215,10 @@ describe("邮箱验证 token", () => {
 		});
 		await verifySignupToken(d1(), token);
 
+		// 邮件网关预取会提前消费一次性 token；重放必须仍然拿不到会话
 		expect(await verifySignupToken(d1(), token)).toEqual({
 			ok: false,
-			reason: "invalid",
+			reason: "already",
 		});
 	});
 

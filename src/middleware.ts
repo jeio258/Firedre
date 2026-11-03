@@ -130,7 +130,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
 	// 站点设置只有渲染路径需要：/api 下仅这三个接口读 locals.settings，
 	// 其余接口跳过全表读取，冷 isolate 上省一次 D1 跨区往返（约 0.3s）
 	const needsSiteSettings =
-		!url.pathname.startsWith("/api/") ||
+		(!url.pathname.startsWith("/api/") &&
+			// 验证页是独立轻量页，不读 settings；跳过全表读取省一次 D1 往返
+			!url.pathname.startsWith("/verify")) ||
 		/^\/api\/(bilibili|mal|vndb\/ulist)\b/.test(url.pathname);
 
 	if (needsSiteSettings) {
