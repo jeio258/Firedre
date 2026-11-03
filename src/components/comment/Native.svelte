@@ -4,6 +4,7 @@ import type {
 	PublicComment,
 } from "@server/comments/service";
 import { onMount } from "svelte";
+import { formatD1Datetime } from "@/utils/date-utils";
 
 interface Viewer {
 	id: string;
@@ -64,18 +65,6 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
 		throw err;
 	}
 	return data as T;
-}
-
-function formatTime(raw: string): string {
-	if (!raw) return "";
-	// D1 datetime('now') 为 UTC，补 Z 后按本地时区展示
-	const iso = /Z|[+-]\d{2}:\d{2}$/.test(raw)
-		? raw
-		: `${raw.replace(" ", "T")}Z`;
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return raw;
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function initialOf(name: string): string {
@@ -288,7 +277,7 @@ onMount(() => {
               {#if comment.status === "pending"}
                 <span class="rounded bg-(--btn-regular-bg) px-1.5 py-0.5 text-[0.65rem] text-(--warning)">审核中</span>
               {/if}
-              <span class="text-xs text-(--content-meta)">{formatTime(comment.createdAt)}</span>
+              <span class="text-xs text-(--content-meta)">{formatD1Datetime(comment.createdAt)}</span>
             </div>
 
             <p class="mt-1.5 text-sm leading-relaxed whitespace-pre-wrap break-words text-(--btn-content) opacity-90">
@@ -325,7 +314,7 @@ onMount(() => {
                         {#if reply.status === "pending"}
                           <span class="rounded bg-(--btn-regular-bg) px-1.5 py-0.5 text-[0.65rem] text-(--warning)">审核中</span>
                         {/if}
-                        <span class="text-xs text-(--content-meta)">{formatTime(reply.createdAt)}</span>
+                        <span class="text-xs text-(--content-meta)">{formatD1Datetime(reply.createdAt)}</span>
                       </div>
                       <p class="mt-1 text-sm leading-relaxed whitespace-pre-wrap break-words text-(--btn-content) opacity-90">
                         {reply.content}

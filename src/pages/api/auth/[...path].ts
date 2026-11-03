@@ -20,6 +20,7 @@ import {
 	resetPassword,
 	resolveUserEmail,
 	validatePassword,
+	verifySignupCode,
 	verifyTurnstile,
 } from "@server/auth/register";
 import {
@@ -222,10 +223,6 @@ export const POST: APIRoute = async ({ params, request }) => {
 						return json({ message: outcome.message }, 400);
 
 					// created 与 duplicate 同响应（防枚举）
-					const envTag = registerEnv.ENVIRONMENT?.trim().toLowerCase();
-					const exposeVerifyUrl =
-						registerEnv.MAIL_DEBUG === "1" ||
-						(envTag && envTag !== "prod" && envTag !== "production");
 					const mail = mailReadiness();
 					if (!mail.ready)
 						console.error(
@@ -249,14 +246,15 @@ export const POST: APIRoute = async ({ params, request }) => {
 								? "failed"
 								: "sent",
 						message: !mail.ready
-							? "注册已提交，但本站邮件服务暂未就绪，验证邮件可能发不出去，请联系站长处理。"
+							? "注册已提交，但本站邮件服务暂未就绪，验证码可能发不出去，请联系站长处理。"
 							: mailFailed
-								? "账号已创建，但验证邮件投递失败（发信服务器拒绝），请点「重发验证邮件」重试，或联系站长处理。"
-								: "注册提交成功！我们已向你的邮箱发送验证链接，请查收并完成验证（24 小时内有效）。",
-						...(exposeVerifyUrl &&
+								? "账号已创建，但验证码邮件投递失败（发信服务器拒绝），请点「重新发送」重试，或联系站长处理。"
+								: "注册提交成功！我们已向你的邮箱发送 6 位验证码，请查收并在下方输入（10 分钟内有效）。",
+						// 仅调试：MAIL_DEBUG=1 时回显验证码明文，联调用，生产不配置该变量
+						...(registerEnv.MAIL_DEBUG === "1" &&
 						outcome.kind === "created" &&
-						outcome.verifyUrl
-							? { devVerifyUrl: outcome.verifyUrl }
+						outcome.code
+							? { devCode: outcome.code }
 							: {}),
 					});
 				},
@@ -296,8 +294,56 @@ export const POST: APIRoute = async ({ params, request }) => {
 					return jsonWithHeaders({
 						ok: true,
 						message: mail.ready
-							? "如果该邮箱已注册且尚未验证，验证邮件已发送，请查收。"
-							: "如果该邮箱已注册且尚未验证，本站邮件服务暂未就绪，验证邮件可能发不出去，请联系站长处理。",
+							? "如果该邮箱已注册且尚未验证，验证码已发送，请查收。"
+							: "如果该邮箱已注册且尚未验证，本站邮件服务暂未就绪，验证码可能发不出去，请联系站长处理。",
+					});
+				},
+			);
+		}
+
+		// ── 验证码校验（10 次/时/IP；成功即签发会话；错误文案统一防枚举） ──
+		if (action === "verify-code") {
+			return await withRateLimit(
+				cfEnv,
+				request,
+				{
+					windowMs: 60 * 60_000,
+					maxRequests: 10,
+					scope: "verify-code",
+				},
+				async () => {
+					const body = (await request.json().catch(() => null)) as {
+						email?: string;
+						code?: string;
+					} | null;
+					if (!body) return json({ message: "请求体格式错误" }, 400);
+
+					const result = await verifySignupCode(
+						cfEnv.DB,
+						String(body.email || ""),
+						String(body.code || ""),
+					);
+					// 不区分「码错/过期/已作废」，响应一致防枚举
+					if (!result.ok)
+						return json(
+							{ message: "验证码错误或已过期，请重试或重新获取" },
+							400,
+						);
+
+					const user = await cfEnv.DB.prepare(
+						"SELECT id, role FROM users WHERE id = ?",
+					)
+						.bind(result.userId)
+						.first<{ id: string; role: string }>();
+					if (!user)
+						return json(
+							{ message: "验证码错误或已过期，请重试或重新获取" },
+							400,
+						);
+
+					const token = await createSessionToken(user.id, user.role, cfEnv);
+					return jsonWithHeaders({ ok: true, loggedIn: true }, 200, {
+						"Set-Cookie": buildUserSessionCookie(token, secure, true),
 					});
 				},
 			);

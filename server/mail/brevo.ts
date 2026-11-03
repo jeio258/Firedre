@@ -1,5 +1,6 @@
 // 邮件发送：provider 由 MAIL_PROVIDER 选择（smtp / brevo / none），见 ./index.ts。
 // 本文件只负责 Brevo HTTP 发信与邮件模板；SMTP 见 ./smtp.ts。
+import { escapeHtml } from "../../src/utils/escape-html";
 
 export interface MailEnv {
 	BREVO_API_KEY?: string;
@@ -209,26 +210,6 @@ function renderShell(opts: {
 </html>`;
 }
 
-export function renderVerifyEmail(opts: {
-	siteName: string;
-	url: string;
-	expireHours?: number;
-}): { subject: string; html: string } {
-	const hours = opts.expireHours ?? 24;
-	return {
-		subject: `验证你的邮箱 - ${opts.siteName}`,
-		html: renderShell({
-			siteName: opts.siteName,
-			heading: "验证你的邮箱",
-			intro:
-				"感谢注册！请点击下面的按钮完成邮箱验证，验证后即可登录并参与评论。",
-			buttonText: "验证邮箱",
-			url: opts.url,
-			expireText: `验证链接 ${hours} 小时内有效，仅可使用一次。`,
-		}),
-	};
-}
-
 export function renderResetEmail(opts: {
 	siteName: string;
 	url: string;
@@ -247,13 +228,4 @@ export function renderResetEmail(opts: {
 			expireText: `重置链接 ${hours} 小时内有效，仅可使用一次。`,
 		}),
 	};
-}
-
-export function escapeHtml(s: string): string {
-	return s
-		.replace(/&/g, "&amp;")
-		.replace(/</g, "&lt;")
-		.replace(/>/g, "&gt;")
-		.replace(/"/g, "&quot;")
-		.replace(/'/g, "&#39;");
 }

@@ -87,26 +87,6 @@ body {
 	padding: 1.25rem;
 	box-shadow: var(--shadow-card);
 }
-.u-chip.off {
-	background: var(--btn-regular-bg);
-	color: var(--text-muted);
-}
-.u-chip.ok {
-	background: color-mix(in oklch, var(--primary) 15%, transparent);
-	color: var(--primary);
-}
-.u-chip.on {
-	background: color-mix(in oklch, var(--primary) 15%, transparent);
-	color: var(--primary);
-}
-.u-chip.success {
-	background: color-mix(in oklch, var(--success) 15%, transparent);
-	color: var(--success);
-}
-.u-chip.danger {
-	background: color-mix(in oklch, var(--danger) 15%, transparent);
-	color: var(--danger);
-}
 .tag {
 	display: inline-flex;
 	align-items: center;
@@ -603,11 +583,6 @@ body {
 		transform: none;
 	}
 }
-@media (max-width: 760px) {
-	.mcfg {
-		grid-template-columns: 1fr;
-	}
-}
 /* JSON 字段编辑器：网格内仅显示统一高度的触发器，编辑在模态框中进行 */
 .je-trigger {
 	display: flex;
@@ -752,15 +727,6 @@ body {
 	cursor: not-allowed;
 }
 
-.editor-layout {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 300px;
-	gap: 1rem;
-	align-items: start;
-}
-.editor-layout > * {
-	min-width: 0;
-}
 .album-card {
 	background: var(--card-bg);
 	border: 1px solid var(--line-divider);
@@ -979,17 +945,6 @@ body {
 	font-size: 0.8rem;
 	color: var(--text-muted);
 }
-.settings-nav .sn.on {
-	background: var(--primary);
-	border-color: var(--primary);
-	color: var(--on-accent);
-	font-weight: 600;
-}
-.s2pane.on {
-	display: block;
-	animation: viewIn 0.18s ease;
-}
-
 .sw {
 	position: relative;
 	width: 42px;
@@ -1046,199 +1001,6 @@ html.dark .sw::after {
 }
 .check-text {
 	font-size: 0.9rem;
-}
-.list-row[onclick],
-.list-row.clickable {
-	cursor: pointer;
-}
-
-.login-screen {
-	position: fixed;
-	inset: 0;
-	z-index: 200;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 1.25rem;
-	overflow: hidden;
-}
-.login-bg {
-	position: absolute;
-	inset: 0;
-	background: linear-gradient(
-		160deg,
-		color-mix(in oklch, var(--primary) 18%, #fff) 0%,
-		var(--page-bg) 60%
-	);
-}
-html.dark .login-bg {
-	background: linear-gradient(
-		160deg,
-		color-mix(in oklch, var(--deep-text) 8%, var(--page-bg)) 0%,
-		var(--page-bg) 70%
-	);
-}
-.login-grid {
-	position: absolute;
-	inset: 0;
-	background-image:
-		linear-gradient(var(--line-divider) 1px, transparent 1px),
-		linear-gradient(90deg, var(--line-divider) 1px, transparent 1px);
-	background-size: 46px 46px;
-	mask-image: radial-gradient(circle at 50% 35%, #000 0%, transparent 70%);
-	opacity: 0.5;
-}
-html.dark .login-grid {
-	opacity: 0.18;
-}
-.orb {
-	position: absolute;
-	border-radius: 50%;
-	filter: blur(70px);
-	opacity: 0.55;
-}
-.orb-a {
-	width: 420px;
-	height: 420px;
-	left: -120px;
-	top: -120px;
-	background: color-mix(in oklch, var(--primary) 45%, transparent);
-}
-.orb-b {
-	width: 380px;
-	height: 380px;
-	right: -100px;
-	bottom: -90px;
-	background: color-mix(in oklch, #7c3aed 30%, transparent);
-}
-.orb-c {
-	width: 240px;
-	height: 240px;
-	right: 26%;
-	top: -90px;
-	background: color-mix(in oklch, #d97706 22%, transparent);
-}
-.login-card {
-	position: relative;
-	width: min(400px, 100%);
-	background: var(--card-bg);
-	border: 1px solid var(--line-divider);
-	border-radius: 1.1rem;
-	padding: 2rem 2.1rem 1.5rem;
-	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.16);
-	display: flex;
-	flex-direction: column;
-	gap: 0.55rem;
-	animation: loginPop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-@keyframes loginPop {
-	from {
-		opacity: 0;
-		transform: translateY(16px) scale(0.98);
-	}
-	to {
-		opacity: 1;
-		transform: none;
-	}
-}
-.login-brand {
-	display: flex;
-	align-items: center;
-	gap: 0.8rem;
-	padding-bottom: 1.1rem;
-	border-bottom: 1px solid var(--line-divider);
-	margin-bottom: 0.4rem;
-}
-.brand-logo.lg {
-	width: 2.6rem;
-	height: 2.6rem;
-	border-radius: 0.75rem;
-}
-.login-name {
-	margin: 0;
-	font-size: 1.25rem;
-	font-weight: 800;
-	color: var(--deep-text);
-}
-.login-sub {
-	margin: 0.1rem 0 0;
-	font-size: 0.75rem;
-	color: var(--text-muted);
-}
-.login-title {
-	margin: 0.2rem 0 0;
-	font-size: 1.15rem;
-	font-weight: 700;
-	color: var(--deep-text);
-}
-.login-hint {
-	margin: 0 0 0.5rem;
-	font-size: 0.82rem;
-	color: var(--text-muted);
-}
-.lg-field {
-	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
-	font-size: 0.82rem;
-	color: var(--text-muted);
-}
-.lg-field input {
-	padding: 0.7rem 0.85rem;
-	border: 1px solid var(--line-color);
-	border-radius: 0.6rem;
-	background: var(--page-bg);
-	color: var(--deep-text);
-	font-size: 0.95rem;
-	font-family: inherit;
-	transition:
-		border-color 0.15s,
-		box-shadow 0.15s;
-}
-html.dark .lg-field input {
-	background: var(--card-bg);
-}
-.lg-field input:focus {
-	outline: none;
-	border-color: var(--primary);
-	box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 22%, transparent);
-}
-.lg-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-top: 0.15rem;
-}
-.lg-link {
-	font-size: 0.82rem;
-	color: var(--primary);
-	text-decoration: none;
-}
-.lg-link:hover {
-	text-decoration: underline;
-}
-.lg-err {
-	min-height: 1.1rem;
-	margin: 0.1rem 0 0;
-	font-size: 0.8rem;
-	color: var(--danger);
-}
-.lg-submit {
-	justify-content: center;
-	width: 100%;
-	padding: 0.7rem;
-	font-size: 0.92rem;
-	margin-top: 0.2rem;
-}
-.lg-submit svg {
-	width: 17px;
-	height: 17px;
-}
-.lg-legal {
-	margin: 0.6rem 0 0;
-	text-align: center;
-	font-size: 0.72rem;
-	color: var(--text-muted);
 }
 
 .admin-checking,
@@ -1322,12 +1084,6 @@ html.dark .lg-field input {
 	.main {
 		padding: 1rem 0.85rem 2rem;
 	}
-	.editor-layout {
-		grid-template-columns: minmax(0, 1fr);
-	}
-	.gal-grid {
-		grid-template-columns: repeat(3, 1fr);
-	}
 }
 
 .save-toast {
@@ -1400,9 +1156,6 @@ html.dark .lg-field input {
 	:root {
 		--ctl-fs: 1rem;
 	}
-	.lg-field input {
-		font-size: 1rem;
-	}
 	.je-area {
 		font-size: 1rem;
 	}
@@ -1430,7 +1183,6 @@ a:focus-visible,
 .btn,
 .btn-primary,
 .btn-ghost,
-.btn-danger-text,
 .icon-btn {
 	min-width: 1.5rem;
 	min-height: 1.5rem;
@@ -1470,22 +1222,7 @@ input[type="checkbox"] {
 	font-weight: 600;
 }
 
-/* 能力标签（登录页）+ 列表元信息分列（时间/分类语义区分，替代中点串联） */
-.login-sub .cap {
-	display: inline-block;
-	margin-right: var(--sp-1, 0.5rem);
-	padding: 2px 10px;
-	border-radius: 999px;
-	background: color-mix(in oklch, var(--primary) 10%, transparent);
-	color: var(--deep-text);
-	font-size: var(--fs-2, 0.8125rem);
-}
-.list-sub .cat {
-	padding: 1px 8px;
-	border-radius: 999px;
-	background: color-mix(in oklch, var(--primary) 12%, transparent);
-	color: var(--deep-text);
-}
+/* 列表元信息分列（时间/分类语义区分，替代中点串联） */
 /* ============ 统一布局原子（后台所有内页共用，配色全部走主题令牌） ============ */
 .ui-page {
 	width: 100%;

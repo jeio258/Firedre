@@ -43,7 +43,6 @@
 		"@astrojs/svelte": "9.0.1",
 		"@casl/ability": "^7.0.1",
 		"@fancyapps/ui": "^6.1.14",
-		"@fortawesome/fontawesome-free": "^7.3.1",
 		"@iconify-json/fa7-brands": "^1.2.4",
 		"@iconify-json/fa7-regular": "^1.2.3",
 		"@iconify-json/fa7-solid": "^1.2.5",

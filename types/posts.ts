@@ -47,6 +47,7 @@ export interface PostRecord {
 	words: number;
 	minutes: number;
 	r2_key: string;
+	author_id: string | null;
 	created_at: string;
 	updated_at: string;
 }

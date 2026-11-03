@@ -108,3 +108,15 @@ export function formatTimezoneOffset(
 		.replace(/([+-])0(\d)/, "$1$2")
 		.replace(":00", "");
 }
+
+/** D1 datetime('now') 存的是 UTC 无时区串，补 Z 后按本地时区展示 */
+export function formatD1Datetime(raw: string): string {
+	if (!raw) return "";
+	const iso = /Z|[+-]\d{2}:\d{2}$/.test(raw)
+		? raw
+		: `${raw.replace(" ", "T")}Z`;
+	const d = new Date(iso);
+	if (Number.isNaN(d.getTime())) return raw;
+	const pad = (n: number) => String(n).padStart(2, "0");
+	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}

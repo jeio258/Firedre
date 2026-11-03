@@ -47,8 +47,19 @@ try {
 			.filter((f) => f.endsWith(".sql"))
 			.sort();
 		for (const file of files) {
-			db.exec(readFileSync(join(migDir, file), "utf8"));
-			console.log(`[cf-dev-shim] 已重放迁移 ${file}`);
+			try {
+				db.exec(readFileSync(join(migDir, file), "utf8"));
+				console.log(`[cf-dev-shim] 已重放迁移 ${file}`);
+			} catch (err) {
+				// 0002 起含 ALTER（无 IF NOT EXISTS）：对持久库重放报 duplicate column
+				// 属"已应用"，跳过即可；其它错误仍然致命
+				const msg = (err as Error).message || "";
+				if (/duplicate column/i.test(msg)) {
+					console.log(`[cf-dev-shim] 迁移 ${file} 已应用（列已存在），跳过`);
+					continue;
+				}
+				throw err;
+			}
 		}
 		// 旧记账表已无用途（全量重放不依赖记账），清掉残留
 		db.exec("DROP TABLE IF EXISTS __firedre_migrations");

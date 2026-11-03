@@ -39,7 +39,7 @@ export const PERM_CATALOG: PermSpec[] = [
 	{
 		id: "post:create",
 		label: "发布文章",
-		desc: "可进入后台的「文章管理」，创建 / 编辑 / 删除文章",
+		desc: "可进入后台的「文章管理」创建文章；编辑 / 删除仅限本人发布的文章",
 		grants: [
 			["read", "Backend"],
 			["create", "Post"],

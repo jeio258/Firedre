@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
+import { formatD1Datetime } from "@/utils/date-utils";
 
 // 后台审核对接 GET /api/comments/admin/overview/ 与 POST /api/comments/moderate/
 // 状态值即状态机的四个格子；动作是动词（approve/spam/delete），软删可恢复
@@ -130,17 +131,6 @@ function badgeOf(comment: CommentItem): { label: string; warn: boolean } {
 		: { label: "匿名", warn: true };
 }
 
-function formatTime(raw: string): string {
-	if (!raw) return "";
-	const iso = /Z|[+-]\d{2}:\d{2}$/.test(raw)
-		? raw
-		: `${raw.replace(" ", "T")}Z`;
-	const d = new Date(iso);
-	if (Number.isNaN(d.getTime())) return raw;
-	const pad = (n: number) => String(n).padStart(2, "0");
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 onMount(() => {
 	void load(1);
 });
@@ -211,7 +201,7 @@ onMount(() => {
                   目标：{comment.target}{comment.parentId ? " · 回复" : ""}
                 </div>
               </td>
-              <td class="ui-sub">{formatTime(comment.createdAt)}</td>
+              <td class="ui-sub">{formatD1Datetime(comment.createdAt)}</td>
               <td>
                 <div class="flex flex-wrap items-center gap-2">
                   {#if status === "pending"}

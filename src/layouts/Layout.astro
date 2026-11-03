@@ -602,6 +602,20 @@ const seoAuthorName =
 
     <script>import "../scripts/markdown-enhancer";</script>
     <script>import "@/utils/settings-live";</script>
+    <script is:inline>
+      // 文章详情封面是首屏 LCP 元素，但 CoverImage 默认 lazy+auto（调用点在
+      // src/pages，此处补齐优先级）。内联脚本紧跟 <slot />，在首次布局/懒加载
+      // 判定前执行；只改加载时机与优先级，渲染结果不变。swup 软导航经
+      // astro:page-load 重跑，幂等。
+      (function promotePostCover() {
+        var img = document.querySelector('#post-cover img[data-cover-img]');
+        if (img) {
+          img.removeAttribute('loading');
+          img.setAttribute('fetchpriority', 'high');
+        }
+      })();
+      document.addEventListener('astro:page-load', promotePostCover);
+    </script>
     <FancyboxManager />
 
     <CodeGroupManager />

@@ -14,11 +14,6 @@ export interface LoginRateLimitStore {
 	clear(ip: string): Promise<void>;
 }
 
-export function formatLoginRateLimitMessage(retryAfterSec: number) {
-	const minutes = Math.max(1, Math.ceil(retryAfterSec / 60));
-	return `登录尝试过多，请 ${minutes} 分钟后再试`;
-}
-
 export { getClientIp as getRequestClientIp } from "../utils/clientIp";
 
 function retryAfterSec(lockedUntil: string) {

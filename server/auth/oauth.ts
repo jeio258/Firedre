@@ -530,29 +530,14 @@ async function bindAccount(
 
 // ---------- start / callback ----------
 
-export type OAuthErrorCode =
-	| "state"
-	| "not_configured"
-	| "exchange"
-	| "no_email"
-	| "email_unverified"
-	| "banned"
-	| "server";
+export {
+	isOAuthErrorCode,
+	OAUTH_ERROR_MESSAGES,
+	type OAuthErrorCode,
+} from "./oauthErrors";
 
-/** 登录页可读的错误码 → 文案（LoginCard.svelte 同步维护一份映射） */
-export const OAUTH_ERROR_MESSAGES: Record<OAuthErrorCode, string> = {
-	state: "登录状态已失效或校验未通过，请重新发起登录",
-	not_configured: "该第三方登录尚未配置",
-	exchange: "第三方登录验证失败，请稍后再试",
-	no_email: "第三方账号没有可用的已验证邮箱，无法登录",
-	email_unverified: "第三方账号邮箱未通过验证，无法登录",
-	banned: "该账号已被封禁",
-	server: "服务器错误，请稍后再试",
-};
-
-function isOAuthErrorCode(v: string): v is OAuthErrorCode {
-	return Object.hasOwn(OAUTH_ERROR_MESSAGES, v);
-}
+import type { OAuthErrorCode } from "./oauthErrors";
+import { isOAuthErrorCode } from "./oauthErrors";
 
 function redirectWithCookies(location: string, cookies: string[]): Response {
 	const res = new Response(null, { status: 302, headers: {} });

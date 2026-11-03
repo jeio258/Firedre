@@ -107,22 +107,6 @@ export async function passwordFingerprint(
 	return (await sha256Hex(passwordHash)).slice(0, 16);
 }
 
-// 读取用户当前密码哈希生成指纹后签发 token（登录/初始化用）
-export async function createSessionTokenForUser(
-	db: D1Database,
-	username: string,
-	env: AdminAuthEnv,
-) {
-	const row = await db
-		.prepare("SELECT password_hash FROM admin_users WHERE username = ?")
-		.bind(username)
-		.first<{ password_hash: string }>();
-	const fp = row?.password_hash
-		? await passwordFingerprint(row.password_hash)
-		: "";
-	return createSessionToken(username, env, fp);
-}
-
 export async function verifySessionToken(token: string, env: AdminAuthEnv) {
 	const user = await getSessionUser(token, env);
 	return Boolean(user);
@@ -196,18 +180,6 @@ export function buildSessionCookie(token: string, secure: boolean) {
 		"HttpOnly",
 		"SameSite=Lax",
 		`Max-Age=${ADMIN_SESSION_MAX_AGE}`,
-	];
-	if (secure) parts.push("Secure");
-	return parts.join("; ");
-}
-
-export function buildClearSessionCookie(secure: boolean) {
-	const parts = [
-		`${ADMIN_SESSION_COOKIE}=`,
-		"Path=/",
-		"HttpOnly",
-		"SameSite=Lax",
-		"Max-Age=0",
 	];
 	if (secure) parts.push("Secure");
 	return parts.join("; ");
@@ -295,21 +267,4 @@ export async function hasLegacyAdmin(db: D1Database): Promise<boolean> {
 	} catch {
 		return false;
 	}
-}
-
-/** 校验旧管理员密码，用于首次初始化的账号认领 */
-export async function verifyLegacyAdminPassword(
-	db: D1Database,
-	username: string,
-	password: string,
-): Promise<boolean> {
-	const row = await db
-		.prepare(
-			"SELECT password_hash FROM admin_users WHERE username = ? AND enabled = 1",
-		)
-		.bind(username)
-		.first<{ password_hash: string }>();
-	if (!row) return false;
-	const { verifyPasswordAllowPlaintext } = await import("./password");
-	return verifyPasswordAllowPlaintext(password, row.password_hash);
 }

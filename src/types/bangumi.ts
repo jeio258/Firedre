@@ -1,10 +1,3 @@
-export type UserSubjectCollectionResponse = {
-	data: UserSubjectCollection[];
-	total: number;
-	limit: number;
-	offset: number;
-};
-
 export type UserSubjectCollection = {
 	subject_id: number;
 	subject_type: SubjectType;

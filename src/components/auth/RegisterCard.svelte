@@ -1,11 +1,11 @@
 <script lang="ts">
-import { onMount } from "svelte";
+import { onDestroy, onMount } from "svelte";
 import Turnstile from "./Turnstile.svelte";
 
-// 双模式：users 表为空 → 初始化站长（建完即登录）；否则普通注册（邮件验证）。
+// 双模式：users 表为空 → 初始化站长（建完即登录）；否则普通注册（邮箱验证码）。
 // setup-status 在客户端拉取：页面 HTML 按 path 缓存，模式不能烘进 SSR。
 
-type Mode = "loading" | "setup" | "normal" | "closed" | "done" | "error";
+type Mode = "loading" | "setup" | "normal" | "closed" | "code" | "error";
 
 let mode = $state<Mode>("loading");
 let hasLegacyAdmin = $state(false);
@@ -20,10 +20,25 @@ let loading = $state(false);
 let turnstileToken = $state("");
 let turnstileRef = $state<Turnstile | null>(null);
 
+let mailState = $state<"sent" | "failed" | "not_ready">("sent");
+let devCode = $state("");
+let code = $state("");
+let verifyLoading = $state(false);
 let resendLoading = $state(false);
 let resendMsg = $state("");
-let devVerifyUrl = $state("");
-let mailState = $state<"sent" | "failed" | "not_ready">("sent");
+let countdown = $state(0);
+let timer: ReturnType<typeof setInterval> | undefined;
+
+function startCountdown() {
+	clearInterval(timer);
+	countdown = 60;
+	timer = setInterval(() => {
+		countdown -= 1;
+		if (countdown <= 0) clearInterval(timer);
+	}, 1000);
+}
+
+onDestroy(() => clearInterval(timer));
 
 const inputClass =
 	"w-full px-4 py-3 text-[15px] bg-transparent border border-black/10 dark:border-white/10 rounded-lg outline-none transition-colors focus:ring-2 focus:ring-(--primary) focus:border-(--primary) placeholder:opacity-50 text-90";
@@ -84,13 +99,15 @@ async function submit(event: SubmitEvent) {
 			window.location.replace("/admin/");
 			return;
 		}
-		devVerifyUrl =
-			typeof data.devVerifyUrl === "string" ? data.devVerifyUrl : "";
-		mode = "done";
 		mailState =
 			data.mailState === "failed" || data.mailState === "not_ready"
 				? data.mailState
 				: "sent";
+		devCode = typeof data.devCode === "string" ? data.devCode : "";
+		code = "";
+		resendMsg = "";
+		mode = "code";
+		startCountdown();
 	} catch {
 		error = "网络错误，请重试";
 	} finally {
@@ -98,9 +115,39 @@ async function submit(event: SubmitEvent) {
 	}
 }
 
+async function submitCode(event: SubmitEvent) {
+	event.preventDefault();
+	if (verifyLoading) return;
+	if (!/^\d{6}$/.test(code)) {
+		error = "请输入 6 位数字验证码";
+		return;
+	}
+	error = "";
+	verifyLoading = true;
+	try {
+		const resp = await fetch("/api/auth/verify-code/", {
+			method: "POST",
+			credentials: "same-origin",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ email: email.trim(), code }),
+		});
+		const data = await resp.json().catch(() => ({}));
+		if (resp.ok && data.ok && data.loggedIn) {
+			window.location.replace("/profile/?verified=1");
+			return;
+		}
+		error = data.message || "验证码错误或已过期，请重试或重新获取";
+	} catch {
+		error = "网络错误，请重试";
+	} finally {
+		verifyLoading = false;
+	}
+}
+
 async function resend() {
-	if (resendLoading) return;
+	if (resendLoading || countdown > 0) return;
 	resendMsg = "";
+	error = "";
 	resendLoading = true;
 	try {
 		const resp = await fetch("/api/auth/resend/", {
@@ -112,7 +159,8 @@ async function resend() {
 		const data = await resp.json().catch(() => ({}));
 		resendMsg =
 			data.message ||
-			(resp.ok ? "验证邮件已发送，请查收。" : "发送失败，请稍后再试");
+			(resp.ok ? "验证码已发送，请查收。" : "发送失败，请稍后再试");
+		if (resp.ok) startCountdown();
 	} catch {
 		resendMsg = "网络错误，请重试";
 	} finally {
@@ -142,7 +190,7 @@ async function resend() {
 				>去登录</a
 			>
 		</div>
-	{:else if mode === "done"}
+	{:else if mode === "code"}
 		<div class="text-center py-2">
 			<div
 				class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-500/10 mb-4"
@@ -162,53 +210,85 @@ async function resend() {
 				</svg>
 			</div>
 			<h2 class="text-xl font-bold text-90">
-				{mailState === "sent" ? "请查收验证邮件" : "账号已创建，但验证邮件未发出"}
+				{mailState === "sent" ? "输入邮箱验证码" : "账号已创建，但验证码未发出"}
 			</h2>
 			<p class="text-sm text-50 mt-2 leading-relaxed">
 				{#if mailState === "sent"}
-					我们已向 <span class="text-75 font-medium">{email}</span> 发送了验证链接，<br />
-					点击邮件中的按钮完成验证后即可登录（24 小时内有效）。
+					我们已向 <span class="text-75 font-medium">{email}</span> 发送了 6 位验证码，<br />
+					请在下方输入完成验证（10 分钟内有效）。
 				{:else}
 					账号已创建成功，但发信服务器拒绝了这次投递（配置未就绪或凭据失效）。<br />
-					请点下方「重新发送」重试；若仍收不到，请联系站长处理。
+					请稍后点下方「重新发送」重试；若仍收不到，请联系站长处理。
 				{/if}
 			</p>
+		</div>
 
-			{#if devVerifyUrl}
-				<a
-					href={devVerifyUrl}
-					data-no-swup
-					class="mt-4 block w-full rounded-xl border border-(--primary)/40 bg-(--primary)/10 px-4 py-2.5 text-sm font-medium text-(--primary-text) text-center break-all"
-				>
-					本地联调：直接打开验证链接
-				</a>
-			{/if}
+		{#if devCode}
+			<p
+				class="mt-4 rounded-lg bg-(--primary)/10 border border-(--primary)/30 px-4 py-2.5 text-sm text-75 text-center"
+			>
+				本地联调：验证码 <span class="font-bold tracking-widest">{devCode}</span>（仅调试显示）
+			</p>
+		{/if}
 
-			{#if resendMsg}
-				<p
-					class="mt-4 rounded-lg bg-(--primary)/10 border border-(--primary)/30 px-4 py-2.5 text-sm text-75"
-				>
-					{resendMsg}
-				</p>
-			{/if}
+		{#if error}
+			<p
+				class="mt-4 rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-2.5 text-sm text-red-600 dark:text-red-400"
+			>
+				{error}
+			</p>
+		{/if}
 
-			<div class="mt-6 space-y-3">
+		{#if resendMsg}
+			<p
+				class="mt-4 rounded-lg bg-(--primary)/10 border border-(--primary)/30 px-4 py-2.5 text-sm text-75"
+			>
+				{resendMsg}
+			</p>
+		{/if}
+
+		{#if mailState === "sent"}
+			<form onsubmit={submitCode} class="mt-6 space-y-3">
+				<input
+					type="text"
+					inputmode="numeric"
+					autocomplete="one-time-code"
+					required
+					bind:value={code}
+					oninput={() => (code = code.replace(/\D/g, "").slice(0, 6))}
+					class={`${inputClass} text-center text-2xl tracking-[0.5em] font-semibold`}
+					placeholder="······"
+				/>
 				<button
-					type="button"
-					onclick={resend}
-					disabled={resendLoading}
-					class="w-full rounded-xl border border-(--line-divider) bg-(--card-bg) px-6 py-2.5 text-sm font-medium text-75 transition-colors hover:border-(--primary)/40 hover:text-(--primary-text) disabled:opacity-60"
+					type="submit"
+					disabled={verifyLoading || code.length !== 6}
+					class="w-full rounded-xl bg-(--primary-fill) px-6 py-3 text-sm font-semibold text-(--primary-on-fill) transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
 				>
-					{resendLoading ? "发送中…" : "没收到邮件？重新发送"}
+					{verifyLoading ? "验证中…" : "验证并登录"}
 				</button>
-				<a
-					href="/login/"
-					data-no-swup
-					class="block w-full rounded-xl bg-(--primary-fill) px-6 py-2.5 text-sm font-semibold text-(--primary-on-fill) text-center transition-all hover:brightness-110"
-				>
-					去登录
-				</a>
-			</div>
+			</form>
+		{/if}
+
+		<div class="mt-6 space-y-3">
+			<button
+				type="button"
+				onclick={resend}
+				disabled={resendLoading || countdown > 0}
+				class="w-full rounded-xl border border-(--line-divider) bg-(--card-bg) px-6 py-2.5 text-sm font-medium text-75 transition-colors hover:border-(--primary)/40 hover:text-(--primary-text) disabled:opacity-60"
+			>
+				{resendLoading
+					? "发送中…"
+					: countdown > 0
+						? `重新发送（${countdown}s）`
+						: "没收到验证码？重新发送"}
+			</button>
+			<a
+				href="/login/"
+				data-no-swup
+				class="block w-full rounded-xl border border-(--line-divider) bg-(--card-bg) px-6 py-2.5 text-sm font-medium text-75 text-center transition-colors hover:border-(--primary)/40 hover:text-(--primary-text)"
+			>
+				去登录
+			</a>
 		</div>
 	{:else}
 		<div class="text-center mb-6">

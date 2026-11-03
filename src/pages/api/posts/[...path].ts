@@ -1,10 +1,12 @@
-import { canAccessBackend, canWritePosts } from "@server/auth/perms";
+import type { BackendActor } from "@server/auth/perms";
+import { resolveBackendActor } from "@server/auth/perms";
 import { decodePostSlug, isValidPostSlug } from "@server/posts/frontmatter";
 import { redactPostSecrets } from "@server/posts/sanitize";
 import {
 	deletePost,
 	getPostBySlug,
 	getPostNeighbors,
+	getPostOwner,
 	getTaxonomyArchives,
 	getTaxonomyCategories,
 	getTaxonomyTags,
@@ -27,12 +29,24 @@ import { pathSegments } from "../../../lib/routePath";
 
 export const prerender = false;
 
+// 归属判定：非站长的 post:create 持有者只能操作自己的文章。
+// author_id 为 NULL（历史回填时无 admin 用户/旧版会话创建）视同站长所有。
+function isOwnerAuthor(actor: BackendActor) {
+	return (
+		!actor.isAdmin && Boolean(actor.user) && actor.perms.includes("post:create")
+	);
+}
+
 export const GET: APIRoute = async ({ params, request }) => {
 	const segments = pathSegments(params);
 	const url = new URL(request.url);
 
 	try {
-		const isAdmin = await canAccessBackend(request, cfEnv);
+		const actor = await resolveBackendActor(request, cfEnv);
+		const isAdmin = Boolean(actor?.isAdmin);
+		const isAuthor = actor ? isOwnerAuthor(actor) : false;
+		const authorId = isAuthor ? actor!.user!.id : undefined;
+
 		if (segments[0] === "taxonomy" && segments.length >= 2) {
 			const kind = segments[1];
 			if (kind === "categories")
@@ -44,16 +58,20 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 
 		if (segments.length === 0) {
+			// mine=1：后台列表请求；非站长作者只见自己的文章（含草稿）。
+			// 无 mine 时保持公开语义——作者浏览前台列表不受归属过滤影响
+			const mine = url.searchParams.get("mine") === "1" && isAuthor;
 			const result = await listPosts(cfEnv, {
 				page: Number(url.searchParams.get("page") || 1),
 				pageSize: Number(url.searchParams.get("pageSize") || 100),
 				category: url.searchParams.get("category") || undefined,
 				tag: url.searchParams.get("tag") || undefined,
 				month: url.searchParams.get("month") || undefined,
-				includeUnpublished: isAdmin,
+				includeUnpublished: isAdmin || mine,
+				authorId: mine ? authorId : undefined,
 			});
-			if (!isAdmin) result.posts = result.posts.map(redactPostSecrets);
-			return json(result, 200, isAdmin ? "private" : "list");
+			if (!isAdmin && !mine) result.posts = result.posts.map(redactPostSecrets);
+			return json(result, 200, isAdmin || mine ? "private" : "list");
 		}
 
 		if (segments[0] === "search") {
@@ -87,15 +105,22 @@ export const GET: APIRoute = async ({ params, request }) => {
 		if (!isValidPostSlug(decodePostSlug(slug)))
 			return badRequest("文章 slug 格式无效");
 
+		// 作者访问单篇：自己的（含草稿）给完整视图+源文；他人的退回公开视图（草稿 404）
+		let ownDraft = isAdmin;
+		if (isAuthor) {
+			const owner = await getPostOwner(cfEnv, slug);
+			ownDraft = owner?.author_id === authorId;
+		}
+
 		const post = await getPostBySlug(cfEnv, slug, {
-			includeUnpublished: isAdmin,
-			includeSource: isAdmin,
+			includeUnpublished: ownDraft,
+			includeSource: ownDraft,
 		});
 		if (!post) return notFound("文章不存在");
 		return json(
-			isAdmin ? post : redactPostSecrets(post),
+			ownDraft ? post : redactPostSecrets(post),
 			200,
-			isAdmin ? "private" : "default",
+			ownDraft ? "private" : "default",
 		);
 	} catch (error) {
 		return fromServiceError(error);
@@ -108,8 +133,14 @@ export const PUT: APIRoute = async ({ params, request }) => {
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
-	const allowed = await canWritePosts(request, cfEnv, "update");
-	if (!allowed) return unauthorized();
+	const actor = await resolveBackendActor(request, cfEnv);
+	if (!actor || !actor.ability.can("update", "Post")) return unauthorized();
+
+	// 归属校验先于限流：越权请求不消耗写配额
+	const owner = await getPostOwner(cfEnv, slug);
+	if (owner && !actor.isAdmin && owner.author_id !== actor.user?.id)
+		return json({ error: "只能操作自己发布的文章" }, 403, "private");
+	if (!owner && !actor.ability.can("create", "Post")) return unauthorized();
 
 	// 写入操作限流：每分钟最多 10 次（D1 持久化，跨边缘节点一致）
 	return withRateLimit(
@@ -125,7 +156,9 @@ export const PUT: APIRoute = async ({ params, request }) => {
 			try {
 				const body = await request.text();
 				if (!body.trim()) return badRequest("正文不能为空");
-				const result = await upsertPost(cfEnv, slug, body);
+				// 新建时记录归属；已有文章更新不传（DO UPDATE 不改 author_id）
+				const authorId = owner ? undefined : (actor.user?.id ?? null);
+				const result = await upsertPost(cfEnv, slug, body, authorId);
 				return json({ ok: true, ...result });
 			} catch (error) {
 				return fromServiceError(error);
@@ -140,8 +173,12 @@ export const DELETE: APIRoute = async ({ params, request }) => {
 	if (!slug || !isValidPostSlug(decodePostSlug(slug)))
 		return badRequest("文章 slug 格式无效");
 
-	const allowed = await canWritePosts(request, cfEnv, "delete");
-	if (!allowed) return unauthorized();
+	const actor = await resolveBackendActor(request, cfEnv);
+	if (!actor || !actor.ability.can("delete", "Post")) return unauthorized();
+
+	const owner = await getPostOwner(cfEnv, slug);
+	if (owner && !actor.isAdmin && owner.author_id !== actor.user?.id)
+		return json({ error: "只能操作自己发布的文章" }, 403, "private");
 
 	return withRateLimit(
 		cfEnv,

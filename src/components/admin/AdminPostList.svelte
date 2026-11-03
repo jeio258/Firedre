@@ -25,7 +25,8 @@ async function load() {
 	error = "";
 	try {
 		const data = await apiJsonCached<{ posts?: PostItem[] }>(
-			"/api/posts/?pageSize=200",
+			// mine=1：非站长作者只取自己的文章（站长不受影响）；与服务端归属过滤配套
+			"/api/posts/?pageSize=200&mine=1",
 		);
 		posts = data.posts || [];
 	} catch {

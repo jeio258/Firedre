@@ -1,5 +1,9 @@
 <script lang="ts">
 import type { OAuthProviderId } from "@server/auth/oauth";
+import {
+	isOAuthErrorCode,
+	OAUTH_ERROR_MESSAGES,
+} from "@server/auth/oauthErrors";
 import { onMount } from "svelte";
 import Turnstile from "./Turnstile.svelte";
 
@@ -16,17 +20,6 @@ let { oauthProviders = [] }: Props = $props();
 const OAUTH_LABELS: Record<OAuthProviderId, string> = {
 	github: "GitHub",
 	google: "Google",
-};
-
-// 与 server/auth/oauth.ts 的 302 错误码对齐；OAuth 端点未接入前不会出现
-const OAUTH_ERROR_MESSAGES: Record<string, string> = {
-	state: "登录状态已失效或校验未通过，请重新发起登录",
-	not_configured: "该第三方登录尚未配置",
-	exchange: "第三方登录验证失败，请稍后再试",
-	no_email: "第三方账号没有可用的已验证邮箱，无法登录",
-	email_unverified: "第三方账号邮箱未通过验证，无法登录",
-	banned: "该账号已被封禁",
-	server: "服务器错误，请稍后再试",
 };
 
 type Mode = "login" | "forgot" | "sent" | "reset";
@@ -64,7 +57,9 @@ onMount(() => {
 
 	const oauthError = params.get("oauth_error");
 	if (oauthError) {
-		error = OAUTH_ERROR_MESSAGES[oauthError] || "第三方登录失败，请重试";
+		error = isOAuthErrorCode(oauthError)
+			? OAUTH_ERROR_MESSAGES[oauthError]
+			: "第三方登录失败，请重试";
 		params.delete("oauth_error");
 		const qs = params.toString();
 		history.replaceState(

@@ -85,12 +85,17 @@ export function buildListPostsQuery(options: {
 	tag?: string;
 	month?: string;
 	includeUnpublished?: boolean;
+	authorId?: string;
 }) {
 	const joins: string[] = [];
 	const conditions: string[] = [];
 	const binds: unknown[] = [];
 
 	if (!options.includeUnpublished) conditions.push("p.published = 1");
+	if (options.authorId) {
+		conditions.push("p.author_id = ?");
+		binds.push(options.authorId);
+	}
 
 	if (options.category) {
 		const filter = categoryFilterSql(options.category);
@@ -144,6 +149,7 @@ export async function listPosts(
 		tag?: string;
 		month?: string;
 		includeUnpublished?: boolean;
+		authorId?: string;
 	} = {},
 ): Promise<PostsListResponse> {
 	const page = Math.max(1, Math.floor(options.page || 1));
@@ -451,10 +457,21 @@ export async function searchPosts(
 	return runLikeQuery();
 }
 
+export async function getPostOwner(
+	env: CloudflareEnv,
+	slug: string,
+): Promise<{ author_id: string | null; published: number } | null> {
+	const decoded = decodePostSlug(slug);
+	return env.DB.prepare("SELECT author_id, published FROM posts WHERE slug = ?")
+		.bind(decoded)
+		.first<{ author_id: string | null; published: number }>();
+}
+
 export async function upsertPost(
 	env: CloudflareEnv,
 	slug: string,
 	source: string,
+	authorId?: string | null,
 ) {
 	const decoded = decodePostSlug(slug);
 	const { frontmatter, content } = splitMarkdown(source);
@@ -489,8 +506,8 @@ export async function upsertPost(
 	const postUpsert = env.DB.prepare(`
     INSERT INTO posts (
       slug, title, excerpt, description, date, updated, categories, tags, cover,
-      pin_order, published, password, fm_json, words, minutes, r2_key, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+      pin_order, published, password, fm_json, words, minutes, r2_key, author_id, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
     ON CONFLICT(slug) DO UPDATE SET
       title = excluded.title,
       excerpt = excluded.excerpt,
@@ -525,6 +542,8 @@ export async function upsertPost(
 		words,
 		minutes,
 		r2Key,
+		// 归属只在创建时写入；更新路径不触碰 author_id（DO UPDATE 不含该列）
+		authorId ?? null,
 	);
 
 	const ftsDelete = env.DB.prepare("DELETE FROM posts_fts WHERE slug = ?").bind(

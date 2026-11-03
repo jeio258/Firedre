@@ -20,9 +20,6 @@ importers:
       '@fancyapps/ui':
         specifier: ^6.1.14
         version: 6.1.14
-      '@fortawesome/fontawesome-free':
-        specifier: ^7.3.1
-        version: 7.3.1
       '@iconify-json/fa7-brands':
         specifier: ^1.2.4
         version: 1.2.4
@@ -1823,10 +1820,6 @@ packages:
 
   '@fancyapps/ui@6.1.14':
     resolution: {integrity: sha512-cBV73XXHrc0qMca+PJJ6qay3xweIgsoYse13rGRstgUs0xA5WAv1tgbSzPCIOOjiLs2S2jiVFJxyszgvgyfxMg==}
-
-  '@fortawesome/fontawesome-free@7.3.1':
-    resolution: {integrity: sha512-wmglKKPDIkgV3aWlZzWECCPoGIkYCulzBwxG9+w7rc5BGapZ6cPMpoPOT8k36J0Ni7PPX6c/rsoMWfS4d1MUMg==}
-    engines: {node: '>=6'}
 
   '@iconify-json/fa7-brands@1.2.4':
     resolution: {integrity: sha512-60acXyxhQl1lddBH5YGzfQLkzlP9jqNcblFmgel7lJpgsVx/4QmrXAL90ARb8XhHX7dFMGRDmlqER9mq8aaz2g==}
@@ -8041,8 +8034,6 @@ snapshots:
     optional: true
 
   '@fancyapps/ui@6.1.14': {}
-
-  '@fortawesome/fontawesome-free@7.3.1': {}
 
   '@iconify-json/fa7-brands@1.2.4':
     dependencies:

@@ -2,12 +2,8 @@
 // 防枚举：注册与重发接口对「邮箱是否存在」返回完全一致的文案，差异只留在服务端日志
 
 import type { CloudflareEnv } from "../../types/env";
-import {
-	type MailEnv,
-	renderResetEmail,
-	renderVerifyEmail,
-	sendMail,
-} from "../mail";
+import { type MailEnv, renderResetEmail, sendMail } from "../mail";
+import { constantTimeEqual } from "../utils/timingSafe";
 import { loadAdminEnv } from "./loadAdminEnv";
 import {
 	hashPassword,
@@ -15,7 +11,11 @@ import {
 	verifyPasswordAllowPlaintext,
 } from "./password";
 
-export const SIGNUP_VERIFY_HOURS = 24;
+export const SIGNUP_CODE_MINUTES = 10;
+/** 同一验证码连续输错达到该次数即作废（删除记录，需重新获取） */
+const CODE_FAIL_LIMIT = 5;
+// 输错计数按 user_id 放进程内存（表不加列）； isolate 重建即清零，代价只是多一轮尝试机会
+const codeFailures = new Map<string, number>();
 export const PASSWORD_MIN_LENGTH = 8;
 export const NAME_MAX_LENGTH = 30;
 export const EMAIL_MAX_LENGTH = 254;
@@ -96,6 +96,19 @@ function randomToken(bytes = 32): string {
 	return [...arr].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/** 6 位数字验证码；拒绝采样消除模偏差 */
+function randomCode(): string {
+	const max = 1_000_000;
+	const limit = Math.floor(0x1_0000_0000 / max) * max;
+	const buf = new Uint32Array(1);
+	let v: number;
+	do {
+		crypto.getRandomValues(buf);
+		v = buf[0] ?? 0;
+	} while (v >= limit);
+	return String(v % max).padStart(6, "0");
+}
+
 async function sha256Hex(input: string): Promise<string> {
 	const buf = await crypto.subtle.digest(
 		"SHA-256",
@@ -168,7 +181,7 @@ export interface RegisterInput {
 }
 
 export type RegisterOutcome =
-	| { kind: "created"; verifyUrl?: string; mailSent?: boolean }
+	| { kind: "created"; code?: string; mailSent?: boolean }
 	| { kind: "duplicate" } // 邮箱已存在（对客户端不外泄，响应与 created 一致）
 	| { kind: "invalid"; message: string };
 
@@ -177,12 +190,12 @@ interface UserRow {
 	email_verified: number;
 }
 
-/** 建号（未验证）+ 生成验证 token + 发信；发信失败不改变结果（落库即注册成功） */
+/** 建号（未验证）+ 生成验证码 + 发信；发信失败不改变结果（落库即注册成功） */
 export async function registerUser(
 	db: D1Database,
 	env: RegisterEnv,
 	input: RegisterInput,
-	siteOrigin: string,
+	_siteOrigin: string,
 	siteName: string,
 ): Promise<RegisterOutcome> {
 	const email = normalizeEmail(input.email);
@@ -208,14 +221,7 @@ export async function registerUser(
 		// 防枚举：对调用方返回 duplicate，由 API 层渲染与 created 完全相同的响应；
 		// 额度控制——仅「已注册但未验证」的账号重发验证信（限流在 API 层兜底）
 		if (existing.email_verified !== 1) {
-			await issueSignupVerification(
-				db,
-				env,
-				existing.id,
-				email,
-				siteOrigin,
-				siteName,
-			);
+			await issueSignupVerification(db, env, existing.id, email, siteName);
 		}
 		return { kind: "duplicate" };
 	}
@@ -249,28 +255,45 @@ export async function registerUser(
 		env,
 		userId,
 		email,
-		siteOrigin,
 		siteName,
 	);
 	return {
 		kind: "created",
-		verifyUrl: issued?.verifyUrl,
+		code: issued?.code,
 		mailSent: issued?.mailSent,
 	};
 }
 
-/** 生成一次性 signup token：库存 sha256，明文只进邮件链接；24h 有效 */
+function renderVerifyCodeEmail(input: {
+	siteName: string;
+	code: string;
+	minutes: number;
+}): { subject: string; html: string } {
+	const { siteName, code, minutes } = input;
+	return {
+		subject: `${siteName} 注册验证码：${code}`,
+		html: `<div style="max-width:480px;margin:0 auto;padding:24px;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;">
+  <h2 style="font-size:18px;color:#222;margin:0 0 12px;">${siteName} 注册验证码</h2>
+  <p style="font-size:14px;color:#555;margin:0 0 20px;">请将以下验证码输入注册页面完成邮箱验证：</p>
+  <div style="font-size:36px;font-weight:700;letter-spacing:8px;color:#111;background:#f5f5f5;border-radius:8px;padding:16px;text-align:center;">${code}</div>
+  <p style="font-size:13px;color:#888;margin:20px 0 0;">验证码 ${minutes} 分钟内有效；超时请回到注册页重新获取。</p>
+  <p style="font-size:13px;color:#888;margin:6px 0 0;">如果你没有在本站注册过账号，请忽略本邮件。</p>
+</div>`,
+	};
+}
+
+/** 生成一次性 signup 验证码：库存 sha256，明文只进邮件；10 分钟有效，同用户同 purpose 覆盖式签发 */
 async function issueSignupVerification(
 	db: D1Database,
 	env: RegisterEnv,
 	userId: string,
 	email: string,
-	siteOrigin: string,
 	siteName: string,
-): Promise<{ verifyUrl: string; mailSent: boolean } | undefined> {
+): Promise<{ code: string; mailSent: boolean } | undefined> {
 	try {
-		const token = randomToken(32);
-		const tokenHash = await sha256Hex(token);
+		const code = randomCode();
+		const codeHash = await sha256Hex(code);
+		codeFailures.delete(userId);
 
 		// 同用户同 purpose 只保留最新一条未使用的
 		await db
@@ -282,22 +305,20 @@ async function issueSignupVerification(
 		await db
 			.prepare(
 				`INSERT INTO email_verifications (id, user_id, token_hash, purpose, expires_at)
-         VALUES (?, ?, ?, 'signup', datetime('now', '+${SIGNUP_VERIFY_HOURS} hours'))`,
+         VALUES (?, ?, ?, 'signup', datetime('now', '+${SIGNUP_CODE_MINUTES} minutes'))`,
 			)
-			.bind(crypto.randomUUID(), userId, tokenHash)
+			.bind(crypto.randomUUID(), userId, codeHash)
 			.run();
 
-		// 站点 trailingSlash:"always"，路径必须带尾斜杠否则 404
-		const verifyUrl = `${siteOrigin}/verify/?token=${encodeURIComponent(token)}`;
 		// 失败不抛出：注册以落库为准，可走重发按钮（设计 G.6）
-		const mail = renderVerifyEmail({
+		const mail = renderVerifyCodeEmail({
 			siteName,
-			url: verifyUrl,
-			expireHours: SIGNUP_VERIFY_HOURS,
+			code,
+			minutes: SIGNUP_CODE_MINUTES,
 		});
 		// 发信结果一路回传给接口：通道没配好或 SMTP 拒信时，注册页不能谎报「已发送」
 		const result = await sendMail(env, { to: email, ...mail });
-		return { verifyUrl, mailSent: result.ok && !result.skipped };
+		return { code, mailSent: result.ok && !result.skipped };
 	} catch (e) {
 		console.error("[register] 发送验证邮件失败:", e);
 		return undefined;
@@ -383,16 +404,92 @@ export async function verifySignupToken(
 	return { ok: true, userId: row.user_id };
 }
 
+export type VerifyCodeOutcome =
+	| { ok: true; userId: string }
+	| { ok: false; reason: "invalid" | "expired" | "locked" };
+
+/** 验证码校验：email → user → 最新未用 signup 记录，hash 恒定时间比对；连错作废当前码 */
+export async function verifySignupCode(
+	db: D1Database,
+	rawEmail: string,
+	rawCode: string,
+): Promise<VerifyCodeOutcome> {
+	const email = normalizeEmail(rawEmail);
+	const code = rawCode.trim();
+	if (!email || !/^\d{6}$/.test(code)) return { ok: false, reason: "invalid" };
+
+	const userId = await resolveUserEmail(db, email);
+	if (!userId) return { ok: false, reason: "invalid" };
+
+	const row = await db
+		.prepare(
+			`SELECT id, token_hash FROM email_verifications
+       WHERE user_id = ? AND purpose = 'signup' AND used_at IS NULL
+       ORDER BY created_at DESC, rowid DESC LIMIT 1`,
+		)
+		.bind(userId)
+		.first<{ id: string; token_hash: string }>();
+	if (!row) return { ok: false, reason: "invalid" };
+
+	const codeHash = await sha256Hex(code);
+	if (!constantTimeEqual(codeHash, row.token_hash)) {
+		const fails = (codeFailures.get(userId) ?? 0) + 1;
+		if (fails >= CODE_FAIL_LIMIT) {
+			codeFailures.delete(userId);
+			await db
+				.prepare("DELETE FROM email_verifications WHERE id = ?")
+				.bind(row.id)
+				.run();
+			return { ok: false, reason: "locked" };
+		}
+		codeFailures.set(userId, fails);
+		return { ok: false, reason: "invalid" };
+	}
+	codeFailures.delete(userId);
+
+	const fresh = await db
+		.prepare(
+			"SELECT id FROM email_verifications WHERE id = ? AND expires_at > datetime('now')",
+		)
+		.bind(row.id)
+		.first<{ id: string }>();
+	if (!fresh) return { ok: false, reason: "expired" };
+
+	try {
+		const verifyStmt = db
+			.prepare(
+				"UPDATE users SET email_verified = 1, updated_at = datetime('now') WHERE id = ?",
+			)
+			.bind(userId);
+		const useStmt = db
+			.prepare(
+				"UPDATE email_verifications SET used_at = datetime('now') WHERE id = ?",
+			)
+			.bind(row.id);
+		if (typeof (db as { batch?: unknown }).batch === "function") {
+			await db.batch([verifyStmt, useStmt]);
+		} else {
+			await verifyStmt.run();
+			await useStmt.run();
+		}
+	} catch (e) {
+		console.error("[verify-code] 激活失败:", e);
+		return { ok: false, reason: "invalid" };
+	}
+
+	return { ok: true, userId };
+}
+
 /**
- * 重发验证邮件（防枚举：邮箱不存在/已验证也返回成功，且不发信）。
- * 库内只存 hash、明文不可恢复，故直接签发新 token 并作废旧的未使用记录
+ * 重发验证码（防枚举：邮箱不存在/已验证也返回成功，且不发信）。
+ * 库内只存 hash、明文不可恢复，故直接签发新码并作废旧的未使用记录
  * （内部 issueSignupVerification 先 DELETE 未使用的再 INSERT）。
  */
 export async function resendVerification(
 	db: D1Database,
 	env: RegisterEnv,
 	rawEmail: string,
-	siteOrigin: string,
+	_siteOrigin: string,
 	siteName: string,
 ): Promise<void> {
 	const email = normalizeEmail(rawEmail);
@@ -409,14 +506,7 @@ export async function resendVerification(
 			: null;
 		if (!user || user.email_verified === 1) return;
 
-		await issueSignupVerification(
-			db,
-			env,
-			user.id,
-			email,
-			siteOrigin,
-			siteName,
-		);
+		await issueSignupVerification(db, env, user.id, email, siteName);
 	} catch (e) {
 		console.error("[resend] 重发验证邮件失败:", e);
 	}

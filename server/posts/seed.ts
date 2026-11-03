@@ -1,5 +1,6 @@
 // 幂等基线迁移（IF NOT EXISTS）：空库首次访问时自动建表，见 ensureSchema
 import initSql from "../../migrations/0001_init.sql?raw";
+import authorSql from "../../migrations/0002_post_author.sql?raw";
 // 构建时内联默认文章源文（Workers 运行时无文件系统）
 import firedreSource from "../../posts/firedre.md?raw";
 import type { CloudflareEnv } from "../../types/env";
@@ -39,26 +40,48 @@ export async function ensureSchema(env: CloudflareEnv): Promise<void> {
 	if (schemaReady) return;
 	if (schemaFailedAt && Date.now() - schemaFailedAt < SCHEMA_RETRY_COOLDOWN_MS)
 		return;
+	let bootstrapFailed = false;
 	try {
 		await env.DB.prepare("SELECT 1 FROM site_settings LIMIT 1").run();
-		schemaReady = true;
-		return;
 	} catch {
 		// 表缺失 → 引导建表
+		try {
+			const statements = splitSqlStatements(initSql).map((sql) =>
+				env.DB.prepare(sql),
+			);
+			await env.DB.batch(statements);
+			console.log(
+				`[bootstrap] 空库已自动应用基线迁移（${statements.length} 条语句）`,
+			);
+		} catch (e) {
+			bootstrapFailed = true;
+			console.warn("[bootstrap] 数据库初始化失败，页面将以空数据渲染", e);
+		}
 	}
-	try {
-		const statements = splitSqlStatements(initSql).map((sql) =>
-			env.DB.prepare(sql),
-		);
-		await env.DB.batch(statements);
-		schemaReady = true;
-		console.log(
-			`[bootstrap] 空库已自动应用基线迁移（${statements.length} 条语句）`,
-		);
-	} catch (e) {
+	// 0001 基线不含 author_id（禁改既有迁移），单独探测补列：覆盖既有库升级与空库新装两条路径
+	if (!bootstrapFailed) {
+		try {
+			await env.DB.prepare("SELECT author_id FROM posts LIMIT 1").run();
+		} catch {
+			try {
+				const statements = splitSqlStatements(authorSql).map((sql) =>
+					env.DB.prepare(sql),
+				);
+				await env.DB.batch(statements);
+				console.log(
+					`[bootstrap] 已应用文章归属迁移 0002（${statements.length} 条语句）`,
+				);
+			} catch (e) {
+				bootstrapFailed = true;
+				console.warn("[bootstrap] 0002 迁移应用失败", e);
+			}
+		}
+	}
+	if (bootstrapFailed) {
 		schemaFailedAt = Date.now();
-		console.warn("[bootstrap] 数据库初始化失败，页面将以空数据渲染", e);
+		return;
 	}
+	schemaReady = true;
 }
 
 export async function ensureDefaultPosts(env: CloudflareEnv): Promise<void> {
