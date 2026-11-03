@@ -113,11 +113,48 @@ export function stripHtmlForLog(html: string): string {
 }
 
 /** Brevo HTTP 发信（失败重试 1 次，不记录日志；结果由 index.ts 统一落库） */
+// Brevo 对未验证发件人的是"先收下再异步拒绝"（事件流里 event=error），
+// 只看 HTTP 2xx 会误判成功，所以发送前先确认发件人已激活
+const senderCache = globalThis as {
+	__FIREDRE_BREVO_SENDERS__?: { at: number; list: string[] };
+};
+const SENDER_CACHE_MS = 5 * 60_000;
+
+async function verifiedSenders(apiKey: string): Promise<string[] | null> {
+	const cached = senderCache.__FIREDRE_BREVO_SENDERS__;
+	if (cached && Date.now() - cached.at < SENDER_CACHE_MS) return cached.list;
+	try {
+		const r = await fetch("https://api.brevo.com/v3/senders?limit=100", {
+			headers: { "api-key": apiKey, accept: "application/json" },
+			signal: AbortSignal.timeout(8000),
+		});
+		if (!r.ok) return null;
+		const data = (await r.json()) as {
+			senders?: { email?: string; active?: boolean }[];
+		};
+		const list = (data.senders ?? [])
+			.filter((x) => x.active && x.email)
+			.map((x) => String(x.email).toLowerCase());
+		senderCache.__FIREDRE_BREVO_SENDERS__ = { at: Date.now(), list };
+		return list;
+	} catch {
+		return null;
+	}
+}
+
 export async function sendViaBrevo(
 	apiKey: string,
 	sender: { name: string; email: string },
 	input: SendMailInput,
 ): Promise<SendMailResult> {
+	// 查询失败（网络/权限）时放行，交给真实发送结果判定，避免自己把自己卡死
+	const senders = await verifiedSenders(apiKey);
+	if (senders && !senders.includes(sender.email.toLowerCase())) {
+		return {
+			ok: false,
+			error: `Brevo 发件人 ${sender.email} 未验证：请到 Brevo → Senders 添加并点击验证邮件，或改用已验证地址`,
+		};
+	}
 	const payload = JSON.stringify({
 		sender: { name: sender.name, email: sender.email },
 		to: [{ email: input.to }],

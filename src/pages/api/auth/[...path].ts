@@ -732,10 +732,41 @@ export const GET: APIRoute = async ({ params, request }) => {
 				        substr(to_email, 1, 1) || '***' AS to_masked
 				 FROM mail_log ORDER BY created_at DESC LIMIT 10`,
 			).all();
+			// Brevo 的 2xx 只代表"已接收"，真正投递结果在它自己的事件流里；
+			// 用 Worker 出站身份查询（本机 IP 通常不在账号白名单内，查不到）
+			let brevoEvents: unknown = null;
+			if (
+				(cfEnv as { MAIL_PROVIDER?: string }).MAIL_PROVIDER === "brevo" &&
+				(cfEnv as { BREVO_API_KEY?: string }).BREVO_API_KEY
+			) {
+				try {
+					const r = await fetch(
+						"https://api.brevo.com/v3/smtp/statistics/events?limit=8&sort=desc",
+						{
+							headers: {
+								"api-key": String(
+									(cfEnv as { BREVO_API_KEY?: string }).BREVO_API_KEY,
+								),
+								accept: "application/json",
+							},
+							signal: AbortSignal.timeout(8000),
+						},
+					);
+					brevoEvents = r.ok
+						? ((await r.json()) as { events?: unknown }).events
+						: {
+								error: `HTTP ${r.status}`,
+								body: (await r.text()).slice(0, 200),
+							};
+				} catch (e) {
+					brevoEvents = { error: (e as Error).message };
+				}
+			}
 			return json(
 				{
 					config: describeMailConfig(cfEnv as RegisterEnv),
 					recent: results || [],
+					brevoEvents,
 				},
 				200,
 				"private",
