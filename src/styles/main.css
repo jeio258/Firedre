@@ -322,7 +322,8 @@ html {
         @apply transition-colors duration-150 rounded-md p-1.5 -m-1.5 expand-animation;
     }
     .float-panel {
-        @apply top-21 rounded-(--radius-large) overflow-hidden overscroll-contain bg-(--card-bg) transition-colors duration-150 shadow-xl border border-black/5 dark:border-white/10
+        @apply top-21 rounded-(--radius-large) overflow-hidden overscroll-contain bg-(--card-bg) transition-colors duration-150 shadow-xl border;
+        border-color: var(--panel-border);
     }
     .float-panel-closed {
         @apply -translate-y-1 opacity-0 pointer-events-none
@@ -343,11 +344,13 @@ html {
         active:bg-(--btn-card-bg-active)
     }
     .btn-card.disabled {
-        @apply pointer-events-none text-black/10 dark:text-white/10
+        @apply pointer-events-none;
+        color: var(--btn-disabled-content);
     }
     .btn-plain {
         @apply transition-colors duration-150 relative flex items-center justify-center bg-none
-        text-black/75 hover:text-(--primary) dark:text-white/75 dark:hover:text-(--primary);
+        hover:text-(--primary);
+        color: var(--text-75);
         &:focus-visible {
             color: var(--primary);
         }
@@ -365,8 +368,8 @@ html {
         @apply bg-(--btn-plain-bg-hover) text-(--primary);
     }
     .btn-regular {
-        @apply transition-colors duration-150 flex items-center justify-center bg-(--btn-regular-bg) hover:bg-(--btn-regular-bg-hover) active:bg-(--btn-regular-bg-active)
-        text-(--btn-content) dark:text-white/75
+        @apply transition-colors duration-150 flex items-center justify-center bg-(--btn-regular-bg) hover:bg-(--btn-regular-bg-hover) active:bg-(--btn-regular-bg-active);
+        color: var(--btn-regular-content);
     }
 
     .link-underline {
@@ -387,19 +390,19 @@ html {
     }
 
     .text-90 {
-        @apply text-black/90 dark:text-white/90
+        color: var(--text-90)
     }
     .text-75 {
-        @apply text-black/75 dark:text-white/75
+        color: var(--text-75)
     }
     .text-50 {
-        @apply text-black/58 dark:text-white/58
+        color: var(--text-50)
     }
     .text-30 {
-        @apply text-black/30 dark:text-white/30
+        color: var(--text-30)
     }
     .text-25 {
-        @apply text-black/25 dark:text-white/25
+        color: var(--text-25)
     }
 
     .dropdown-container {
@@ -421,8 +424,9 @@ html {
     }
 
     .dropdown-content {
-        @apply bg-(--card-bg) rounded-(--radius-large) shadow-xl border border-black/5 dark:border-white/10 py-2 min-w-48
+        @apply bg-(--card-bg) rounded-(--radius-large) shadow-xl border py-2 min-w-48
         opacity-0 translate-y-[-8px] transition-[opacity,translate,background-color,border-color] duration-200 ease-out;
+        border-color: var(--panel-border);
     }
 
     .dropdown-container:hover .dropdown-content,
@@ -431,7 +435,8 @@ html {
     }
 
     .dropdown-item {
-        @apply flex items-center justify-between px-4 py-2.5 text-black/75 dark:text-white/75 hover:text-(--primary) hover:bg-(--btn-plain-bg-hover) transition-colors duration-150 font-medium;
+        @apply flex items-center justify-between px-4 py-2.5 hover:text-(--primary) hover:bg-(--btn-plain-bg-hover) transition-colors duration-150 font-medium;
+        color: var(--text-75);
     }
 
     .dropdown-item:first-child {
