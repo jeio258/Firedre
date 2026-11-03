@@ -85,7 +85,7 @@ const msg = messages[state];
 		<title>{title}</title>
 		<meta name="robots" content="noindex, nofollow" />
 		<style>
-			:root {
+			.verify-page {
 				color-scheme: light dark;
 				--page: #fafafa;
 				--card: #ffffff;
@@ -94,7 +94,7 @@ const msg = messages[state];
 				--line: #e7e5e4;
 			}
 			@media (prefers-color-scheme: dark) {
-				:root {
+				.verify-page {
 					--page: #0c0a09;
 					--card: #171514;
 					--text: #f5f5f4;
@@ -103,8 +103,8 @@ const msg = messages[state];
 				}
 			}
 			* { box-sizing: border-box; }
-			body {
-				margin: 0;
+			/* 只作用于本页包裹层：直接写 body 会污染全站（后台 .shell 被 flex 居中挤窄） */
+			.verify-page {
 				min-height: 100vh;
 				display: flex;
 				align-items: center;
@@ -138,12 +138,14 @@ const msg = messages[state];
 			a.ghost { border: 1px solid var(--line); color: var(--text); }
 		</style>
 	</head>
-	<body>
+	<body style="margin:0">
+		<div class="verify-page">
 		<main class="card">
 			<h1>{msg.heading}</h1>
 			<p>{msg.body}</p>
 			<a class="primary" href={alreadyLoggedIn ? "/profile/" : "/login/"}>{alreadyLoggedIn ? "返回个人资料" : "去登录"}</a>
 			<a class="ghost" href="/register/">重新注册 / 重发验证邮件</a>
 		</main>
+		</div>
 	</body>
 </html>
