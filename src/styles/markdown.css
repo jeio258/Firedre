@@ -40,8 +40,9 @@
     }
   }
 
+  /* 正文链接用 --primary-text：--primary 在浅色底只有 2.4:1，Lighthouse 判对比度不足 */
   a:not(.no-styling) {
-    @apply relative bg-none font-medium text-(--primary) underline decoration-(--link-underline) decoration-1 decoration-dashed underline-offset-4;
+    @apply relative bg-none font-medium text-(--primary-text) underline decoration-(--link-underline) decoration-1 decoration-dashed underline-offset-4;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
     word-break: break-word;

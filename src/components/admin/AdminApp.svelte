@@ -30,7 +30,6 @@ let View = $state<import("svelte").Component<Record<string, unknown>> | null>(
 let viewProps = $state<Record<string, unknown>>({});
 let viewError = $state("");
 let viewKey = $state("dashboard");
-let viewLoading = $state(false);
 
 let userMenuOpen = $state(false);
 let pwdPanelOpen = $state(false);
@@ -135,11 +134,9 @@ async function render(s: Section, slug?: string) {
 	// 同步标签页标题：登录进入后台后不再残留「登录 -」入口标题，刷新前后一致
 	document.title = `${titleOf(section)} - Firedre 后台`;
 	viewError = "";
-	viewLoading = true;
 	const loader = VIEWS[s];
 	if (!loader) {
 		viewError = "未知页面";
-		viewLoading = false;
 		return;
 	}
 	try {
@@ -153,24 +150,6 @@ async function render(s: Section, slug?: string) {
 		viewKey = slug ?? s;
 	} catch (e) {
 		viewError = e instanceof Error ? e.message : "加载失败";
-	} finally {
-		viewLoading = false;
-	}
-}
-
-/** 登录后空闲期预热全部视图 chunk：首次点击菜单不再等网络下载（总量数百 KB，仅后台加载一次） */
-function warmViews() {
-	const warm = () => {
-		for (const loader of Object.values(VIEWS)) {
-			loader().catch(() => {});
-		}
-	};
-	if ("requestIdleCallback" in window) {
-		(
-			window as Window & { requestIdleCallback: (cb: () => void) => void }
-		).requestIdleCallback(warm);
-	} else {
-		setTimeout(warm, 1500);
 	}
 }
 
@@ -178,6 +157,21 @@ function navigateToLogin() {
 	window.location.replace(
 		`/login/?next=${encodeURIComponent(window.location.pathname)}`,
 	);
+}
+
+// 侧栏悬停/聚焦即预取对应视图 chunk：每项只拉一次，不做空闲期全量预热（会与首屏接口抢带宽）
+const prefetched = new Set<string>();
+function prefetchFrom(target: EventTarget | null) {
+	const el = target as Element | null;
+	const anchor = el?.closest?.("a[href^='/admin/']");
+	if (!(anchor instanceof HTMLAnchorElement) || !anchor.closest(".sidebar")) {
+		return;
+	}
+	const href = anchor.getAttribute("href");
+	if (!href || prefetched.has(href)) return;
+	prefetched.add(href);
+	const loader = VIEWS[parsePath(href).section];
+	loader?.().catch(() => prefetched.delete(href));
 }
 
 /** 无权板块的落点：侧栏第一个可见项（权限用户没有仪表盘权限，落点是文章管理） */
@@ -240,6 +234,48 @@ type BackendMe = {
 	perms?: string[];
 };
 
+type BootIdentity = { isAdmin: boolean; perms: string[]; username: string };
+
+/** 服务端鉴权时内联的身份快照；缺失或字段类型不符则返回 null，交给 checkAccess() 网络兜底 */
+function readBootIdentity(): BootIdentity | null {
+	const el = document.getElementById("admin-boot");
+	if (!el?.textContent) return null;
+	try {
+		const raw = JSON.parse(el.textContent) as {
+			isAdmin?: unknown;
+			perms?: unknown;
+			username?: unknown;
+		};
+		if (typeof raw.isAdmin !== "boolean" || typeof raw.username !== "string") {
+			return null;
+		}
+		const rawPerms = raw.perms;
+		if (
+			!Array.isArray(rawPerms) ||
+			!rawPerms.every((p) => typeof p === "string")
+		) {
+			return null;
+		}
+		return {
+			isAdmin: raw.isAdmin,
+			perms: rawPerms as string[],
+			username: raw.username,
+		};
+	} catch {
+		return null;
+	}
+}
+
+function applyIdentity(identity: BootIdentity) {
+	isAdmin = identity.isAdmin;
+	perms = identity.perms;
+	username = identity.username;
+	navGroups = navGroupsFor({ isAdmin, perms });
+	allowed = sectionsOf(navGroups);
+	authed = true;
+	checking = false;
+}
+
 async function checkAccess() {
 	for (let attempt = 0; attempt < 3; attempt++) {
 		const ctrl = new AbortController();
@@ -269,14 +305,11 @@ async function checkAccess() {
 					window.location.replace("/");
 					return;
 				}
-				isAdmin = data.isAdmin === true;
-				perms = data.perms ?? [];
-				username = data.username || "";
-				navGroups = navGroupsFor({ isAdmin, perms });
-				allowed = sectionsOf(navGroups);
-				authed = true;
-				checking = false;
-				warmViews();
+				applyIdentity({
+					isAdmin: data.isAdmin === true,
+					perms: data.perms ?? [],
+					username: data.username || "",
+				});
 				await navigate(window.location.pathname);
 				return;
 			}
@@ -380,8 +413,18 @@ onMount(() => {
 	try {
 		collapsed = localStorage.getItem("admin_sidebar_collapsed") === "1";
 	} catch (e) {}
-	checkAccess();
+	const boot = readBootIdentity();
+	if (boot) {
+		applyIdentity(boot);
+		void navigate(window.location.pathname);
+	} else {
+		void checkAccess();
+	}
 	document.addEventListener("click", handleNav);
+	const onPointerOver = (e: Event) => prefetchFrom(e.target);
+	const onFocusIn = (e: Event) => prefetchFrom(e.target);
+	document.addEventListener("pointerover", onPointerOver);
+	document.addEventListener("focusin", onFocusIn);
 	const onDocClick = (e: MouseEvent) => {
 		// 点击 user-menu 外部时收起下拉/密码面板
 		if (!userMenuOpen) return;
@@ -394,6 +437,8 @@ onMount(() => {
 	return () => {
 		document.removeEventListener("click", handleNav);
 		document.removeEventListener("click", onDocClick);
+		document.removeEventListener("pointerover", onPointerOver);
+		document.removeEventListener("focusin", onFocusIn);
 		if (saveToastTimer) clearTimeout(saveToastTimer);
 		window.removeEventListener("popstate", onPopState);
 	};
@@ -489,13 +534,13 @@ onMount(() => {
 
 			<div class="content">
 				<main class="main">
-				{#if viewError}
-					<div class="admin-error">{viewError}</div>
-				{:else if viewLoading || !View}
-					<div class="admin-loading">加载中…</div>
-				{:else}
-					<View {...viewProps} />
-				{/if}
+					{#if viewError}
+						<div class="admin-error">{viewError}</div>
+					{:else if View}
+						<View {...viewProps} />
+					{:else}
+						<div class="admin-loading">加载中…</div>
+					{/if}
 				</main>
 			</div>
 		</div>

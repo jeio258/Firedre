@@ -2,8 +2,8 @@
 // 相比原富文本方案：无需 3.65MB 的 lute 解析器，首包 ~330KB；
 // 纯 Markdown 源码 + 分屏预览，保存协议不变（组件侧仍拿 getValue 拼 frontmatter）。
 import "easymde/dist/easymde.min.css";
-// EasyMDE 工具栏图标是 fa-* 类名，必须引入 Font Awesome，否则按钮全空白
-import "@fortawesome/fontawesome-free/css/all.min.css";
+// 工具栏图标走 /admin/fa-subset.css（由 AdminHead 链接）：全量 all.css 有 2700+ 条规则、
+// 会被打进全站公共 CSS，而这里只用 19 个图标
 import "./admin-editor.css";
 
 export interface AdminEditorUpload {

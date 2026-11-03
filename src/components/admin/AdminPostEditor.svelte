@@ -5,6 +5,7 @@ import { apiJson } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { type AdminEditor, createAdminEditor } from "@/lib/adminEditor";
 import { registerSaveAll } from "@/lib/adminSave";
+import { invalidate } from "@/lib/adminViewCache";
 import { onMountAsync } from "@/utils/svelte-mount";
 import Switch from "./Switch.svelte";
 
@@ -357,6 +358,8 @@ async function save(targetDraft: boolean) {
 		}
 		message = targetDraft ? "已保存草稿" : hidden ? "已保存（隐藏）" : "已发布";
 		messageKind = "ok";
+		// 列表走了 30s 视图缓存，保存后必须失效，否则切回列表看到的还是旧标题/旧状态
+		invalidate("/api/posts/");
 		clearDraft("文章");
 		if (isNew && data.slug && data.slug !== slug) {
 			history.replaceState(

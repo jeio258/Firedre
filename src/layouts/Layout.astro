@@ -41,11 +41,7 @@ import {
 import { toClientSettings } from "@/utils/client-settings";
 import { serializeInlineJson } from "@/utils/inline-json";
 import { isHomePage } from "@/utils/layout-utils";
-import {
-	getAuthorAvatarUrl,
-	getRawImageUrl,
-	getSiteLogo,
-} from "@/utils/schema-image";
+import { getAuthorAvatarUrl, getSiteLogo } from "@/utils/schema-image";
 import {
 	buildSiteGraph,
 	safeJsonLd,
@@ -190,12 +186,6 @@ const avatarUrl = await getAuthorAvatarUrl(
 	effectiveSiteUrl,
 	profileCfgRuntime.avatar,
 );
-// 头像 preload：默认头像（未被后台替换）时预取静态文件，提前加载 LCP 图
-const avatarPreloadUrl =
-	(!settings?.avatar || settings?.avatar === profileConfig.avatar) &&
-	profileConfig.avatar
-		? await getRawImageUrl(profileConfig.avatar).catch(() => null)
-		: null;
 const aboutUrl = toAbsoluteUrl("/about/", effectiveSiteUrl) ?? effectiveSiteUrl;
 // canonical 基于站点域名 + 路径（去查询串/Host 差异），避免参数变体产生重复收录
 const canonicalUrl =
@@ -262,7 +252,6 @@ const seoAuthorName =
       keywords={seoKeywords}
       authorName={seoAuthorName}
       canonicalUrl={canonicalUrl}
-      avatarPreloadUrl={avatarPreloadUrl}
       wallpaperPreloadUrl={wallpaperPreloadUrl}
       wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile}
       siteName={effectiveTitle}

@@ -8,19 +8,23 @@ WEBDAV_PASSWORD=your_webdav_password
 USER_SESSION_SECRET=dev-user-session-secret-firedre-0000000
 
 # 邮件：MAIL_PROVIDER=smtp|brevo|none；缺省按已配置凭据推断（SMTP 优先）
-# ENVIRONMENT 非 prod 时只打印邮件内容并写 mail_log，不发信
+# 生产必须显式 ENVIRONMENT=prod，否则只打印正文写 mail_log、不发信（日志里会以 [mail:dev skip] 标明）
 ENVIRONMENT=dev
 MAIL_PROVIDER=
 # SMTP（worker-mailer，465 隐式 TLS / 587 STARTTLS）
+# SMTP_PASS 填「授权码」而非登录密码：QQ/163 等需先在网页端设置里开启 SMTP 服务，
+# 且服务商常按出口 IP 风控直接回 535，Worker 出口为境外机房时尤其容易命中
 SMTP_HOST=
 SMTP_PORT=465
 SMTP_USER=
 SMTP_PASS=
 SMTP_SECURE=
-# Brevo HTTP API（作为 SMTP 的替代提供商）
+# Brevo HTTP API（作为 SMTP 的替代提供商；SMTP 被 535/风控时改这里，不受出口 IP 影响）
 BREVO_API_KEY=
-# 发件人，可写 "站点名 <no-reply@example.com>"
+# 发件人，可写 "站点名 <no-reply@example.com>"；多数服务商要求与 SMTP_USER 同域或已做域名验证
 MAIL_FROM=
+# 1=注册响应回传 devVerifyUrl，便于本地不配置发信也能走完验证流程
+MAIL_DEBUG=
 
 # Cloudflare Turnstile（注册/登录人机校验）。本地回环且 ENVIRONMENT!=prod 时可留空
 TURNSTILE_SECRET_KEY=

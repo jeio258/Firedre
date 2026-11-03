@@ -2,7 +2,7 @@
 import { onMount } from "svelte";
 import { apiJson } from "@/lib/adminApi";
 
-// 后台审核对接 GET /api/comments/admin/ 与 POST /api/comments/moderate/
+// 后台审核对接 GET /api/comments/admin/overview/ 与 POST /api/comments/moderate/
 // 状态值即状态机的四个格子；动作是动词（approve/spam/delete），软删可恢复
 
 type CommentItem = {
@@ -20,6 +20,8 @@ type CommentItem = {
 };
 
 type ListResult = {
+	counts?: Record<string, number>;
+	status?: string;
 	items?: CommentItem[];
 	total?: number;
 	page?: number;
@@ -35,6 +37,12 @@ const TABS = [
 
 const PAGE_SIZE = 20;
 
+const STATUS_OF_ACTION = {
+	approve: "approved",
+	spam: "spam",
+	delete: "deleted",
+} as const;
+
 let status = $state<string>("pending");
 let items = $state<CommentItem[]>([]);
 let total = $state(0);
@@ -47,39 +55,23 @@ let bulkBusy = $state(false);
 
 const totalPages = $derived(Math.max(1, Math.ceil(total / PAGE_SIZE)));
 
-async function load(nextPage = page) {
-	loading = true;
+// 计数与列表由同一接口返回：每次只发一个请求（silent 用于写操作后的静默刷新，避免表格闪回加载态）
+async function load(nextPage = page, silent = false) {
+	if (!silent) loading = true;
 	error = "";
 	try {
 		const data = await apiJson<ListResult>(
-			`/api/comments/admin/?status=${encodeURIComponent(status)}&page=${nextPage}&pageSize=${PAGE_SIZE}`,
+			`/api/comments/admin/overview/?status=${encodeURIComponent(status)}&page=${nextPage}&pageSize=${PAGE_SIZE}`,
 		);
 		items = data.items ?? [];
 		total = data.total ?? 0;
 		page = data.page ?? nextPage;
-		counts = { ...counts, [status]: total };
+		counts = data.counts ?? {};
 	} catch (e) {
 		error = e instanceof Error ? e.message : "加载失败";
 		items = [];
 	}
-	loading = false;
-}
-
-// 四个 tab 的计数各自只有 total 可信：pageSize=1 的轻量探测，不额外加接口契约
-async function loadCounts() {
-	const entries = await Promise.all(
-		TABS.map(async (tab) => {
-			try {
-				const data = await apiJson<ListResult>(
-					`/api/comments/admin/?status=${tab.value}&page=1&pageSize=1`,
-				);
-				return [tab.value, data.total ?? 0] as const;
-			} catch {
-				return [tab.value, 0] as const;
-			}
-		}),
-	);
-	counts = Object.fromEntries(entries);
+	if (!silent) loading = false;
 }
 
 function switchStatus(next: string) {
@@ -92,16 +84,23 @@ function switchStatus(next: string) {
 async function act(id: string, action: "approve" | "spam" | "delete") {
 	if (busyId) return;
 	busyId = id;
+	error = "";
 	try {
 		await apiJson("/api/comments/moderate/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ id, action }),
 		});
+		const next = STATUS_OF_ACTION[action];
 		items = items.filter((c) => c.id !== id);
 		total = Math.max(0, total - 1);
-		counts = { ...counts, [status]: total };
-		void loadCounts();
+		counts = {
+			...counts,
+			[status]: Math.max(0, (counts[status] ?? 0) - 1),
+			[next]: (counts[next] ?? 0) + 1,
+		};
+		// 计数先本地增减即时反馈，再静默回拉当前页与真实计数
+		void load(page, true);
 	} catch (e) {
 		error = e instanceof Error ? e.message : "操作失败";
 	}
@@ -119,7 +118,6 @@ async function approveAll() {
 			body: JSON.stringify({ ids: items.map((c) => c.id), action: "approve" }),
 		});
 		await load(page);
-		void loadCounts();
 	} catch (e) {
 		error = e instanceof Error ? e.message : "批量操作失败";
 	}
@@ -144,7 +142,6 @@ function formatTime(raw: string): string {
 }
 
 onMount(() => {
-	void loadCounts();
 	void load(1);
 });
 </script>
@@ -166,7 +163,7 @@ onMount(() => {
           <span class="ui-badge">{counts[tab.value] ?? 0}</span>
         </button>
       {/each}
-      <button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => { void loadCounts(); void load(page); }}>
+      <button class="ui-btn ui-btn-sm ui-btn-ghost" onclick={() => void load(page)}>
         刷新
       </button>
       {#if status === "pending" && items.length > 0}

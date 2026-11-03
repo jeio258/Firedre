@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { apiJson } from "@/lib/adminApi";
+import { apiJson, apiJsonCached } from "@/lib/adminApi";
+import { invalidate } from "@/lib/adminViewCache";
 
 // 后台「用户管理」：成员列表 + 搜索（防抖）+ 封禁⇄解封
 // 数据源 GET /api/auth/admin-users?page=&pageSize=&q= → { users, total, page, pageSize }
@@ -46,7 +47,7 @@ async function load(nextPage = page) {
 	try {
 		const keyword = q.trim();
 		const suffix = keyword ? `&q=${encodeURIComponent(keyword)}` : "";
-		const data = await apiJson<ListResult>(
+		const data = await apiJsonCached<ListResult>(
 			`/api/auth/admin-users?page=${nextPage}&pageSize=${PAGE_SIZE}${suffix}`,
 		);
 		items = data.users ?? [];
@@ -90,6 +91,7 @@ async function act(id: string, action: "ban" | "unban" | "delete") {
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ id, action }),
 		});
+		invalidate("/api/auth/admin-users");
 		if (action === "delete") {
 			items = items.filter((u) => u.id !== id);
 			total = Math.max(0, total - 1);

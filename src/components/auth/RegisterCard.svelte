@@ -23,6 +23,7 @@ let turnstileRef = $state<Turnstile | null>(null);
 let resendLoading = $state(false);
 let resendMsg = $state("");
 let devVerifyUrl = $state("");
+let mailState = $state<"sent" | "failed" | "not_ready">("sent");
 
 const inputClass =
 	"w-full px-4 py-3 text-[15px] bg-transparent border border-black/10 dark:border-white/10 rounded-lg outline-none transition-colors focus:ring-2 focus:ring-(--primary) focus:border-(--primary) placeholder:opacity-50 text-90";
@@ -86,6 +87,10 @@ async function submit(event: SubmitEvent) {
 		devVerifyUrl =
 			typeof data.devVerifyUrl === "string" ? data.devVerifyUrl : "";
 		mode = "done";
+		mailState =
+			data.mailState === "failed" || data.mailState === "not_ready"
+				? data.mailState
+				: "sent";
 	} catch {
 		error = "网络错误，请重试";
 	} finally {
@@ -156,10 +161,17 @@ async function resend() {
 					/>
 				</svg>
 			</div>
-			<h2 class="text-xl font-bold text-90">请查收验证邮件</h2>
+			<h2 class="text-xl font-bold text-90">
+				{mailState === "sent" ? "请查收验证邮件" : "账号已创建，但验证邮件未发出"}
+			</h2>
 			<p class="text-sm text-50 mt-2 leading-relaxed">
-				我们已向 <span class="text-75 font-medium">{email}</span> 发送了验证链接，<br />
-				点击邮件中的按钮完成验证后即可登录（24 小时内有效）。
+				{#if mailState === "sent"}
+					我们已向 <span class="text-75 font-medium">{email}</span> 发送了验证链接，<br />
+					点击邮件中的按钮完成验证后即可登录（24 小时内有效）。
+				{:else}
+					账号已创建成功，但发信服务器拒绝了这次投递（配置未就绪或凭据失效）。<br />
+					请点下方「重新发送」重试；若仍收不到，请联系站长处理。
+				{/if}
 			</p>
 
 			{#if devVerifyUrl}

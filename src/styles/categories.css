@@ -16,7 +16,7 @@
   background: color-mix(in srgb, var(--btn-content) 10%, transparent);
 }
 .category-pill[data-category-name=""] {
-  color: var(--primary);
+  color: var(--primary-text);
   background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
 @media (hover: hover) {

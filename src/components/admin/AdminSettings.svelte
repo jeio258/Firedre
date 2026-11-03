@@ -1,8 +1,9 @@
 <script lang="ts">
 import { settingsDefaults as defaultsJson } from "@shared/config/settings-defaults";
-import { apiJson } from "@/lib/adminApi";
+import { apiJson, apiJsonCached } from "@/lib/adminApi";
 import { clearDraft, getDraft } from "@/lib/adminDrafts";
 import { registerSaveAll } from "@/lib/adminSave";
+import { invalidate } from "@/lib/adminViewCache";
 import { onMountAsync } from "@/utils/svelte-mount";
 import {
 	CATEGORIES,
@@ -33,7 +34,7 @@ let cmtTypeVal = $state("");
 
 async function load() {
 	try {
-		const all = (await apiJson("/api/settings/")) as Record<
+		const all = (await apiJsonCached("/api/settings/")) as Record<
 			string,
 			Record<string, unknown>
 		>;
@@ -155,6 +156,7 @@ async function save() {
 		}
 		message = `已保存 ✓ ${new Date().toLocaleTimeString()}`;
 		clearDraft("站点设置");
+		invalidate("/api/settings/");
 
 		applyHueToAdmin(data.basic?.hue);
 		return true;

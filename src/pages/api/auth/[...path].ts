@@ -12,6 +12,7 @@ import {
 import { listUserPerms, PERM_IDS } from "@server/auth/perms";
 import {
 	bootstrapOwner,
+	isValidEmail,
 	type RegisterEnv,
 	registerUser,
 	requestPasswordReset,
@@ -34,6 +35,7 @@ import {
 	validateProfilePatch,
 	verifyPassword,
 } from "@server/auth/userSession";
+import { describeMailConfig, sendMail } from "@server/mail";
 import { withRateLimit } from "@server/utils/rateLimiter";
 import type { APIRoute } from "astro";
 import {
@@ -81,6 +83,15 @@ async function siteNameOf(): Promise<string> {
 		// 忽略，用默认名
 	}
 	return "Firedre";
+}
+
+/**
+ * 邮件通道是否就绪。只看服务端配置，与收件邮箱无关，
+ * 因此用它改注册文案不会破坏「注册接口对已存在邮箱返回相同响应」的防枚举约束。
+ */
+function mailReadiness(): { ready: boolean; missing: string[] } {
+	const cfg = describeMailConfig(cfEnv as RegisterEnv);
+	return { ready: cfg.missing.length === 0, missing: cfg.missing };
 }
 
 async function isRegistrationAllowed(): Promise<boolean> {
@@ -215,10 +226,33 @@ export const POST: APIRoute = async ({ params, request }) => {
 					const exposeVerifyUrl =
 						registerEnv.MAIL_DEBUG === "1" ||
 						(envTag && envTag !== "prod" && envTag !== "production");
+					const mail = mailReadiness();
+					if (!mail.ready)
+						console.error(
+							"[register] 邮件通道未就绪，验证信不会送达:",
+							mail.missing.join("、"),
+						);
+					// 通道配好了也可能被服务端拒信（如 QQ SMTP 535 授权码失效/风控），
+					// 这种失败必须如实告诉用户，否则用户等一封永远不来的信
+					const mailFailed =
+						outcome.kind === "created" && outcome.mailSent === false;
+					if (mailFailed)
+						console.error(
+							"[register] 验证邮件发送失败，账号已创建但投递未成功:",
+							body.email,
+						);
 					return jsonWithHeaders({
 						ok: true,
-						message:
-							"注册提交成功！我们已向你的邮箱发送验证链接，请查收并完成验证（24 小时内有效）。",
+						mailState: !mail.ready
+							? "not_ready"
+							: mailFailed
+								? "failed"
+								: "sent",
+						message: !mail.ready
+							? "注册已提交，但本站邮件服务暂未就绪，验证邮件可能发不出去，请联系站长处理。"
+							: mailFailed
+								? "账号已创建，但验证邮件投递失败（发信服务器拒绝），请点「重发验证邮件」重试，或联系站长处理。"
+								: "注册提交成功！我们已向你的邮箱发送验证链接，请查收并完成验证（24 小时内有效）。",
 						...(exposeVerifyUrl &&
 						outcome.kind === "created" &&
 						outcome.verifyUrl
@@ -253,9 +287,17 @@ export const POST: APIRoute = async ({ params, request }) => {
 						siteOriginOf(request),
 						await siteNameOf(),
 					);
+					const mail = mailReadiness();
+					if (!mail.ready)
+						console.error(
+							"[resend] 邮件通道未就绪，验证信不会送达:",
+							mail.missing.join("、"),
+						);
 					return jsonWithHeaders({
 						ok: true,
-						message: "如果该邮箱已注册且尚未验证，验证邮件已发送，请查收。",
+						message: mail.ready
+							? "如果该邮箱已注册且尚未验证，验证邮件已发送，请查收。"
+							: "如果该邮箱已注册且尚未验证，本站邮件服务暂未就绪，验证邮件可能发不出去，请联系站长处理。",
 					});
 				},
 			);
@@ -368,9 +410,17 @@ export const POST: APIRoute = async ({ params, request }) => {
 						siteOriginOf(request),
 						await siteNameOf(),
 					);
+					const mail = mailReadiness();
+					if (!mail.ready)
+						console.error(
+							"[forgot] 邮件通道未就绪，重置信不会送达:",
+							mail.missing.join("、"),
+						);
 					return json({
 						ok: true,
-						message: "如果该邮箱已注册，重置邮件已发送",
+						message: mail.ready
+							? "如果该邮箱已注册，重置邮件已发送"
+							: "如果该邮箱已注册，本站邮件服务暂未就绪，重置邮件可能发不出去，请联系站长处理。",
 					});
 				},
 			);
@@ -420,6 +470,37 @@ export const POST: APIRoute = async ({ params, request }) => {
 			return jsonWithHeaders({ ok: true }, 200, {
 				"Set-Cookie": buildClearUserSessionCookie(secure),
 			});
+		}
+
+		// ── 邮件通道自检：真发一封，回显配置摘要与失败原文（管理员；注册接口吞结果的缺口靠这里暴露） ──
+		if (action === "mail-test") {
+			const isAdmin = await verifyAdminRequest(request, cfEnv);
+			if (!isAdmin) return unauthorized();
+
+			const body = (await request.json().catch(() => null)) as {
+				to?: string;
+			} | null;
+			const to = String(body?.to || "").trim();
+			if (!isValidEmail(to))
+				return json({ message: "收件邮箱格式不正确" }, 400);
+
+			const config = describeMailConfig(registerEnv);
+			const result = await sendMail(registerEnv, {
+				to,
+				subject: `邮件通道自检 - ${await siteNameOf()}`,
+				html: "<p>这是一封站点后台发出的邮件通道自检信，收到即表示发信通道可用。</p>",
+			});
+			return json(
+				{
+					ok: result.ok && !result.skipped,
+					skipped: result.skipped ?? false,
+					reason: result.reason ?? null,
+					error: result.error ?? null,
+					config,
+				},
+				result.ok && !result.skipped ? 200 : 502,
+				"private",
+			);
 		}
 
 		// ── 用户管理：封禁/解封（管理员鉴权；封禁=登录 403 + getAuthUser 拒绝，即时生效） ──
@@ -635,6 +716,26 @@ export const GET: APIRoute = async ({ params, request }) => {
 					total: total?.n ?? 0,
 					page,
 					pageSize,
+				},
+				200,
+				"private",
+			);
+		}
+
+		// ── 邮件通道状态：配置摘要 + 最近 10 条发信记录（管理员，收件人脱敏） ──
+		if (action === "mail-status") {
+			const isAdmin = await verifyAdminRequest(request, cfEnv);
+			if (!isAdmin) return unauthorized();
+
+			const { results } = await cfEnv.DB.prepare(
+				`SELECT created_at, status, subject, detail,
+				        substr(to_email, 1, 1) || '***' AS to_masked
+				 FROM mail_log ORDER BY created_at DESC LIMIT 10`,
+			).all();
+			return json(
+				{
+					config: describeMailConfig(cfEnv as RegisterEnv),
+					recent: results || [],
 				},
 				200,
 				"private",

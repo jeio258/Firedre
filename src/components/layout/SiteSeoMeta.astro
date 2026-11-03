@@ -8,7 +8,6 @@ interface Props {
 	keywords?: string;
 	authorName?: string;
 	canonicalUrl: string;
-	avatarPreloadUrl?: string | null;
 	wallpaperPreloadUrl?: string | null;
 	wallpaperPreloadUrlMobile?: string | null;
 	siteName: string;
@@ -26,7 +25,6 @@ const {
 	keywords,
 	authorName,
 	canonicalUrl,
-	avatarPreloadUrl,
 	wallpaperPreloadUrl,
 	wallpaperPreloadUrlMobile,
 	siteName,
@@ -49,7 +47,6 @@ void siteName;
     <meta name="author" content={authorName} />
 
     <link rel="canonical" href={canonicalUrl} />
-    {avatarPreloadUrl && <link rel="preload" as="image" href={avatarPreloadUrl} fetchpriority="high" />}
     {wallpaperPreloadUrl && <link rel="preload" as="image" href={wallpaperPreloadUrl} media="(min-width: 1024px)" fetchpriority="high" />}
     {wallpaperPreloadUrlMobile && <link rel="preload" as="image" href={wallpaperPreloadUrlMobile} media="(max-width: 1023px)" fetchpriority="high" />}
     <meta property="og:site_name" content={siteName} />

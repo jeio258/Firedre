@@ -3,6 +3,7 @@ export const prerender = false;
 
 import AdminHead from "@components/layout/AdminHead.astro";
 import { resolveBackendActor } from "@server/auth/perms";
+import { safeJsonLd } from "@/utils/schema-utils";
 import AdminApp from "../../components/admin/AdminApp.svelte";
 import { cfEnv } from "../../lib/api";
 
@@ -14,6 +15,13 @@ if (!actor) {
 		`/login/?next=${encodeURIComponent(Astro.url.pathname)}`,
 	);
 }
+
+// 首屏渲染用的身份快照：身份已在上面的服务端鉴权中解析过，前端无需再请求 /api/backend/me/
+const bootJson = safeJsonLd({
+	isAdmin: actor.isAdmin,
+	perms: actor.perms,
+	username: actor.username,
+});
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -29,6 +37,7 @@ if (!actor) {
 	</style>
 </head>
 <body style="margin:0;background:var(--page-bg);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif">
+	<script is:inline id="admin-boot" type="application/json" set:html={bootJson} />
 	<AdminApp client:load />
 </body>
 </html>

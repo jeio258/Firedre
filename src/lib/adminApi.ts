@@ -1,3 +1,5 @@
+import { getCached, setCached } from "./adminViewCache";
+
 export interface ApiError extends Error {
 	status?: number;
 }
@@ -27,4 +29,17 @@ export async function apiJson<T = unknown>(
 		throw err;
 	}
 	return data as T;
+}
+
+/** 只用于 GET 读取：命中缓存不发请求，未命中请求成功后回填；失败一律不入缓存 */
+export async function apiJsonCached<T = unknown>(
+	url: string,
+	options: { key?: string; ttl?: number } = {},
+): Promise<T> {
+	const key = options.key ?? url;
+	const hit = getCached<T>(key);
+	if (hit !== undefined) return hit;
+	const data = await apiJson<T>(url);
+	setCached(key, data, options.ttl);
+	return data;
 }

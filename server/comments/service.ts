@@ -307,13 +307,55 @@ interface AdminRow extends CommentRow {
 	target: string;
 }
 
+const ADMIN_STATUSES: CommentStatus[] = [
+	"pending",
+	"approved",
+	"spam",
+	"deleted",
+];
+
+const ADMIN_LIST_SQL = `
+  SELECT c.id, c.target, c.parent_id, c.user_id, c.guest_name, c.guest_email,
+         c.content, c.status, c.ip, c.created_at,
+         u.name AS author_name, u.avatar AS author_avatar
+  FROM comments c
+  LEFT JOIN users u ON u.id = c.user_id
+  WHERE c.status = ?
+  ORDER BY c.created_at DESC, c.id DESC
+  LIMIT ? OFFSET ?`;
+
+function normalizeAdminStatus(raw: unknown): CommentStatus {
+	const status = String(raw || "pending");
+	if (!ADMIN_STATUSES.includes(status as CommentStatus))
+		throw new UserError("状态不合法");
+	return status as CommentStatus;
+}
+
+function toAdminComment(row: AdminRow): AdminComment {
+	const isMember = Boolean(row.user_id);
+	return {
+		id: row.id,
+		target: row.target,
+		parentId: row.parent_id,
+		content: row.content,
+		status: row.status as CommentStatus,
+		guestName: row.guest_name,
+		guestEmail: row.guest_email,
+		ip: row.ip,
+		createdAt: row.created_at,
+		authorName: isMember
+			? row.author_name || row.guest_name || "用户"
+			: row.guest_name || "匿名访客",
+		avatar: isMember ? row.author_avatar || "" : "",
+		isMember,
+	};
+}
+
 export async function listCommentsForAdmin(
 	db: D1Database,
 	opts: { status?: string; page?: number; pageSize?: number },
 ): Promise<AdminCommentListResult> {
-	const status = String(opts.status || "pending");
-	if (!["pending", "approved", "spam", "deleted"].includes(status))
-		throw new UserError("状态不合法");
+	const status = normalizeAdminStatus(opts.status);
 	const { page, pageSize } = clampPage(opts.page, opts.pageSize);
 
 	const totalRow = await db
@@ -324,38 +366,61 @@ export async function listCommentsForAdmin(
 
 	const offset = (page - 1) * pageSize;
 	const rows = await db
-		.prepare(
-			`SELECT c.id, c.target, c.parent_id, c.user_id, c.guest_name, c.guest_email,
-              c.content, c.status, c.ip, c.created_at,
-              u.name AS author_name, u.avatar AS author_avatar
-       FROM comments c
-       LEFT JOIN users u ON u.id = c.user_id
-       WHERE c.status = ?
-       ORDER BY c.created_at DESC, c.id DESC
-       LIMIT ? OFFSET ?`,
-		)
+		.prepare(ADMIN_LIST_SQL)
 		.bind(status, pageSize, offset)
 		.all<AdminRow>();
 
-	const items = (rows.results ?? []).map((row) => {
-		const isMember = Boolean(row.user_id);
-		return {
-			id: row.id,
-			target: row.target,
-			parentId: row.parent_id,
-			content: row.content,
-			status: row.status as CommentStatus,
-			guestName: row.guest_name,
-			guestEmail: row.guest_email,
-			ip: row.ip,
-			createdAt: row.created_at,
-			authorName: isMember
-				? row.author_name || row.guest_name || "用户"
-				: row.guest_name || "匿名访客",
-			avatar: isMember ? row.author_avatar || "" : "",
-			isMember,
-		};
-	});
+	return {
+		items: (rows.results ?? []).map(toAdminComment),
+		total,
+		page,
+		pageSize,
+	};
+}
 
-	return { items, total, page, pageSize };
+export interface AdminCommentOverviewResult extends AdminCommentListResult {
+	status: CommentStatus;
+	counts: Record<string, number>;
+}
+
+export async function getAdminCommentsOverview(
+	db: D1Database,
+	opts: { status?: string; page?: number; pageSize?: number },
+): Promise<AdminCommentOverviewResult> {
+	const status = normalizeAdminStatus(opts.status);
+	const { page, pageSize } = clampPage(opts.page, opts.pageSize);
+	const offset = (page - 1) * pageSize;
+
+	const countsStmt = db.prepare(
+		"SELECT status, COUNT(*) AS n FROM comments GROUP BY status",
+	);
+	const listStmt = db.prepare(ADMIN_LIST_SQL).bind(status, pageSize, offset);
+
+	// 分组计数与当页列表合并为单次 D1 往返；dev shim 无 batch()，退回串行（语义不变）
+	let countRows: Array<{ status: string; n: number }> = [];
+	let rows: AdminRow[] = [];
+	if (typeof (db as { batch?: unknown }).batch === "function") {
+		const [countRes, listRes] = await db.batch([countsStmt, listStmt]);
+		countRows =
+			(countRes?.results as Array<{ status: string; n: number }>) ?? [];
+		rows = (listRes?.results as AdminRow[]) ?? [];
+	} else {
+		countRows =
+			(await countsStmt.all<{ status: string; n: number }>()).results ?? [];
+		rows = (await listStmt.all<AdminRow>()).results ?? [];
+	}
+
+	const counts: Record<string, number> = {};
+	for (const s of ADMIN_STATUSES) counts[s] = 0;
+	for (const row of countRows) counts[row.status] = Number(row.n);
+
+	// total 取自同一批次的计数，避免为同一状态再查一次 COUNT
+	return {
+		status,
+		counts,
+		total: counts[status] ?? 0,
+		items: rows.map(toAdminComment),
+		page,
+		pageSize,
+	};
 }

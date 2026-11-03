@@ -64,7 +64,7 @@ const noRandomPostsText = i18n(I18nKey.noRandomPosts);
             </div>
             <div class="flex items-center gap-1.5 text-xs text-black/58 dark:text-white/58 transition mt-0.5">
               {post.data.category && (
-                <span class="shrink-0 px-1.5 py-0.5 rounded-sm bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40">
+                <span class="shrink-0 px-1.5 py-0.5 rounded-sm bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60">
                   {post.data.category}
                 </span>
               )}
@@ -185,7 +185,7 @@ function renderRandomPosts() {
 
       if (post.category) {
         var cat = document.createElement('span');
-        cat.className = 'shrink-0 px-1.5 py-0.5 rounded-sm bg-black/5 dark:bg-white/10 text-black/40 dark:text-white/40';
+        cat.className = 'shrink-0 px-1.5 py-0.5 rounded-sm bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60';
         cat.textContent = post.category;
         meta.appendChild(cat);
       }

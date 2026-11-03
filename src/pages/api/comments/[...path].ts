@@ -1,6 +1,8 @@
 // 原生评论 API（catch-all 按第一段分发）
 //   GET  /api/comments/?target=&page=&pageSize=      前台列表
 //   GET  /api/comments/admin/?status=&page=&pageSize= 后台列表（管理员）
+//   GET  /api/comments/admin/overview/?status=&page=&pageSize=
+//        后台计数+列表聚合（管理员，一次 D1 往返）
 //   POST /api/comments/                              提交（登录直发 / 匿名待审）
 //   POST /api/comments/moderate/                     审核动作（管理员）
 
@@ -8,6 +10,7 @@ import { verifyAdminRequest } from "@server/auth/adminSession";
 import { getAuthUser } from "@server/auth/userSession";
 import {
 	COMMENT_PAGE_SIZE,
+	getAdminCommentsOverview,
 	listComments,
 	listCommentsForAdmin,
 	type ModerateAction,
@@ -44,11 +47,21 @@ function jsonAuthVariant(data: unknown, authenticated: boolean) {
 }
 
 export const GET: APIRoute = async ({ params, request, url }) => {
-	const action = pathSegments(params)[0] || "";
+	const segments = pathSegments(params);
+	const action = segments[0] || "";
 
 	try {
 		if (action === "admin") {
 			if (!(await verifyAdminRequest(request, cfEnv))) return unauthorized();
+
+			if (segments[1] === "overview") {
+				const overview = await getAdminCommentsOverview(cfEnv.DB, {
+					status: url.searchParams.get("status") || "pending",
+					page: Number(url.searchParams.get("page") || 1),
+					pageSize: Number(url.searchParams.get("pageSize") || 20),
+				});
+				return json(overview, 200, "private");
+			}
 
 			const result = await listCommentsForAdmin(cfEnv.DB, {
 				status: url.searchParams.get("status") || "pending",

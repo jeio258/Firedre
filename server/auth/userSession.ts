@@ -261,10 +261,16 @@ export function buildClearUserSessionCookie(secure: boolean) {
 	return parts.join("; ");
 }
 
-export async function getAuthUser(
+/** 一次 D1 往返取回会话用户 + 权限点：D1 单次往返约 0.3s（跨区），拆成三次串行即多付 0.6s */
+export interface AuthIdentity {
+	user: AuthUser;
+	perms: string[];
+}
+
+export async function getAuthIdentity(
 	request: Request,
 	env?: UserSessionEnv,
-): Promise<AuthUser | null> {
+): Promise<AuthIdentity | null> {
 	const token = getCookieValue(
 		request.headers.get("Cookie"),
 		USER_SESSION_COOKIE,
@@ -277,25 +283,39 @@ export async function getAuthUser(
 	const db = (env as CloudflareEnv | undefined)?.DB;
 	if (!db) return null;
 
-	let row: AuthUser | null;
+	// password 与 perms 同库同行取回：密码指纹用于吊销校验，权限点用于后台鉴权，
+	// 三者分三次查是同一行数据的重复往返
+	let row: (AuthUser & { password: string; perms: string | null }) | null;
 	try {
 		row = await db
 			.prepare(
-				`SELECT id, email, email_verified, name, avatar, bio, role, banned, created_at
+				`SELECT id, email, email_verified, name, avatar, bio, role, banned, created_at, password,
+         (SELECT group_concat(perm) FROM user_permissions WHERE user_id = users.id) AS perms
          FROM users WHERE id = ?`,
 			)
 			.bind(payload.u)
-			.first<AuthUser>();
+			.first<AuthUser & { password: string; perms: string | null }>();
 	} catch {
 		return null;
 	}
 	if (!row) return null;
 	if (row.banned === 1) return null;
 
-	const fp = await fingerprintOf(db, row.id);
-	if (!fp || !payload.v || payload.v !== fp) return null;
+	const fp = (await sha256Hex(row.password ?? "")).slice(0, 16);
+	if (!payload.v || payload.v !== fp) return null;
 
-	return row;
+	const { password: _password, perms, ...user } = row;
+	return {
+		user: user as AuthUser,
+		perms: perms ? perms.split(",") : [],
+	};
+}
+
+export async function getAuthUser(
+	request: Request,
+	env?: UserSessionEnv,
+): Promise<AuthUser | null> {
+	return (await getAuthIdentity(request, env))?.user ?? null;
 }
 
 /** 校验 profile 更新字段；null 表示通过。未提供（undefined）的字段跳过。 */

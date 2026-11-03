@@ -18,7 +18,7 @@ import {
 } from "@casl/ability";
 import type { CloudflareEnv } from "../../types/env";
 import { getAuthenticatedAdminUsername } from "./adminSession";
-import { type AuthUser, getAuthUser } from "./userSession";
+import { type AuthUser, getAuthIdentity } from "./userSession";
 
 // ---------- 权限点目录 ----------
 
@@ -310,9 +310,13 @@ export async function resolveBackendActor(
 	request: Request,
 	env: CloudflareEnv,
 ): Promise<BackendActor | null> {
-	const adminUsername = await getAuthenticatedAdminUsername(request, env);
-	const user = await getAuthUser(request, env);
-	const perms = user ? await listUserPerms(env.DB, user.id) : [];
+	// 两条身份来源互不依赖，并行取回：串行会各付一次 D1 往返（跨区约 0.3s/次）
+	const [adminUsername, identity] = await Promise.all([
+		getAuthenticatedAdminUsername(request, env),
+		getAuthIdentity(request, env),
+	]);
+	const user = identity?.user ?? null;
+	const perms = identity ? identity.perms.filter(isKnownPerm) : [];
 	const isAdmin = Boolean(adminUsername) || user?.role === "admin";
 	const canAccessBackend = isAdmin || perms.some((p) => PERM_IDS.includes(p));
 

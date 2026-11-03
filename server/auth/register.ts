@@ -168,7 +168,7 @@ export interface RegisterInput {
 }
 
 export type RegisterOutcome =
-	| { kind: "created"; verifyUrl?: string }
+	| { kind: "created"; verifyUrl?: string; mailSent?: boolean }
 	| { kind: "duplicate" } // 邮箱已存在（对客户端不外泄，响应与 created 一致）
 	| { kind: "invalid"; message: string };
 
@@ -244,7 +244,7 @@ export async function registerUser(
 		return { kind: "duplicate" };
 	}
 
-	const verifyUrl = await issueSignupVerification(
+	const issued = await issueSignupVerification(
 		db,
 		env,
 		userId,
@@ -252,7 +252,11 @@ export async function registerUser(
 		siteOrigin,
 		siteName,
 	);
-	return { kind: "created", verifyUrl };
+	return {
+		kind: "created",
+		verifyUrl: issued?.verifyUrl,
+		mailSent: issued?.mailSent,
+	};
 }
 
 /** 生成一次性 signup token：库存 sha256，明文只进邮件链接；24h 有效 */
@@ -263,7 +267,7 @@ async function issueSignupVerification(
 	email: string,
 	siteOrigin: string,
 	siteName: string,
-): Promise<string | undefined> {
+): Promise<{ verifyUrl: string; mailSent: boolean } | undefined> {
 	try {
 		const token = randomToken(32);
 		const tokenHash = await sha256Hex(token);
@@ -291,8 +295,9 @@ async function issueSignupVerification(
 			url: verifyUrl,
 			expireHours: SIGNUP_VERIFY_HOURS,
 		});
-		await sendMail(env, { to: email, ...mail });
-		return verifyUrl;
+		// 发信结果一路回传给接口：通道没配好或 SMTP 拒信时，注册页不能谎报「已发送」
+		const result = await sendMail(env, { to: email, ...mail });
+		return { verifyUrl, mailSent: result.ok && !result.skipped };
 	} catch (e) {
 		console.error("[register] 发送验证邮件失败:", e);
 		return undefined;

@@ -1,6 +1,7 @@
 <script lang="ts">
 import { onMount } from "svelte";
-import { apiJson } from "@/lib/adminApi";
+import { apiJson, apiJsonCached } from "@/lib/adminApi";
+import { invalidate } from "@/lib/adminViewCache";
 
 type PostItem = {
 	slug: string;
@@ -23,7 +24,7 @@ async function load() {
 	loading = true;
 	error = "";
 	try {
-		const data = await apiJson<{ posts?: PostItem[] }>(
+		const data = await apiJsonCached<{ posts?: PostItem[] }>(
 			"/api/posts/?pageSize=200",
 		);
 		posts = data.posts || [];
@@ -44,6 +45,7 @@ async function doDelete(slug: string): Promise<boolean> {
 		await apiJson(`/api/posts/${encodeURIComponent(slug)}/`, {
 			method: "DELETE",
 		});
+		invalidate("/api/posts/");
 		return true;
 	} catch (e) {
 		alert(e instanceof Error ? e.message : "删除失败");

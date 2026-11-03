@@ -77,7 +77,6 @@ async function logout() {
 		<a
 			href={`/login/?next=${encodeURIComponent(nextPath())}`}
 			class="btn-plain scale-animation inline-flex h-[44px] items-center gap-1.5 rounded-lg px-3 text-sm active:scale-90"
-			aria-label="登录或注册"
 		>
 			登录 / 注册
 		</a>

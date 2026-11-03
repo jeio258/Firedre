@@ -127,88 +127,101 @@ export const onRequest = defineMiddleware(async (context, next) => {
 		}
 	}
 
-	try {
-		const [{ getAllSettings, SETTING_GROUPS }, { settingsDefaults }] =
-			await Promise.all([
-				import("@server/settings/service"),
-				import("@shared/config/settings-defaults"),
-			]);
-		const { cfEnv } = await import("./lib/api");
+	// 站点设置只有渲染路径需要：/api 下仅这三个接口读 locals.settings，
+	// 其余接口跳过全表读取，冷 isolate 上省一次 D1 跨区往返（约 0.3s）
+	const needsSiteSettings =
+		!url.pathname.startsWith("/api/") ||
+		/^\/api\/(bilibili|mal|vndb\/ulist)\b/.test(url.pathname);
 
-		// schema 引导先于渲染：空库首次访问自动建表，避免渲染层查询 500（isolate 内缓存零开销）
-		const { ensureSchema } = await import("@server/posts/seed");
-		await ensureSchema(cfEnv);
-
-		// seed 仅新 isolate 执行一次（后台运行，不阻塞当前请求）
-		const seedFlag = globalThis as unknown as { __FIREDRE_SEEDED__?: boolean };
-		if (!seedFlag.__FIREDRE_SEEDED__) {
-			seedFlag.__FIREDRE_SEEDED__ = true;
-			(async () => {
-				try {
-					const { ensureDefaultPosts } = await import("@server/posts/seed");
-					await ensureDefaultPosts(cfEnv);
-					// 空 R2 首次访问播种默认「关于页」内容（已有内容不覆盖）
-					const { ensureDefaultAbout } = await import("@server/about/seed");
-					await ensureDefaultAbout(cfEnv);
-				} catch {
-					// seed 失败不影响请求；重置标记允许后续请求重试（原实现失败后 isolate 内永不重试）
-					seedFlag.__FIREDRE_SEEDED__ = false;
-				}
-			})();
-		}
-		// getAllSettings isolate 级缓存：以设置版本为键（任何设置写入都会自增版本号），
-		// 命中时省去每 cache-miss 请求的全表 D1 读；TTL 兜底覆盖直改 D1 不 bump 版本的场景
-		let groups: Record<string, Record<string, unknown>>;
-		const cachedGroups = readIsolateCache<
-			Record<string, Record<string, unknown>>
-		>("middleware.settings", settingsVersion);
-		if (cachedGroups) {
-			groups = cachedGroups;
-		} else {
-			groups = await getAllSettings(cfEnv);
-			writeIsolateCache("middleware.settings", settingsVersion, groups);
-		}
-		const { mergeSettings } = await import("@server/settings/merge");
-
-		const defaults = settingsDefaults as unknown as Record<
-			string,
-			Record<string, unknown>
-		>;
-		const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
-		const merged = mergeSettings(defaults, groups, groupNames);
-
-		derivePages(merged);
-		(context.locals as unknown as SettingsLocals).settings = merged;
-		if (settingsVersion) {
-			(context.locals as unknown as SettingsLocals).settingsVersion =
-				settingsVersion;
-		}
-	} catch (e) {
-		// D1 故障路径动态接管——以 defaults 铺底渲染，页面开关同步派生
-		console.warn(
-			"[middleware] 站点设置加载失败，本次请求以运行时默认值渲染",
-			e,
-		);
+	if (needsSiteSettings) {
 		try {
-			const [{ SETTING_GROUPS }, { settingsDefaults }, { mergeSettings }] =
+			const [{ getAllSettings, SETTING_GROUPS }, { settingsDefaults }] =
 				await Promise.all([
 					import("@server/settings/service"),
 					import("@shared/config/settings-defaults"),
-					import("@server/settings/merge"),
 				]);
-			const merged = mergeSettings(
-				settingsDefaults as unknown as Record<string, Record<string, unknown>>,
-				{},
-				new Set<string>(SETTING_GROUPS as unknown as string[]),
-			);
+			const { cfEnv } = await import("./lib/api");
+
+			// schema 引导先于渲染：空库首次访问自动建表，避免渲染层查询 500（isolate 内缓存零开销）
+			const { ensureSchema } = await import("@server/posts/seed");
+			await ensureSchema(cfEnv);
+
+			// seed 仅新 isolate 执行一次（后台运行，不阻塞当前请求）
+			const seedFlag = globalThis as unknown as {
+				__FIREDRE_SEEDED__?: boolean;
+			};
+			if (!seedFlag.__FIREDRE_SEEDED__) {
+				seedFlag.__FIREDRE_SEEDED__ = true;
+				(async () => {
+					try {
+						const { ensureDefaultPosts } = await import("@server/posts/seed");
+						await ensureDefaultPosts(cfEnv);
+						// 空 R2 首次访问播种默认「关于页」内容（已有内容不覆盖）
+						const { ensureDefaultAbout } = await import("@server/about/seed");
+						await ensureDefaultAbout(cfEnv);
+					} catch {
+						// seed 失败不影响请求；重置标记允许后续请求重试（原实现失败后 isolate 内永不重试）
+						seedFlag.__FIREDRE_SEEDED__ = false;
+					}
+				})();
+			}
+			// getAllSettings isolate 级缓存：以设置版本为键（任何设置写入都会自增版本号），
+			// 命中时省去每 cache-miss 请求的全表 D1 读；TTL 兜底覆盖直改 D1 不 bump 版本的场景
+			let groups: Record<string, Record<string, unknown>>;
+			const cachedGroups = readIsolateCache<
+				Record<string, Record<string, unknown>>
+			>("middleware.settings", settingsVersion);
+			if (cachedGroups) {
+				groups = cachedGroups;
+			} else {
+				groups = await getAllSettings(cfEnv);
+				writeIsolateCache("middleware.settings", settingsVersion, groups);
+			}
+			const { mergeSettings } = await import("@server/settings/merge");
+
+			const defaults = settingsDefaults as unknown as Record<
+				string,
+				Record<string, unknown>
+			>;
+			const groupNames = new Set<string>(SETTING_GROUPS as unknown as string[]);
+			const merged = mergeSettings(defaults, groups, groupNames);
+
 			derivePages(merged);
 			(context.locals as unknown as SettingsLocals).settings = merged;
-		} catch (fallbackError) {
+			if (settingsVersion) {
+				(context.locals as unknown as SettingsLocals).settingsVersion =
+					settingsVersion;
+			}
+		} catch (e) {
+			// D1 故障路径动态接管——以 defaults 铺底渲染，页面开关同步派生
 			console.warn(
-				"[middleware] 默认值兜底渲染失败，以空配置渲染",
-				fallbackError,
+				"[middleware] 站点设置加载失败，本次请求以运行时默认值渲染",
+				e,
 			);
-			(context.locals as unknown as SettingsLocals).settings = {};
+			try {
+				const [{ SETTING_GROUPS }, { settingsDefaults }, { mergeSettings }] =
+					await Promise.all([
+						import("@server/settings/service"),
+						import("@shared/config/settings-defaults"),
+						import("@server/settings/merge"),
+					]);
+				const merged = mergeSettings(
+					settingsDefaults as unknown as Record<
+						string,
+						Record<string, unknown>
+					>,
+					{},
+					new Set<string>(SETTING_GROUPS as unknown as string[]),
+				);
+				derivePages(merged);
+				(context.locals as unknown as SettingsLocals).settings = merged;
+			} catch (fallbackError) {
+				console.warn(
+					"[middleware] 默认值兜底渲染失败，以空配置渲染",
+					fallbackError,
+				);
+				(context.locals as unknown as SettingsLocals).settings = {};
+			}
 		}
 	}
 

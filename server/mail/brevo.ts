@@ -24,6 +24,8 @@ export interface SendMailInput {
 export interface SendMailResult {
 	ok: boolean;
 	skipped?: boolean;
+	/** 未真正发信的原因（skipped 时用于区分 dev / 未配置） */
+	reason?: string;
 	error?: string;
 }
 
