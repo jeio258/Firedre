@@ -479,13 +479,30 @@ export const POST: APIRoute = async ({ params, request }) => {
 
 			const body = (await request.json().catch(() => null)) as {
 				to?: string;
+				provider?: string;
 			} | null;
 			const to = String(body?.to || "").trim();
 			if (!isValidEmail(to))
 				return json({ message: "收件邮箱格式不正确" }, 400);
 
-			const config = describeMailConfig(registerEnv);
-			const result = await sendMail(registerEnv, {
+			// provider 可覆盖线上默认通道，用于单独验证 SMTP/Brevo 而不改动生产配置。
+			// SMTP 的 From 必须等于登录账号，否则 QQ 判伪造，故此处强制对齐 SMTP_USER。
+			const chan = String(body?.provider || "")
+				.trim()
+				.toLowerCase();
+			const testEnv =
+				chan === "smtp"
+					? {
+							...registerEnv,
+							MAIL_PROVIDER: "smtp",
+							MAIL_FROM: registerEnv.SMTP_USER || registerEnv.MAIL_FROM,
+						}
+					: chan === "brevo"
+						? { ...registerEnv, MAIL_PROVIDER: "brevo" }
+						: registerEnv;
+
+			const config = describeMailConfig(testEnv);
+			const result = await sendMail(testEnv, {
 				to,
 				subject: `邮件通道自检 - ${await siteNameOf()}`,
 				html: "<p>这是一封站点后台发出的邮件通道自检信，收到即表示发信通道可用。</p>",
@@ -493,6 +510,7 @@ export const POST: APIRoute = async ({ params, request }) => {
 			return json(
 				{
 					ok: result.ok && !result.skipped,
+					channel: config.provider,
 					skipped: result.skipped ?? false,
 					reason: result.reason ?? null,
 					error: result.error ?? null,
