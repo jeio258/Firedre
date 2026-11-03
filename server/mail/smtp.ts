@@ -14,25 +14,26 @@ export async function sendViaSmtp(
 	if (!Number.isFinite(port) || port <= 0)
 		return { ok: false, error: "SMTP_PORT invalid" };
 
-	const secure = env.SMTP_SECURE
-		? env.SMTP_SECURE.trim() === "true"
-		: port === 465;
-
 	const username = env.SMTP_USER?.trim();
 	const password = env.SMTP_PASS || "";
 	const sender = parseMailFrom(env.MAIL_FROM || username);
 	if (!sender.email) return { ok: false, error: "MAIL_FROM missing" };
 
+	// cloudflare:sockets 偶发把 smtp.qq.com 判成 TCP Loop（同一端口重试无效），
+	// 故按端口轮换重试：587(STARTTLS) ↔ 465(隐式 TLS)，换一条出站路径
+	const ports = [port, port === 587 ? 465 : 587];
 	let lastError = "";
-	for (let attempt = 0; attempt < 2; attempt++) {
+	for (let attempt = 0; attempt < 4; attempt++) {
+		const attemptPort = ports[attempt % ports.length];
+		const attemptSecure = attemptPort === 465;
 		try {
 			const { WorkerMailer } = await import("worker-mailer");
 			await WorkerMailer.send(
 				{
 					host,
-					port,
-					secure,
-					startTls: !secure,
+					port: attemptPort,
+					secure: attemptSecure,
+					startTls: !attemptSecure,
 					...(username
 						? {
 								credentials: { username, password },
@@ -52,9 +53,13 @@ export async function sendViaSmtp(
 			);
 			return { ok: true };
 		} catch (e) {
-			lastError = (e as Error)?.message || "smtp send failed";
-			console.error(`[mail:smtp] 发送失败（第 ${attempt + 1} 次）:`, lastError);
-			if (attempt === 0) await new Promise((r) => setTimeout(r, 400));
+			lastError = `${(e as Error)?.message || "smtp send failed"} (port ${attemptPort})`;
+			console.error(
+				`[mail:smtp] 发送失败（第 ${attempt + 1} 次 / 端口 ${attemptPort}）:`,
+				lastError,
+			);
+			if (attempt < 3)
+				await new Promise((r) => setTimeout(r, 300 + attempt * 400));
 		}
 	}
 	return { ok: false, error: lastError };
