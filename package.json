@@ -7,14 +7,14 @@
 	},
 	"packageManager": "pnpm@11.22.0",
 	"scripts": {
-		"dev": "node scripts/gen-image-variants.mjs && astro dev",
+		"dev": "astro dev",
 		"start": "astro dev",
 		"check": "node scripts/unused-warn-guard.mjs && svelte-check --tsconfig ./tsconfig.svelte.json && node scripts/settings-matrix-check.mjs && node scripts/config-static-guard.mjs && vitest run && tsc --noEmit -p tsconfig.server.json",
 		"check:settings": "node scripts/settings-matrix-check.mjs",
 		"check:config": "node scripts/config-static-guard.mjs",
 		"check:bless": "node scripts/unused-warn-guard.mjs --update",
 		"verify": "pnpm check && pnpm type-check:server && pnpm test",
-		"build": "node scripts/gen-image-variants.mjs && astro build && node scripts/collapse-routes.mjs && node scripts/minify-worker.mjs",
+		"build": "astro build && node scripts/collapse-routes.mjs && node scripts/minify-worker.mjs",
 		"preview": "astro preview",
 		"astro": "astro",
 		"type-check": "astro check",
@@ -108,10 +108,9 @@
 		"playwright": "^1.62.1",
 		"postcss-import": "^16.1.1",
 		"postcss-nesting": "^14.0.1",
-		"sharp": "^0.35.5",
 		"svelte-check": "^4.7.6",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.11",
-		"wrangler": "^4.156.1"
+		"wrangler": "^4.127.0"
 	}
 }

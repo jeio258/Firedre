@@ -5,9 +5,7 @@ const routesFile = fileURLToPath(
 	new URL("../dist/_routes.json", import.meta.url),
 );
 
-// /_img/ 是构建期生成的图片变体（scripts/gen-image-variants.mjs），
-// 每张图每档宽度一个文件，逐个列出会迅速撞上 MAX_RULES
-const COLLAPSE_PREFIXES = ["/assets/", "/favicon/", "/katex/", "/_img/"];
+const COLLAPSE_PREFIXES = ["/assets/", "/favicon/", "/katex/"];
 const MAX_RULES = 100;
 
 const routes = JSON.parse(readFileSync(routesFile, "utf8"));

@@ -14,13 +14,8 @@ if (process.env.NODE_ENV === "development") {
 	setMaxListeners(20);
 }
 
-// 构建期生成的窄图变体（public/_img）由 src/lib/image-service.ts 消费。
-// 回滚开关：FIREDRE_IMAGE_VARIANTS=off 即回到原始的全尺寸透传。
-const imageVariantsEnabled = process.env.FIREDRE_IMAGE_VARIANTS !== "off";
-
 const adapter = cloudflare({
-	// custom 表示保留下方 image.service 的自定义实现（passthrough 会被适配器强制覆盖）
-	imageService: imageVariantsEnabled ? "custom" : "passthrough",
+	imageService: "passthrough",
 });
 
 // 构建信息在构建时一次性捕获（SiteInfo 组件展示用）：
@@ -109,10 +104,6 @@ export default defineConfig({
 	})(),
 
 	adapter,
-
-	image: imageVariantsEnabled
-		? { service: { entrypoint: "./src/lib/image-service.ts" } }
-		: undefined,
 
 	integrations: [
 		swup({
