@@ -142,7 +142,11 @@ const {
 // 省去该请求；查询走 isolate 版本缓存（与 /api/allPostMeta.json 共用），不再每页直查 D1
 const settingsVersion =
 	(Astro.locals as { settingsVersion?: string }).settingsVersion ?? "";
-const allPostMeta = await getAllPostMeta(cfEnv, settingsVersion);
+// 两处读取互不依赖，并行可省一次串行往返（实测首页 TTFB 1.5s 中约 200–400ms 来自此处）
+const [allPostMeta, navMenuLinks] = await Promise.all([
+	getAllPostMeta(cfEnv, settingsVersion),
+	resolveNavMenuLinks(Astro.locals),
+]);
 ---
 
 <Layout title={title} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle} postSlug={postSlug} postCoverImage={postCoverImage} publishedTime={publishedTime} modifiedTime={modifiedTime} hasWallpaper={hasWallpaper} wallpaperPreloadUrl={wallpaperPreloadUrl} wallpaperPreloadUrlMobile={wallpaperPreloadUrlMobile} allPostMeta={allPostMeta}>
@@ -151,7 +155,7 @@ const allPostMeta = await getAllPostMeta(cfEnv, settingsVersion);
 <HeaderTopRow navbarMode={navbarMode} navbarWidthFull={navbarWidthFull} />
 
 <!-- 移动端导航抽屉：渲染为 <body> 直系子元素，脱离导航栏的 transform 包含块才能铺满视口 -->
-<NavMenuPanel links={await resolveNavMenuLinks(Astro.locals)} />
+<NavMenuPanel links={navMenuLinks} />
 
 <WallpaperSection state={banner} backgroundImages={backgroundImages} title={title} bannerPostMeta={bannerPostMeta} />
 

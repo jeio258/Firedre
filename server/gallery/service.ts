@@ -93,18 +93,26 @@ export async function getGalleryHub(
 		getAlbumPasswordsMap(env, slugs),
 	]);
 
-	const summaries: AlbumSummary[] = [];
-	for (const slug of slugs) {
-		const frontmatter = await resolveAlbumFrontmatter(
-			env,
-			slug,
-			albumMap.get(slug),
-		);
-		if (!frontmatter) continue;
-		summaries.push(
-			summarizeAlbum(slug, frontmatter, (passwordMap.get(slug) ?? "") !== ""),
-		);
-	}
+	// 相册 frontmatter 在 D1 缺失时逐个回源 R2；串行 await 会让首字节随相册数线性增长
+	// （实测 10 个相册时 TTFB 3.5–5.8s）。并发读取 R2 后只受最慢一次限制。
+	const resolved = await Promise.all(
+		slugs.map(async (slug) => {
+			const frontmatter = await resolveAlbumFrontmatter(
+				env,
+				slug,
+				albumMap.get(slug),
+			);
+			if (!frontmatter) return null;
+			return summarizeAlbum(
+				slug,
+				frontmatter,
+				(passwordMap.get(slug) ?? "") !== "",
+			);
+		}),
+	);
+	const summaries: AlbumSummary[] = resolved.filter(
+		(x): x is AlbumSummary => x !== null,
+	);
 
 	return {
 		frontmatter: parsed.frontmatter,
