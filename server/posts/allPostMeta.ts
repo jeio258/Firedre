@@ -1,6 +1,8 @@
-// 全量已发布文章元数据（Calendar / 推荐文章共用）：
-// isolate 版本缓存（设置/内容变更即失效，TTL 兜底）→ 命中即返回，miss 才查 D1。
-// 与 /api/allPostMeta.json 共用同一缓存 slot，避免每页渲染各打一次 D1。
+// 全量已发布文章元数据（Calendar / 推荐文章共用）。
+// 三级：isolate 内存（30s）→ 边缘 Cache API（60s）→ D1。
+// 冷启动时 isolate 内存为空，边缘缓存是避免每次新实例都回源 D1 的关键；
+// 与 /api/allPostMeta.json 共用同一 slot，避免每页渲染各打一次 D1。
+import { edgeCacheGet, edgeCacheSet } from "@server/utils/edgeCache";
 import {
 	readIsolateCache,
 	writeIsolateCache,
@@ -8,6 +10,8 @@ import {
 import type { CloudflareEnv } from "../../types/env";
 
 const CACHE_SLOT = "api.allPostMeta";
+const CACHE_BASE = "https://firedre-cache.internal/allPostMeta";
+const EDGE_TTL = "public, max-age=0, s-maxage=60";
 
 export interface AllPostMetaEntry {
 	id: string;
@@ -18,43 +22,8 @@ export interface AllPostMetaEntry {
 	password: boolean;
 }
 
-const CACHE_BASE = "https://firedre-cache.internal/allPostMeta";
-
-// 跨 isolate 共享层：isolate 内存在冷启动后为空，每次冷启都要回 D1（实测首字节 2.4s 的主因之一）。
-// 命中边缘缓存可让新 isolate 直接拿到结果，TTL 60s 与渲染缓存保持同一失效口径。
-async function readEdgeCache(
-	version: string,
-): Promise<AllPostMetaEntry[] | null> {
-	if (typeof caches === "undefined") return null;
-	try {
-		const key = `${CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
-		const hit = await caches.default.match(key);
-		if (!hit) return null;
-		return (await hit.json()) as AllPostMetaEntry[];
-	} catch {
-		return null;
-	}
-}
-
-async function writeEdgeCache(
-	version: string,
-	data: AllPostMetaEntry[],
-): Promise<void> {
-	if (typeof caches === "undefined") return;
-	try {
-		const key = `${CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
-		await caches.default.put(
-			key,
-			new Response(JSON.stringify(data), {
-				headers: {
-					"Content-Type": "application/json",
-					// Cache API 无 Cache-Control 头不入缓存
-					"Cache-Control": "public, max-age=0, s-maxage=60",
-				},
-			}),
-		);
-	} catch {}
-}
+const edgeKey = (version: string) =>
+	`${CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
 
 export async function getAllPostMeta(
 	env: CloudflareEnv,
@@ -63,7 +32,7 @@ export async function getAllPostMeta(
 	const cached = readIsolateCache<AllPostMetaEntry[]>(CACHE_SLOT, version);
 	if (cached !== undefined) return cached;
 
-	const edge = await readEdgeCache(version);
+	const edge = await edgeCacheGet<AllPostMetaEntry[]>(edgeKey(version));
 	if (edge) {
 		writeIsolateCache(CACHE_SLOT, version, edge);
 		return edge;
@@ -94,6 +63,6 @@ export async function getAllPostMeta(
 	});
 
 	writeIsolateCache(CACHE_SLOT, version, data);
-	await writeEdgeCache(version, data);
+	await edgeCacheSet(edgeKey(version), data, EDGE_TTL);
 	return data;
 }

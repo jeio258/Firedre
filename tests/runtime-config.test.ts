@@ -29,7 +29,7 @@ describe("runtime.getWallpaperConfig", () => {
 		});
 		const src = config.src as { desktop?: string[]; mobile?: string[] };
 		expect(src.desktop).toEqual([
-			"/api/cover-proxy/?u=https%3A%2F%2Ft.alcy.cc%2Fycy&w=1920&f=webp",
+			"/api/cover-proxy/?u=https%3A%2F%2Ft.alcy.cc%2Fycy&w=1920&f=avif",
 		]);
 	});
 
@@ -41,7 +41,7 @@ describe("runtime.getWallpaperConfig", () => {
 		});
 		const src = config.src as { mobile?: string[] };
 		expect(src.mobile).toEqual([
-			"/api/cover-proxy/?u=https%3A%2F%2Ft.alcy.cc%2Fycy&w=828&f=webp",
+			"/api/cover-proxy/?u=https%3A%2F%2Ft.alcy.cc%2Fycy&w=828&f=avif",
 		]);
 	});
 

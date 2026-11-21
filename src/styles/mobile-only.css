@@ -1,18 +1,32 @@
 /* 移动端专属覆盖。
-   本文件所有声明都必须落在 max-width:1023px 或 pointer:coarse 内，
+   所有声明必须落在 max-width:1023px 或 pointer:coarse 内，
    PC（min-width:1024px 且鼠标）不得命中任何一条。 */
 
-/* ---------- A1 认证页卡片占位：消除水合后的高度跳变 ---------- */
 @media (max-width: 1023px) {
-	/* 初始 loading 骨架约 124px，表单实际约 600px，居中对齐造成 241px 上移（CLS 0.257）。
-	   给卡片一个接近终态的最小高度，把位移压到 30px 内。 */
+	/* 认证卡片先占位：loading 骨架约 124px，表单约 600px，垂直居中使水合后上移 241px（CLS 0.257）。
+	   卡片最小高度取移动端根字号下的 33rem（462px），把位移压到 30px 内。 */
 	.auth-standalone__card {
 		min-height: 33rem;
 	}
+
+	/* 安全区：无刘海设备 env() 为 0，等价于没写。 */
+	body {
+		padding-left: env(safe-area-inset-left, 0px);
+		padding-right: env(safe-area-inset-right, 0px);
+	}
+	#top-row {
+		padding-top: env(safe-area-inset-top, 0px);
+	}
+	.music-player,
+	#floating-toc,
+	#back-to-top {
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
 }
 
-/* ---------- A2 触控热区 ---------- */
 @media (pointer: coarse) {
+	/* 触控热区：目标 44px。absolute + inset 定位的输入框（全站搜索框）高度由父容器决定，
+	   此处的 min-height 对它不生效，只作用于正常流式布局的输入框。 */
 	.btn-plain {
 		min-width: 44px;
 	}
@@ -30,41 +44,18 @@
 	input[type="password"] {
 		min-height: 44px;
 	}
-	/* 设置面板内的胶囊按钮过于矮小（28–32px），补到可点高度 */
+	/* 设置面板胶囊按钮原高 28–32px，逐步补到可点高度而不撑破面板 */
 	#theme-mode-panel button {
 		min-height: 40px;
+		font-size: 12px;
 	}
 	#display-setting button {
 		min-height: 36px;
-	}
-}
-
-/* ---------- A4 小字号下限：仅限设置面板与播放器标签 ---------- */
-@media (pointer: coarse) {
-	/* 移动端根字号是 14px，0.75rem 只等于 10.5px，故这里用绝对像素兜底 */
-	#theme-mode-panel button,
-	#display-setting button {
 		font-size: 12px;
 	}
+	/* 播放器次级文字原 10–10.5px（移动端根字号 14px，0.75rem 只有 10.5px），用绝对像素兜底 */
 	.music-player .music-artist,
 	.music-player .item-artist {
 		font-size: 12px;
-	}
-}
-
-/* ---------- A3 安全区 ---------- */
-/* env() 在无刘海设备上为 0，规则等价于不存在；PC 不命中 max-width:1023px。 */
-@media (max-width: 1023px) {
-	body {
-		padding-left: env(safe-area-inset-left, 0px);
-		padding-right: env(safe-area-inset-right, 0px);
-	}
-	#top-row {
-		padding-top: env(safe-area-inset-top, 0px);
-	}
-	.music-player,
-	#floating-toc,
-	#back-to-top {
-		padding-bottom: env(safe-area-inset-bottom, 0px);
 	}
 }

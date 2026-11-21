@@ -11,8 +11,10 @@ import {
 	getSettingsVersionCached,
 } from "../settings/service";
 import { runDbBatch } from "../utils/dbBatch";
+import { edgeCacheGet, edgeCacheSet } from "../utils/edgeCache";
 import { sha256Hex } from "../utils/hash";
 import { parseStringList } from "../utils/json";
+import { createLruTtlCache } from "../utils/lruTtlCache";
 import { normalizePinOrder, sortPostsByPinOrder } from "../utils/pinOrder";
 import { UserError } from "../utils/userError";
 import {
@@ -229,90 +231,43 @@ export async function getPostNeighbors(env: CloudflareEnv, slug: string) {
 	};
 }
 
-// L1 isolate 级渲染缓存：免每请求的 Cache API IO（借鉴下游 renderCache 的 LRU 思路）。
+// L1 isolate 级渲染缓存：免每请求的 Cache API IO。
 // 容量 64 条 LRU + TTL 60s（与 L2 的兜底语义一致，防止 isolate 内读到 1 小时旧数据）。
-const RENDER_L1_MAX = 64;
-const RENDER_L1_TTL_MS = 60_000;
-const renderL1 = new Map<string, { data: RenderedMarkdown; expires: number }>();
-function readRenderL1(key: string): RenderedMarkdown | null {
-	const hit = renderL1.get(key);
-	if (!hit) return null;
-	if (Date.now() > hit.expires) {
-		renderL1.delete(key);
-		return null;
-	}
-	renderL1.delete(key);
-	renderL1.set(key, hit);
-	return hit.data;
-}
-function writeRenderL1(key: string, data: RenderedMarkdown) {
-	renderL1.set(key, { data, expires: Date.now() + RENDER_L1_TTL_MS });
-	if (renderL1.size > RENDER_L1_MAX) {
-		const oldest = renderL1.keys().next().value;
-		if (oldest !== undefined) renderL1.delete(oldest);
-	}
-}
+const renderL1 = createLruTtlCache<RenderedMarkdown>(64, 60_000);
 
 // 渲染结果缓存：key = r2_key(内容) + settingsVersion(配置) → 内容或配置变化即失效；
 // TTL 60s 兜底直改 D1 场景；无 caches 环境（vitest）直接 miss。
 // frontmatter 一并落缓存：命中时可直接组装详情，无需再读 R2
+interface CachedRenderPayload {
+	html: string;
+	headings: PostDetail["headings"];
+	words: number;
+	minutes: number;
+	excerpt?: string;
+	frontmatter: PostFrontmatter;
+}
+
 async function getRenderCache(
 	cacheKey: string,
 ): Promise<RenderedMarkdown | null> {
-	const l1 = readRenderL1(cacheKey);
+	const l1 = renderL1.get(cacheKey);
 	if (l1) return l1;
-	try {
-		if (typeof caches === "undefined") return null;
-		const cached = await caches.default.match(cacheKey);
-		if (!cached) return null;
-		const data = (await cached.json()) as {
-			html: string;
-			headings: PostDetail["headings"];
-			words: number;
-			minutes: number;
-			excerpt?: string;
-			frontmatter: PostFrontmatter;
-		};
-		return {
-			html: data.html,
-			headings: data.headings,
-			words: data.words,
-			minutes: data.minutes,
-			excerpt: data.excerpt ?? "",
-			frontmatter: data.frontmatter,
-		};
-	} catch {
-		return null;
-	}
+	const data = await edgeCacheGet<CachedRenderPayload>(cacheKey);
+	if (!data) return null;
+	return {
+		html: data.html,
+		headings: data.headings,
+		words: data.words,
+		minutes: data.minutes,
+		excerpt: data.excerpt ?? "",
+		frontmatter: data.frontmatter,
+	};
 }
 
-async function setRenderCache(
-	cacheKey: string,
-	data: {
-		html: string;
-		headings: PostDetail["headings"];
-		words: number;
-		minutes: number;
-		excerpt?: string;
-		frontmatter: PostFrontmatter;
-	},
-) {
-	writeRenderL1(cacheKey, { ...data, excerpt: data.excerpt ?? "" });
-	try {
-		if (typeof caches === "undefined") return;
-		await caches.default.put(
-			cacheKey,
-			new Response(JSON.stringify(data), {
-				headers: {
-					"Content-Type": "application/json",
-					// TTL 60s 兜底直改 D1（与 getRenderCache 注释一致）：Cache API 无 Cache-Control 头不缓存（恒 miss）
-					"Cache-Control": "public, max-age=0, s-maxage=60",
-				},
-			}),
-		);
-	} catch {
-		// 缓存失败不影响主流程
-	}
+async function setRenderCache(cacheKey: string, data: CachedRenderPayload) {
+	renderL1.set(cacheKey, { ...data, excerpt: data.excerpt ?? "" });
+	// TTL 60s 兜底直改 D1：Cache API 无 Cache-Control 头不入缓存（恒 miss）
+	await edgeCacheSet(cacheKey, data, "public, max-age=0, s-maxage=60");
 }
 
 // 渲染缓存键命名空间：**必须为绝对 URL**——workerd 的 Cache API 对相对字符串会抛

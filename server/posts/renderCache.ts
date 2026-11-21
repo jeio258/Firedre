@@ -1,4 +1,6 @@
 import type { MarkdownHeading } from "../../types/posts";
+import { edgeCacheGet, edgeCacheSet } from "../utils/edgeCache";
+import { createLruTtlCache } from "../utils/lruTtlCache";
 import { detectMarkdownFeatures, renderMarkdown } from "./render";
 
 /**
@@ -26,24 +28,7 @@ export interface CachedRender {
 	excerpt: string;
 }
 
-const l1 = new Map<string, CachedRender>();
-
-function l1Get(key: string): CachedRender | undefined {
-	const hit = l1.get(key);
-	if (hit) {
-		l1.delete(key);
-		l1.set(key, hit);
-	}
-	return hit;
-}
-
-function l1Set(key: string, value: CachedRender): void {
-	if (l1.size >= L1_MAX_ENTRIES) {
-		const oldest = l1.keys().next().value;
-		if (oldest !== undefined) l1.delete(oldest);
-	}
-	l1.set(key, value);
-}
+const l1 = createLruTtlCache<CachedRender>(L1_MAX_ENTRIES);
 
 // workerd 的 Cache API 要求绝对 URL 键；origin 由调用方传入（站点配置 site_url）
 function l2Url(scope: string, version: string, origin: string): string {
@@ -69,22 +54,18 @@ export async function renderMarkdownCached(
 ): Promise<CachedRender> {
 	const key = `${scope}@${version}`;
 
-	const hitL1 = l1Get(key);
+	const hitL1 = l1.get(key);
 	if (hitL1) return hitL1;
 
-	// L2：caches.default（node/vitest 无 caches 或读写失败均不影响主流程）
-	if (origin && typeof caches !== "undefined") {
-		try {
-			const cached = await caches.default.match(l2Url(scope, version, origin));
-			if (cached) {
-				const parsed: unknown = await cached.json();
-				if (isValidCached(parsed)) {
-					l1Set(key, parsed);
-					return parsed;
-				}
-			}
-		} catch {
-			// 缓存不可用：继续走渲染
+	// L2：边缘 Cache API（无缓存环境或读写失败均不影响主流程）
+	if (origin) {
+		const parsed = await edgeCacheGet<CachedRender>(
+			l2Url(scope, version, origin),
+			isValidCached,
+		);
+		if (parsed) {
+			l1.set(key, parsed);
+			return parsed;
 		}
 	}
 
@@ -100,22 +81,14 @@ export async function renderMarkdownCached(
 		excerpt: rendered.excerpt,
 	};
 
-	l1Set(key, value);
+	l1.set(key, value);
 
-	if (origin && typeof caches !== "undefined") {
-		try {
-			await caches.default.put(
-				l2Url(scope, version, origin),
-				new Response(JSON.stringify(value), {
-					headers: {
-						"Content-Type": "application/json",
-						"Cache-Control": `public, max-age=${L2_TTL_SECONDS}`,
-					},
-				}),
-			);
-		} catch {
-			// 缓存写入失败不影响返回
-		}
+	if (origin) {
+		await edgeCacheSet(
+			l2Url(scope, version, origin),
+			value,
+			`public, max-age=${L2_TTL_SECONDS}`,
+		);
 	}
 
 	return value;
