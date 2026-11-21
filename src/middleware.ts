@@ -9,13 +9,11 @@ import {
 } from "@server/utils/isolateCache";
 import { setPlantumlRuntimeConfig } from "@shared/config/plantumlRuntime";
 import { getPlantumlConfig } from "@shared/config/runtime";
-import { isPhoneUA } from "./lib/device";
 import { buildHtmlCacheKey } from "./lib/htmlCacheKey";
 
 export interface SettingsLocals {
 	settings: import("@server/settings/service").SettingsView;
 	settingsVersion?: string;
-	isPhone?: boolean;
 }
 
 // HTML 边缘缓存：s-maxage=60 让 CDN 短暂缓存降 TTFB；
@@ -101,9 +99,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	let htmlCacheKey = "";
 	let settingsVersion = "";
-	// 手机端 SSR 会裁掉侧栏等不可见内容，缓存键必须带端维度，避免与桌面互相命中
-	const phone = isPhoneUA(context.request.headers.get("user-agent"));
-	(context.locals as unknown as SettingsLocals).isPhone = phone;
 	if (isHtmlPage) {
 		try {
 			const { getSettingsVersionCached } = await import(
@@ -114,7 +109,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 			// HTML 页按 path 渲染（query 与渲染无关）→ 键仅含 pathname + 版本；
 			// 详见 src/lib/htmlCacheKey.ts（跟踪参数不再导致缓存 miss）
-			htmlCacheKey = buildHtmlCacheKey(url, settingsVersion, phone ? "m" : "d");
+			htmlCacheKey = buildHtmlCacheKey(url, settingsVersion);
 			const cached = await caches.default.match(htmlCacheKey);
 			if (cached) {
 				const headers = new Headers({

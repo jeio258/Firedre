@@ -15,7 +15,6 @@ import CategoryBar from "@/components/layout/CategoryBar.astro";
 import SidebarColumn from "@/components/layout/SidebarColumn.astro";
 import WallpaperSection from "@/components/layout/WallpaperSection.astro";
 import { resolveNavbarMode, siteConfig } from "@/config";
-import { isPhoneUA } from "@/lib/device";
 import { getBannerVisibilityState } from "@/utils/banner-visibility-utils";
 import { isHomePage } from "@/utils/layout-utils";
 import { resolveNavMenuLinks } from "@/utils/nav-menu-utils";
@@ -114,10 +113,6 @@ const banner = getBannerVisibilityState(
 );
 // 手机端左右侧栏实测宽高均为 0（永不可见），SSR 直接不渲染：
 // 省掉这整块 DOM 与它关联的组件脚本下载。移动端底部组件走独立的 SideBar side="bottom"。
-// 手机端左右侧栏实测宽高均为 0（永不可见），SSR 直接不渲染：
-// 省掉这整块 DOM 与关联组件脚本的下载。移动端底部组件走独立的 SideBar side="bottom"。
-// 判定通过 middleware 写入 locals（缓存键已按端分键，两端不会互相命中）。
-const phoneNoSidebar = isPhoneUA(Astro.request.headers.get("user-agent"));
 const sidebar = getEffectiveSidebarState(
 	{ isPostPage },
 	getSidebarConfig(Astro.locals),
@@ -177,7 +172,6 @@ const [allPostMeta, navMenuLinks] = await Promise.all([
           {...gridDataAttrs}
         >
 
-            {!phoneNoSidebar && (
             <SidebarColumn
                 side="left"
                 position={sidebarRuntime.position}
@@ -189,7 +183,6 @@ const [allPostMeta, navMenuLinks] = await Promise.all([
                 headings={headings}
                 encrypted={encrypted}
             />
-            )}
 
             {/* 主内容区包装器 - 包含分类栏、swup 容器与移动端底部组件，作为单个 grid item */}
             <div id="content-column" class={staticBarClass}>
@@ -213,7 +206,6 @@ const [allPostMeta, navMenuLinks] = await Promise.all([
                 )}
             </div>
 
-            {!phoneNoSidebar && (
             <SidebarColumn
                 side="right"
                 position={sidebarRuntime.position}
@@ -225,7 +217,6 @@ const [allPostMeta, navMenuLinks] = await Promise.all([
                 headings={headings}
                 encrypted={encrypted}
             />
-            )}
 
         </div>
 
