@@ -125,8 +125,39 @@ function groupOfKey(key: string): SettingGroup {
 		: "basic";
 }
 
-export async function getAllSettings(env: CloudflareEnv): Promise<SettingsMap> {
-	return readAllFromD1(env);
+const SETTINGS_CACHE_BASE = "https://firedre-cache.internal/settings";
+
+// 全表读取在冷启动时占首字节的大头；版本号即缓存键，设置一改版本自增即失效。
+// TTL 60s 仅作兜底（直改 D1 不 bump 版本的场景），与 middleware 的 isolate 缓存口径一致。
+export async function getAllSettings(
+	env: CloudflareEnv,
+	version?: string,
+): Promise<SettingsMap> {
+	if (version && typeof caches !== "undefined") {
+		try {
+			const key = `${SETTINGS_CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
+			const hit = await caches.default.match(key);
+			if (hit) return (await hit.json()) as SettingsMap;
+		} catch {}
+	}
+
+	const data = await readAllFromD1(env);
+
+	if (version && typeof caches !== "undefined") {
+		try {
+			const key = `${SETTINGS_CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
+			await caches.default.put(
+				key,
+				new Response(JSON.stringify(data), {
+					headers: {
+						"Content-Type": "application/json",
+						"Cache-Control": "public, max-age=0, s-maxage=60",
+					},
+				}),
+			);
+		} catch {}
+	}
+	return data;
 }
 
 export async function getSettingsGroup(

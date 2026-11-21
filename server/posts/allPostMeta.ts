@@ -18,12 +18,56 @@ export interface AllPostMetaEntry {
 	password: boolean;
 }
 
+const CACHE_BASE = "https://firedre-cache.internal/allPostMeta";
+
+// 跨 isolate 共享层：isolate 内存在冷启动后为空，每次冷启都要回 D1（实测首字节 2.4s 的主因之一）。
+// 命中边缘缓存可让新 isolate 直接拿到结果，TTL 60s 与渲染缓存保持同一失效口径。
+async function readEdgeCache(
+	version: string,
+): Promise<AllPostMetaEntry[] | null> {
+	if (typeof caches === "undefined") return null;
+	try {
+		const key = `${CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
+		const hit = await caches.default.match(key);
+		if (!hit) return null;
+		return (await hit.json()) as AllPostMetaEntry[];
+	} catch {
+		return null;
+	}
+}
+
+async function writeEdgeCache(
+	version: string,
+	data: AllPostMetaEntry[],
+): Promise<void> {
+	if (typeof caches === "undefined") return;
+	try {
+		const key = `${CACHE_BASE}?v=${encodeURIComponent(version)}&f=1`;
+		await caches.default.put(
+			key,
+			new Response(JSON.stringify(data), {
+				headers: {
+					"Content-Type": "application/json",
+					// Cache API 无 Cache-Control 头不入缓存
+					"Cache-Control": "public, max-age=0, s-maxage=60",
+				},
+			}),
+		);
+	} catch {}
+}
+
 export async function getAllPostMeta(
 	env: CloudflareEnv,
 	version: string,
 ): Promise<AllPostMetaEntry[]> {
 	const cached = readIsolateCache<AllPostMetaEntry[]>(CACHE_SLOT, version);
 	if (cached !== undefined) return cached;
+
+	const edge = await readEdgeCache(version);
+	if (edge) {
+		writeIsolateCache(CACHE_SLOT, version, edge);
+		return edge;
+	}
 
 	const { results } = await env.DB.prepare(`
 		SELECT slug, title, description, date, categories, password
@@ -50,5 +94,6 @@ export async function getAllPostMeta(
 	});
 
 	writeIsolateCache(CACHE_SLOT, version, data);
+	await writeEdgeCache(version, data);
 	return data;
 }

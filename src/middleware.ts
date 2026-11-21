@@ -176,7 +176,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 			if (cachedGroups) {
 				groups = cachedGroups;
 			} else {
-				groups = await getAllSettings(cfEnv);
+				groups = await getAllSettings(cfEnv, settingsVersion);
 				writeIsolateCache("middleware.settings", settingsVersion, groups);
 			}
 			const { mergeSettings } = await import("@server/settings/merge");
